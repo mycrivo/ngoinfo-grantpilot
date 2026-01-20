@@ -17,6 +17,39 @@ DOCX/PDF export
 
 Transactional emails
 
+Plans, quotas, consultant-grade definition
+## Subscription Plans (Locked for MVP)
+
+### Growth – $39/month
+(Annual plan billed yearly with 2 months free)
+
+- 10 Fit Scans per month
+- 3 proposals generated per month
+- Standard proposal quality
+- Manual profile setup (form-based)
+- Standard AI context limits
+- No document uploads
+
+### Impact – $79/month
+(Annual plan billed yearly with 2 months free)
+
+- 20 Fit Scans per month
+- 5 consultant-grade proposals per month
+- Upload-assisted profile setup (PDF/DOCX)
+- Consultant-grade proposal generation:
+  - Stronger evidence grounding
+  - Explicit assumptions & caveats
+  - Higher contextual awareness across NGO history
+- Higher AI context limits
+
+**clarification**
+Consultant-grade means:
+- Structured reasoning, not generic narrative
+- Explicit assumptions when data is missing
+- Conservative language aligned with funder expectations
+- No probabilistic or outcome-guarantee language
+
+
 Explicitly Out of Scope (MVP)
 
 OCR / scanned PDFs
