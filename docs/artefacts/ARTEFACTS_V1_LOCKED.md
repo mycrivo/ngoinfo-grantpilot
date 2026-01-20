@@ -288,3 +288,57 @@ N2	CONTEXT_PACK_INDEX.md	Context minimisation
 N3	CURRENT_STATE_AND_KNOWN_ISSUES.md	Prevent re-breaking
 N4	TASK_BRIEF_TEMPLATE.md	Structured execution
 N5	DEFINITION_OF_DONE.md	Completion checklist
+
+
+## Completion Status (as of 2026-01-20)
+
+Legend:
+✅ Complete and binding  
+🚧 In progress (blocking build until completed)  
+⏸️ Deferred (explicitly post-MVP)  
+❌ Missing (must be created before build)
+
+### Core (Binding for MVP)
+- ✅ CLAUDE_CODE_CONTEXT_PACK.md
+- ✅ MVP_SCOPE_LOCK.md
+- 🚧 PRICING_AND_ENTITLEMENTS.md
+- 🚧 LAUNCH_JOURNEYS_SPEC.md
+- 🚧 AUTH_AND_SSO_STRATEGY.md
+- 🚧 FIT_SCAN_PRODUCT_SPEC.md
+- 🚧 FIT_SCAN_CRITERIA_MATRIX.md
+- 🚧 OPENAI_PROMPTS_LIBRARY.md
+- 🚧 API_CONTRACT.md
+- 🚧 STRIPE_INTEGRATION_SPEC.md
+- 🚧 DEV_ENVIRONMENT_SETUP.md
+- 🚧 WORDPRESS_TO_GRANTPILOT_INTEGRATION.md
+
+### Explicitly Deferred (Post-MVP)
+- Advanced analytics & dashboards
+- Predictive scoring / win probability
+- Human consultant review workflows
+- Multi-org user roles
+- White-label exports
+
+## Build Sequencing (Non-Negotiable)
+
+Phase 0 – Foundations  
+- AUTH_AND_SSO_STRATEGY.md  
+- API_CONTRACT.md  
+- DEV_ENVIRONMENT_SETUP.md  
+
+Phase 1 – Commercial Spine  
+- PRICING_AND_ENTITLEMENTS.md  
+- STRIPE_INTEGRATION_SPEC.md  
+
+Phase 2 – Core Product  
+- FIT_SCAN_PRODUCT_SPEC.md  
+- FIT_SCAN_CRITERIA_MATRIX.md  
+- OPENAI_PROMPTS_LIBRARY.md  
+
+Phase 3 – UX + Acquisition  
+- LAUNCH_JOURNEYS_SPEC.md  
+- WORDPRESS_TO_GRANTPILOT_INTEGRATION.md  
+
+Rule:
+Cursor/Claude must only implement artefacts marked ✅ or 🚧.
+Nothing ⏸️ or ❌ may be implemented without explicit instruction.
