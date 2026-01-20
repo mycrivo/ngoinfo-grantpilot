@@ -1,39 +1,49 @@
-PRICING_AND_ENTITLEMENTS.md
-Plans
-Starter – $39/month
+## Plans & Entitlements
 
-3 proposals / month
+### Free Plan
+- Price: $0 
+- Fit Scans: 1 / lifetime
+- Proposals: 1/ lifetime
+- Profile setup: Manual form only
+- AI limits: Standard
+- Uploads: Not allowed
+- Once the fit scan and proposal quota is exhaused, show Growth plan upgrade CTA with a user friendly message 
 
-Limited Fit Scans (defined by quota)
+### Growth Plan
+- Price: $39/month | $390/year (2 months free)
+- Fit Scans: 10 / month
+- Proposals: 3 / month
+- Profile setup: Manual form only
+- AI limits: Standard
+- Uploads: Not allowed
 
-Upload-assisted onboarding (one-time)
+### Impact Plan
+- Price: $79/month | $790/year (2 months free)
+- Fit Scans: 20 / month
+- Proposals: 5 / month
+- Profile setup: Upload-assisted (PDF/DOCX)
+- AI limits: Higher context + stronger reasoning
+- Uploads: Up to 5 documents, 100MB total (one-time onboarding)
 
-Standard context limits
+## Quota Enforcement Rules
 
-Pro – $79/month
+- Fit Scan quota exhausted:
+  - Block Fit Scan initiation
+  - Show upgrade CTA for Growth plan, with a user friendly message
+  - Show the date when the plan resets if the quota exhausted for Impact plan, with a user friendly message
 
-5 proposals / month
+- Proposal quota exhausted:
+  - Block “Create Proposal” action
+  - Existing proposals remain viewable
+  - Show upgrade CTA for Growth plan, with a user friendly message
+  - Show the date when the plan resets if the quota exhausted for Impact plan, with a user friendly message
 
-Unlimited Fit Scans only for NGOInfo-published opportunities
+## Rate Limits (MVP)
+- Fit Scans:
+  - Growth: max 3/hour
+  - Impact: max 6/hour
+- Proposal regeneration:
+  - Max 3 regenerations per proposal
+  - MAX 3 PROPOSALS / HOUR FOR ANY PLAN
 
-Higher context limits
-
-Stronger readiness diagnostics
-
-Upload-assisted onboarding (one-time)
-
-Fair Use
-
-“Unlimited” Fit Scans are subject to:
-
-Rate limits
-
-Abuse detection
-
-NGOInfo opportunity scope only
-
-Enforcement
-
-All entitlements enforced server-side
-
-No frontend-only checks
+All enforcement is server-side.
