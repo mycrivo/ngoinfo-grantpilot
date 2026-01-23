@@ -24,3 +24,13 @@ Expected JSON fields:
 1) Unset any required env var (e.g., `AUTH_JWT_SIGNING_KEY`).
 2) Start the app with uvicorn.
 3) Confirm startup exits with a non-zero status and logs a `CONFIG_ERROR` line.
+
+## Database migrations (Alembic)
+
+1) Ensure `DATABASE_URL` is set.
+2) Run migrations:
+   - `alembic upgrade head`
+
+## DB readiness check (manual)
+
+- `python -c "from app.db.session import check_db_connection; raise SystemExit(check_db_connection() or 0)"`

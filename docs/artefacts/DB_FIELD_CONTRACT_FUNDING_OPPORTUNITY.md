@@ -8,7 +8,7 @@ Renaming: structured_requirements → requirements_json (authoritative)
 
 Identity & timestamps
 
-id (UUID or BIGSERIAL, primary key)
+id (UUID) will be the primary key
 
 created_at (timestamp, not null)
 
@@ -38,7 +38,7 @@ focus_areas (text, not null) — comma-separated list for MVP (future: array)
 deadline_type (text enum, not null):
 FIXED | ROLLING | VARIES
 
-application_deadline (timestamp/date, nullable)
+application_deadline (date, nullable)
 
 must be NOT NULL when deadline_type = FIXED
 
