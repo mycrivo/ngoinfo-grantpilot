@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from functools import lru_cache
 from typing import Iterable
 from urllib.parse import urlparse
 
@@ -29,6 +30,7 @@ class Settings(BaseSettings):
     GOOGLE_OAUTH_CLIENT_ID: str
     GOOGLE_OAUTH_CLIENT_SECRET: str
     GOOGLE_OAUTH_REDIRECT_URI: str
+    GOOGLE_OAUTH_SCOPES: str | None = None
 
     EMAIL_PROVIDER: str
     EMAIL_FROM_NAME: str
@@ -169,3 +171,8 @@ def validate_config() -> Settings:
         sys.exit(1)
 
     return settings
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    return Settings()

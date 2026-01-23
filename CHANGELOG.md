@@ -9,3 +9,9 @@ Prompt 2 changes:
 - Added Alembic config, env wiring, and initial migration.
 - Added DB dependencies to `requirements.txt`.
 - Extended `RUNBOOK.md` with migration and DB check commands.
+
+Prompt 3 changes:
+- Added auth endpoints for Google OAuth, magic links, refresh, and logout.
+- Added auth models and Alembic migration for users and tokens.
+- Added JWT/token utilities, rate limiting, and validation error handling.
+- Added auth dependencies to `requirements.txt`.

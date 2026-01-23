@@ -1,8 +1,8 @@
 import os
-from typing import Optional
+from typing import Generator, Optional
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -22,3 +22,13 @@ def check_db_connection() -> Optional[str]:
         return None
     except Exception as exc:  # pragma: no cover - used only for manual checks
         return f"DB connection failed: {exc}"
+
+
+def get_db() -> Generator[Session, None, None]:
+    if SessionLocal is None:
+        raise RuntimeError("DATABASE_URL is not set")
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
