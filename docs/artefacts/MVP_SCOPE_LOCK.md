@@ -5,7 +5,6 @@ Fit Scan (eligibility + alignment + readiness + risk signals)
 
 Proposal drafting by section
 
-Upload-assisted profile setup (PDF/DOCX only)
 
 Google OAuth + Email Magic Link (no passwords, no password reset, no email verification)
 
@@ -31,7 +30,7 @@ Plans, quotas, consultant-grade definition
 
 - 20 Fit Scans per month
 - 5 consultant-grade proposals per month
-- Upload-assisted profile setup (PDF/DOCX)
+- Manual profile setup (form-based)
 - Consultant-grade proposal generation:
   - Stronger evidence grounding
   - Explicit assumptions & caveats

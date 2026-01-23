@@ -11,9 +11,7 @@ Expiry enforced
 
 Single-use tokens
 
-Email Verification
-
-Not used in MVP (auth is Google OAuth + Email Magic Link)
+Email Verification: Not used in MVP (auth is Google OAuth + Email Magic Link)
 
 Sessions
 
@@ -25,7 +23,7 @@ Explicit logout invalidates refresh token
 
 Account Linking
 
-Same email across OAuth and Email Magic Link links accounts
+Same email across OAuth and Email Magic Link: links accounts
 
 ## Token Policy
 

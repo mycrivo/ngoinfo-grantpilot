@@ -6,23 +6,7 @@ Define a stable, repeatable deployment approach for the GrantPilot backend on Ra
 This file acts as deployment guardrails for Cursor.
 
 High-Level Deployment Strategy
-Plan B Preservation (non-negotiable)
 
-The existing ngoinfo-copilot Railway service remains deployed and unchanged.
-
-No environment variables, DB schema, or deployment settings of Plan B are modified during Plan A build.
-
-Plan B is a fallback for launch continuity.
-
-Plan A Deployment (new service)
-
-Create a new Railway service for ngoinfo-grantpilot.
-
-Attach a new Postgres instance to Plan A.
-
-Do not share databases between Plan A and Plan B.
-
-Rationale: database sharing causes schema drift and rollback confusion and is a leading source of “it’s buggy and we don’t know why.”
 
 Runtime and Dependency Hardening
 Python + framework version discipline
@@ -175,9 +159,6 @@ Only then connect frontend to Plan A base URL
 
 Rollback sequence
 
-If Plan A fails: revert frontend to Plan B base URL (or keep Plan A disconnected).
-
-Plan B must remain deployable and stable without changes.
 
 Build Hygiene: Repo Constraints for Cursor
 
@@ -215,12 +196,11 @@ Definition of Done (Deployment)
 
 Deployment is “Done” only when:
 
-Plan A service deploys reliably on Railway
+Service deploys reliably on Railway
 
 Migrations are repeatable
 
-All smoke flows pass on deployed Plan A
+All smoke flows pass on deployed build
 
 Stripe + auth flows work without manual intervention
 
-Plan B remains untouched and operational

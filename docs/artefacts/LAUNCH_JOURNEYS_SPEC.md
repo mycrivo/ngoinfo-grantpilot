@@ -377,7 +377,3 @@ Final Rule
 
 This document is binding.
 Cursor/Claude Code must not invent flows, shortcuts, or optimizations beyond what is defined here.
-
-✅ Status
-
-LAUNCH_JOURNEYS_SPEC.md — COMPLETE & BINDING

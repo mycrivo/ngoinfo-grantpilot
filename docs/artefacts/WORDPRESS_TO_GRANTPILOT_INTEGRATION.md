@@ -1,6 +1,6 @@
 App Location
 
-https://app.ngoinfo.org
+https://grantpilot.ngoinfo.org
 
 Deep Link Format /start?opportunity_id={id}&utm_source=ngoinfo
 
@@ -21,7 +21,8 @@ App down → fallback message on WP
 ## Context Preservation
 
 - WordPress links to:
-  https://app.ngoinfo.org/start?opportunity_id={id}&source=wp
+  
+  https://grantpilot.ngoinfo.org/start?opportunity_id={id}&source=wp
 
 - Backend issues a signed state token containing:
   - opportunity_id

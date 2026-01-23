@@ -23,17 +23,16 @@
 - Price: $79/month
 - Fit Scans: 20 / month
 - Proposals: 5 / month
-- Profile setup: Upload-assisted (DOCX)
+- Profile setup: Manual Form Only
 - AI limits: Higher context + stronger reasoning
-- Uploads: Up to 5 documents, 100MB total (one-time onboarding)
-  - DOCX only in MVP; PDF uploads are not supported
-- Uploads allowed only during initial onboarding; document replacement deferred to post-MVP
+
 
 
 ## Quota Enforcement Rules
 
 - Fit Scan quota exhausted:
   - Block Fit Scan initiation
+  - Free Plan: show upgrade CTA (to Growth) with a user friendly message
   - Growth plan: show upgrade CTA (to Impact) with a user friendly message
   - Impact plan: show next reset date with a user friendly message
   - Show the date when the plan resets if the quota exhausted for Impact plan, with a user friendly message
@@ -41,16 +40,18 @@
 - Proposal quota exhausted:
   - Block “Create Proposal” action
   - Existing proposals remain viewable
+   - Free Plan: show upgrade CTA (to Growth) with a user friendly message
   - Show upgrade CTA for Growth plan, with a user friendly message
   - Show the date when the plan resets if the quota exhausted for Impact plan, with a user friendly message
 
 ## Rate Limits (MVP)
 - Fit Scans:
+  - Free: none after the first try, should be shown upgrade CTA (to Growth) with a user friendly message
   - Growth: max 3/hour
   - Impact: max 6/hour
   - Proposal regeneration:
   - Max 3 regenerations per proposal
-  - Proposal creation: max 1 new proposal every 10 minutes (all plans)
+  - Proposal creation: max 1 new proposal every 10 minutes (all plans) except Free. Free gets only 1 proposal in lefetime
 
  ## Quota Accounting Rules
   - Quota is decremented only after successful completion of the action:

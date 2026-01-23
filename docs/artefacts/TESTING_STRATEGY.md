@@ -32,7 +32,6 @@ Multi-org/team accounts
 
 Opportunity ingestion automation (manual/CSV seed acceptable)
 
-Document export (unless already stable and low-risk)
 
 Testing principles
 
@@ -47,7 +46,6 @@ Tests must be runnable repeatedly: deterministic, not flaky, minimal external de
 Environments and Release Gates
 Environments
 
-Plan B: Existing ngoinfo-copilot Railway deployment remains untouched and operational.
 
 Plan A: New ngoinfo-grantpilot Railway service + new Postgres.
 
@@ -300,5 +298,3 @@ Quota cannot be bypassed via direct API usage
 Stripe checkout + webhook activates paid plan correctly
 
 Outputs are persisted and retrievable without re-generation
-
-Plan B remains functional and untouched
