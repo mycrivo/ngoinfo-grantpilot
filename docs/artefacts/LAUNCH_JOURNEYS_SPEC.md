@@ -297,7 +297,7 @@ Weak assumptions
 
 Warnings are shown (not blockers)
 
-User exports DOCX/PDF
+User exports DOCX (PDF export not supported)
 
 Rules
 

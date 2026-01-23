@@ -12,7 +12,7 @@
 
 
 ### Growth Plan
-- Price: $39/month | $390/year (2 months free)
+- Price: $39/month
 - Fit Scans: 10 / month
 - Proposals: 3 / month
 - Profile setup: Manual form only
@@ -20,12 +20,13 @@
 - Uploads: Not allowed
 
 ### Impact Plan
-- Price: $79/month | $790/year (2 months free)
+- Price: $79/month
 - Fit Scans: 20 / month
 - Proposals: 5 / month
-- Profile setup: Upload-assisted (PDF/DOCX)
+- Profile setup: Upload-assisted (DOCX)
 - AI limits: Higher context + stronger reasoning
 - Uploads: Up to 5 documents, 100MB total (one-time onboarding)
+  - DOCX only in MVP; PDF uploads are not supported
 - Uploads allowed only during initial onboarding; document replacement deferred to post-MVP
 
 
@@ -60,3 +61,7 @@
 
 
 All enforcement is server-side.
+
+## Export Rules (MVP)
+- DOCX export is supported.
+- PDF export is not supported.

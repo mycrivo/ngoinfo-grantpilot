@@ -1,8 +1,8 @@
 Products
 
-Growth Monthly / Annual
+Growth Monthly (Stripe price id: STRIPE_PRICE_ID_GROWTH)
 
-Pro Monthly / Annual
+Impact Monthly (Stripe price id: STRIPE_PRICE_ID_IMPACT)
 
 Webhooks
 

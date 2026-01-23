@@ -8,9 +8,7 @@ This file is a release gate. If these tests are not passing, the build is not co
 Scope and Principles
 In Scope (MVP release gates)
 
-Auth: Google OAuth + email/password + refresh tokens
-
-Password reset and email verification
+Auth: Google OAuth + Email Magic Link + refresh tokens
 
 Profile CRUD + completeness status
 
@@ -90,15 +88,11 @@ Auth endpoints:
 
 Google OAuth callback/exchange (as defined in AUTH_AND_SSO_STRATEGY.md)
 
-Email/password login
+Magic Link request + consume
 
 Refresh token
 
 Logout / token revocation (if implemented)
-
-Password reset request + confirm
-
-Email verification request + confirm
 
 NGO Profile:
 
@@ -146,13 +140,13 @@ Any breaking change requires updating API_CONTRACT.md + tests in the same PR.
 
 No endpoint returns raw stack traces in non-dev environments.
 
-Layer 2: Smoke E2E Flows (the 5 unbreakable journeys)
+Layer 2: Smoke E2E Flows (the unbreakable journeys)
 
 Goal: Catch integration + state bugs early (the primary prior pain point).
 
-Smoke Flow 1 — Signup/Login
+Smoke Flow 1 — Signup/Login (OAuth + Magic Link)
 
-User signs up or logs in successfully
+User signs up or logs in via Google OAuth or Email Magic Link
 
 Receives valid access + refresh token
 
@@ -160,13 +154,9 @@ Protected endpoints work with access token
 
 Refresh rotates/renews access without breaking session
 
-Smoke Flow 2 — Email verification + password reset
+Smoke Flow 2 — Plan selection + Stripe checkout + entitlements
 
-Email verification: user can request verification and verify successfully
-
-Password reset: user can request reset, confirm reset, and login with new password
-
-Ensure tokens are single-use and time-limited
+User selects plan (Growth/Impact), completes Stripe checkout, webhook activates entitlements, quotas reflect plan
 
 Smoke Flow 3 — Profile setup
 
@@ -186,7 +176,7 @@ Fit rating methodology is applied consistently (per artefacts)
 
 Re-fetch returns identical stored results (no re-generation on refresh)
 
-Smoke Flow 5 — Proposal generation
+Smoke Flow 5 — Proposal generation + export
 
 User generates proposal successfully
 
@@ -195,6 +185,8 @@ Proposal stored and retrievable
 Sections are present (Executive Summary, Problem, Approach, M&E, Budget narrative assumptions, etc. per your proposal spec direction)
 
 Regeneration creates a new proposal record (or explicitly overwrites per contract)
+
+DOCX export succeeds (PDF export not supported)
 
 Layer 3: Quota and Abuse Controls (must be server-side)
 

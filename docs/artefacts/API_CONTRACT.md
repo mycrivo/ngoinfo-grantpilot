@@ -27,4 +27,4 @@ Idempotency
 
 Stripe webhooks
 
-Proposal export
+Proposal export (DOCX only; PDF export not supported)

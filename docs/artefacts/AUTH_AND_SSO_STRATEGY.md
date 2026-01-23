@@ -3,9 +3,7 @@ Supported Methods
 
 Google OAuth
 
-Email + password
-
-Password Reset
+Email Magic Link (no passwords)
 
 Token-based
 
@@ -15,9 +13,7 @@ Single-use tokens
 
 Email Verification
 
-Required for email/password
-
-Optional for Google OAuth
+Not used in MVP (auth is Google OAuth + Email Magic Link)
 
 Sessions
 
@@ -29,25 +25,19 @@ Explicit logout invalidates refresh token
 
 Account Linking
 
-Same email across OAuth and password links accounts
+Same email across OAuth and Email Magic Link links accounts
 
 ## Token Policy
 
 - Access token TTL: 15 minutes
 - Refresh token TTL: 30 days
-- Password reset token TTL: 1 hour (single use)
 
 ## Refresh Flow
 - Frontend retries once on 401 via /auth/refresh
 - If refresh fails → redirect to login
 
-## Password Rules
-- Min 8 characters
-- Must include uppercase, lowercase, number
-
 ## Rate Limiting
 - Login: 5 failures / 15 min → temporary block
-- Password reset: 3/hour per email
 
 ## MFA
 - Explicitly out of scope for MVP

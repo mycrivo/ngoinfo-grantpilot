@@ -47,9 +47,11 @@ No “AI magic” claims.
 
 Pricing (locked for MVP):
 
-$39/month (annual gets 2 months free): 3 proposals/month, limited Fit Scans, one-time onboarding assist
+Free: $0 — 1 Fit Scan lifetime, 1 proposal lifetime
 
-$79/month (annual gets 2 months free): 5 proposals/month, “unlimited” Fit Scans only for NGOInfo-published opportunities (must include fair-use controls), one-time onboarding assist, richer context limits
+Growth: $39/month — 10 Fit Scans/month, 3 proposals/month
+
+Impact: $79/month — 20 Fit Scans/month, 5 proposals/month
 
 MVP constraints:
 
@@ -61,7 +63,7 @@ No OCR, no PPTX ingestion in MVP
 
 No WordPress SSO in MVP (handoff via deep links + post-auth redirect)
 
-Auth includes Google OAuth + email/password + password reset
+Auth includes Google OAuth + Email Magic Link (no passwords, password reset, or email verification)
 
 Stack (locked):
 
@@ -226,7 +228,7 @@ F1	PROPOSAL_WORKSPACE_SPEC.md	Section-based drafting
 F2	RFP_REQUIREMENTS_MAPPING.md	Compliance matrix
 F3	EVIDENCE_AND_ASSUMPTIONS_MODEL.md	Traceability
 F4	READINESS_CHECK_SPEC.md	Pre-export validation
-F5	EXPORT_AND_VERSIONING_SPEC.md	DOCX/PDF + versions
+F5	EXPORT_AND_VERSIONING_SPEC.md	DOCX only (no PDF) + versions
 G. AI & Prompt Governance (NEW – critical)
 #	Artefact	Purpose
 G1	OPENAI_PROMPTS_LIBRARY.md	All system + task prompts

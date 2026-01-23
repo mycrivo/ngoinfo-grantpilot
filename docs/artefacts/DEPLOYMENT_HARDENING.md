@@ -92,9 +92,7 @@ Google OAuth client ID/secret
 
 OAuth redirect URIs (explicitly enumerated for prod/staging)
 
-Email verification token secret + TTL
-
-Password reset token secret + TTL
+Email Magic Link token secret + TTL
 
 Email provider credentials (or explicit stub mode for MVP if email sending deferred)
 
@@ -205,7 +203,7 @@ DB migrations applied cleanly on a fresh DB
 
 Stripe webhook verified end-to-end in test mode
 
-Auth flows verified: Google OAuth, password reset, email verification
+Auth flows verified: Google OAuth, Email Magic Link
 
 Smoke tests pass on deployed environment
 

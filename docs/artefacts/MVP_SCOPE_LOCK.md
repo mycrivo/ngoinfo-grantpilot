@@ -7,13 +7,11 @@ Proposal drafting by section
 
 Upload-assisted profile setup (PDF/DOCX only)
 
-Google OAuth + email/password auth
-
-Password reset
+Google OAuth + Email Magic Link (no passwords, no password reset, no email verification)
 
 Stripe subscriptions
 
-DOCX/PDF export
+DOCX export (PDF export not supported)
 
 Transactional emails
 
@@ -21,7 +19,6 @@ Plans, quotas, consultant-grade definition
 ## Subscription Plans (Locked for MVP)
 
 ### Growth – $39/month
-(Annual plan billed yearly with 2 months free)
 
 - 10 Fit Scans per month
 - 3 proposals generated per month
@@ -31,7 +28,6 @@ Plans, quotas, consultant-grade definition
 - No document uploads
 
 ### Impact – $79/month
-(Annual plan billed yearly with 2 months free)
 
 - 20 Fit Scans per month
 - 5 consultant-grade proposals per month

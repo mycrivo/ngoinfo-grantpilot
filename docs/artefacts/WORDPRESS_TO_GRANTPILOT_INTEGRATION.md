@@ -10,6 +10,8 @@ Preserve context through auth
 
 Resume original intent post-login
 
+Auth options: Google OAuth or Email Magic Link (no passwords)
+
 Failure Handling
 
 Invalid opportunity → safe error + redirect to browse
