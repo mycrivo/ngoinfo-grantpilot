@@ -42,3 +42,11 @@ Data source
 Evaluation method
 
 Output label
+
+**Criterion: Geography**
+- Data source: opportunity.eligible_countries, ngo_profile.country
+- Method: Exact match
+- Failure type: Hard block
+- Output label:
+  - Pass: “Eligible in {country}”
+  - Fail: “Not eligible due to geography”
