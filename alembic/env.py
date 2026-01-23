@@ -7,7 +7,6 @@ from sqlalchemy import engine_from_config, pool
 from app.db.base import Base
 from app.models.auth_magic_link_token import AuthMagicLinkToken  # noqa: F401
 from app.models.auth_refresh_token import AuthRefreshToken  # noqa: F401
-from app.models.funding_opportunity import FundingOpportunity  # noqa: F401
 from app.models.user import User  # noqa: F401
 
 config = context.config
