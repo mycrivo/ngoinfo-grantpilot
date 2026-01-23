@@ -86,6 +86,37 @@ def validate_config() -> Settings:
 
     errors = []
 
+    required_strings = {
+        "APP_ENV": settings.APP_ENV,
+        "APP_NAME": settings.APP_NAME,
+        "APP_BASE_URL": settings.APP_BASE_URL,
+        "CORS_ALLOWED_ORIGINS": settings.CORS_ALLOWED_ORIGINS,
+        "LOG_LEVEL": settings.LOG_LEVEL,
+        "DATABASE_URL": settings.DATABASE_URL,
+        "AUTH_JWT_SIGNING_KEY": settings.AUTH_JWT_SIGNING_KEY,
+        "AUTH_ALLOWED_REDIRECT_URLS": settings.AUTH_ALLOWED_REDIRECT_URLS,
+        "GOOGLE_OAUTH_CLIENT_ID": settings.GOOGLE_OAUTH_CLIENT_ID,
+        "GOOGLE_OAUTH_CLIENT_SECRET": settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        "GOOGLE_OAUTH_REDIRECT_URI": settings.GOOGLE_OAUTH_REDIRECT_URI,
+        "EMAIL_PROVIDER": settings.EMAIL_PROVIDER,
+        "EMAIL_FROM_NAME": settings.EMAIL_FROM_NAME,
+        "EMAIL_FROM_ADDRESS": settings.EMAIL_FROM_ADDRESS,
+        "EMAIL_API_KEY": settings.EMAIL_API_KEY,
+        "OPENAI_API_KEY": settings.OPENAI_API_KEY,
+        "PROMPT_VERSION": settings.PROMPT_VERSION,
+        "STRIPE_MODE": settings.STRIPE_MODE,
+        "STRIPE_SECRET_KEY": settings.STRIPE_SECRET_KEY,
+        "STRIPE_WEBHOOK_SECRET": settings.STRIPE_WEBHOOK_SECRET,
+        "STRIPE_CHECKOUT_SUCCESS_URL": settings.STRIPE_CHECKOUT_SUCCESS_URL,
+        "STRIPE_CHECKOUT_CANCEL_URL": settings.STRIPE_CHECKOUT_CANCEL_URL,
+        "STRIPE_PRICE_ID_GROWTH": settings.STRIPE_PRICE_ID_GROWTH,
+        "STRIPE_PRICE_ID_IMPACT": settings.STRIPE_PRICE_ID_IMPACT,
+    }
+
+    for name, value in required_strings.items():
+        if not value.strip():
+            errors.append(f"CONFIG_ERROR {name}: must not be empty")
+
     if settings.APP_ENV not in _VALID_APP_ENVS:
         errors.append("CONFIG_ERROR APP_ENV: must be dev, staging, or prod")
 
