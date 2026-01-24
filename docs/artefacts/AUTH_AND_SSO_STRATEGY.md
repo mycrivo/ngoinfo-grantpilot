@@ -51,6 +51,14 @@ Frontend hosting note
 - Each successful refresh invalidates prior refresh token and issues a new refresh token
 - Revocation: `POST /api/auth/logout` revokes the presented refresh token immediately
 
+### Refresh Token Rotation (implementation detail): 
+ 1. Generate new refresh token
+  2. Insert new token row (token_hash, user_id, issued_at, expires_at)
+  3. Update old token row:
+     - SET revoked_at = now()
+     - SET replaced_by_token_id = new_token.id
+  4. Return new access + refresh tokens
+
 ## Refresh Flow (Locked)
 - Frontend retries once on 401 via `/api/auth/refresh`
 - If refresh fails → redirect to login
@@ -63,6 +71,11 @@ Enforced only if `AUTH_RATE_LIMIT_ENABLED=true`.
   - Per IP: 20 per hour
 - Magic link consume:
   - Per IP: 30 per hour
+  IP Extraction (Behind Cloudflare):
+	- Use CF-Connecting-IP header (Cloudflare)
+	- Fallback to X-Forwarded-For if CF header missing
+	- Fallback to request.remote_addr
+	- Validate IP format before using as rate limit key
 - Google OAuth start:
   - Per IP: 60 per hour
 - Refresh:
@@ -71,6 +84,11 @@ Enforced only if `AUTH_RATE_LIMIT_ENABLED=true`.
 On limit exceeded:
 - HTTP 429
 - error_code="RATE_LIMITED"
+
+Rate Limiting Implementation (MVP):
+  - Use in-memory dict with expiry (acceptable for single-instance Railway)
+  - Structure: { "key": (count, expiry_timestamp) }
+  - Post-MVP: migrate to Redis for multi-instance support
 
 ## MFA
 - Explicitly out of scope for MVP

@@ -111,7 +111,7 @@ Note:
 - Avoid abbreviations that reduce clarity.
 
 ============================================================
-9) Frontend Deployment Note (Railway)
+8) Frontend Deployment Note (Railway)
 ============================================================
 
 - Frontend (Next.js) is hosted on Railway as a separate Railway service.
@@ -121,7 +121,16 @@ Note:
 
 
 ============================================================
-8) “Do Not Do” List
+9) Quota Enforcement Pattern
+============================================================
+
+  - All quota checks MUST use app/api/dependencies/quota.py guard
+  - Guard calls app/services/quota_service.py.check_and_decrement()
+  - Service layer handles atomic transaction (check + decrement)
+  - Route handlers MUST NOT implement quota logic directly
+
+============================================================
+10) “Do Not Do” List
 ============================================================
 
 - Do not edit old Alembic migrations. Always create a new one.

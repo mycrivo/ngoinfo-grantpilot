@@ -227,3 +227,7 @@ All smoke flows pass on deployed build
 
 Stripe + auth flows work without manual intervention
 
+Pre-Launch Checklist:
+  - [ ] Remove POST /api/auth/test-mode/mint endpoint
+  - [ ] Remove TEST_MODE and TEST_MODE_SECRET from production env vars
+  - [ ] Verify endpoint returns 404 in production build

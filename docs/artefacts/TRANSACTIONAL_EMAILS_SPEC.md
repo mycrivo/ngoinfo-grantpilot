@@ -94,6 +94,12 @@ N) Plan Changed
 - Trigger: upgrade/downgrade confirmed
 - Variables: old_plan, new_plan, effective_date
 
+
+### MVP Logging Strategy
+  - Use Resend dashboard for delivery monitoring
+  - Application logs include: user_id, email_to, template_name, timestamp
+  - Post-MVP: Add email_events table for correlation and audit trail
+  
 ============================================================
 4) Idempotency & Logging
 ============================================================

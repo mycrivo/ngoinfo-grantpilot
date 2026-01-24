@@ -9,7 +9,7 @@ id (UUID, primary key)
 email (text, not null, stored lowercased)
 token_hash (text, not null, unique)
 issued_at (timestamptz, not null, default now())
-expires_at (timestamptz, not null) — 15 minutes
+expires_at (timestamptz, not null) — configurable TTL via AUTH_MAGIC_LINK_TTL_MIN (default 15 minutes)
 
 1.2 Optional columns
 

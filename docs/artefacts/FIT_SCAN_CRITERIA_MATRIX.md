@@ -330,7 +330,12 @@ Output
 
 Array of risk flags with severity:
 
-LOW | MEDIUM | HIGH
+Risk Type | HIGH | MEDIUM | LOW
+  CAPACITY | ratio ≥ 2.0 | 1.0 ≤ ratio < 2.0 | 0.5 ≤ ratio < 1.0
+  EVIDENCE | No past projects + missing M&E | No past projects OR missing M&E | Weak past projects
+  TIMING | <14 days | 14-30 days | 30-60 days
+  PROCESS | >15 items | 10-15 items | <10 items
+  MISSING_DATA | Critical field (budget, mission) | Important field (staff, M&E) | Optional field
 
 Important
 

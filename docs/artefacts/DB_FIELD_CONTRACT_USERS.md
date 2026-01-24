@@ -21,17 +21,21 @@ Timestamps
 ============================================================
 1) Canonical Table: users (DEPLOYED)
 ============================================================
-
 1.1 Columns (deployed)
 - id (uuid, PK, not null, default gen_random_uuid())
 - email (text, not null, unique)
 - full_name (text, nullable)
 - avatar_url (text, nullable)
 - google_sub (text, nullable, unique)
+- stripe_customer_id (text, nullable, unique)  ← ADD THIS LINE
 - auth_provider (text, not null, default 'email')
 - created_at (timestamptz, not null, default now())
 - updated_at (timestamptz, not null, default now())
 - last_login_at (timestamptz, nullable)
+
+op.add_column('users', sa.Column('stripe_customer_id', sa.Text(), nullable=True))
+op.create_unique_constraint('uq_users_stripe_customer_id', 'users', ['stripe_customer_id'])
+
 
 1.2 Identity + Account Linking (authoritative)
 - Accounts are linked by email across OAuth and Magic Link.
@@ -198,7 +202,7 @@ Required:
 - focus_sectors has at least 1 entry
 - geographic_areas_of_work has at least 1 entry
 - target_groups has at least 1 entry
-- past_projects has at least 1 “valid project” where title is present and non-empty
+- past_projects has at least 1 “valid project” where { "title": "non-empty string" }
 
 Optional (do NOT block completion):
 - contact details, staff, budget, M&E, funders list, website
@@ -211,7 +215,15 @@ Optional (do NOT block completion):
   - Focus sectors present: 15
   - Geographic areas present: 15
   - Target groups present: 15
-  - At least 1 valid past project: 20
+  - At least 1 valid past project: 20 where { "title": "non-empty string" }
+  for e.g. Score = (
+      20 if organization_name else 0 +
+      15 if mission_statement else 0 +
+      15 if len(focus_sectors) >= 1 else 0 +
+      15 if len(geographic_areas_of_work) >= 1 else 0 +
+      15 if len(target_groups) >= 1 else 0 +
+      20 if any(p.get("title") for p in past_projects) else 0
+    )
   - Cap at 100
 - missing_fields must list only missing items from 6.2.
 
@@ -227,3 +239,5 @@ Optional (do NOT block completion):
 - users: read/write only by the authenticated subject (and admin).
 - ngo_profiles: user-owned. Only accessible where ngo_profiles.user_id == current_user.id.
 - No multi-user NGO access in MVP.
+
+

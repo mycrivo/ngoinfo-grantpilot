@@ -223,3 +223,27 @@ Quota MUST be decremented only after successful persistence.
 Failed, degraded, or invalid AI responses MUST NOT consume quota.
 
 Model-level ratings are mapped to product recommendations as defined in FIT_SCAN_CRITERIA_MATRIX.md.
+
+### 7) Proposal Endpoints section
+POST /api/proposals (create)
+GET /api/proposals/{id} (retrieve)
+POST /api/proposals/{id}/regenerate (regenerate)
+GET /api/proposals/{id}/export (DOCX export)
+
+### 8) Document Export
+  
+  **POST /api/proposals/{id}/export**
+  Request:
+  { "format": "DOCX" }
+  
+  Response 200:
+  {
+    "export_url": "https://...",
+    "expires_at": "ISO-8601",
+    "format": "DOCX"
+  }
+  
+  Errors:
+  - 404 PROPOSAL_NOT_FOUND
+  - 403 FORBIDDEN
+  - 422 UNSUPPORTED_FORMAT (if format != "DOCX")

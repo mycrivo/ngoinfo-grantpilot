@@ -27,3 +27,8 @@ Grace period
 Downgrade after retries
 
 User notification
+
+Signature Verification (Implementation):
+  - Use stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+  - On failure, return 400 and log security event
+  - Never process unverified webhooks

@@ -35,3 +35,9 @@ App down → fallback message on WP
 - Post-login:
   - Backend validates state token
   - Redirects user back to /start with context restored
+  
+  State Token Implementation:
+  - Format: JWT (HS256)
+  - Signing key: AUTH_JWT_SIGNING_KEY (same as access tokens)
+  - Expiry: 15 minutes
+  - Claims: { "opportunity_id": "uuid", "source": "wp", "iat": timestamp, "exp": timestamp }

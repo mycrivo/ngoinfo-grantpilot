@@ -54,6 +54,57 @@ Important:
 - Default: DRAFT
 - Note: Keep as text for MVP to avoid enum churn, unless you explicitly want it as Postgres ENUM.
 
+### 3.3 Usage Ledger action_type (text field, MVP)
+
+**Field:** `usage_ledger.action_type` (text, not null)
+
+**Allowed Values (application-validated):**
+- FIT_SCAN
+- PROPOSAL_CREATE
+- PROPOSAL_REGEN
+- DOCX_EXPORT
+
+**Validation:**
+- Enforced in `app/services/quota_service.py`
+- If invalid action_type provided → raise ValueError
+- SQLAlchemy model uses `Enum` type with Python-only validation (no DB constraint)
+
+**Migration Path (Post-MVP):**
+If action types stabilize and performance matters:
+1. Create Postgres ENUM type `usage_action_type`
+2. Alter column to use ENUM
+3. Update SQLAlchemy models with `create_type=False`
+
+### 3.3 usage_ledger.action_type (text field with application validation)
+
+**Implementation Strategy (MVP):**
+- Field type: TEXT (not Postgres ENUM)
+- Validation: Application-level (Python enum + service layer)
+- Rationale: Flexibility for MVP; easy addition of new action types
+
+**Allowed Values (application-validated):**
+- FIT_SCAN
+- PROPOSAL_CREATE
+- PROPOSAL_REGEN
+- DOCX_EXPORT
+
+**Validation Location:**
+- `app/models/usage_ledger.py`: Python Enum class for type hints
+- `app/services/quota_service.py`: Validation in `record_usage()` function
+
+**Database Constraint:**
+- None (validated before insert)
+- Invalid values will raise `ValueError` in service layer
+
+**Post-MVP Migration Path:**
+If action types stabilize and we need DB-level enforcement:
+1. Create Postgres ENUM type: `CREATE TYPE usage_action_type AS ENUM (...)`
+2. Alter column: `ALTER TABLE usage_ledger ALTER COLUMN action_type TYPE usage_action_type USING action_type::usage_action_type`
+3. Update SQLAlchemy model: `postgresql.ENUM(..., create_type=False)`
+4. Requires coordinated migration + code deployment
+
+**Current Status:** TEXT field (deployed in migration 0005_commercial_spine.py)
+
 ============================================================
 4) Future enums (reserved; for Prompt 8+)
 ============================================================

@@ -76,6 +76,11 @@
 
 “Entitlements endpoint may initialize paid-plan period boundaries once if missing (fallback until Stripe sets billing cycle).”
 
+Quota Reset Rules:
+  - Reset occurs on billing cycle anniversary (not calendar month)
+  - Triggered by Stripe subscription renewal webhook
+  - If webhook fails, fallback: entitlements endpoint initializes period boundaries
+
 ## Export Rules (MVP)
 - DOCX export is supported.
 - PDF export is not supported.

@@ -33,7 +33,7 @@ Non-negotiables:
 | APP_ENV | Yes | prod | dev/staging/prod |
 | APP_NAME | Yes | grantpilot | Used in logs/headers |
 | APP_BASE_URL | Yes | https://ngoinfo-grantpilot-production.up.railway.app | Must be public URL |
-| CORS_ALLOWED_ORIGINS | Yes | https://grantpilot.ngoinfo.org | Comma-separated allowlist |
+| CORS_ALLOWED_ORIGINS | Yes | https://grantpilot.ngoinfo.org,https://staging.grantpilot.ngoinfo.org | Comma-separated allowlist; include all valid origins
 | LOG_LEVEL | Yes | INFO | DEBUG only in dev |
 
 ### B) Database
@@ -46,7 +46,7 @@ No passwords in MVP.
 
 | Variable | Required | Example | Notes |
 |---|---:|---|---|
-| AUTH_JWT_SIGNING_KEY | Yes | <secret> | Strong secret |
+AUTH_JWT_SIGNING_KEY | Yes | <secret> | Strong secret (min 64 chars, cryptographically random). Generation: openssl rand -base64 64
 | AUTH_ACCESS_TOKEN_TTL_MIN | Yes | 15 | Access token TTL |
 | AUTH_REFRESH_TOKEN_TTL_DAYS | Yes | 30 | Refresh token TTL |
 | AUTH_MAGIC_LINK_TTL_MIN | Yes | 15 | Magic link expiry |
@@ -66,7 +66,7 @@ No passwords in MVP.
 |---|---:|---|---|
 | EMAIL_PROVIDER | Yes | resend | Locked for MVP |
 | EMAIL_FROM_NAME | Yes | GrantPilot | |
-| EMAIL_FROM_ADDRESS | Yes | no-reply@ngoinfo.org | Must be verified in Resend |
+| EMAIL_FROM_ADDRESS | Yes | support@ngoinfo.org | Must be verified in Resend |
 | EMAIL_API_KEY | Yes | <secret> | Resend API key |
 
 ### F) OpenAI
@@ -126,6 +126,8 @@ Forbidden on frontend (Railway):
 - Any private signing/encryption secrets
 
 ---
+
+AUTH_POST_LOGIN_REDIRECT_URL | Yes | https://grantpilot.ngoinfo.org/auth/callback | Frontend route for post-OAuth redirect
 
 ## Change Control
 - Any env var additions/renames require updating this file in the same PR.

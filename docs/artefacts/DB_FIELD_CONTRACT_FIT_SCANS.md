@@ -170,3 +170,10 @@ Any implementation that:
 - Updates an existing Fit Scan row
 
 is **invalid** and must not be merged.
+
+## 9. Plan at time of scan
+plan_at_time_of_scan Source (Authoritative):
+  - Query user_plans table for current user_id
+  - Use user_plans.plan_name (current active plan)
+  - If no plan record exists, default to "FREE"
+  - Value MUST be captured at Fit Scan execution time (not retroactively)
