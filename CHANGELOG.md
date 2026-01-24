@@ -31,3 +31,6 @@ Smoke testing changes:
 
 Funding opportunities:
 - Added DB defaults for funding_opportunities id/created_at/updated_at to support CSV Mode B.
+
+Docs:
+- Clarified MVP auth sessions as single active refresh token per user; noted post-MVP multi-device option.

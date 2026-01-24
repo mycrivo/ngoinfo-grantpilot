@@ -12,9 +12,12 @@
 ## Sessions
 
 - Access token + refresh token
-- Multi-device allowed
+- Single active refresh token per user (MVP). Logging in on another device invalidates prior sessions.
 - Explicit logout invalidates refresh token
 - Account Linking: same email across OAuth and Email Magic Link links accounts
+
+Post-MVP option (out of scope):
+- True multi-device support via per-device refresh tokens, a sessions table, and per-device revoke.
 
 ## OAuth URLs (Locked)
 
