@@ -93,11 +93,15 @@ If requirements are missing/invalid/empty for `status=READY`, return `DEGRADED_M
 
 ### 0.4 Uniqueness Enforcement
 
-Every generated section MUST include:
-- At least **ONE specific past project name/location** from `ngo_profile.past_projects`
-- At least **ONE concrete outcome number** from NGO's history
-- At least **ONE exact phrase** from `funding_opportunity.priorities` (to mirror funder language)
-- Beneficiary population details from `ngo_profile.beneficiaries` (not generic "communities")
+Every generated section MUST include (when present in inputs):
+- At least **ONE specific past project name/location** from `prompt_inputs.ngo.past_projects`
+- At least **ONE concrete outcome number** from NGO history (if present in past_projects)
+- At least **ONE exact phrase** from `prompt_inputs.derived.opportunity_priorities_phrases[]` (mirror funder language)
+- Beneficiary population details from `prompt_inputs.ngo.target_groups` (avoid generic “communities”)
+
+If the required elements are missing from inputs:
+- Do NOT invent.
+- Add an `assumption` or return `INSUFFICIENT_INPUT` for that item, as defined in Section 0.6.
 
 ---
 
@@ -186,7 +190,19 @@ Always output `assumptions[]` where assumptions exist.
 - **Max Tokens:** 2500 for proposals to handle long sections (700 words ≈ 1000 tokens + JSON overhead + assumptions/evidence arrays)
 
 **Model Selection:**
-Use the latest available OpenAI flagship model configured in environment (no hard-coded model name in prompts).
+### Model Selection (MVP – Locked)
+
+GrantPilot MVP uses OpenAI model **gpt-5.2** for all GP prompts.
+
+The model is referenced as a backend constant (not via environment variables) to ensure:
+- deterministic configuration,
+- reproducible Fit Scan behavior,
+- no hidden dependency on undeclared runtime settings.
+
+Any change to the model requires:
+- an explicit update to this artefact, and
+- a prompt library version bump.
+
 
 **Response Format:**
 `response_format: {"type": "json_object"}` (strict JSON mode for all prompts)
@@ -349,6 +365,7 @@ You do not refuse generation, but you surface weaknesses clearly.
 Output valid JSON only.
 
 5.2 GP-F02 — Fit Scan Evaluation Prompt (v1.0)
+
 Purpose:
 Evaluate NGO fit for funding opportunity using deterministic 4-layer scoring methodology.
 
@@ -358,14 +375,8 @@ User Prompt Template:
 
 Evaluate this NGO's fit for this funding opportunity using the deterministic 4-layer assessment framework.
 
-NGO PROFILE:
-{ngo_profile_json}
-
-FUNDING OPPORTUNITY:
-{funding_opportunity_json}
-
-REQUIREMENTS:
-{requirements_json}
+PROMPT INPUTS (AUTHORITATIVE):
+{prompt_inputs_json}
 
 SELECTED VARIANT: {selected_variant_id}
 
@@ -375,13 +386,29 @@ ASSESSMENT FRAMEWORK (Apply Deterministically):
 
 ### Layer 1: ELIGIBILITY (0 or 100)
 
-Check variant eligibility rules from requirements_json:
-- **applicant_type:** Does ngo_profile.organization_type match variant.eligibility_rules.applicant_type?
-- **geography:** Is ngo_profile.country in variant.eligibility_rules.eligible_countries?
-- **sectors:** Any overlap between ngo_profile.focus_areas and variant.eligibility_rules.eligible_sectors?
-- **exclusions:** Any overlap between ngo_profile.sectors and variant.eligibility_rules.excluded_sectors?
+Use:
+- prompt_inputs.requirements.variants[*].eligibility_rules
+- prompt_inputs.ngo
+- prompt_inputs.derived.applicant_type (MVP constant = "NGO")
 
-**Scoring:**
+Checks (selected variant only):
+
+- applicant_type:
+  PASS if variant eligibility_rules.applicant_type is "NGO" or "MIXED"
+  FAIL otherwise
+
+- geography:
+  PASS if prompt_inputs.ngo.country is in eligibility_rules.geographies
+
+- thematic eligibility:
+  PASS if overlap exists between:
+    prompt_inputs.ngo.focus_sectors
+    and eligibility_rules.themes_required
+
+- exclusions:
+  FAIL if overlap exists between prompt_inputs.ngo.focus_sectors and eligibility_rules.themes_excluded
+
+Scoring:
 - If ANY hard fail → eligibility subscore = 0, overall_fit_rating = WEAK
 - If all pass → eligibility subscore = 100
 
@@ -390,13 +417,13 @@ Check variant eligibility rules from requirements_json:
 ### Layer 2: ALIGNMENT (0-100)
 
 Start at 0, add points:
-- **+40** if ≥1 match between ngo_profile.focus_areas and (variant.themes_required OR funding_opportunity.focus_areas)
-- **+30** if ngo_profile.geographic_areas overlaps (variant.geographies OR funding_opportunity.target_regions)
-- **+30** if ngo_profile.organization_type matches variant.applicant_type
+- +40 if ≥1 match between prompt_inputs.ngo.focus_sectors and (eligibility_rules.themes_required OR prompt_inputs.opportunity.focus_areas)
+- +30 if prompt_inputs.ngo.geographic_areas_of_work overlaps (eligibility_rules.geographies OR prompt_inputs.opportunity.location_text)
+- +30 if applicant type alignment exists (variant applicant_type is NGO or MIXED)
 
 Cap at 100.
 
-**Qualitative Labels:**
+Qualitative Labels:
 - 80-100 = STRONG
 - 50-79 = MODERATE
 - <50 = WEAK
@@ -406,13 +433,13 @@ Cap at 100.
 ### Layer 3: READINESS (0-100)
 
 Start at 100, subtract points:
-- **−15** for EACH mandatory submission_item whose inputs_required fields are missing in ngo_profile (cap total deduction at −60)
-- **−20** if ≥2 mandatory upload items have status=MISSING/UNKNOWN in uploaded_documents_index
-- **−20** if funding_opportunity.deadline is FIXED and <14 days from today AND key gaps exist
+- −15 for EACH mandatory submission_item whose inputs_required fields are missing in prompt_inputs.ngo (cap total deduction at −60)
+- −20 if ≥2 mandatory upload items have status=MISSING/UNKNOWN in uploaded_documents_index
+- −20 if deadline_type is FIXED and <14 days from today AND key gaps exist
 
 Floor at 0.
 
-**Qualitative Labels:**
+Qualitative Labels:
 - 70-100 = HIGH
 - 40-69 = MEDIUM
 - <40 = LOW
@@ -422,30 +449,32 @@ Floor at 0.
 ### Layer 4: RISK FLAGS
 
 Identify risks (do not affect overall_fit_rating):
-- **CAPACITY:** Grant amount >50% of ngo_profile.annual_budget (severity=MEDIUM)
-- **EVIDENCE:** No past projects in ngo_profile.past_projects matching this thematic area (severity=MEDIUM)
-- **TIMING:** Deadline <30 days from today (severity=HIGH if <14 days)
-- **PROCESS:** Variant has >10 submission_items (severity=LOW)
-- **MISSING_DATA:** Critical ngo_profile fields null (e.g., annual_budget, past_projects) (severity=MEDIUM)
+- CAPACITY: If grant amount is specified and appears materially larger than NGO scale, flag CAPACITY (severity=MEDIUM)
+  Use prompt_inputs.derived.grant_amount_display + prompt_inputs.ngo.annual_budget_range (if present). If annual_budget_range missing, flag MISSING_DATA instead.
+- EVIDENCE: No past projects in prompt_inputs.ngo.past_projects matching this thematic area (severity=MEDIUM)
+- TIMING: Deadline <30 days from today (severity=HIGH if <14 days)
+- PROCESS: Variant has >10 submission_items (severity=LOW)
+- MISSING_DATA: Critical NGO fields null/empty (e.g., annual_budget_range, past_projects) (severity=MEDIUM)
 
 ---
 
 ### OVERALL FIT RATING CALCULATION:
 
-1. If eligibility subscore = 0 → **WEAK**
-2. Else if alignment ≥70 AND readiness ≥70 → **STRONG**
-3. Else if alignment ≥40 AND readiness ≥40 → **MODERATE**
-4. Else → **WEAK**
+1. If eligibility subscore = 0 → WEAK
+2. Else if alignment ≥70 AND readiness ≥70 → STRONG
+3. Else if alignment ≥40 AND readiness ≥40 → MODERATE
+4. Else → WEAK
 
 ---
 
 CRITICAL RULES:
-1. Cite specific fields (e.g., "ngo_profile.country='Kenya' not in eligible_countries=['Tanzania','Uganda']")
-2. If data missing (e.g., ngo_profile.annual_budget=null), flag in risk_flags with severity=MEDIUM, type=MISSING_DATA
+1. Cite specific fields (e.g., "prompt_inputs.ngo.country='Kenya' not in geographies=['Tanzania','Uganda']")
+2. If data missing, flag in risk_flags as MISSING_DATA
 3. Never use: "likely", "probably", "should be competitive"
 4. primary_rationale must be 2-4 sentences explaining the rating (cite specific alignment/gap)
 
 Output ONLY valid JSON matching this schema:
+
 {
   "fit_summary": {
     "overall_fit_rating": "STRONG|MODERATE|WEAK",

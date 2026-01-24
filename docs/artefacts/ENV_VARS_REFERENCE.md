@@ -75,7 +75,11 @@ No passwords in MVP.
 | OPENAI_API_KEY | Yes | <secret> | |
 | PROMPT_VERSION | Yes | v1.0.0 | Persist with outputs |
 
-(Models/settings can be added later; MVP requires deterministic policy in prompts.)
+Note:
+- No environment variable is used to select the OpenAI model in MVP.
+- Model selection is locked at the application level to `gpt-5.2` (see OPENAI_PROMPTS_LIBRARY.md).
+- Environment-based model switching may be introduced post-MVP via artefact update.
+
 
 ### G) Stripe Billing (Test-First)
 | Variable | Required | Example | Notes |

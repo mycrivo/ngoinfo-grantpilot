@@ -74,6 +74,8 @@
 - Quota checks and decrements must be atomic and transactional
 
 
+“Entitlements endpoint may initialize paid-plan period boundaries once if missing (fallback until Stripe sets billing cycle).”
+
 ## Export Rules (MVP)
 - DOCX export is supported.
 - PDF export is not supported.

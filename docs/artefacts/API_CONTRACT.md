@@ -135,3 +135,91 @@ Response 200:
 
 Errors:
 - 401 REFRESH_TOKEN_INVALID
+
+Fit Scan Endpoints (MVP — Locked)
+7) POST /api/fit-scans
+
+Purpose
+Run a Fit Scan for a given funding opportunity using the authenticated user’s NGO profile.
+This endpoint enforces plan quotas and persists the Fit Scan result.
+
+Authentication
+Required (Bearer access token).
+
+Request
+
+{
+  "funding_opportunity_id": "uuid"
+}
+
+
+Response 200
+
+{
+  "fit_scan": {
+    "id": "uuid",
+    "funding_opportunity_id": "uuid",
+    "overall_recommendation": "RECOMMENDED | APPLY_WITH_CAVEATS | NOT_RECOMMENDED",
+    "model_rating": "STRONG | MODERATE | WEAK",
+    "subscores": {
+      "eligibility": 0,
+      "alignment": 0,
+      "readiness": 0
+    },
+    "primary_rationale": "string",
+    "risk_flags": [
+      {
+        "risk_type": "string",
+        "severity": "LOW | MEDIUM | HIGH",
+        "description": "string"
+      }
+    ],
+    "created_at": "ISO-8601 timestamp"
+  }
+}
+
+
+Errors
+
+401 UNAUTHORIZED
+
+403 FORBIDDEN
+
+404 OPPORTUNITY_NOT_FOUND
+
+409 PROFILE_INCOMPLETE
+
+details.missing_fields[] MUST be provided
+
+429 QUOTA_EXCEEDED
+
+500 FIT_SCAN_FAILED
+
+8) GET /api/fit-scans/{id}
+
+Purpose
+Retrieve a previously generated Fit Scan. Results are read-only.
+
+Authentication
+Required.
+
+Response 200
+Same payload as POST /api/fit-scans.
+
+Errors
+
+401 UNAUTHORIZED
+
+403 FORBIDDEN (attempt to access another user’s Fit Scan)
+
+404 FIT_SCAN_NOT_FOUND
+
+Notes
+
+Fit Scan quota MUST be checked before execution.
+
+Quota MUST be decremented only after successful persistence.
+
+Failed, degraded, or invalid AI responses MUST NOT consume quota.
+
+Model-level ratings are mapped to product recommendations as defined in FIT_SCAN_CRITERIA_MATRIX.md.
