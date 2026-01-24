@@ -8,7 +8,9 @@ from app.db.base import Base
 from app.models.auth_magic_link_token import AuthMagicLinkToken  # noqa: F401
 from app.models.auth_refresh_token import AuthRefreshToken  # noqa: F401
 from app.models.ngo_profile import NGOProfile  # noqa: F401
+from app.models.usage_ledger import UsageLedger  # noqa: F401
 from app.models.user import User  # noqa: F401
+from app.models.user_plan import UserPlan  # noqa: F401
 
 config = context.config
 

@@ -34,3 +34,8 @@ Funding opportunities:
 
 Docs:
 - Clarified MVP auth sessions as single active refresh token per user; noted post-MVP multi-device option.
+
+Prompt 6 changes:
+- Added commercial spine tables for plans and usage ledger.
+- Added quota service, guards, and entitlements endpoint.
+- Added minimal quota tests.
