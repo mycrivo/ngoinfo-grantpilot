@@ -7,8 +7,8 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.errors import ForbiddenError
-from app.models.usage_ledger import UsageLedger
+from app.core.errors import ForbiddenError, InvalidActionTypeError
+from app.models.usage_ledger import UsageActionType, UsageLedger
 from app.models.user_plan import UserPlan
 
 PLAN_FREE = "FREE"
@@ -156,6 +156,16 @@ def record_usage(
     *,
     idempotency_key: str | None = None,
 ) -> UsageLedger:
+    try:
+        validated_action = UsageActionType(event_type)
+    except ValueError as exc:
+        valid_values = ", ".join(action.value for action in UsageActionType)
+        raise InvalidActionTypeError(
+            f"Invalid action_type '{event_type}'. "
+            f"Valid values: {valid_values}."
+        ) from exc
+
+    event_type = validated_action.value
     if idempotency_key:
         existing = db.execute(
             select(UsageLedger).where(

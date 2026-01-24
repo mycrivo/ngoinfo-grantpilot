@@ -19,3 +19,8 @@ class ConflictError(DomainError):
 
 class ForbiddenError(DomainError):
     pass
+
+
+class InvalidActionTypeError(ValueError):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
