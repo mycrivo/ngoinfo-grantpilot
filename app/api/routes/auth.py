@@ -493,6 +493,11 @@ def test_mode_mint(request: Request, db: Session = Depends(get_db)):
     else:
         user.last_login_at = now
 
+    db.flush()
+    if user.id is None:
+        _log_test_mode_event(request, "user_id_missing")
+        return error_response(request, 500, "TEST_MODE_ERROR", "Test mode mint failed")
+
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")

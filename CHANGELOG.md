@@ -26,3 +26,4 @@ Smoke testing changes:
 - Added test-mode token mint endpoint with gates and audit logs.
 - Added smoke test runner script and CI workflow.
 - Documented TEST_MODE gates and smoke steps in TESTING_STRATEGY.md.
+- Flush test-mode user before minting tokens to avoid null user_id inserts.
