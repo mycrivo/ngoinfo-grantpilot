@@ -69,9 +69,8 @@ def _assert_error_schema(step: str, response: httpx.Response) -> None:
 
 def main() -> None:
     base_url = os.getenv("SMOKE_BASE_URL")
-    test_secret = os.getenv("TEST_MODE_SECRET")
-    if not base_url or not test_secret:
-        print("Missing SMOKE_BASE_URL or TEST_MODE_SECRET")
+    if not base_url:
+        print("Missing SMOKE_BASE_URL")
         sys.exit(1)
 
     base_url = base_url.rstrip("/")
@@ -91,111 +90,36 @@ def main() -> None:
             _fail("ngo_profile_unauth", resp, latency)
         _assert_error_schema("ngo_profile_unauth", resp)
 
-        # Mint test tokens
-        headers = {
-            "x-request-id": str(uuid.uuid4()),
-            "x-test-mode-secret": test_secret,
-        }
+        # Magic link request (dummy email)
         resp, latency = _request(
-            client, "POST", f"{base_url}/api/auth/test-mode/mint", headers=headers
+            client,
+            "POST",
+            f"{base_url}/api/auth/magic-link/request",
+            headers={"x-request-id": str(uuid.uuid4())},
+            json_body={"email": "smoke-test@grantpilot.local"},
         )
-        _report("test_mode_mint", "POST", "/api/auth/test-mode/mint", resp.status_code, latency)
+        _report("magic_link_request", "POST", "/api/auth/magic-link/request", resp.status_code, latency)
         if resp.status_code != 200:
-            _fail("test_mode_mint", resp, latency)
-        token_payload = resp.json()
-        access_token = token_payload["access_token"]
-        refresh_token = token_payload["refresh_token"]
+            _fail("magic_link_request", resp, latency)
 
-        auth_headers = {
-            "authorization": f"Bearer {access_token}",
-            "x-request-id": str(uuid.uuid4()),
-        }
-
-        # Get profile or create if missing
-        resp, latency = _request(client, "GET", f"{base_url}/ngo-profile", headers=auth_headers)
-        _report("ngo_profile_get", "GET", "/ngo-profile", resp.status_code, latency)
-        if resp.status_code == 404:
-            payload = {
-                "organization_name": "Smoke Test Org",
-                "country_of_registration": "Kenya",
-                "mission_statement": "Test mission statement",
-                "focus_sectors": ["Health"],
-                "geographic_areas_of_work": ["Nairobi"],
-                "target_groups": ["Youth"],
-                "past_projects": [{"title": "Pilot Project"}],
-            }
-            resp, latency = _request(
-                client, "POST", f"{base_url}/ngo-profile", headers=auth_headers, json_body=payload
-            )
-            _report("ngo_profile_create", "POST", "/ngo-profile", resp.status_code, latency)
-            if resp.status_code != 200 and resp.status_code != 201:
-                _fail("ngo_profile_create", resp, latency)
-        elif resp.status_code != 200:
-            _fail("ngo_profile_get", resp, latency)
-
-        # Update profile
-        payload_update = {
-            "organization_name": "Smoke Test Org Updated",
-            "country_of_registration": "Kenya",
-            "mission_statement": "Updated mission statement",
-            "focus_sectors": ["Health", "Education"],
-            "geographic_areas_of_work": ["Nairobi", "Kisumu"],
-            "target_groups": ["Youth"],
-            "past_projects": [{"title": "Pilot Project"}],
-        }
-        resp, latency = _request(
-            client, "PUT", f"{base_url}/ngo-profile", headers=auth_headers, json_body=payload_update
-        )
-        _report("ngo_profile_update", "PUT", "/ngo-profile", resp.status_code, latency)
+        # OpenAPI
+        resp, latency = _request(client, "GET", f"{base_url}/openapi.json", headers=headers_base)
+        _report("openapi", "GET", "/openapi.json", resp.status_code, latency)
         if resp.status_code != 200:
-            _fail("ngo_profile_update", resp, latency)
+            _fail("openapi", resp, latency)
 
-        # Completeness
-        resp, latency = _request(
-            client, "GET", f"{base_url}/ngo-profile/completeness", headers=auth_headers
-        )
-        _report("ngo_profile_completeness", "GET", "/ngo-profile/completeness", resp.status_code, latency)
-        if resp.status_code != 200:
-            _fail("ngo_profile_completeness", resp, latency)
-
-        # Negative: invalid payload -> 422
-        resp, latency = _request(
-            client, "PUT", f"{base_url}/ngo-profile", headers=auth_headers, json_body={}
-        )
-        _report("ngo_profile_invalid", "PUT", "/ngo-profile", resp.status_code, latency)
-        if resp.status_code != 422:
-            _fail("ngo_profile_invalid", resp, latency)
-
-        # Refresh
-        refresh_headers = {"x-request-id": str(uuid.uuid4())}
+        # Negative: invalid refresh token
         resp, latency = _request(
             client,
             "POST",
             f"{base_url}/api/auth/refresh",
-            headers=refresh_headers,
-            json_body={"refresh_token": refresh_token},
+            headers={"x-request-id": str(uuid.uuid4())},
+            json_body={"refresh_token": "invalid"},
         )
-        _report("auth_refresh", "POST", "/api/auth/refresh", resp.status_code, latency)
-        if resp.status_code != 200:
-            _fail("auth_refresh", resp, latency)
-
-        # Logout
-        resp, latency = _request(
-            client,
-            "POST",
-            f"{base_url}/api/auth/logout",
-            headers=refresh_headers,
-            json_body={"refresh_token": refresh_token},
-        )
-        _report("auth_logout", "POST", "/api/auth/logout", resp.status_code, latency)
-        if resp.status_code != 200:
-            _fail("auth_logout", resp, latency)
-
-        # Protected endpoint now returns 401 (no auth header)
-        resp, latency = _request(client, "GET", f"{base_url}/ngo-profile", headers=headers_base)
-        _report("ngo_profile_post_logout", "GET", "/ngo-profile", resp.status_code, latency)
-        if resp.status_code != 401:
-            _fail("ngo_profile_post_logout", resp, latency)
+        _report("refresh_invalid", "POST", "/api/auth/refresh", resp.status_code, latency)
+        if resp.status_code not in (401, 422):
+            _fail("refresh_invalid", resp, latency)
+        _assert_error_schema("refresh_invalid", resp)
 
     print(json.dumps({"result": "success"}))
 

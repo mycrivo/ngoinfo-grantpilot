@@ -87,21 +87,30 @@ Safety:
 
 ## Smoke Test Runner (Railway Environment)
 
-Single-command runner against `SMOKE_BASE_URL` executes:
+Track A (Gating) — does NOT depend on TEST_MODE minting:
 
 1) `GET /health` → 200
-2) `POST /api/auth/test-mode/mint` → tokens
-3) `GET /ngo-profile` → 200 or 404
-4) If 404: `POST /ngo-profile` → 200
-5) `PUT /ngo-profile` → 200
-6) `GET /ngo-profile/completeness` → 200 with `profile_status`, `completeness_score`, `missing_fields`
-7) `POST /api/auth/refresh` → 200
-8) `POST /api/auth/logout` → 200
-9) Protected endpoint without auth → 401
-10) Invalid payload to profile endpoint → 422 with validation details
+2) `GET /ngo-profile` without auth → 401
+3) `POST /api/auth/magic-link/request` with dummy email → 200
+4) `GET /openapi.json` → 200
+5) `POST /api/auth/refresh` with invalid token → 401/422 with error schema
+
+Track B (Optional, non-blocking) — uses TEST_MODE minting:
+
+1) `POST /api/auth/test-mode/mint` → tokens
+2) `GET /ngo-profile` → 200 or 404
+3) If 404: `POST /ngo-profile` → 200
+4) `PUT /ngo-profile` → 200
+5) `GET /ngo-profile/completeness` → 200 with `profile_status`, `completeness_score`, `missing_fields`
+6) `POST /api/auth/refresh` → 200
+7) `POST /api/auth/logout` → 200
+8) Protected endpoint without auth → 401
+
+Single-command runner against `SMOKE_BASE_URL` executes:
 
 Release gate:
-- Any smoke failure blocks release.
+- Track A failures block release.
+- Track B failures are informational until staging exists.
 Layer 1: Contract Tests (API correctness)
 
 Goal: Prevent FE/BE mismatches and silent breaking changes.

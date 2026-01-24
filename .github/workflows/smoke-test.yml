@@ -22,6 +22,12 @@ jobs:
           SMOKE_BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
           TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
         run: python scripts/smoke_test.py
+      - name: Run optional Track B
+        continue-on-error: true
+        env:
+          SMOKE_BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
+          TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
+        run: python scripts/e2e_auth_profile_test.py
       - name: Slack alert on failure
         if: failure()
         env:
