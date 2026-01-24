@@ -21,6 +21,11 @@
 - OAuth callback URL: `https://ngoinfo-grantpilot-production.up.railway.app/api/auth/google/callback`
 - Post-login redirect URL: `https://grantpilot.ngoinfo.org/auth/callback`
 
+Frontend hosting note
+- The frontend is hosted on Railway and served via https://grantpilot.ngoinfo.org (Cloudflare fronted).
+- Post-login redirects must always target grantpilot.ngoinfo.org routes, never Railway service URLs.
+
+
 ## Token Policy (Locked)
 
 ### Access Token (JWT)

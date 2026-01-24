@@ -20,7 +20,7 @@ Usage / quota enforcement (server-side)
 
 Stripe checkout + webhook processing + plan activation
 
-End-to-end integration: Vercel thin client → Railway API → Postgres
+End-to-end integration: Railway thin client → Railway API → Postgres
 
 Out of Scope (explicitly not required for MVP)
 

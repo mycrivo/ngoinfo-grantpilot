@@ -111,6 +111,16 @@ Note:
 - Avoid abbreviations that reduce clarity.
 
 ============================================================
+9) Frontend Deployment Note (Railway)
+============================================================
+
+- Frontend (Next.js) is hosted on Railway as a separate Railway service.
+- Do not introduce Vercel-specific assumptions (preview URLs, Vercel-only env var names, Vercel edge runtime).
+- Frontend remains a thin client: no secrets, no server-side Stripe keys, no JWT signing keys.
+- Any cross-service URLs must use public domains (grantpilot.ngoinfo.org) where required for OAuth/Stripe redirects.
+
+
+============================================================
 8) “Do Not Do” List
 ============================================================
 

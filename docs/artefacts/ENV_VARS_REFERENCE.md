@@ -2,18 +2,22 @@
 
 ## Purpose
 Single source of truth for environment variables used in GrantPilot (Plan A).
-Prevents configuration drift across Railway and Vercel and avoids recurring deployment bugs.
+Prevents configuration drift across Railway services and avoids recurring deployment bugs.
 
 Non-negotiables:
 - Backend (Railway) owns auth, quota, Stripe, persistence, and AI execution.
-- Frontend (Vercel) is a thin client and must not store secrets.
+- Frontend (Railway) is a thin client and must not store secrets.
+- Cloudflare provides DNS/TLS and static asset caching only; it must not cache authenticated routes.
 - Stripe secrets/webhooks are backend-only.
 - Plan B (`ngoinfo-copilot`) remains untouched.
 
 ## Environments
-- PLAN_A_PROD: Railway service for `ngoinfo-grantpilot`
-- Frontend PROD domain target: `https://grantpilot.ngoinfo.org`
-- Backend public URL (Plan A): `https://ngoinfo-grantpilot-production.up.railway.app`
+- PLAN_A_PROD:
+  - Backend service: Railway `ngoinfo-grantpilot` (FastAPI)
+  - Frontend service: Railway `grantpilot-web` (Next.js)
+  - Public domain: https://grantpilot.ngoinfo.org (proxied via Cloudflare)
+  - Backend public URL: https://ngoinfo-grantpilot-production.up.railway.app
+
 
 ## Naming Rules
 - ALL_CAPS with underscores.
@@ -96,19 +100,20 @@ Future (post-MVP):
 
 ---
 
-## FRONTEND (Vercel) — Allowed Variables Only
+## FRONTEND (Railway) — Allowed Variables Only
 
 Allowed:
 | Variable | Required | Example |
 |---|---:|---|
 | NEXT_PUBLIC_API_BASE_URL | Yes | https://ngoinfo-grantpilot-production.up.railway.app |
 
-Forbidden on Vercel:
+Forbidden on frontend (Railway):
 - DATABASE_URL
 - OPENAI_API_KEY
 - STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET
 - GOOGLE_OAUTH_CLIENT_SECRET
-- Any JWT signing secrets
+- AUTH_JWT_SIGNING_KEY
+- Any private signing/encryption secrets
 
 ---
 

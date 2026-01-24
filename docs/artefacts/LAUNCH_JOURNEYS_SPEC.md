@@ -155,7 +155,7 @@ System Behavior
 
 Proposal is complete and usable
 
-Regeneration is not encouraged
+Regeneration is not allowed
 
 Upgrade CTA appears after value is demonstrated
 
@@ -170,6 +170,8 @@ Exit States
 User downloads proposal → prompted to upgrade
 
 User returns later → blocked with friendly upgrade message
+
+“Free plan exists for evaluation (1 Fit Scan lifetime, 1 proposal lifetime) per PRICING_AND_ENTITLEMENTS.”
 
 J3. Growth User → Ongoing Fit Scans & Proposals
 
@@ -213,45 +215,32 @@ Regeneration failures → explain + retry
 
 Token expiry mid-flow → silent refresh or re-auth
 
-J4. Impact User → Consultant-Grade Workflow
+J4. Impact User → Consultant-Grade Workflow (MVP)
 
 User intent
-
 “I want a serious, submission-ready proposal.”
 
 Preconditions
-
 Impact plan active
+Manual profile setup (form-based) is complete enough to proceed
 
 Journey Flow
-
-Upload-assisted onboarding:
-
-NGO uploads prior proposal / profile docs
-
-System extracts structured profile with confidence flags
-
-User reviews and confirms extracted data
-
-Fit Scan runs with richer context
-
-Proposal drafting uses:
-
-NGO history
-
-Past projects
-
-Explicit assumptions
+- User completes NGO profile fields (including past projects) via structured form.
+- Fit Scan runs using richer context from stored profile (past projects, sectors, geography).
+- Proposal drafting uses:
+  - NGO history and past projects entered in the profile
+  - Explicit assumptions where data is missing
+  - Conservative, compliance-aware language
 
 Consultant-Grade Behavior
+- Conservative language aligned with funder expectations
+- Clear evidence grounding using available profile data
+- Explicit caveats when data is weak
+- Less “creative writing,” more structured, submission-ready drafting
 
-Conservative language
+Post-MVP (explicitly deferred)
+Upload-assisted onboarding (prior proposals/docs) and automated extraction.
 
-Clear evidence grounding
-
-Explicit caveats when data is weak
-
-Less “creative writing,” more compliance-aware drafting
 
 J5. Proposal Regeneration & Iteration
 
@@ -373,7 +362,14 @@ Imply guaranteed outcomes
 
 Replace human judgment
 
+Hosting note (MVP)
+
+GrantPilot UI is hosted on Railway and served via https://grantpilot.ngoinfo.org.
+Cloudflare provides DNS/TLS and caching for static assets only.
+This document defines user journeys independent of hosting provider; implementation must follow this canonical domain.
+
+
 Final Rule
 
 This document is binding.
-Cursor/Claude Code must not invent flows, shortcuts, or optimizations beyond what is defined here.
+Cursor must not invent flows, shortcuts, or optimizations beyond what is defined here.

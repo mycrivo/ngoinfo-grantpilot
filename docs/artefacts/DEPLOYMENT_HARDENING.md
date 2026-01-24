@@ -68,7 +68,7 @@ Database connection URL
 
 Token signing secrets and token expiry settings
 
-Allowed origins for CORS (include Vercel domain(s) explicitly)
+Allowed origins for CORS 
 
 Auth
 
@@ -109,15 +109,22 @@ Request correlation id toggle
 CORS and Security Hardening
 CORS policy
 
-Allow only known frontend origins (Vercel preview domains can be handled intentionally if needed).
+CORS policy
+
+Allow only known frontend origins.
+
+Primary production origin:
+- https://grantpilot.ngoinfo.org
+
+If staging exists:
+- https://staging.grantpilot.ngoinfo.org (or explicit staging hostname)
 
 Do not use wildcard CORS in production.
 
-Auth enforcement
+Cloudflare note:
+- Cloudflare sits in front of the Railway frontend, but browser origin remains grantpilot.ngoinfo.org.
+- CORS allowlist must match the browser origin, not the Railway service URL.
 
-All protected endpoints validate access tokens.
-
-Admin/debug endpoints must be protected or disabled in production.
 
 Secrets handling
 
@@ -156,6 +163,22 @@ Run smoke tests (from TESTING_STRATEGY.md)
 Promote to “release candidate”
 
 Only then connect frontend to Plan A base URL
+
+Cloudflare CDN hardening (frontend)
+
+- Cache only safe, versioned static assets (e.g. /_next/static/*).
+- Never cache:
+  - /auth/*
+  - /api/*
+  - /dashboard/*
+  - any route that renders user-specific content
+- Ensure Cloudflare SSL mode is compatible with Railway TLS (avoid redirect loops).
+
+
+Railway Frontend Service (Locked)
+
+The GrantPilot frontend is deployed as a dedicated Railway service running a Next.js application using a Node runtime (not serverless, not edge-only). The service is responsible only for rendering UI and making authenticated API calls to the backend; it must not contain secrets, signing keys, or Stripe credentials. The frontend is exposed publicly via the canonical domain https://grantpilot.ngoinfo.org, with Cloudflare providing DNS, TLS, and caching strictly for static assets (e.g., /_next/static/*). All authenticated, user-specific, and API routes must bypass CDN caching. The frontend service does not perform business logic, entitlement checks, quota enforcement, or AI execution; the backend remains the single source of truth for all such concerns.
+
 
 Rollback sequence
 

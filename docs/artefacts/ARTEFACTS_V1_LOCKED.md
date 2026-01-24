@@ -55,7 +55,7 @@ Impact: $79/month — 20 Fit Scans/month, 5 proposals/month
 
 MVP constraints:
 
-Upload-assisted onboarding allowed, but must be phased
+Upload-assisted onboarding allowed, but must be phased. Its not in scope for the current build, so ignore. 
 
 MVP upload formats: None
 
@@ -68,16 +68,20 @@ Auth includes Google OAuth + Email Magic Link (no passwords, password reset, or 
 Stack (locked):
 
 Backend: FastAPI on Railway
-
-Frontend: Next.js on Vercel
-
-DB: PostgreSQL on Railway 
+Frontend: Next.js on Railway (Node runtime; server-rendered or hybrid as needed)
+Edge/CDN: Cloudflare in front of grantpilot.ngoinfo.org (TLS, caching for static assets)
+DB: PostgreSQL on Railway
 
 File storage: S3-compatible object storage (not Postgres blobs)
-
 Payments: Stripe
-
+Email: Resend
 AI: OpenAI API
+
+Notes (non-negotiable):
+- Frontend remains a “thin client”: no secrets, no Stripe secrets, no JWT signing keys.
+- Backend remains the source of truth for auth, entitlements, quota, persistence, and AI execution.
+- Cloudflare must NOT cache authenticated or user-specific routes.
+
 
 
 ## Completion Status (as of 2026-01-20)
