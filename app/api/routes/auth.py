@@ -24,6 +24,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 rate_limiter = RateLimiter()
 oauth_state_store: dict[str, datetime] = {}
 AUTH_POST_LOGIN_REDIRECT_URL = "https://grantpilot.ngoinfo.org/auth/callback"
+SMOKE_TEST_EMAIL = "smoke-test@grantpilot.local"
 
 
 class MagicLinkRequest(BaseModel):
@@ -76,6 +77,12 @@ def _enforce_rate_limit(request: Request, key: str, limit: int, window_seconds: 
     if not allowed:
         logger.info("auth_rate_limited")
     return allowed
+
+
+def _log_test_mode_event(request: Request, outcome: str) -> None:
+    request_id = request.headers.get("x-request-id") or "unknown"
+    ip = _get_client_ip(request)
+    logger.info("test_mode_mint outcome=%s request_id=%s ip=%s", outcome, request_id, ip)
 
 
 def _issue_refresh_token(db: Session, user_id: uuid.UUID) -> tuple[str, uuid.UUID]:
@@ -454,3 +461,56 @@ def logout(payload: LogoutRequest, request: Request, db: Session = Depends(get_d
     db.commit()
     logger.info("auth_logout user_id=%s", token_record.user_id)
     return JSONResponse(status_code=200, content={"status": "logged_out"})
+
+
+@router.post("/test-mode/mint")
+def test_mode_mint(request: Request, db: Session = Depends(get_db)):
+    """TODO: Remove test-mode mint endpoint post-launch."""
+    settings = get_settings()
+    if not settings.TEST_MODE:
+        _log_test_mode_event(request, "disabled")
+        return error_response(request, 404, "TEST_MODE_DISABLED", "Not found")
+
+    secret = request.headers.get("x-test-mode-secret")
+    if not secret or secret != settings.TEST_MODE_SECRET:
+        _log_test_mode_event(request, "unauthorized")
+        return error_response(request, 404, "TEST_MODE_DISABLED", "Not found")
+
+    ip = _get_client_ip(request)
+    if not _enforce_rate_limit(request, f"test_mode_ip:{ip}", 3, 3600):
+        _log_test_mode_event(request, "rate_limited")
+        return error_response(request, 429, "RATE_LIMITED", "Too many requests")
+
+    user = db.execute(select(User).where(User.email == SMOKE_TEST_EMAIL)).scalar_one_or_none()
+    now = datetime.now(timezone.utc)
+    if user is None:
+        user = User(
+            email=SMOKE_TEST_EMAIL,
+            auth_provider="email",
+            last_login_at=now,
+        )
+        db.add(user)
+    else:
+        user.last_login_at = now
+
+    _revoke_active_refresh_tokens(db, user.id)
+    refresh_token, _ = _issue_refresh_token(db, user.id)
+    access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
+    db.commit()
+
+    _log_test_mode_event(request, "success")
+    return JSONResponse(
+        status_code=200,
+        content={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "Bearer",
+            "expires_in": expires_in,
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "full_name": user.full_name,
+                "plan": "FREE",
+            },
+        },
+    )

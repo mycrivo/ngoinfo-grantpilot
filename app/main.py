@@ -34,4 +34,10 @@ def domain_error_handler(request: Request, exc: DomainError):
     request_id = request.headers.get("x-request-id")
     if request_id:
         payload["request_id"] = request_id
+    if request_id:
+        import logging
+
+        logging.getLogger("api").info(
+            "domain_error code=%s request_id=%s", exc.error_code, request_id
+        )
     return JSONResponse(status_code=exc.status_code, content=payload)

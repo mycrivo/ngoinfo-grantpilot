@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     STRIPE_PRICE_ID_GROWTH: str
     STRIPE_PRICE_ID_IMPACT: str
 
+    TEST_MODE: bool = False
+    TEST_MODE_SECRET: str | None = None
+
 
 _VALID_APP_ENVS = {"dev", "staging", "prod"}
 _VALID_LOG_LEVELS = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
@@ -169,6 +172,13 @@ def validate_config() -> Settings:
     if errors:
         _log_errors(errors)
         sys.exit(1)
+
+    if settings.TEST_MODE:
+        if not settings.TEST_MODE_SECRET or len(settings.TEST_MODE_SECRET.strip()) < 32:
+            _log_errors(
+                ["CONFIG_ERROR TEST_MODE_SECRET: must be set and at least 32 chars when TEST_MODE=true"]
+            )
+            sys.exit(1)
 
     return settings
 

@@ -98,6 +98,12 @@ Future (post-MVP):
 | SENTRY_DSN | Optional | Strongly recommended |
 | SENTRY_ENVIRONMENT | Optional | prod |
 
+### I) Test Mode (Pre-launch only)
+| Variable | Required | Notes |
+|---|---:|---|
+| TEST_MODE | Optional | true/false; when true, enables test-mode token mint endpoint |
+| TEST_MODE_SECRET | Conditional | Required when TEST_MODE=true; long random secret |
+
 ---
 
 ## FRONTEND (Railway) — Allowed Variables Only

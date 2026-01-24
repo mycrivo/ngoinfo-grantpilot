@@ -66,6 +66,42 @@ Stripe webhook signature validation and idempotency checks pass
 “Golden Path” works on a clean account end-to-end in production-like environment
 
 Test Layers
+
+---
+
+## TEST_MODE Minting (Temporary, Pre-Launch Only)
+
+Because there is no staging environment yet, a gated test-only endpoint exists to mint tokens for smoke tests.
+
+Hard gates (all required):
+- `TEST_MODE=true`
+- Caller must provide `X-Test-Mode-Secret` header matching `TEST_MODE_SECRET`
+- Strict rate limiting
+- Audit logs include timestamp, request_id (if available), caller IP, and outcome
+
+Safety:
+- If any gate fails, return 404 (preferred) with standard error schema.
+- Endpoint must be removed post-launch or replaced by staging.
+
+---
+
+## Smoke Test Runner (Railway Environment)
+
+Single-command runner against `SMOKE_BASE_URL` executes:
+
+1) `GET /health` → 200
+2) `POST /api/auth/test-mode/mint` → tokens
+3) `GET /ngo-profile` → 200 or 404
+4) If 404: `POST /ngo-profile` → 200
+5) `PUT /ngo-profile` → 200
+6) `GET /ngo-profile/completeness` → 200 with `profile_status`, `completeness_score`, `missing_fields`
+7) `POST /api/auth/refresh` → 200
+8) `POST /api/auth/logout` → 200
+9) Protected endpoint without auth → 401
+10) Invalid payload to profile endpoint → 422 with validation details
+
+Release gate:
+- Any smoke failure blocks release.
 Layer 1: Contract Tests (API correctness)
 
 Goal: Prevent FE/BE mismatches and silent breaking changes.

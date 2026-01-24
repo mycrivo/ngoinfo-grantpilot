@@ -21,3 +21,8 @@ Prompt 4 changes:
 - Added profile service with completeness calculation.
 - Added auth-guarded NGO profile CRUD routes.
 - Added auth dependency and domain error handling.
+
+Smoke testing changes:
+- Added test-mode token mint endpoint with gates and audit logs.
+- Added smoke test runner script and CI workflow.
+- Documented TEST_MODE gates and smoke steps in TESTING_STRATEGY.md.
