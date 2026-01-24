@@ -28,3 +28,6 @@ Smoke testing changes:
 - Documented TEST_MODE gates and smoke steps in TESTING_STRATEGY.md.
 - Flush test-mode user before minting tokens to avoid null user_id inserts.
 - Split smoke tests into Track A (gating) and Track B (optional).
+
+Funding opportunities:
+- Added DB defaults for funding_opportunities id/created_at/updated_at to support CSV Mode B.

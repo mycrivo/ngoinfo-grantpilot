@@ -1,8 +1,8 @@
 import enum
 import uuid
 
-from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, Enum, Numeric, Text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, Numeric, Text, text
+from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -39,10 +39,16 @@ class FundingOpportunity(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
     )
-    created_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    updated_at: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(
+        DateTime, nullable=False, server_default=text("now()")
+    )
+    updated_at: Mapped[DateTime] = mapped_column(
+        DateTime, nullable=False, server_default=text("now()")
+    )
 
     source_url: Mapped[str] = mapped_column(Text, nullable=False)
     application_url: Mapped[str] = mapped_column(Text, nullable=False)
@@ -51,12 +57,22 @@ class FundingOpportunity(Base):
     donor_organization: Mapped[str] = mapped_column(Text, nullable=False)
     funding_type: Mapped[str] = mapped_column(Text, nullable=False)
     applicant_type: Mapped[ApplicantType] = mapped_column(
-        Enum(ApplicantType, name="applicant_type"), nullable=False
+        ENUM(
+            ApplicantType,
+            name="applicant_type",
+            create_type=False,
+        ),
+        nullable=False,
     )
     location_text: Mapped[str] = mapped_column(Text, nullable=False)
     focus_areas: Mapped[str] = mapped_column(Text, nullable=False)
     deadline_type: Mapped[DeadlineType] = mapped_column(
-        Enum(DeadlineType, name="deadline_type"), nullable=False
+        ENUM(
+            DeadlineType,
+            name="deadline_type",
+            create_type=False,
+        ),
+        nullable=False,
     )
     application_deadline: Mapped[Date | None] = mapped_column(Date, nullable=True)
 
@@ -73,7 +89,12 @@ class FundingOpportunity(Base):
     application_process: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     status: Mapped[OpportunityStatus] = mapped_column(
-        Enum(OpportunityStatus, name="opportunity_status"), nullable=False
+        ENUM(
+            OpportunityStatus,
+            name="opportunity_status",
+            create_type=False,
+        ),
+        nullable=False,
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="true"
