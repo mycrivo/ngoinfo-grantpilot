@@ -15,3 +15,9 @@ Prompt 3 changes:
 - Added auth models and Alembic migration for users and tokens.
 - Added JWT/token utilities, rate limiting, and validation error handling.
 - Added auth dependencies to `requirements.txt`.
+
+Prompt 4 changes:
+- Added ngo_profiles model, schemas, and migration.
+- Added profile service with completeness calculation.
+- Added auth-guarded NGO profile CRUD routes.
+- Added auth dependency and domain error handling.
