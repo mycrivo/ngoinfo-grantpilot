@@ -1,3 +1,4 @@
+import enum
 import uuid
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Text, UniqueConstraint, text
@@ -5,6 +6,15 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+
+
+class UsageActionType(str, enum.Enum):
+    """Python-only action type enum (not a Postgres ENUM) for MVP flexibility."""
+
+    FIT_SCAN = "FIT_SCAN"
+    PROPOSAL_CREATE = "PROPOSAL_CREATE"
+    PROPOSAL_REGEN = "PROPOSAL_REGEN"
+    DOCX_EXPORT = "DOCX_EXPORT"
 
 
 class UsageLedger(Base):
@@ -32,7 +42,11 @@ class UsageLedger(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    event_type: Mapped[str] = mapped_column(Text, nullable=False)
+    event_type: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        # Valid action_type values: FIT_SCAN, PROPOSAL_CREATE, PROPOSAL_REGEN, DOCX_EXPORT.
+    )
     occurred_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")
     )
