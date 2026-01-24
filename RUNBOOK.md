@@ -31,6 +31,24 @@ Expected JSON fields:
 2) Run migrations:
    - `alembic upgrade head`
 
+## Production deploy migrations (Railway)
+
+1) Ensure the service uses the repo `Procfile` (`web: bash scripts/start.sh`).
+2) Deploy to the `ngoinfo-grantpilot` Railway service.
+3) Confirm logs include `Running Alembic migrations...` and `Starting API...`.
+4) Verify `/health` returns 200.
+
 ## DB readiness check (manual)
 
 - `python -c "from app.db.session import check_db_connection; raise SystemExit(check_db_connection() or 0)"`
+
+## Production DB Drift Check
+
+Use the Railway Postgres console (or `psql` with the Railway connection string):
+
+- `select version_num from alembic_version;`
+- `\dt`
+
+Expected:
+- `version_num` is `0005_commercial_spine` (or later if new migrations exist).
+- Tables include `user_plans` and `usage_ledger` in addition to existing core tables.
