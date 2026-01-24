@@ -85,6 +85,21 @@ def _log_test_mode_event(request: Request, outcome: str) -> None:
     logger.info("test_mode_mint outcome=%s request_id=%s ip=%s", outcome, request_id, ip)
 
 
+def _log_auth_failure(
+    request: Request, event: str, *, user_id: uuid.UUID | None = None, detail: str | None = None
+) -> None:
+    request_id = request.headers.get("x-request-id") or "unknown"
+    ip = _get_client_ip(request)
+    logger.info(
+        "auth_failure event=%s request_id=%s ip=%s user_id=%s detail=%s",
+        event,
+        request_id,
+        ip,
+        str(user_id) if user_id else "unknown",
+        detail or "none",
+    )
+
+
 def _issue_refresh_token(db: Session, user_id: uuid.UUID) -> tuple[str, uuid.UUID]:
     now = datetime.now(timezone.utc)
     settings = get_settings()
@@ -164,8 +179,10 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     redirect = request.query_params.get("redirect") == "1"
 
     if not code:
+        _log_auth_failure(request, "oauth_code_missing")
         return error_response(request, 400, "OAUTH_CODE_MISSING", "Missing OAuth code")
     if not state or not _consume_oauth_state(state):
+        _log_auth_failure(request, "oauth_state_invalid")
         return error_response(request, 400, "OAUTH_STATE_INVALID", "Invalid OAuth state")
 
     settings = get_settings()
@@ -182,17 +199,20 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             timeout=10.0,
         )
     except Exception:
+        _log_auth_failure(request, "oauth_internal_error")
         return error_response(
             request, 500, "OAUTH_INTERNAL_ERROR", "OAuth internal error"
         )
 
     if token_resp.status_code != 200:
+        _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
 
     access_token = token_resp.json().get("access_token")
     if not access_token:
+        _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -203,6 +223,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         timeout=10.0,
     )
     if userinfo_resp.status_code != 200:
+        _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -213,6 +234,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     avatar_url = userinfo.get("picture")
 
     if not email:
+        _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -273,6 +295,7 @@ def magic_link_request(
     payload: MagicLinkRequest, request: Request, db: Session = Depends(get_db)
 ) -> JSONResponse:
     if not _is_valid_email(payload.email):
+        _log_auth_failure(request, "magic_link_invalid_email")
         return error_response(request, 422, "VALIDATION_ERROR", "Invalid email")
     email = payload.email.lower()
     ip = _get_client_ip(request)
@@ -284,6 +307,7 @@ def magic_link_request(
 
     settings = get_settings()
     if settings.EMAIL_PROVIDER.lower() != "resend":
+        _log_auth_failure(request, "magic_link_provider_error")
         return error_response(
             request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
         )
@@ -315,10 +339,12 @@ def magic_link_request(
             timeout=10.0,
         )
     except Exception:
+        _log_auth_failure(request, "magic_link_provider_error")
         return error_response(
             request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
         )
     if email_resp.status_code >= 400:
+        _log_auth_failure(request, "magic_link_provider_error")
         return error_response(
             request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
         )
@@ -341,14 +367,17 @@ def magic_link_consume(
     ).scalar_one_or_none()
 
     if token_record is None:
+        _log_auth_failure(request, "magic_link_token_invalid")
         return error_response(
             request, 400, "MAGIC_TOKEN_INVALID", "Invalid magic link token"
         )
     if token_record.consumed_at is not None:
+        _log_auth_failure(request, "magic_link_token_used")
         return error_response(
             request, 409, "MAGIC_TOKEN_ALREADY_USED", "Magic link already used"
         )
     if token_record.expires_at <= datetime.now(timezone.utc):
+        _log_auth_failure(request, "magic_link_token_expired")
         return error_response(
             request, 400, "MAGIC_TOKEN_EXPIRED", "Magic link token expired"
         )
@@ -412,14 +441,17 @@ def refresh_tokens(
             return error_response(request, 429, "RATE_LIMITED", "Too many requests")
 
     if token_record is None:
+        _log_auth_failure(request, "refresh_token_invalid", detail="not_found")
         return error_response(
             request, 401, "REFRESH_TOKEN_INVALID", "Invalid refresh token"
         )
     if token_record.revoked_at is not None:
+        _log_auth_failure(request, "refresh_token_revoked", user_id=token_record.user_id)
         return error_response(
             request, 401, "REFRESH_TOKEN_REVOKED", "Refresh token revoked"
         )
     if token_record.expires_at <= datetime.now(timezone.utc):
+        _log_auth_failure(request, "refresh_token_expired", user_id=token_record.user_id)
         return error_response(
             request, 401, "REFRESH_TOKEN_EXPIRED", "Refresh token expired"
         )
@@ -453,6 +485,12 @@ def logout(payload: LogoutRequest, request: Request, db: Session = Depends(get_d
     ).scalar_one_or_none()
 
     if token_record is None or token_record.revoked_at is not None:
+        _log_auth_failure(request, "logout_token_invalid")
+        return error_response(
+            request, 401, "REFRESH_TOKEN_INVALID", "Invalid refresh token"
+        )
+    if token_record.expires_at <= datetime.now(timezone.utc):
+        _log_auth_failure(request, "logout_token_expired", user_id=token_record.user_id)
         return error_response(
             request, 401, "REFRESH_TOKEN_INVALID", "Invalid refresh token"
         )
