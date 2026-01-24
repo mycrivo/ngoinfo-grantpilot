@@ -18,23 +18,44 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    applicant_type_enum = sa.Enum(
+    def create_enum_if_missing(name: str, values: list[str]) -> None:
+        values_sql = ", ".join(f"'{value}'" for value in values)
+        op.execute(
+            f"DO $$ BEGIN "
+            f"IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '{name}') THEN "
+            f"CREATE TYPE {name} AS ENUM ({values_sql}); "
+            f"END IF; END $$;"
+        )
+
+    create_enum_if_missing(
+        "applicant_type",
+        ["NGO", "INDIVIDUAL", "ACADEMIC_INSTITUTION", "CONSORTIUM", "MIXED"],
+    )
+    create_enum_if_missing("deadline_type", ["FIXED", "ROLLING", "VARIES"])
+    create_enum_if_missing(
+        "opportunity_status", ["DRAFT", "READY", "PUBLISHED", "ARCHIVED"]
+    )
+
+    applicant_type_enum = postgresql.ENUM(
         "NGO",
         "INDIVIDUAL",
         "ACADEMIC_INSTITUTION",
         "CONSORTIUM",
         "MIXED",
         name="applicant_type",
+        create_type=False,
     )
-    deadline_type_enum = sa.Enum("FIXED", "ROLLING", "VARIES", name="deadline_type")
-    status_enum = sa.Enum(
-        "DRAFT", "READY", "PUBLISHED", "ARCHIVED", name="opportunity_status"
+    deadline_type_enum = postgresql.ENUM(
+        "FIXED", "ROLLING", "VARIES", name="deadline_type", create_type=False
     )
-
-    bind = op.get_bind()
-    applicant_type_enum.create(bind, checkfirst=True)
-    deadline_type_enum.create(bind, checkfirst=True)
-    status_enum.create(bind, checkfirst=True)
+    status_enum = postgresql.ENUM(
+        "DRAFT",
+        "READY",
+        "PUBLISHED",
+        "ARCHIVED",
+        name="opportunity_status",
+        create_type=False,
+    )
 
     op.create_table(
         "funding_opportunities",
@@ -83,8 +104,6 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("funding_opportunities")
-
-    bind = op.get_bind()
-    sa.Enum(name="opportunity_status").drop(bind, checkfirst=True)
-    sa.Enum(name="deadline_type").drop(bind, checkfirst=True)
-    sa.Enum(name="applicant_type").drop(bind, checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS opportunity_status")
+    op.execute("DROP TYPE IF EXISTS deadline_type")
+    op.execute("DROP TYPE IF EXISTS applicant_type")
