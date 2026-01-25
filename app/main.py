@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.routes.auth import router as auth_router
 from app.api.routes.entitlements import router as entitlements_router
+from app.api.routes.fit_scans import router as fit_scans_router
 from app.api.routes.health import router as health_router
 from app.api.routes.ngo_profile import router as ngo_profile_router
 from app.core.config import validate_config
@@ -15,6 +16,7 @@ app = FastAPI()
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(entitlements_router)
+app.include_router(fit_scans_router)
 app.include_router(ngo_profile_router)
 
 
@@ -42,4 +44,7 @@ def domain_error_handler(request: Request, exc: DomainError):
         logging.getLogger("api").info(
             "domain_error code=%s request_id=%s", exc.error_code, request_id
         )
-    return JSONResponse(status_code=exc.status_code, content=payload)
+    status_code = exc.status_code
+    if exc.error_code == "QUOTA_EXCEEDED":
+        status_code = 429
+    return JSONResponse(status_code=status_code, content=payload)
