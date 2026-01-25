@@ -1,10 +1,14 @@
 import uuid
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import DateTime, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.fit_scan import FitScan
 
 
 class User(Base):
@@ -35,4 +39,8 @@ class User(Base):
     )
     last_login_at: Mapped[DateTime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+
+    fit_scans: Mapped[List["FitScan"]] = relationship(
+        "FitScan", back_populates="user", cascade="all, delete-orphan"
     )

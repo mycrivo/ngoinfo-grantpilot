@@ -1,11 +1,15 @@
 import enum
 import uuid
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import Boolean, CheckConstraint, Date, DateTime, Numeric, Text, text
 from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.fit_scan import FitScan
 
 
 class ApplicantType(str, enum.Enum):
@@ -112,3 +116,7 @@ class FundingOpportunity(Base):
     processing_status: Mapped[str | None] = mapped_column(Text, nullable=True)
     parsing_confidence: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     internal_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    fit_scans: Mapped[List["FitScan"]] = relationship(
+        "FitScan", back_populates="funding_opportunity"
+    )
