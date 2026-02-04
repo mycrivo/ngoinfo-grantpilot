@@ -393,6 +393,7 @@ def magic_link_consume(
             last_login_at=now,
         )
         db.add(user)
+        db.flush()
     else:
         user.auth_provider = "email"
         user.last_login_at = now
