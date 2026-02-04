@@ -459,6 +459,7 @@ def refresh_tokens(
     user = db.execute(select(User).where(User.id == token_record.user_id)).scalar_one()
     _revoke_active_refresh_tokens(db, user.id)
     new_refresh_token, new_token_id = _issue_refresh_token(db, user.id)
+    db.flush()
     token_record.revoked_at = datetime.now(timezone.utc)
     token_record.replaced_by_token_id = new_token_id
     access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
