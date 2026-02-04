@@ -16,6 +16,7 @@ class User(Base):
     __table_args__ = (
         UniqueConstraint("email", name="uq_users_email"),
         UniqueConstraint("google_sub", name="uq_users_google_sub"),
+        UniqueConstraint("stripe_customer_id", name="uq_users_stripe_customer_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -25,6 +26,7 @@ class User(Base):
     full_name: Mapped[str | None] = mapped_column(Text, nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     google_sub: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     auth_provider: Mapped[str] = mapped_column(
         Text, nullable=False, server_default="email"
     )

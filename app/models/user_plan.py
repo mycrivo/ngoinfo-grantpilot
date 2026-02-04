@@ -28,13 +28,14 @@ class UserPlan(Base):
         unique=True,
     )
     plan_name: Mapped[str] = mapped_column(Text, nullable=False)
-    plan_activated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
-    )
-    current_period_start: Mapped[DateTime | None] = mapped_column(
+    stripe_subscription_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    plan_activated_at: Mapped[DateTime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    current_period_end: Mapped[DateTime | None] = mapped_column(
+    billing_period_start: Mapped[DateTime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    billing_period_end: Mapped[DateTime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
     created_at: Mapped[DateTime] = mapped_column(

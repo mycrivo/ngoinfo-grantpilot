@@ -47,15 +47,15 @@ def get_or_create_user_plan(db: Session, user_id: uuid.UUID) -> UserPlan:
 def _ensure_paid_period(plan: UserPlan) -> None:
     if plan.plan_name == PLAN_FREE:
         return
-    if plan.current_period_start and plan.current_period_end:
+    if plan.billing_period_start and plan.billing_period_end:
         return
     activated_at = plan.plan_activated_at
     if activated_at.tzinfo is None:
         activated_at = activated_at.replace(tzinfo=timezone.utc)
     else:
         activated_at = activated_at.astimezone(timezone.utc)
-    plan.current_period_start = activated_at
-    plan.current_period_end = activated_at + timedelta(days=30)
+    plan.billing_period_start = activated_at
+    plan.billing_period_end = activated_at + timedelta(days=30)
 
 
 def _period_payload(plan: UserPlan) -> dict[str, str | None]:
@@ -67,8 +67,8 @@ def _period_payload(plan: UserPlan) -> dict[str, str | None]:
             "resets_at": None,
         }
     _ensure_paid_period(plan)
-    start_at = plan.current_period_start
-    end_at = plan.current_period_end
+    start_at = plan.billing_period_start
+    end_at = plan.billing_period_end
     return {
         "type": "BILLING_CYCLE",
         "start_at": start_at.isoformat() if start_at else None,
@@ -107,8 +107,8 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
     if plan.plan_name != PLAN_FREE:
         db.commit()
 
-    period_start = plan.current_period_start if plan.plan_name != PLAN_FREE else None
-    period_end = plan.current_period_end if plan.plan_name != PLAN_FREE else None
+    period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
+    period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
 
     fit_used = _usage_count(db, user_id, EVENT_FIT_SCAN, period_start, period_end)
     proposal_used = _usage_count(db, user_id, EVENT_PROPOSAL, period_start, period_end)
@@ -130,8 +130,8 @@ def enforce_quota(db: Session, user_id: uuid.UUID, event_type: str) -> None:
     if plan.plan_name != PLAN_FREE:
         db.commit()
 
-    period_start = plan.current_period_start if plan.plan_name != PLAN_FREE else None
-    period_end = plan.current_period_end if plan.plan_name != PLAN_FREE else None
+    period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
+    period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
 
     allowed = quota.fit_scans if event_type == EVENT_FIT_SCAN else quota.proposals
     used = _usage_count(db, user_id, event_type, period_start, period_end)
@@ -186,8 +186,6 @@ def record_usage(
         user_id=user_id,
         event_type=event_type,
         occurred_at=datetime.now(timezone.utc),
-        period_start=plan.current_period_start if plan.plan_name != PLAN_FREE else None,
-        period_end=plan.current_period_end if plan.plan_name != PLAN_FREE else None,
         idempotency_key=idempotency_key,
     )
     db.add(ledger)
