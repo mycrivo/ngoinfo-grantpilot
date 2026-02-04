@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -7,12 +8,20 @@ from app.api.routes.entitlements import router as entitlements_router
 from app.api.routes.fit_scans import router as fit_scans_router
 from app.api.routes.health import router as health_router
 from app.api.routes.ngo_profile import router as ngo_profile_router
-from app.core.config import validate_config
+from app.core.config import get_settings, validate_config
 from app.core.errors import DomainError
 
 validate_config()
+settings = get_settings()
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ALLOWED_ORIGINS.split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(entitlements_router)
