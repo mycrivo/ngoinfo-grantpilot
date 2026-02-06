@@ -191,9 +191,9 @@ class FitScanExecutor:
         )
         selected_variant_id = selected_variant_id or ""
 
-        user_prompt = USER_PROMPT_TEMPLATE.format(
-            prompt_inputs_json=prompt_inputs_json,
-            selected_variant_id=selected_variant_id,
+        user_prompt = (
+            USER_PROMPT_TEMPLATE.replace("{prompt_inputs_json}", prompt_inputs_json)
+            .replace("{selected_variant_id}", selected_variant_id)
         )
 
         try:
