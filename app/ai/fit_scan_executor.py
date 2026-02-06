@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 from app.core.errors import DomainError
-from app.integrations.openai_client import OpenAIClient
+from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
 
 PROMPT_LIBRARY_VERSION = "1.0.1"
 MODEL_NAME = "gpt-5.2"
@@ -180,7 +180,9 @@ class FitScanExecutor:
     def __init__(self, client: OpenAIClient | None = None) -> None:
         self._client = client or OpenAIClient()
 
-    def execute(self, prompt_inputs: dict) -> dict[str, Any]:
+    def execute(
+        self, prompt_inputs: dict, *, feature: str = "fit_scan", user_id: str | None = None
+    ) -> dict[str, Any]:
         prompt_inputs_json = json.dumps(prompt_inputs, separators=(",", ":"), ensure_ascii=False)
         selected_variant_id = (
             prompt_inputs.get("prompt_inputs", {})
@@ -194,19 +196,32 @@ class FitScanExecutor:
             selected_variant_id=selected_variant_id,
         )
 
-        response = self._client.create_chat_completion(
-            model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.2,
-            top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-            max_tokens=900,
-        )
+        try:
+            response = self._client.create_chat_completion(
+                model=MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.2,
+                top_p=1.0,
+                frequency_penalty=0.0,
+                presence_penalty=0.0,
+                max_tokens=900,
+                feature=feature,
+                user_id=user_id,
+            )
+        except OpenAIServiceError as exc:
+            raise DomainError(
+                error_code="FIT_SCAN_FAILED",
+                message="AI service unavailable",
+                status_code=500,
+                details={
+                    "reason": exc.category,
+                    "retry_attempted": exc.retry_attempted,
+                },
+            ) from exc
         payload = _extract_json_payload(response)
         _validate_fit_scan_payload(payload)
         return payload
@@ -217,11 +232,7 @@ def _extract_json_payload(response: dict[str, Any]) -> dict[str, Any]:
         content = response["choices"][0]["message"]["content"]
         return json.loads(content)
     except Exception as exc:  # pragma: no cover - runtime safeguard
-        raise DomainError(
-            error_code="FIT_SCAN_FAILED",
-            message="Invalid Fit Scan response payload",
-            status_code=500,
-        ) from exc
+        _raise_fit_scan_failed("Invalid Fit Scan response payload", reason="AI_OUTPUT_INVALID")
 
 
 def _validate_fit_scan_payload(payload: dict[str, Any]) -> None:
@@ -247,9 +258,10 @@ def _validate_fit_scan_payload(payload: dict[str, Any]) -> None:
         _raise_fit_scan_failed("Missing primary_rationale")
 
 
-def _raise_fit_scan_failed(message: str) -> None:
+def _raise_fit_scan_failed(message: str, *, reason: str = "AI_OUTPUT_INVALID") -> None:
     raise DomainError(
         error_code="FIT_SCAN_FAILED",
         message=message,
         status_code=500,
+        details={"reason": reason},
     )

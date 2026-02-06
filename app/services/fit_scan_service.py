@@ -60,7 +60,9 @@ class FitScanService:
         enforce_quota(self.db, user.id, UsageActionType.FIT_SCAN.value)
 
         prompt_inputs = build_fit_scan_prompt_inputs(profile, opportunity)
-        result_json = self.executor.execute(prompt_inputs)
+        result_json = self.executor.execute(
+            prompt_inputs, feature="fit_scan", user_id=str(user.id)
+        )
 
         fit_summary = result_json["fit_summary"]
         model_rating = fit_summary["overall_fit_rating"]
