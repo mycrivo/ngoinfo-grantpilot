@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     AUTH_REFRESH_TOKEN_TTL_DAYS: int
     AUTH_MAGIC_LINK_TTL_MIN: int
     AUTH_ALLOWED_REDIRECT_URLS: str
+    AUTH_POST_LOGIN_REDIRECT_URL: str = "https://grantpilot.ngoinfo.org/auth/callback"
     AUTH_RATE_LIMIT_ENABLED: bool
 
     GOOGLE_OAUTH_CLIENT_ID: str
@@ -100,6 +101,7 @@ def validate_config() -> Settings:
         "DATABASE_URL": settings.DATABASE_URL,
         "AUTH_JWT_SIGNING_KEY": settings.AUTH_JWT_SIGNING_KEY,
         "AUTH_ALLOWED_REDIRECT_URLS": settings.AUTH_ALLOWED_REDIRECT_URLS,
+        "AUTH_POST_LOGIN_REDIRECT_URL": settings.AUTH_POST_LOGIN_REDIRECT_URL,
         "GOOGLE_OAUTH_CLIENT_ID": settings.GOOGLE_OAUTH_CLIENT_ID,
         "GOOGLE_OAUTH_CLIENT_SECRET": settings.GOOGLE_OAUTH_CLIENT_SECRET,
         "GOOGLE_OAUTH_REDIRECT_URI": settings.GOOGLE_OAUTH_REDIRECT_URI,
@@ -142,6 +144,10 @@ def validate_config() -> Settings:
         errors.append("CONFIG_ERROR AUTH_ALLOWED_REDIRECT_URLS: must include at least one URL")
     elif not all(_is_valid_url(url) for url in redirect_urls):
         errors.append("CONFIG_ERROR AUTH_ALLOWED_REDIRECT_URLS: all URLs must be valid http(s) URLs")
+    if not _is_valid_url(settings.AUTH_POST_LOGIN_REDIRECT_URL):
+        errors.append(
+            "CONFIG_ERROR AUTH_POST_LOGIN_REDIRECT_URL: must be a valid http(s) URL"
+        )
 
     if settings.AUTH_ACCESS_TOKEN_TTL_MIN <= 0:
         errors.append("CONFIG_ERROR AUTH_ACCESS_TOKEN_TTL_MIN: must be > 0")

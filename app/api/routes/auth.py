@@ -13,17 +13,21 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.rate_limit import RateLimiter
-from app.core.security import create_access_token, generate_opaque_token, hash_token
+from app.core.security import generate_opaque_token, hash_token
 from app.db.session import get_db
 from app.models.auth_magic_link_token import AuthMagicLinkToken
 from app.models.auth_refresh_token import AuthRefreshToken
 from app.models.user import User
+from app.services.auth_service import (
+    build_magic_link_url,
+    get_post_login_redirect_url,
+    issue_access_token,
+)
 
 logger = logging.getLogger("auth")
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 rate_limiter = RateLimiter()
 oauth_state_store: dict[str, datetime] = {}
-AUTH_POST_LOGIN_REDIRECT_URL = "https://grantpilot.ngoinfo.org/auth/callback"
 SMOKE_TEST_EMAIL = "smoke-test@grantpilot.local"
 
 
@@ -251,6 +255,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             last_login_at=now,
         )
         db.add(user)
+        db.flush()
     else:
         if not user.google_sub:
             user.google_sub = google_sub
@@ -261,7 +266,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
 
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
-    access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
+    access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
 
     logger.info("auth_success provider=google user_id=%s", user.id)
@@ -270,7 +275,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         params = urlencode(
             {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}
         )
-        redirect_url = f"{AUTH_POST_LOGIN_REDIRECT_URL}?{params}"
+        redirect_url = f"{get_post_login_redirect_url()}?{params}"
         return RedirectResponse(url=redirect_url)
 
     return JSONResponse(
@@ -284,7 +289,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
                 "id": str(user.id),
                 "email": user.email,
                 "full_name": user.full_name,
-                "plan": "FREE",
+                "plan": plan,
             },
         },
     )
@@ -326,6 +331,7 @@ def magic_link_request(
     db.add(token_record)
     db.commit()
 
+    login_link = build_magic_link_url(raw_token)
     try:
         email_resp = httpx.post(
             "https://api.resend.com/emails",
@@ -334,7 +340,11 @@ def magic_link_request(
                 "from": f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM_ADDRESS}>",
                 "to": [email],
                 "subject": "Your GrantPilot login link",
-                "text": f"Your login token: {raw_token}",
+                "text": (
+                    "Click to log in to GrantPilot:\n"
+                    f"{login_link}\n\n"
+                    f"This link expires in {settings.AUTH_MAGIC_LINK_TTL_MIN} minutes."
+                ),
             },
             timeout=10.0,
         )
@@ -400,7 +410,7 @@ def magic_link_consume(
 
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
-    access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
+    access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
 
     logger.info("auth_success provider=magic_link user_id=%s", user.id)
@@ -416,7 +426,7 @@ def magic_link_consume(
                 "id": str(user.id),
                 "email": user.email,
                 "full_name": user.full_name,
-                "plan": "FREE",
+                "plan": plan,
             },
         },
     )
@@ -463,7 +473,7 @@ def refresh_tokens(
     db.flush()
     token_record.revoked_at = datetime.now(timezone.utc)
     token_record.replaced_by_token_id = new_token_id
-    access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
+    access_token, expires_in, _ = issue_access_token(db, user)
     db.commit()
 
     logger.info("auth_refreshed user_id=%s", user.id)
@@ -540,7 +550,7 @@ def test_mode_mint(request: Request, db: Session = Depends(get_db)):
 
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
-    access_token, expires_in = create_access_token(str(user.id), user.email, "FREE")
+    access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
 
     _log_test_mode_event(request, "success")
@@ -555,7 +565,7 @@ def test_mode_mint(request: Request, db: Session = Depends(get_db)):
                 "id": str(user.id),
                 "email": user.email,
                 "full_name": user.full_name,
-                "plan": "FREE",
+                "plan": plan,
             },
         },
     )
