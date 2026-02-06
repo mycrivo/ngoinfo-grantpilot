@@ -182,6 +182,24 @@ def record_usage(
     if plan.plan_name != PLAN_FREE:
         db.commit()
 
+    period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
+    period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
+    quota = PLAN_QUOTAS[plan.plan_name]
+    allowed = quota.fit_scans if event_type == EVENT_FIT_SCAN else quota.proposals
+    used = _usage_count(db, user_id, event_type, period_start, period_end)
+    remaining = allowed - used
+    if remaining <= 0:
+        raise ForbiddenError(
+            error_code="QUOTA_EXCEEDED",
+            message="Quota exhausted for this action.",
+            status_code=403,
+            details={
+                "resource": event_type,
+                "remaining": max(remaining, 0),
+                "resets_at": period_end.isoformat() if period_end else None,
+            },
+        )
+
     ledger = UsageLedger(
         user_id=user_id,
         event_type=event_type,
