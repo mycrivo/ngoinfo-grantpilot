@@ -15,7 +15,9 @@ def test_google_start_scope_is_space_delimited(monkeypatch):
         )
 
     monkeypatch.setattr(auth_routes, "get_settings", fake_settings)
-    monkeypatch.setattr(auth_routes, "_store_oauth_state", lambda _state: None)
+    monkeypatch.setattr(
+        auth_routes, "_store_oauth_state", lambda _state, redirect_mode: None
+    )
 
     class DummyRequest:
         query_params = {}
@@ -34,6 +36,8 @@ def test_google_start_scope_is_space_delimited(monkeypatch):
 
 
 def test_google_start_redirect_mode_sets_redirect_uri(monkeypatch):
+    captured: dict[str, bool] = {}
+
     def fake_settings():
         return SimpleNamespace(
             GOOGLE_OAUTH_CLIENT_ID="client",
@@ -43,7 +47,11 @@ def test_google_start_redirect_mode_sets_redirect_uri(monkeypatch):
         )
 
     monkeypatch.setattr(auth_routes, "get_settings", fake_settings)
-    monkeypatch.setattr(auth_routes, "_store_oauth_state", lambda _state: None)
+    monkeypatch.setattr(
+        auth_routes,
+        "_store_oauth_state",
+        lambda _state, redirect_mode: captured.setdefault("redirect_mode", redirect_mode),
+    )
 
     class DummyRequest:
         query_params = {"redirect": "1"}
@@ -58,4 +66,5 @@ def test_google_start_redirect_mode_sets_redirect_uri(monkeypatch):
     redirect_uri = qs["redirect_uri"][0]
     redirect_parsed = urlparse(redirect_uri)
     redirect_qs = parse_qs(redirect_parsed.query)
-    assert redirect_qs.get("redirect") == ["1"]
+    assert redirect_qs.get("redirect") is None
+    assert captured.get("redirect_mode") is True

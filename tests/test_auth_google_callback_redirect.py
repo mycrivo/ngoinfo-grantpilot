@@ -65,9 +65,10 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
     monkeypatch.setattr(auth_routes.httpx, "get", fake_get)
 
     state = "state123"
-    auth_routes.oauth_state_store[state] = datetime.now(timezone.utc) + timedelta(
-        minutes=5
-    )
+    auth_routes.oauth_state_store[state] = {
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=5),
+        "redirect_mode": True,
+    }
 
     class DummyRequest:
         query_params = {"code": "code", "state": state, "redirect": "1"}

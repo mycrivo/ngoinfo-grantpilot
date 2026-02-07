@@ -2,7 +2,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Depends, Request
@@ -30,7 +30,7 @@ from app.services.auth_service import (
 logger = logging.getLogger("auth")
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 rate_limiter = RateLimiter()
-oauth_state_store: dict[str, datetime] = {}
+oauth_state_store: dict[str, dict[str, Any]] = {}
 SMOKE_TEST_EMAIL = "smoke-test@grantpilot.local"
 
 
@@ -140,13 +140,21 @@ def _revoke_active_refresh_tokens(db: Session, user_id: uuid.UUID) -> None:
     )
 
 
-def _store_oauth_state(state: str) -> None:
-    oauth_state_store[state] = datetime.now(timezone.utc) + timedelta(minutes=10)
+def _store_oauth_state(state: str, *, redirect_mode: bool) -> None:
+    oauth_state_store[state] = {
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=10),
+        "redirect_mode": redirect_mode,
+    }
 
 
-def _consume_oauth_state(state: str) -> bool:
-    expires_at = oauth_state_store.pop(state, None)
-    return bool(expires_at and expires_at > datetime.now(timezone.utc))
+def _consume_oauth_state(state: str) -> dict[str, Any] | None:
+    record = oauth_state_store.pop(state, None)
+    if not record:
+        return None
+    expires_at = record.get("expires_at")
+    if not expires_at or expires_at <= datetime.now(timezone.utc):
+        return None
+    return record
 
 
 @router.get("/google/start")
@@ -162,23 +170,17 @@ def google_oauth_start(request: Request) -> JSONResponse:
         )
 
     state = generate_opaque_token(24)
-    _store_oauth_state(state)
+    redirect_mode = request.query_params.get("redirect") == "1"
+    _store_oauth_state(state, redirect_mode=redirect_mode)
     scopes = (
         request.query_params.get("scopes")
         or get_settings().GOOGLE_OAUTH_SCOPES
         or "openid email profile"
     )
-    redirect_uri = settings.GOOGLE_OAUTH_REDIRECT_URI
-    if request.query_params.get("redirect") == "1":
-        parsed = urlparse(redirect_uri)
-        query_params = dict(parse_qsl(parsed.query, keep_blank_values=True))
-        query_params["redirect"] = "1"
-        redirect_uri = urlunparse(parsed._replace(query=urlencode(query_params)))
-
     query = urlencode(
         {
             "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-            "redirect_uri": redirect_uri,
+            "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
             "response_type": "code",
             "scope": scopes,
             "state": state,
@@ -194,12 +196,13 @@ def google_oauth_start(request: Request) -> JSONResponse:
 def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     code = request.query_params.get("code")
     state = request.query_params.get("state")
-    redirect = request.query_params.get("redirect") == "1"
+    state_record = _consume_oauth_state(state) if state else None
+    redirect = bool(state_record and state_record.get("redirect_mode"))
 
     if not code:
         _log_auth_failure(request, "oauth_code_missing")
         return error_response(request, 400, "OAUTH_CODE_MISSING", "Missing OAuth code")
-    if not state or not _consume_oauth_state(state):
+    if not state or not state_record:
         _log_auth_failure(request, "oauth_state_invalid")
         return error_response(request, 400, "OAUTH_STATE_INVALID", "Invalid OAuth state")
 
