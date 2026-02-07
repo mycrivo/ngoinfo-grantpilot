@@ -160,7 +160,7 @@ def google_oauth_start(request: Request) -> JSONResponse:
     scopes = (
         request.query_params.get("scopes")
         or get_settings().GOOGLE_OAUTH_SCOPES
-        or "openid,email,profile"
+        or "openid email profile"
     )
     query = urlencode(
         {
