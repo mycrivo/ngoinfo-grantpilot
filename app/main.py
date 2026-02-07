@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.routes.auth import router as auth_router
+from app.api.routes.billing import router as billing_router
 from app.api.routes.entitlements import router as entitlements_router
 from app.api.routes.fit_scans import router as fit_scans_router
 from app.api.routes.health import router as health_router
@@ -24,6 +25,7 @@ app.add_middleware(
 )
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(billing_router)
 app.include_router(entitlements_router)
 app.include_router(fit_scans_router)
 app.include_router(ngo_profile_router)

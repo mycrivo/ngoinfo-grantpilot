@@ -7,3 +7,4 @@ psycopg2-binary==2.9.9
 PyJWT==2.8.0
 httpx==0.25.2
 pytest==7.4.3
+stripe>=8.0.0

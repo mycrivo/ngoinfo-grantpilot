@@ -4,6 +4,7 @@ from app.models.auth_refresh_token import AuthRefreshToken
 from app.models.fit_scan import FitScan
 from app.models.funding_opportunity import FundingOpportunity
 from app.models.ngo_profile import NGOProfile
+from app.models.stripe_event import StripeEvent
 from app.models.usage_ledger import UsageLedger
 from app.models.user import User
 from app.models.user_plan import UserPlan
@@ -15,6 +16,7 @@ __all__ = [
     "FitScan",
     "FundingOpportunity",
     "NGOProfile",
+    "StripeEvent",
     "UsageLedger",
     "User",
     "UserPlan",
