@@ -2,7 +2,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from urllib.parse import urlencode
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import httpx
 from fastapi import APIRouter, Depends, Request
@@ -20,6 +20,8 @@ from app.models.auth_refresh_token import AuthRefreshToken
 from app.models.user import User
 from app.services.auth_service import (
     build_magic_link_url,
+    consume_oauth_exchange_code,
+    create_oauth_exchange_code,
     get_post_login_redirect_url,
     issue_access_token,
     is_redirect_allowed,
@@ -46,6 +48,10 @@ class RefreshRequest(BaseModel):
 
 class LogoutRequest(BaseModel):
     refresh_token: str
+
+
+class OAuthExchangeRequest(BaseModel):
+    code: str
 
 
 def error_response(
@@ -162,10 +168,17 @@ def google_oauth_start(request: Request) -> JSONResponse:
         or get_settings().GOOGLE_OAUTH_SCOPES
         or "openid email profile"
     )
+    redirect_uri = settings.GOOGLE_OAUTH_REDIRECT_URI
+    if request.query_params.get("redirect") == "1":
+        parsed = urlparse(redirect_uri)
+        query_params = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        query_params["redirect"] = "1"
+        redirect_uri = urlunparse(parsed._replace(query=urlencode(query_params)))
+
     query = urlencode(
         {
             "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-            "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
+            "redirect_uri": redirect_uri,
             "response_type": "code",
             "scope": scopes,
             "state": state,
@@ -265,6 +278,18 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         user.auth_provider = "google"
         user.last_login_at = now
 
+    if redirect:
+        base_redirect = get_post_login_redirect_url()
+        if not is_redirect_allowed(base_redirect):
+            _log_auth_failure(request, "oauth_redirect_not_allowed")
+            return error_response(
+                request, 400, "OAUTH_EXCHANGE_FAILED", "Redirect URL is not allowlisted"
+            )
+        code = create_oauth_exchange_code(db, user.id)
+        db.commit()
+        redirect_url = f"{base_redirect}?{urlencode({'code': code})}"
+        return RedirectResponse(url=redirect_url)
+
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)
@@ -272,18 +297,49 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
 
     logger.info("auth_success provider=google user_id=%s", user.id)
 
-    if redirect:
-        params = urlencode(
-            {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}
+    return JSONResponse(
+        status_code=200,
+        content={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "Bearer",
+            "expires_in": expires_in,
+            "user": {
+                "id": str(user.id),
+                "email": user.email,
+                "full_name": user.full_name,
+                "plan": plan,
+            },
+        },
+    )
+
+
+@router.post("/exchange")
+def oauth_exchange(
+    payload: OAuthExchangeRequest, request: Request, db: Session = Depends(get_db)
+):
+    if not payload.code:
+        _log_auth_failure(request, "oauth_code_missing")
+        return error_response(request, 400, "OAUTH_CODE_MISSING", "Missing OAuth code")
+
+    code_record = consume_oauth_exchange_code(db, payload.code)
+    if not code_record:
+        _log_auth_failure(request, "oauth_exchange_failed")
+        return error_response(
+            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
-        base_redirect = get_post_login_redirect_url()
-        if not is_redirect_allowed(base_redirect):
-            _log_auth_failure(request, "oauth_redirect_not_allowed")
-            return error_response(
-                request, 400, "OAUTH_EXCHANGE_FAILED", "Redirect URL is not allowlisted"
-            )
-        redirect_url = f"{base_redirect}?{params}"
-        return RedirectResponse(url=redirect_url)
+
+    user = db.execute(select(User).where(User.id == code_record.user_id)).scalar_one_or_none()
+    if not user:
+        _log_auth_failure(request, "oauth_exchange_failed")
+        return error_response(
+            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
+        )
+
+    _revoke_active_refresh_tokens(db, user.id)
+    refresh_token, _ = _issue_refresh_token(db, user.id)
+    access_token, expires_in, plan = issue_access_token(db, user)
+    db.commit()
 
     return JSONResponse(
         status_code=200,

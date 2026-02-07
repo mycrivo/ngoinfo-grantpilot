@@ -46,7 +46,7 @@ Purpose: completes OAuth, issues tokens
 Behavior:
 - Default: return JSON
 - If `?redirect=1` is provided: redirect user agent to `AUTH_POST_LOGIN_REDIRECT_URL`
-  with query params: `access_token`, `refresh_token`, `expires_in`
+  with query params: `code` (short-lived one-time exchange code)
 
 Response 200 (JSON default):
 ```
@@ -70,7 +70,36 @@ Errors:
 - 401 OAUTH_EXCHANGE_FAILED
 - 500 OAUTH_INTERNAL_ERROR
 
-### 3) POST /api/auth/magic-link/request
+### 3) POST /api/auth/exchange
+Purpose: exchange short-lived OAuth redirect code for tokens
+
+Request:
+```
+{ "code": "opaque_one_time_code" }
+```
+
+Response 200 (same as OAuth callback JSON response):
+```
+{
+  "access_token": "jwt",
+  "refresh_token": "opaque",
+  "token_type": "Bearer",
+  "expires_in": 900,
+  "user": {
+    "id": "uuid",
+    "email": "user@example.org",
+    "full_name": "Optional Name",
+    "plan": "FREE"
+  }
+}
+```
+
+Errors:
+- 400 OAUTH_CODE_MISSING
+- 401 OAUTH_EXCHANGE_FAILED
+- 500 OAUTH_INTERNAL_ERROR
+
+### 4) POST /api/auth/magic-link/request
 Request:
 ```
 { "email": "user@example.org" }
@@ -86,7 +115,7 @@ Errors:
 - 429 RATE_LIMITED
 - 500 EMAIL_PROVIDER_ERROR
 
-### 4) POST /api/auth/magic-link/consume
+### 5) POST /api/auth/magic-link/consume
 Request:
 ```
 { "token": "opaque_token_from_email" }
@@ -100,7 +129,7 @@ Errors:
 - 409 MAGIC_TOKEN_ALREADY_USED
 - 429 RATE_LIMITED
 
-### 5) POST /api/auth/refresh
+### 6) POST /api/auth/refresh
 Request:
 ```
 { "refresh_token": "opaque" }
@@ -122,7 +151,7 @@ Errors:
 - 401 REFRESH_TOKEN_REVOKED
 - 429 RATE_LIMITED
 
-### 6) POST /api/auth/logout
+### 7) POST /api/auth/logout
 Request:
 ```
 { "refresh_token": "opaque" }

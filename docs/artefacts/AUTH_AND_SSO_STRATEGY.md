@@ -63,6 +63,11 @@ Frontend hosting note
 - Frontend retries once on 401 via `/api/auth/refresh`
 - If refresh fails → redirect to login
 
+## OAuth Redirect Exchange (Locked)
+- OAuth redirect (`/api/auth/google/callback?redirect=1`) returns a short-lived one-time code.
+- Frontend exchanges the code via `POST /api/auth/exchange` to receive tokens.
+- Tokens are never placed in URLs or cookies.
+
 ## Rate Limiting (Locked)
 Enforced only if `AUTH_RATE_LIMIT_ENABLED=true`.
 

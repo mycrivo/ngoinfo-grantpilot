@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
 from sqlalchemy import select
@@ -8,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import create_access_token
+from app.core.security import generate_opaque_token, hash_token
+from app.models.auth_oauth_exchange_code import AuthOAuthExchangeCode
 from app.models.user import User
 from app.models.user_plan import UserPlan
 
@@ -42,3 +45,39 @@ def is_redirect_allowed(url: str) -> bool:
     settings = get_settings()
     allowlist = [item.strip() for item in settings.AUTH_ALLOWED_REDIRECT_URLS.split(",") if item.strip()]
     return url in allowlist
+
+
+def create_oauth_exchange_code(
+    db: Session, user_id: uuid.UUID, *, ttl_seconds: int = 90
+) -> str:
+    raw_code = generate_opaque_token(24)
+    code_hash = hash_token(raw_code)
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
+    record = AuthOAuthExchangeCode(
+        user_id=user_id,
+        code_hash=code_hash,
+        expires_at=expires_at,
+    )
+    db.add(record)
+    return raw_code
+
+
+def consume_oauth_exchange_code(
+    db: Session, code: str
+) -> AuthOAuthExchangeCode | None:
+    code_hash = hash_token(code)
+    record = db.execute(
+        select(AuthOAuthExchangeCode).where(AuthOAuthExchangeCode.code_hash == code_hash)
+    ).scalar_one_or_none()
+    if not record:
+        return None
+    if record.consumed_at is not None:
+        return None
+    if record.expires_at.tzinfo is None:
+        now = datetime.utcnow()
+    else:
+        now = datetime.now(timezone.utc)
+    if record.expires_at <= now:
+        return None
+    record.consumed_at = now
+    return record
