@@ -91,6 +91,7 @@ Note:
 | STRIPE_CHECKOUT_CANCEL_URL | Yes | https://grantpilot.ngoinfo.org/billing/cancel | Frontend route |
 | STRIPE_PRICE_ID_GROWTH | Yes | price_... | Monthly for MVP |
 | STRIPE_PRICE_ID_IMPACT | Yes | price_... | Monthly for MVP |
+| STRIPE_PORTAL_RETURN_URL | Recommended | https://grantpilot.ngoinfo.org/dashboard | Portal return route |
 
 Future (post-MVP):
 - STRIPE_PRICE_ID_GROWTH_ANNUAL

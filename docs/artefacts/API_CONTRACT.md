@@ -165,6 +165,61 @@ Response 200:
 Errors:
 - 401 REFRESH_TOKEN_INVALID
 
+## Billing API (Stripe)
+
+### A) POST /api/billing/checkout
+Purpose: create a Stripe Checkout session for subscription.
+
+Auth: REQUIRED (Bearer JWT)
+
+Request:
+```
+{ "plan": "GROWTH" | "IMPACT" }
+```
+
+Response 200:
+```
+{ "checkout_url": "<string>" }
+```
+
+Errors:
+- 400 BAD_REQUEST (invalid or missing plan)
+- 401 UNAUTHORIZED
+- 409 CONFLICT (already has an active paid subscription or checkout not allowed)
+- 500 INTERNAL_SERVER_ERROR
+
+### B) GET /api/billing/portal
+Purpose: create a Stripe Customer Portal session for self-service billing.
+
+Auth: REQUIRED (Bearer JWT)
+
+Request: none
+
+Response 200:
+```
+{ "portal_url": "<string>" }
+```
+
+Errors:
+- 400 BAD_REQUEST (no Stripe customer / no billing account)
+- 401 UNAUTHORIZED
+- 500 INTERNAL_SERVER_ERROR
+
+### C) POST /api/billing/webhook
+Purpose: receive Stripe webhook events.
+
+Auth: NONE (Stripe-signed request)
+
+Request: raw Stripe webhook payload
+
+Response 200: acknowledged (processed or duplicate)
+
+Errors:
+- 400 BAD_REQUEST (signature verification failed / invalid payload)
+- 500 INTERNAL_SERVER_ERROR (persistence failure or transient processing error)
+
+Note: Stripe is the billing source of truth; subscription state is synchronized via webhooks; DB stores a cache/projection for entitlements.
+
 Fit Scan Endpoints (MVP — Locked)
 7) POST /api/fit-scans
 
