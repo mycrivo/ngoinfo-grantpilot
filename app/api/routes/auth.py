@@ -22,6 +22,7 @@ from app.services.auth_service import (
     build_magic_link_url,
     get_post_login_redirect_url,
     issue_access_token,
+    is_redirect_allowed,
 )
 
 logger = logging.getLogger("auth")
@@ -275,7 +276,13 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         params = urlencode(
             {"access_token": access_token, "refresh_token": refresh_token, "expires_in": expires_in}
         )
-        redirect_url = f"{get_post_login_redirect_url()}?{params}"
+        base_redirect = get_post_login_redirect_url()
+        if not is_redirect_allowed(base_redirect):
+            _log_auth_failure(request, "oauth_redirect_not_allowed")
+            return error_response(
+                request, 400, "OAUTH_EXCHANGE_FAILED", "Redirect URL is not allowlisted"
+            )
+        redirect_url = f"{base_redirect}?{params}"
         return RedirectResponse(url=redirect_url)
 
     return JSONResponse(

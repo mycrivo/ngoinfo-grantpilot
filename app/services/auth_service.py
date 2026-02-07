@@ -36,3 +36,9 @@ def build_magic_link_url(raw_token: str) -> str:
     parsed = urlparse(post_login_url)
     base_url = f"{parsed.scheme}://{parsed.netloc}"
     return f"{base_url}/auth/magic-link?token={raw_token}"
+
+
+def is_redirect_allowed(url: str) -> bool:
+    settings = get_settings()
+    allowlist = [item.strip() for item in settings.AUTH_ALLOWED_REDIRECT_URLS.split(",") if item.strip()]
+    return url in allowlist
