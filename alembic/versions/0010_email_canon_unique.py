@@ -1,6 +1,6 @@
 """Add canonical email uniqueness index.
 
-Revision ID: 0010_users_email_canonical_unique
+Revision ID: 0010_email_canon_unique
 Revises: 0009_stripe_events
 Create Date: 2026-02-08
 
@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-revision: str = "0010_users_email_canonical_unique"
+revision: str = "0010_email_canon_unique"
 down_revision: Union[str, Sequence[str], None] = "0009_stripe_events"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
