@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 from authlib.integrations.httpx_client import OAuth2Client
 from authlib.oauth2.rfc7636 import create_s256_code_challenge
+import httpx
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
@@ -228,10 +229,28 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             code=code,
             code_verifier=code_verifier,
         )
-        userinfo_resp = client.get(
-            "https://openidconnect.googleapis.com/v1/userinfo", token=token
+    except Exception:
+        logger.exception("oauth_token_exchange_failed")
+        _log_auth_failure(request, "oauth_internal_error")
+        return error_response(
+            request, 500, "OAUTH_INTERNAL_ERROR", "OAuth internal error"
+        )
+
+    access_token = token.get("access_token") if isinstance(token, dict) else None
+    if not access_token:
+        _log_auth_failure(request, "oauth_exchange_failed")
+        return error_response(
+            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
+        )
+
+    try:
+        userinfo_resp = httpx.get(
+            "https://openidconnect.googleapis.com/v1/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10.0,
         )
     except Exception:
+        logger.exception("oauth_userinfo_failed")
         _log_auth_failure(request, "oauth_internal_error")
         return error_response(
             request, 500, "OAUTH_INTERNAL_ERROR", "OAuth internal error"
