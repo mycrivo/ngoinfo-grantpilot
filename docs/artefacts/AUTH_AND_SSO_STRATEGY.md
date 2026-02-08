@@ -75,7 +75,7 @@ Tokens must never appear in browser URLs. The post-login handoff uses a one-time
    e. Fetches actual plan from user_plans table
    f. Mints GrantPilot JWT access token + creates refresh token (existing logic)
    g. Generates a one-time auth_code (64-char random string)
-   h. Stores auth_code (hashed, in-memory, 60-second TTL) mapped to the minted tokens
+   h. Stores auth_code (hashed, DB-backed, 60-second TTL) mapped to the minted tokens
    i. Redirects browser to: {AUTH_POST_LOGIN_REDIRECT_URL}?code={auth_code}&state={forwarded_state}
 
 5. Frontend (on /auth/callback page):
@@ -107,27 +107,14 @@ State encoding (MVP):
 
 ### Auth Code Store (Implementation Detail)
 
-The one-time auth code is stored in an in-memory dict on the backend:
-
-```
-auth_code_store = {
-    "<code_hash>": {
-        "access_token": "jwt...",
-        "refresh_token": "opaque...",
-        "expires_in": 900,
-        "user": { "id": "uuid", "email": "...", "full_name": "...", "plan": "FREE" },
-        "created_at": timestamp
-    }
-}
-```
+The one-time auth code is stored in the database (hashed) to support persistence:
 
 Rules:
 - Auth code is a 64-character cryptographically random string
 - Stored as SHA-256 hash (never plain)
 - TTL: 60 seconds (entries older than 60s are rejected and cleaned up)
 - Single-use: deleted after successful exchange
-- Acceptable for single-instance Railway deployment (see mvp_execution_plan_FINAL_2.md Section 2.5)
-- Post-MVP: migrate to Redis if multi-instance is needed
+- DB-backed storage is the approved MVP implementation
 
 ### Account Linking (Unchanged)
 

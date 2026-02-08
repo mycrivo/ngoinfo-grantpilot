@@ -37,6 +37,7 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
         GOOGLE_OAUTH_CLIENT_ID="client",
         GOOGLE_OAUTH_CLIENT_SECRET="secret",
         GOOGLE_OAUTH_REDIRECT_URI="https://example.com/callback",
+        GOOGLE_OAUTH_SCOPES=None,
     )
 
     class DummyResponse:
@@ -47,31 +48,38 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
         def json(self):
             return self._payload
 
-    def fake_post(*_args, **_kwargs):
-        return DummyResponse(200, {"access_token": "token"})
+    class DummyOAuthClient:
+        def __init__(self, *args, **kwargs):
+            self.token = None
 
-    def fake_get(*_args, **_kwargs):
-        return DummyResponse(
-            200,
-            {
-                "email": "user@example.org",
-                "sub": "sub",
-                "name": "User",
-                "picture": "https://example.org/avatar.png",
-            },
-        )
+        def fetch_token(self, _token_url, code, code_verifier):
+            assert code == "code"
+            assert code_verifier == "verifier123"
+            self.token = {"access_token": "token"}
+            return self.token
 
-    monkeypatch.setattr(auth_routes.httpx, "post", fake_post)
-    monkeypatch.setattr(auth_routes.httpx, "get", fake_get)
+        def get(self, _url, token):
+            assert token == {"access_token": "token"}
+            return DummyResponse(
+                200,
+                {
+                    "email": "user@example.org",
+                    "sub": "sub",
+                    "name": "User",
+                    "picture": "https://example.org/avatar.png",
+                },
+            )
+
+    monkeypatch.setattr(auth_routes, "OAuth2Client", DummyOAuthClient)
 
     state = "state123"
     auth_routes.oauth_state_store[state] = {
         "expires_at": datetime.now(timezone.utc) + timedelta(minutes=5),
-        "redirect_mode": True,
+        "code_verifier": "verifier123",
     }
 
     class DummyRequest:
-        query_params = {"code": "code", "state": state, "redirect": "1"}
+        query_params = {"code": "code", "state": state}
         headers = {}
         client = None
 

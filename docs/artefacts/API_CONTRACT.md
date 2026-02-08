@@ -44,25 +44,9 @@ Errors:
 Purpose: completes OAuth, issues tokens
 
 Behavior:
-- Default: return JSON
-- If `?redirect=1` is provided: redirect user agent to `AUTH_POST_LOGIN_REDIRECT_URL`
+- Always redirect user agent to `AUTH_POST_LOGIN_REDIRECT_URL`
   with query params: `code` (short-lived one-time exchange code)
-
-Response 200 (JSON default):
-```
-{
-  "access_token": "jwt",
-  "refresh_token": "opaque",
-  "token_type": "Bearer",
-  "expires_in": 900,
-  "user": {
-    "id": "uuid",
-    "email": "user@example.org",
-    "full_name": "Optional Name",
-    "plan": "FREE"
-  }
-}
-```
+- Callback NEVER returns tokens or JSON payloads
 
 Errors:
 - 400 OAUTH_STATE_INVALID

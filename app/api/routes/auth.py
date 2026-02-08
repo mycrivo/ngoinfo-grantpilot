@@ -2,9 +2,8 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
-from urllib.parse import urlencode
-
-import httpx
+from authlib.integrations.httpx_client import OAuth2Client
+from authlib.oauth2.rfc7636 import create_s256_code_challenge
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
@@ -23,8 +22,11 @@ from app.services.auth_service import (
     consume_oauth_exchange_code,
     create_oauth_exchange_code,
     get_post_login_redirect_url,
+    get_or_create_user_for_google,
+    get_or_create_user_for_magic_link,
     issue_access_token,
     is_redirect_allowed,
+    normalize_email,
 )
 
 logger = logging.getLogger("auth")
@@ -140,10 +142,10 @@ def _revoke_active_refresh_tokens(db: Session, user_id: uuid.UUID) -> None:
     )
 
 
-def _store_oauth_state(state: str, *, redirect_mode: bool) -> None:
+def _store_oauth_state(state: str, *, code_verifier: str) -> None:
     oauth_state_store[state] = {
         "expires_at": datetime.now(timezone.utc) + timedelta(minutes=10),
-        "redirect_mode": redirect_mode,
+        "code_verifier": code_verifier,
     }
 
 
@@ -170,25 +172,28 @@ def google_oauth_start(request: Request) -> JSONResponse:
         )
 
     state = generate_opaque_token(24)
-    redirect_mode = request.query_params.get("redirect") == "1"
-    _store_oauth_state(state, redirect_mode=redirect_mode)
     scopes = (
         request.query_params.get("scopes")
         or get_settings().GOOGLE_OAUTH_SCOPES
         or "openid email profile"
     )
-    query = urlencode(
-        {
-            "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-            "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
-            "response_type": "code",
-            "scope": scopes,
-            "state": state,
-        }
+    code_verifier = generate_opaque_token(48)
+    code_challenge = create_s256_code_challenge(code_verifier)
+    client = OAuth2Client(
+        client_id=settings.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret=settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        scope=scopes,
+        redirect_uri=settings.GOOGLE_OAUTH_REDIRECT_URI,
     )
-    authorization_url = f"https://accounts.google.com/o/oauth2/v2/auth?{query}"
+    authorization_url, returned_state = client.create_authorization_url(
+        "https://accounts.google.com/o/oauth2/v2/auth",
+        state=state,
+        code_challenge=code_challenge,
+        code_challenge_method="S256",
+    )
+    _store_oauth_state(returned_state, code_verifier=code_verifier)
     return JSONResponse(
-        status_code=200, content={"authorization_url": authorization_url, "state": state}
+        status_code=200, content={"authorization_url": authorization_url, "state": returned_state}
     )
 
 
@@ -197,7 +202,6 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     code = request.query_params.get("code")
     state = request.query_params.get("state")
     state_record = _consume_oauth_state(state) if state else None
-    redirect = bool(state_record and state_record.get("redirect_mode"))
 
     if not code:
         _log_auth_failure(request, "oauth_code_missing")
@@ -207,17 +211,25 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         return error_response(request, 400, "OAUTH_STATE_INVALID", "Invalid OAuth state")
 
     settings = get_settings()
+    code_verifier = state_record.get("code_verifier") if state_record else None
+    if not code_verifier:
+        _log_auth_failure(request, "oauth_state_invalid")
+        return error_response(request, 400, "OAUTH_STATE_INVALID", "Invalid OAuth state")
+
+    client = OAuth2Client(
+        client_id=settings.GOOGLE_OAUTH_CLIENT_ID,
+        client_secret=settings.GOOGLE_OAUTH_CLIENT_SECRET,
+        scope=settings.GOOGLE_OAUTH_SCOPES or "openid email profile",
+        redirect_uri=settings.GOOGLE_OAUTH_REDIRECT_URI,
+    )
     try:
-        token_resp = httpx.post(
+        token = client.fetch_token(
             "https://oauth2.googleapis.com/token",
-            data={
-                "code": code,
-                "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-                "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET,
-                "redirect_uri": settings.GOOGLE_OAUTH_REDIRECT_URI,
-                "grant_type": "authorization_code",
-            },
-            timeout=10.0,
+            code=code,
+            code_verifier=code_verifier,
+        )
+        userinfo_resp = client.get(
+            "https://openidconnect.googleapis.com/v1/userinfo", token=token
         )
     except Exception:
         _log_auth_failure(request, "oauth_internal_error")
@@ -225,96 +237,42 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             request, 500, "OAUTH_INTERNAL_ERROR", "OAuth internal error"
         )
 
-    if token_resp.status_code != 200:
-        _log_auth_failure(request, "oauth_exchange_failed")
-        return error_response(
-            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
-        )
-
-    access_token = token_resp.json().get("access_token")
-    if not access_token:
-        _log_auth_failure(request, "oauth_exchange_failed")
-        return error_response(
-            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
-        )
-
-    userinfo_resp = httpx.get(
-        "https://openidconnect.googleapis.com/v1/userinfo",
-        headers={"Authorization": f"Bearer {access_token}"},
-        timeout=10.0,
-    )
     if userinfo_resp.status_code != 200:
         _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
+
     userinfo = userinfo_resp.json()
-    email = (userinfo.get("email") or "").lower()
+    email = userinfo.get("email") or ""
     google_sub = userinfo.get("sub")
     full_name = userinfo.get("name")
     avatar_url = userinfo.get("picture")
 
-    if not email:
+    if not email or not google_sub:
         _log_auth_failure(request, "oauth_exchange_failed")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
 
-    user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
-    now = datetime.now(timezone.utc)
-    if user is None:
-        user = User(
-            email=email,
-            full_name=full_name,
-            avatar_url=avatar_url,
-            google_sub=google_sub,
-            auth_provider="google",
-            last_login_at=now,
-        )
-        db.add(user)
-        db.flush()
-    else:
-        if not user.google_sub:
-            user.google_sub = google_sub
-        user.full_name = full_name or user.full_name
-        user.avatar_url = avatar_url or user.avatar_url
-        user.auth_provider = "google"
-        user.last_login_at = now
-
-    if redirect:
-        base_redirect = get_post_login_redirect_url()
-        if not is_redirect_allowed(base_redirect):
-            _log_auth_failure(request, "oauth_redirect_not_allowed")
-            return error_response(
-                request, 400, "OAUTH_EXCHANGE_FAILED", "Redirect URL is not allowlisted"
-            )
-        code = create_oauth_exchange_code(db, user.id)
-        db.commit()
-        redirect_url = f"{base_redirect}?{urlencode({'code': code})}"
-        return RedirectResponse(url=redirect_url)
-
-    _revoke_active_refresh_tokens(db, user.id)
-    refresh_token, _ = _issue_refresh_token(db, user.id)
-    access_token, expires_in, plan = issue_access_token(db, user)
-    db.commit()
-
-    logger.info("auth_success provider=google user_id=%s", user.id)
-
-    return JSONResponse(
-        status_code=200,
-        content={
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "token_type": "Bearer",
-            "expires_in": expires_in,
-            "user": {
-                "id": str(user.id),
-                "email": user.email,
-                "full_name": user.full_name,
-                "plan": plan,
-            },
-        },
+    user = get_or_create_user_for_google(
+        db,
+        email=email,
+        google_sub=google_sub,
+        full_name=full_name,
+        avatar_url=avatar_url,
     )
+
+    base_redirect = get_post_login_redirect_url()
+    if not is_redirect_allowed(base_redirect):
+        _log_auth_failure(request, "oauth_redirect_not_allowed")
+        return error_response(
+            request, 400, "OAUTH_EXCHANGE_FAILED", "Redirect URL is not allowlisted"
+        )
+    code = create_oauth_exchange_code(db, user.id)
+    db.commit()
+    redirect_url = f"{base_redirect}?code={code}"
+    return RedirectResponse(url=redirect_url)
 
 
 @router.post("/exchange")
@@ -368,7 +326,7 @@ def magic_link_request(
     if not _is_valid_email(payload.email):
         _log_auth_failure(request, "magic_link_invalid_email")
         return error_response(request, 422, "VALIDATION_ERROR", "Invalid email")
-    email = payload.email.lower()
+    email = normalize_email(payload.email)
     ip = _get_client_ip(request)
 
     if not _enforce_rate_limit(request, f"magic_email:{email}", 5, 3600):
@@ -460,19 +418,7 @@ def magic_link_consume(
 
     token_record.consumed_at = datetime.now(timezone.utc)
     email = token_record.email
-    user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
-    now = datetime.now(timezone.utc)
-    if user is None:
-        user = User(
-            email=email,
-            auth_provider="email",
-            last_login_at=now,
-        )
-        db.add(user)
-        db.flush()
-    else:
-        user.auth_provider = "email"
-        user.last_login_at = now
+    user = get_or_create_user_for_magic_link(db, email=email)
 
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
