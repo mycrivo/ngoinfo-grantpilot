@@ -61,6 +61,25 @@ def run_prompt(
     presence_penalty: float,
     max_tokens: int,
 ) -> dict[str, Any]:
+    expected = PROMPT_CONFIGS.get(prompt_id)
+    if not expected:
+        raise DomainError(
+            error_code="CONFIG_ERROR",
+            message="Prompt configuration is missing",
+            status_code=500,
+        )
+    if (
+        float(expected["temperature"]) != float(temperature)
+        or float(expected["top_p"]) != float(top_p)
+        or float(expected["frequency_penalty"]) != float(frequency_penalty)
+        or float(expected["presence_penalty"]) != float(presence_penalty)
+        or int(expected["max_tokens"]) != int(max_tokens)
+    ):
+        raise DomainError(
+            error_code="CONFIG_ERROR",
+            message="Prompt parameters do not match library configuration",
+            status_code=500,
+        )
     settings = get_settings()
     openai.api_key = settings.OPENAI_API_KEY
     openai.max_retries = 0

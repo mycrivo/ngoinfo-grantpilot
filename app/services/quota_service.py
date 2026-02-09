@@ -33,14 +33,23 @@ PLAN_QUOTAS: dict[str, PlanQuota] = {
 }
 
 
-def get_or_create_user_plan(db: Session, user_id: uuid.UUID) -> UserPlan:
+def get_or_create_user_plan(
+    db: Session,
+    user_id: uuid.UUID,
+    *,
+    commit: bool = True,
+) -> UserPlan:
     plan = db.execute(select(UserPlan).where(UserPlan.user_id == user_id)).scalar_one_or_none()
     if plan:
         return plan
     plan = UserPlan(user_id=user_id, plan_name=PLAN_FREE)
     db.add(plan)
-    db.commit()
-    db.refresh(plan)
+    if commit:
+        db.commit()
+        db.refresh(plan)
+    else:
+        db.flush()
+        db.refresh(plan)
     return plan
 
 
@@ -123,11 +132,17 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
     }
 
 
-def enforce_quota(db: Session, user_id: uuid.UUID, event_type: str) -> None:
-    plan = get_or_create_user_plan(db, user_id)
+def enforce_quota(
+    db: Session,
+    user_id: uuid.UUID,
+    event_type: str,
+    *,
+    commit: bool = True,
+) -> None:
+    plan = get_or_create_user_plan(db, user_id, commit=commit)
     quota = PLAN_QUOTAS[plan.plan_name]
     _ensure_paid_period(plan)
-    if plan.plan_name != PLAN_FREE:
+    if plan.plan_name != PLAN_FREE and commit:
         db.commit()
 
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
@@ -155,6 +170,7 @@ def record_usage(
     event_type: str,
     *,
     idempotency_key: str | None = None,
+    commit: bool = True,
 ) -> UsageLedger:
     try:
         validated_action = UsageActionType(event_type)
@@ -177,9 +193,9 @@ def record_usage(
         if existing:
             return existing
 
-    plan = get_or_create_user_plan(db, user_id)
+    plan = get_or_create_user_plan(db, user_id, commit=commit)
     _ensure_paid_period(plan)
-    if plan.plan_name != PLAN_FREE:
+    if plan.plan_name != PLAN_FREE and commit:
         db.commit()
 
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None

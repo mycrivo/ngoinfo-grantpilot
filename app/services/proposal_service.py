@@ -60,19 +60,19 @@ class ProposalService:
         requirements = opportunity.requirements_json
         if not requirements or not isinstance(requirements, dict):
             raise DomainError(
-                error_code="DEGRADED_MISSING_REQUIREMENTS",
-                message="requirements_json is missing or invalid",
-                status_code=409,
-                details=_degraded_payload(
-                    "DEGRADED_MISSING_REQUIREMENTS",
-                    "Requirements are missing or invalid",
-                    ["requirements_json"],
-                    ["Add requirements_json to opportunity"],
-                ),
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "missing_requirements_json"},
             )
 
-        enforce_quota(self.db, user.id, UsageActionType.PROPOSAL_CREATE.value)
         self._enforce_rate_limit(user.id)
+        enforce_quota(
+            self.db,
+            user.id,
+            UsageActionType.PROPOSAL_CREATE.value,
+            commit=True,
+        )
 
         prompt_inputs = build_prompt_inputs(profile, opportunity, payload.model_dump())
         derived = prompt_inputs["prompt_inputs"]["derived"]
@@ -129,16 +129,25 @@ class ProposalService:
             content_json={"sections": sections, "generation_summary": summary},
         )
 
-        record_usage(
-            self.db,
-            user.id,
-            UsageActionType.PROPOSAL_CREATE.value,
-            idempotency_key=str(uuid.uuid4()),
-        )
-
-        self.db.add(proposal)
         try:
-            self.db.commit()
+            with self.db.begin():
+                # GUARDRAILS: atomic quota check + decrement with persistence.
+                enforce_quota(
+                    self.db,
+                    user.id,
+                    UsageActionType.PROPOSAL_CREATE.value,
+                    commit=False,
+                )
+                record_usage(
+                    self.db,
+                    user.id,
+                    UsageActionType.PROPOSAL_CREATE.value,
+                    idempotency_key=str(uuid.uuid4()),
+                    commit=False,
+                )
+                self.db.add(proposal)
+        except DomainError:
+            raise
         except Exception as exc:  # pragma: no cover - DB-level failure
             self.db.rollback()
             raise DomainError(
