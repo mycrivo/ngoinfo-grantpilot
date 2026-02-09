@@ -65,43 +65,41 @@ class ProposalService:
                 status_code=422,
                 details={"reason": "missing_requirements_json"},
             )
+        if not _requirements_structurally_valid(requirements):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
 
-        self._enforce_rate_limit(user.id)
+        # Prechecks before any OpenAI call (no quota decrement here).
         enforce_quota(
             self.db,
             user.id,
             UsageActionType.PROPOSAL_CREATE.value,
-            commit=True,
+            commit=False,
         )
+        self._enforce_rate_limit(user.id)
 
         prompt_inputs = build_prompt_inputs(profile, opportunity, payload.model_dump())
         derived = prompt_inputs["prompt_inputs"]["derived"]
         selected_variant = derived.get("selected_variant") or {}
         if not selected_variant:
             raise DomainError(
-                error_code="DEGRADED_INVALID_VARIANT",
-                message="No valid variant found for this opportunity",
-                status_code=409,
-                details=_degraded_payload(
-                    "DEGRADED_INVALID_VARIANT",
-                    "Selected variant was not found",
-                    ["requirements_json.variants"],
-                    ["Select a valid variant"],
-                ),
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
             )
 
-        submission_items = selected_variant.get("submission_items") or []
-        if not submission_items:
+        submission_items = selected_variant.get("submission_items")
+        if not isinstance(submission_items, list) or not submission_items:
             raise DomainError(
-                error_code="DEGRADED_INVALID_VARIANT",
-                message="No submission items found for this opportunity",
-                status_code=409,
-                details=_degraded_payload(
-                    "DEGRADED_INVALID_VARIANT",
-                    "submission_items is empty for this opportunity",
-                    ["requirements_json.variants[].submission_items"],
-                    ["Add submission_items to the selected variant"],
-                ),
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
             )
 
         fit_scan_output = self._load_fit_scan_output(user.id, payload.fit_scan_id)
@@ -131,13 +129,9 @@ class ProposalService:
 
         try:
             with self.db.begin():
-                # GUARDRAILS: atomic quota check + decrement with persistence.
-                enforce_quota(
-                    self.db,
-                    user.id,
-                    UsageActionType.PROPOSAL_CREATE.value,
-                    commit=False,
-                )
+                # GUARDRAILS: atomic quota decrement with persistence.
+                self.db.add(proposal)
+                self.db.flush()
                 record_usage(
                     self.db,
                     user.id,
@@ -145,7 +139,6 @@ class ProposalService:
                     idempotency_key=str(uuid.uuid4()),
                     commit=False,
                 )
-                self.db.add(proposal)
         except DomainError:
             raise
         except Exception as exc:  # pragma: no cover - DB-level failure
@@ -466,3 +459,17 @@ def _degraded_payload(
         "missing_items": missing_items,
         "next_actions": next_actions,
     }
+
+
+def _requirements_structurally_valid(requirements: dict) -> bool:
+    variants = requirements.get("variants")
+    submission_items = requirements.get("submission_items")
+    if not variants and not submission_items:
+        return False
+    if variants is not None and not isinstance(variants, list):
+        return False
+    if submission_items is not None and not isinstance(submission_items, list):
+        return False
+    if not variants:
+        return False
+    return True
