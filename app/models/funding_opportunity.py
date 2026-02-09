@@ -10,6 +10,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.fit_scan import FitScan
+    from app.models.proposal import Proposal
 
 
 class ApplicantType(str, enum.Enum):
@@ -119,4 +120,7 @@ class FundingOpportunity(Base):
 
     fit_scans: Mapped[List["FitScan"]] = relationship(
         "FitScan", back_populates="funding_opportunity"
+    )
+    proposals: Mapped[List["Proposal"]] = relationship(
+        "Proposal", back_populates="funding_opportunity"
     )

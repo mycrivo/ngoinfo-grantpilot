@@ -9,6 +9,7 @@ from app.db.base import Base
 
 if TYPE_CHECKING:
     from app.models.fit_scan import FitScan
+    from app.models.proposal import Proposal
 
 
 class User(Base):
@@ -45,4 +46,7 @@ class User(Base):
 
     fit_scans: Mapped[List["FitScan"]] = relationship(
         "FitScan", back_populates="user", cascade="all, delete-orphan"
+    )
+    proposals: Mapped[List["Proposal"]] = relationship(
+        "Proposal", back_populates="user", cascade="all, delete-orphan"
     )
