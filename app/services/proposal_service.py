@@ -168,6 +168,127 @@ class ProposalService:
             )
         return proposal
 
+    def regenerate_proposal(self, *, user, proposal_id: uuid.UUID) -> Proposal:
+        proposal = self.get_proposal(user=user, proposal_id=proposal_id)
+        plan_name = _get_plan_name(self.db, user.id)
+        if plan_name == "FREE":
+            raise ForbiddenError(
+                error_code="REGENERATION_NOT_ALLOWED",
+                message="Regeneration is not allowed on the Free plan.",
+                status_code=403,
+            )
+        if proposal.regeneration_count >= 3:
+            raise ForbiddenError(
+                error_code="REGENERATION_LIMIT_REACHED",
+                message="Regeneration limit reached for this proposal.",
+                status_code=403,
+            )
+
+        opportunity = self.db.get(FundingOpportunity, proposal.funding_opportunity_id)
+        if (
+            not opportunity
+            or not opportunity.is_active
+            or opportunity.is_archived
+            or opportunity.status not in {OpportunityStatus.READY, OpportunityStatus.PUBLISHED}
+        ):
+            raise NotFoundError(
+                error_code="OPPORTUNITY_NOT_FOUND",
+                message="Funding opportunity not found",
+                status_code=404,
+            )
+
+        profile = self._load_profile_or_raise(user.id)
+
+        requirements = opportunity.requirements_json
+        if not requirements or not isinstance(requirements, dict):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "missing_requirements_json"},
+            )
+        if not _requirements_structurally_valid(requirements):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
+
+        user_inputs = {"selected_variant_id": proposal.selected_variant_id}
+        prompt_inputs = build_prompt_inputs(profile, opportunity, user_inputs)
+        derived = prompt_inputs["prompt_inputs"]["derived"]
+        selected_variant = derived.get("selected_variant") or {}
+        if not selected_variant:
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
+
+        submission_items = selected_variant.get("submission_items")
+        if not isinstance(submission_items, list) or not submission_items:
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
+
+        content_json = proposal.content_json or {}
+        existing_sections = content_json.get("sections")
+        if not isinstance(existing_sections, list) or not existing_sections:
+            raise DomainError(
+                error_code="PROPOSAL_REGEN_FAILED",
+                message="Proposal content is missing or invalid.",
+                status_code=500,
+            )
+
+        regenerated_sections, summary = self._regenerate_sections(
+            prompt_inputs=prompt_inputs,
+            submission_items=submission_items,
+            existing_sections=existing_sections,
+        )
+        if summary["generated"] <= 0:
+            raise DomainError(
+                error_code="PROPOSAL_REGEN_FAILED",
+                message="All proposal sections failed to regenerate",
+                status_code=500,
+            )
+
+        proposal.content_json = {
+            "sections": regenerated_sections,
+            "generation_summary": summary,
+        }
+        proposal.version = int(proposal.version) + 1
+        proposal.regeneration_count = int(proposal.regeneration_count) + 1
+        proposal.updated_at = datetime.now(timezone.utc)
+
+        try:
+            with self.db.begin():
+                self.db.add(proposal)
+                self.db.flush()
+                record_usage(
+                    self.db,
+                    user.id,
+                    UsageActionType.PROPOSAL_REGEN.value,
+                    idempotency_key=str(uuid.uuid4()),
+                    commit=False,
+                )
+        except DomainError:
+            raise
+        except Exception as exc:  # pragma: no cover - DB-level failure
+            self.db.rollback()
+            raise DomainError(
+                error_code="PROPOSAL_REGEN_FAILED",
+                message="Failed to persist regenerated proposal",
+                status_code=500,
+            ) from exc
+
+        self.db.refresh(proposal)
+        return proposal
+
     def _load_profile_or_raise(self, user_id: uuid.UUID) -> NGOProfile:
         try:
             return get_profile(self.db, user_id)
@@ -329,6 +450,115 @@ class ProposalService:
             "warnings": warnings,
         }
         return sections, summary
+
+    def _regenerate_sections(
+        self,
+        *,
+        prompt_inputs: dict[str, Any],
+        submission_items: list[dict[str, Any]],
+        existing_sections: list[dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        items_by_id = {item.get("item_id"): item for item in submission_items}
+        generatable_items = [
+            item for item in submission_items if item.get("generation_allowed") is True
+        ]
+        allowed_ids = {item.get("item_id") for item in generatable_items[:5]}
+
+        warnings: list[str] = []
+        regenerated: list[dict[str, Any]] = []
+        generated = 0
+        failed = 0
+        manual_required = 0
+
+        for section in existing_sections:
+            status = section.get("generation_status")
+            item_id = section.get("submission_item_id")
+            label = section.get("label") or ""
+            submission_item = items_by_id.get(item_id)
+
+            if status == "MANUAL_REQUIRED":
+                manual_required += 1
+                regenerated.append(section)
+                continue
+
+            if not submission_item:
+                raise DomainError(
+                    error_code="REQUIREMENTS_INVALID",
+                    message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
+                    status_code=422,
+                    details={"reason": "invalid_requirements_structure"},
+                )
+
+            format_constraints = submission_item.get("format_constraints") or {}
+            word_limit = int(format_constraints.get("word_limit") or 0)
+
+            if (
+                submission_item.get("generation_allowed") is not True
+                or item_id not in allowed_ids
+            ):
+                manual_required += 1
+                regenerated.append(
+                    _manual_section(
+                        item_id,
+                        label,
+                        word_limit,
+                        GENERATION_LIMIT_NOTE
+                        if item_id not in allowed_ids
+                        else MANUAL_REQUIRED_NOTE,
+                    )
+                )
+                continue
+
+            result = self._generate_item(
+                prompt_inputs=prompt_inputs,
+                fit_scan_output={},
+                submission_item=submission_item,
+            )
+            result_status = result.get("generation_status")
+            if result_status == "GENERATED":
+                generated += 1
+                regenerated.append(_generated_section(submission_item, result))
+            elif result_status == "INSUFFICIENT_INPUT":
+                failed += 1
+                regenerated.append(
+                    _failed_section(
+                        item_id,
+                        label,
+                        word_limit,
+                        "INSUFFICIENT_INPUT",
+                    )
+                )
+            elif result_status == "UPLOAD_REQUIRED":
+                manual_required += 1
+                regenerated.append(
+                    _manual_section(
+                        item_id,
+                        label,
+                        word_limit,
+                        MANUAL_REQUIRED_NOTE,
+                    )
+                )
+            else:
+                failed += 1
+                regenerated.append(
+                    _failed_section(
+                        item_id,
+                        label,
+                        word_limit,
+                        "AI_SERVICE_ERROR",
+                    )
+                )
+
+            warnings.extend(result.get("warnings") or [])
+
+        summary = {
+            "total_items": len(existing_sections),
+            "generated": generated,
+            "failed": failed,
+            "manual_required": manual_required,
+            "warnings": warnings,
+        }
+        return regenerated, summary
 
     def _generate_item(
         self,

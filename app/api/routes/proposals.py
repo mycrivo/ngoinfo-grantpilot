@@ -37,6 +37,17 @@ def get_proposal(
     return _to_detail_response(proposal)
 
 
+@router.post("/proposals/{proposal_id}/regenerate", response_model=ProposalDetailResponse)
+def regenerate_proposal(
+    proposal_id: UUID,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    service = ProposalService(db)
+    proposal = service.regenerate_proposal(user=current_user, proposal_id=proposal_id)
+    return _to_detail_response(proposal)
+
+
 def _to_summary_response(proposal) -> ProposalResponse:
     content_json = proposal.content_json or {}
     return ProposalResponse(
