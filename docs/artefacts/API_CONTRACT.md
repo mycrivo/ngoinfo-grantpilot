@@ -305,11 +305,9 @@ GET /api/proposals/{id}/export (DOCX export)
   { "format": "DOCX" }
   
   Response 200:
-  {
-    "export_url": "https://...",
-    "expires_at": "ISO-8601",
-    "format": "DOCX"
-  }
+  - Returns DOCX file as a binary stream.
+  - `Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document`
+  - `Content-Disposition: attachment; filename="proposal-{id}.docx"`
   
   Errors:
   - 404 PROPOSAL_NOT_FOUND

@@ -210,7 +210,7 @@ Any change to the model requires:
 `response_format: {"type": "json_object"}` (strict JSON mode for all prompts)
 
 **Cost Ceiling:**  
-$5 USD per complete proposal (Fit Scan + all sections + 2 regenerations)
+$1.25 USD per complete proposal (Fit Scan + all sections + up to 3 regenerations)
 
 ---
 

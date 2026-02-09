@@ -319,7 +319,7 @@ In-memory rate limiting (already working) requires shared memory across all requ
 |-----|-------|-----------|
 | Max generatable submission items per proposal | **5** | Items where `generation_allowed=true`. If opportunity has more, generate first 5 (by array order from requirements_json), mark rest as `MANUAL_REQUIRED` |
 | Max `prompt_inputs_json` payload size | **12,000 tokens** (estimated) | If over, truncate `overview_text` and `internal_notes` first (operational fields, not generation-critical) |
-| Cost ceiling per complete proposal | **$5 USD** | Per OPENAI_PROMPTS_LIBRARY.md Section 1. Includes fit scan + all sections + up to 3 regenerations |
+| Cost ceiling per complete proposal | **$1.25 USD** | Per OPENAI_PROMPTS_LIBRARY.md Section 1. Includes fit scan + all sections + up to 3 regenerations |
 
 **If cap is hit:**
 - Items beyond the 5-item limit get `generation_status: "MANUAL_REQUIRED"` with a note: "This section exceeds the generation limit. Please write it manually."
