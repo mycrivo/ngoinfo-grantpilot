@@ -37,7 +37,19 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
         GOOGLE_OAUTH_CLIENT_ID="client",
         GOOGLE_OAUTH_CLIENT_SECRET="secret",
         GOOGLE_OAUTH_REDIRECT_URI="https://example.com/callback",
+        GOOGLE_OAUTH_SCOPES=None,
     )
+
+    class DummyOAuthClient:
+        def __init__(self, *args, **kwargs):
+            self.token = None
+
+        def fetch_token(self, _token_url, code, code_verifier):
+            assert code == "code"
+            assert code_verifier == "verifier123"
+            self.token = {"access_token": "token"}
+            return self.token
+    monkeypatch.setattr(auth_routes, "OAuth2Client", DummyOAuthClient)
 
     class DummyResponse:
         def __init__(self, status_code, payload):
@@ -47,10 +59,7 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
         def json(self):
             return self._payload
 
-    def fake_post(*_args, **_kwargs):
-        return DummyResponse(200, {"access_token": "token"})
-
-    def fake_get(*_args, **_kwargs):
+    def fake_httpx_get(*_args, **_kwargs):
         return DummyResponse(
             200,
             {
@@ -61,16 +70,16 @@ def test_google_callback_redirect_uses_code_only(monkeypatch):
             },
         )
 
-    monkeypatch.setattr(auth_routes.httpx, "post", fake_post)
-    monkeypatch.setattr(auth_routes.httpx, "get", fake_get)
+    monkeypatch.setattr(auth_routes.httpx, "get", fake_httpx_get)
 
     state = "state123"
-    auth_routes.oauth_state_store[state] = datetime.now(timezone.utc) + timedelta(
-        minutes=5
-    )
+    auth_routes.oauth_state_store[state] = {
+        "expires_at": datetime.now(timezone.utc) + timedelta(minutes=5),
+        "code_verifier": "verifier123",
+    }
 
     class DummyRequest:
-        query_params = {"code": "code", "state": state, "redirect": "1"}
+        query_params = {"code": "code", "state": state}
         headers = {}
         client = None
 

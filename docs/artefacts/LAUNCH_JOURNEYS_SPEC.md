@@ -268,6 +268,10 @@ UX Principle
 
 Regeneration should feel intentional, not infinite.
 
+Terminology note:
+- “Regeneration” refers to internal AI rewrites of a draft.
+- No donor‑portal “resubmission” behavior is modeled in MVP.
+
 J6. Export & Submission Readiness
 
 User intent

@@ -84,3 +84,5 @@ Quota Reset Rules:
 ## Export Rules (MVP)
 - DOCX export is supported.
 - PDF export is not supported.
+- First export of a proposal version consumes proposal quota.
+- Multiple downloads of the same version do not re-consume quota.

@@ -17,6 +17,76 @@ from app.models.user_plan import UserPlan
 PLAN_FREE = "FREE"
 
 
+def normalize_email(email: str) -> str:
+    return email.strip().lower()
+
+
+def get_or_create_user_for_google(
+    db: Session,
+    *,
+    email: str,
+    google_sub: str,
+    full_name: str | None,
+    avatar_url: str | None,
+) -> User:
+    normalized_email = normalize_email(email)
+    user = db.execute(select(User).where(User.google_sub == google_sub)).scalar_one_or_none()
+    now = datetime.now(timezone.utc)
+    if user:
+        if user.email != normalized_email:
+            user.email = normalized_email
+        user.full_name = full_name or user.full_name
+        user.avatar_url = avatar_url or user.avatar_url
+        user.auth_provider = "google"
+        user.last_login_at = now
+        return user
+
+    user = db.execute(select(User).where(User.email == normalized_email)).scalar_one_or_none()
+    if user:
+        if not user.google_sub:
+            user.google_sub = google_sub
+        if user.email != normalized_email:
+            user.email = normalized_email
+        user.full_name = full_name or user.full_name
+        user.avatar_url = avatar_url or user.avatar_url
+        user.auth_provider = "google"
+        user.last_login_at = now
+        return user
+
+    user = User(
+        email=normalized_email,
+        full_name=full_name,
+        avatar_url=avatar_url,
+        google_sub=google_sub,
+        auth_provider="google",
+        last_login_at=now,
+    )
+    db.add(user)
+    db.flush()
+    return user
+
+
+def get_or_create_user_for_magic_link(db: Session, *, email: str) -> User:
+    normalized_email = normalize_email(email)
+    user = db.execute(select(User).where(User.email == normalized_email)).scalar_one_or_none()
+    now = datetime.now(timezone.utc)
+    if user:
+        if user.email != normalized_email:
+            user.email = normalized_email
+        user.auth_provider = "email"
+        user.last_login_at = now
+        return user
+
+    user = User(
+        email=normalized_email,
+        auth_provider="email",
+        last_login_at=now,
+    )
+    db.add(user)
+    db.flush()
+    return user
+
+
 def resolve_user_plan(db: Session, user_id: uuid.UUID) -> str:
     plan = db.execute(
         select(UserPlan.plan_name).where(UserPlan.user_id == user_id)
@@ -48,7 +118,7 @@ def is_redirect_allowed(url: str) -> bool:
 
 
 def create_oauth_exchange_code(
-    db: Session, user_id: uuid.UUID, *, ttl_seconds: int = 90
+    db: Session, user_id: uuid.UUID, *, ttl_seconds: int = 60
 ) -> str:
     raw_code = generate_opaque_token(24)
     code_hash = hash_token(raw_code)

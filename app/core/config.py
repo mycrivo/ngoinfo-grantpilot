@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     STRIPE_CHECKOUT_CANCEL_URL: str
     STRIPE_PRICE_ID_GROWTH: str
     STRIPE_PRICE_ID_IMPACT: str
+    STRIPE_PORTAL_RETURN_URL: str | None = None
 
     TEST_MODE: bool = False
     TEST_MODE_SECRET: str | None = None
@@ -174,6 +175,11 @@ def validate_config() -> Settings:
         errors.append("CONFIG_ERROR STRIPE_CHECKOUT_SUCCESS_URL: must be a valid http(s) URL")
     if not _is_valid_url(settings.STRIPE_CHECKOUT_CANCEL_URL):
         errors.append("CONFIG_ERROR STRIPE_CHECKOUT_CANCEL_URL: must be a valid http(s) URL")
+    if settings.STRIPE_PORTAL_RETURN_URL:
+        if not _is_valid_url(settings.STRIPE_PORTAL_RETURN_URL):
+            errors.append(
+                "CONFIG_ERROR STRIPE_PORTAL_RETURN_URL: must be a valid http(s) URL"
+            )
 
     if errors:
         _log_errors(errors)

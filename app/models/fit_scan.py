@@ -1,10 +1,14 @@
 import uuid
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import DateTime, ForeignKey, Text, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.proposal import Proposal
 
 
 class FitScan(Base):
@@ -38,6 +42,9 @@ class FitScan(Base):
     user = relationship("User", back_populates="fit_scans")
     funding_opportunity = relationship(
         "FundingOpportunity", back_populates="fit_scans"
+    )
+    proposals: Mapped[List["Proposal"]] = relationship(
+        "Proposal", back_populates="fit_scan"
     )
 
     def __repr__(self) -> str:

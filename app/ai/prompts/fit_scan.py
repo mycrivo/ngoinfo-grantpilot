@@ -1,0 +1,2 @@
+from app.ai.fit_scan_executor import SYSTEM_PROMPT as GP_F01_SYSTEM_PROMPT
+from app.ai.fit_scan_executor import USER_PROMPT_TEMPLATE as GP_F02_USER_PROMPT_TEMPLATE

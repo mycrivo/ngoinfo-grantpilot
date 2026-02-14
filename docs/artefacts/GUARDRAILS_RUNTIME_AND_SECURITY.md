@@ -313,28 +313,23 @@ def send_email(to: str, subject: str, html: str):
 
 ## 7. DOCX Export Safety
 
-**Critical:** Files must be cleaned up, URLs must expire.
+**Critical:** Export must be direct streaming for MVP (no storage layer).
 
 ```python
 def export_proposal_to_docx(proposal: Proposal):
-    # Generate file
+    # Generate DOCX bytes in-memory
     doc = Document()
     # ... add content ...
-    
-    temp_path = f"/tmp/proposal_{proposal.id}_{uuid.uuid4().hex}.docx"
-    doc.save(temp_path)
-    
-    # Upload to S3
-    signed_url = upload_to_s3(temp_path, proposal.id)
-    
-    # Delete temp file
-    os.unlink(temp_path)
-    
-    return {
-        "export_url": signed_url,
-        "expires_at": (datetime.utcnow() + timedelta(hours=24)).isoformat()
-    }
+
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+
+    # Return bytes directly with correct headers in the API layer
+    return buffer.getvalue()
 ```
+
+Post-MVP: S3 signed URLs are allowed only after explicit artefact update.
 
 ---
 

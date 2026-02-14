@@ -43,6 +43,34 @@ op.create_unique_constraint('uq_users_stripe_customer_id', 'users', ['stripe_cus
 - Email is treated as a user attribute (can change), not as a foreign-key anchor for domain objects.
 - auth_provider is descriptive and must not be used as an authorization gate.
 
+1.3 Canonical Email + Uniqueness (authoritative)
+- Canonical email = lower(trim(email))
+- Exactly one users row per canonical email
+- DB must enforce canonical uniqueness
+
+Required DB guardrail (choose one):
+A) Add a UNIQUE index on lower(trim(email))
+   - Example: CREATE UNIQUE INDEX uq_users_email_canonical ON users (lower(trim(email)));
+OR
+B) Convert email column to CITEXT and keep UNIQUE
+
+Only one of A or B is allowed in a single migration. Do not implement both.
+
+1.4 Duplicate Handling (if duplicates exist)
+If duplicates exist in production (same canonical email), use a safe merge strategy:
+1) Identify duplicates by canonical email (lower(trim(email)))
+2) Select a primary row:
+   - Prefer the row with stripe_customer_id or paid plan
+   - If tie, choose earliest created_at
+3) Repoint foreign keys to primary user_id:
+   - user_plans
+   - auth_refresh_tokens
+   - auth_magic_link_tokens (if applicable)
+   - any user-owned tables (ngo_profiles, fit_scans, usage_ledger, etc.)
+4) Archive or remove secondary rows only after all references are repointed
+
+If safe automated merging cannot be guaranteed, provide an operator runbook and do not run destructive migrations.
+
 ============================================================
 2) Canonical Table: auth_refresh_tokens (DEPLOYED)
 ============================================================
