@@ -108,6 +108,30 @@ def main() -> None:
         if resp.status_code != 200:
             _fail("openapi", resp, latency)
 
+        # OAuth start endpoint shape check
+        resp, latency = _request(
+            client,
+            "GET",
+            f"{base_url}/api/auth/google/start",
+            headers={"x-request-id": str(uuid.uuid4())},
+        )
+        _report("oauth_google_start", "GET", "/api/auth/google/start", resp.status_code, latency)
+        if resp.status_code != 200:
+            _fail("oauth_google_start", resp, latency)
+
+        # OAuth exchange invalid code should be rejected
+        resp, latency = _request(
+            client,
+            "POST",
+            f"{base_url}/api/auth/exchange",
+            headers={"x-request-id": str(uuid.uuid4())},
+            json_body={"code": "invalid"},
+        )
+        _report("oauth_exchange_invalid", "POST", "/api/auth/exchange", resp.status_code, latency)
+        if resp.status_code != 401:
+            _fail("oauth_exchange_invalid", resp, latency)
+        _assert_error_schema("oauth_exchange_invalid", resp)
+
         # Negative: invalid refresh token
         resp, latency = _request(
             client,
@@ -120,6 +144,45 @@ def main() -> None:
         if resp.status_code not in (401, 422):
             _fail("refresh_invalid", resp, latency)
         _assert_error_schema("refresh_invalid", resp)
+
+        # Optional protected-route check via test-mode mint.
+        test_mode_secret = os.getenv("SMOKE_TEST_MODE_SECRET")
+        if test_mode_secret:
+            mint_headers = {
+                "x-request-id": str(uuid.uuid4()),
+                "x-test-mode-secret": test_mode_secret,
+            }
+            resp, latency = _request(
+                client,
+                "POST",
+                f"{base_url}/api/auth/test-mode/mint",
+                headers=mint_headers,
+            )
+            _report("test_mode_mint", "POST", "/api/auth/test-mode/mint", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("test_mode_mint", resp, latency)
+            token = resp.json().get("access_token")
+            if not token:
+                _fail("test_mode_mint", resp, latency)
+            protected_headers = {
+                "x-request-id": str(uuid.uuid4()),
+                "Authorization": f"Bearer {token}",
+            }
+            resp, latency = _request(
+                client,
+                "GET",
+                f"{base_url}/api/me/entitlements",
+                headers=protected_headers,
+            )
+            _report(
+                "entitlements_with_token",
+                "GET",
+                "/api/me/entitlements",
+                resp.status_code,
+                latency,
+            )
+            if resp.status_code != 200:
+                _fail("entitlements_with_token", resp, latency)
 
     print(json.dumps({"result": "success"}))
 

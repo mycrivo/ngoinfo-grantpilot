@@ -120,7 +120,15 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
 
     fit_used = _usage_count(db, user_id, EVENT_FIT_SCAN, period_start, period_end)
-    proposal_used = _usage_count(db, user_id, EVENT_PROPOSAL, period_start, period_end)
+    proposal_create_used = _usage_count(db, user_id, EVENT_PROPOSAL, period_start, period_end)
+    docx_export_used = _usage_count(
+        db,
+        user_id,
+        UsageActionType.DOCX_EXPORT.value,
+        period_start,
+        period_end,
+    )
+    proposal_used = proposal_create_used + docx_export_used
 
     return {
         "plan": plan.plan_name,

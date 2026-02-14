@@ -57,22 +57,6 @@ class ProposalService:
                 details={"missing_fields": missing_fields},
             )
 
-        requirements = opportunity.requirements_json
-        if not requirements or not isinstance(requirements, dict):
-            raise DomainError(
-                error_code="REQUIREMENTS_INVALID",
-                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
-                status_code=422,
-                details={"reason": "missing_requirements_json"},
-            )
-        if not _requirements_structurally_valid(requirements):
-            raise DomainError(
-                error_code="REQUIREMENTS_INVALID",
-                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
-                status_code=422,
-                details={"reason": "invalid_requirements_structure"},
-            )
-
         # Prechecks before any OpenAI call (no quota decrement here).
         enforce_quota(
             self.db,
@@ -82,24 +66,44 @@ class ProposalService:
         )
         self._enforce_rate_limit(user.id)
 
+        requirements = opportunity.requirements_json
+        if not requirements or not isinstance(requirements, dict):
+            return self._persist_degraded_proposal(
+                user_id=user.id,
+                funding_opportunity_id=opportunity.id,
+                fit_scan_id=payload.fit_scan_id,
+                selected_variant_id=payload.selected_variant_id,
+                reason="missing_requirements_json",
+            )
+        if not _requirements_structurally_valid(requirements):
+            return self._persist_degraded_proposal(
+                user_id=user.id,
+                funding_opportunity_id=opportunity.id,
+                fit_scan_id=payload.fit_scan_id,
+                selected_variant_id=payload.selected_variant_id,
+                reason="invalid_requirements_structure",
+            )
+
         prompt_inputs = build_prompt_inputs(profile, opportunity, payload.model_dump())
         derived = prompt_inputs["prompt_inputs"]["derived"]
         selected_variant = derived.get("selected_variant") or {}
         if not selected_variant:
-            raise DomainError(
-                error_code="REQUIREMENTS_INVALID",
-                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
-                status_code=422,
-                details={"reason": "invalid_requirements_structure"},
+            return self._persist_degraded_proposal(
+                user_id=user.id,
+                funding_opportunity_id=opportunity.id,
+                fit_scan_id=payload.fit_scan_id,
+                selected_variant_id=payload.selected_variant_id,
+                reason="invalid_requirements_structure",
             )
 
         submission_items = selected_variant.get("submission_items")
         if not isinstance(submission_items, list) or not submission_items:
-            raise DomainError(
-                error_code="REQUIREMENTS_INVALID",
-                message="Opportunity requirements are incomplete; proposal cannot be generated yet.",
-                status_code=422,
-                details={"reason": "invalid_requirements_structure"},
+            return self._persist_degraded_proposal(
+                user_id=user.id,
+                funding_opportunity_id=opportunity.id,
+                fit_scan_id=payload.fit_scan_id,
+                selected_variant_id=payload.selected_variant_id,
+                reason="invalid_requirements_structure",
             )
 
         fit_scan_output = self._load_fit_scan_output(user.id, payload.fit_scan_id)
@@ -149,6 +153,68 @@ class ProposalService:
                 status_code=500,
             ) from exc
 
+        self.db.refresh(proposal)
+        return proposal
+
+    def _persist_degraded_proposal(
+        self,
+        *,
+        user_id: uuid.UUID,
+        funding_opportunity_id: uuid.UUID,
+        fit_scan_id: uuid.UUID | None,
+        selected_variant_id: str | None,
+        reason: str,
+    ) -> Proposal:
+        plan_name = _get_plan_name(self.db, user_id)
+        degraded_content = {
+            "sections": [
+                {
+                    "submission_item_id": "requirements_review",
+                    "label": "Requirements Review",
+                    "generation_status": "MANUAL_REQUIRED",
+                    "archetype": None,
+                    "content": {
+                        "text": "To be completed manually",
+                        "assumptions": [],
+                        "evidence_used": [],
+                    },
+                    "failure_reason": reason,
+                    "constraints_applied": {
+                        "word_limit": 0,
+                        "word_limit_respected": True,
+                    },
+                }
+            ],
+            "generation_summary": {
+                "total_items": 1,
+                "generated": 0,
+                "failed": 0,
+                "manual_required": 1,
+                "warnings": [reason],
+            },
+            "status": "DEGRADED",
+        }
+        proposal = Proposal(
+            user_id=user_id,
+            funding_opportunity_id=funding_opportunity_id,
+            fit_scan_id=fit_scan_id,
+            plan_at_creation=plan_name,
+            prompt_version=PROMPT_LIBRARY_VERSION,
+            selected_variant_id=selected_variant_id,
+            content_json=degraded_content,
+            status="DRAFT",
+        )
+        try:
+            with self.db.begin():
+                self.db.add(proposal)
+                self.db.flush()
+        except Exception as exc:  # pragma: no cover - DB-level failure
+            self.db.rollback()
+            raise DomainError(
+                error_code="PROPOSAL_GENERATION_FAILED",
+                message="Failed to persist proposal",
+                status_code=500,
+            ) from exc
         self.db.refresh(proposal)
         return proposal
 
