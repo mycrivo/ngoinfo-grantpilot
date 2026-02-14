@@ -57,6 +57,10 @@ Errors:
 ### 3) POST /api/auth/exchange
 Purpose: exchange short-lived OAuth redirect code for tokens
 
+Code semantics:
+- One-time OAuth exchange codes are stored server-side in a DB-backed store
+- Codes are single-use and short-lived (60 seconds)
+
 Request:
 ```
 { "code": "opaque_one_time_code" }
@@ -296,13 +300,26 @@ Model-level ratings are mapped to product recommendations as defined in FIT_SCAN
 POST /api/proposals (create)
 GET /api/proposals/{id} (retrieve)
 POST /api/proposals/{id}/regenerate (regenerate)
-GET /api/proposals/{id}/export (DOCX export)
+POST /api/proposals/{id}/export (DOCX export)
+
+`POST /api/proposals` degraded behavior:
+- If `requirements_json` is missing/invalid, return a degraded proposal payload (not 422)
+- Degraded payload must use safe placeholders only (no hallucinated requirements)
+- Sections that cannot be generated must be marked `MANUAL_REQUIRED` (or equivalent)
+- Degraded/failed responses MUST NOT consume quota
+
+`GET /api/proposals/{id}`:
+- Returns persisted proposal content (including per-section statuses)
 
 ### 8) Document Export
   
   **POST /api/proposals/{id}/export**
   Request:
   { "format": "DOCX" }
+
+  Quota semantics:
+  - First export of a proposal version consumes proposal quota
+  - Re-download of same proposal version does not re-consume quota (idempotent by `user_id + proposal_id + version`)
   
   Response 200:
   - Returns DOCX file as a binary stream.

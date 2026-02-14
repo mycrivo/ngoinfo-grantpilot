@@ -70,6 +70,7 @@
   - Fit Scan → after valid result is generated
   - Proposal → after initial draft is generated
   - Regeneration → after regenerated content is generated successfully
+  - DOCX export → after first successful export of a proposal version (idempotent on re-download)
 - Failed or timed-out operations do not consume quota
 - Quota checks and decrements must be atomic and transactional
 
@@ -86,3 +87,7 @@ Quota Reset Rules:
 - PDF export is not supported.
 - First export of a proposal version consumes proposal quota.
 - Multiple downloads of the same version do not re-consume quota.
+- Idempotency key for non-reconsumption: `user_id + proposal_id + proposal_version`.
+- Proposal quota bucket reflects:
+  - `PROPOSAL_CREATE` usage, and
+  - first-time `DOCX_EXPORT` usage per proposal version.

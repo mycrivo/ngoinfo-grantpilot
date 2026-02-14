@@ -173,7 +173,7 @@ Tables not yet created:
 2. `state` parameter encodes redirect intent (e.g., opportunity_id from WordPress deep link, per WORDPRESS_TO_GRANTPILOT_INTEGRATION.md)
 3. Google redirects to backend callback with `code` + `state`
 4. Backend exchanges code with Google via Authlib, creates/finds user, mints tokens
-5. Backend generates a short-lived one-time `auth_code` (random string, stored hashed in-memory with 60-second TTL)
+5. Backend generates a short-lived one-time `auth_code` (random string, stored hashed in DB with 60-second TTL)
 6. Backend redirects browser to `{AUTH_POST_LOGIN_REDIRECT_URL}?code={auth_code}&state={original_state}`
 7. Frontend calls `POST /api/auth/exchange` with `{ "code": auth_code }` to receive tokens in JSON response body
 
@@ -416,11 +416,11 @@ The existing Google OAuth implementation in `app/api/routes/auth.py` uses manual
 **Part 1: Add dependencies**
 - Add `authlib` and `httpx` to `requirements.txt`
 
-**Part 2: Create `app/core/oauth.py`** — Authlib configuration
-- Initialize Authlib OAuth client for Google
+**Part 2: Configure Authlib in existing auth modules** (`app/api/routes/auth.py` + `app/services/auth_service.py`)
+- Initialize OAuth client flow in auth routes
 - Use `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, `GOOGLE_OAUTH_REDIRECT_URI` from existing config
 - Scopes: `openid email profile`
-- Server metadata URL: `https://accounts.google.com/.well-known/openid-configuration`
+- Persist one-time OAuth exchange codes in DB as hashed, single-use records with 60-second TTL
 
 **Part 3: Rewrite Google OAuth routes in `app/api/routes/auth.py`**
 
@@ -437,17 +437,16 @@ The existing Google OAuth implementation in `app/api/routes/auth.py` uses manual
 - Set `google_sub` on user if not already set
 - Fetch actual plan from `user_plans` table (NOT hardcoded "FREE")
 - Mint JWT access token + create refresh token (existing logic)
-- Generate a one-time `auth_code`: random 64-char string, stored hashed in-memory with 60-second TTL
-- Associate auth_code with the minted tokens (in-memory: `{ code_hash: { access_token, refresh_token, expires_in, user, created_at } }`)
+- Generate a one-time `auth_code`: random 64-char string, store hashed in DB with 60-second TTL (single-use)
 - Redirect browser to: `{AUTH_POST_LOGIN_REDIRECT_URL}?code={auth_code}&state={forwarded_state}`
 - Tokens are NEVER placed in the redirect URL
 
 `POST /api/auth/exchange` **(NEW endpoint)**:
 - Accepts `{ "code": "string" }`
-- Looks up auth_code hash in the in-memory store
+- Looks up auth_code hash in DB-backed one-time code store
 - If found and not expired (60-second TTL): return tokens + user JSON (same shape as magic link consume response)
-- Delete the code from the store after use (single-use)
-- If not found or expired: return 400 `AUTH_CODE_INVALID`
+- Mark code consumed after use (single-use)
+- If not found, expired, or already used: return 401 `OAUTH_EXCHANGE_FAILED`
 - Rate limit: 30 per IP per hour
 
 **Part 4: Fix auth hardcoding issues (carry-forward from v3.1)**
@@ -476,7 +475,7 @@ The existing Google OAuth implementation in `app/api/routes/auth.py` uses manual
 - [ ] `GET /api/auth/google/start` returns valid Google authorization URL
 - [ ] `GET /api/auth/google/callback` redirects to frontend with `code` param (no tokens in URL)
 - [ ] `POST /api/auth/exchange` returns tokens + user when given valid code
-- [ ] `POST /api/auth/exchange` returns 400 for expired/invalid/reused code
+- [ ] `POST /api/auth/exchange` returns 401 for expired/invalid/reused code
 - [ ] New user creation works via OAuth
 - [ ] Existing user login works via OAuth (account linking by email)
 - [ ] Access token contains actual plan (not hardcoded "FREE")
@@ -504,7 +503,7 @@ curl -X POST $BASE_URL/api/auth/exchange \
 curl -X POST $BASE_URL/api/auth/exchange \
   -H "Content-Type: application/json" \
   -d '{"code": "xxx"}'
-# Should return 400 AUTH_CODE_INVALID
+# Should return 401 OAUTH_EXCHANGE_FAILED
 
 # 5. Regression: magic link still works
 curl -X POST $BASE_URL/api/auth/magic-link/request \
@@ -525,7 +524,7 @@ curl -X POST $BASE_URL/api/auth/magic-link/request \
 - Verify Track A (no auth required) still passes
 - Verify Track B (with test-mode mint) still passes
 - Add OAuth start check (returns valid URL shape)
-- Add exchange endpoint check (invalid code returns 400)
+- Add exchange endpoint check (invalid code returns 401)
 
 **Exit Criteria:**
 - [ ] Track A smoke tests pass
@@ -644,7 +643,7 @@ Store system and user prompt templates as Python constants, matching OPENAI_PROM
 This service:
 1. Validates funding opportunity exists and is READY/PUBLISHED
 2. Validates NGO profile is COMPLETE (reuse profile completeness check)
-3. Validates requirements_json is present and non-empty
+3. Validates requirements_json is present and usable
 4. Checks quota (Free: 1 lifetime, Growth: 3/month, Impact: 5/month)
 5. Builds `prompt_inputs_json` using the adapter (Part 2)
 6. Identifies generatable submission items from selected variant:
@@ -690,6 +689,9 @@ This service:
 - [ ] Opportunities with >5 generatable items: first 5 generated, rest marked MANUAL_REQUIRED
 - [ ] Incomplete profile returns 409 with `missing_fields`
 - [ ] Missing/invalid requirements_json returns degraded response (no quota consumed)
+  - Degraded output must include safe placeholders only (no hallucinated requirements)
+  - Mark non-generatable sections as `MANUAL_REQUIRED` (or equivalent placeholder status)
+  - Quota must not be consumed on degraded result
 - [ ] Quota enforcement works per plan
 - [ ] Ownership check prevents cross-user access (403)
 
@@ -775,7 +777,8 @@ curl -X GET $BASE_URL/api/proposals/{id} \
   - `Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document`
   - `Content-Disposition: attachment; filename="proposal-{id}.docx"`
 - Track in `usage_ledger` with action_type=DOCX_EXPORT
-- Multiple downloads do NOT re-consume quota (idempotency key: proposal_id + version)
+- First export of a proposal version consumes proposal quota
+- Multiple downloads do NOT re-consume quota (idempotency key: user_id + proposal_id + version)
 
 **Exit Criteria:**
 - [ ] Export returns downloadable DOCX file
