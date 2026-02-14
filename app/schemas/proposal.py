@@ -29,3 +29,7 @@ class ProposalDetailResponse(BaseModel):
     content_json: dict[str, Any]
     created_at: datetime
     updated_at: datetime
+
+
+class ProposalExportRequest(BaseModel):
+    format: str

@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.auth import get_current_user
@@ -8,8 +9,10 @@ from app.db.session import get_db
 from app.schemas.proposal import (
     ProposalCreateRequest,
     ProposalDetailResponse,
+    ProposalExportRequest,
     ProposalResponse,
 )
+from app.services.export_service import ExportService
 from app.services.proposal_service import ProposalService
 
 router = APIRouter(prefix="/api", tags=["proposals"])
@@ -46,6 +49,26 @@ def regenerate_proposal(
     service = ProposalService(db)
     proposal = service.regenerate_proposal(user=current_user, proposal_id=proposal_id)
     return _to_detail_response(proposal)
+
+
+@router.post("/proposals/{proposal_id}/export")
+def export_proposal(
+    proposal_id: UUID,
+    payload: ProposalExportRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    service = ExportService(db)
+    content, filename = service.export_docx(
+        user=current_user,
+        proposal_id=proposal_id,
+        export_format=payload.format,
+    )
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 def _to_summary_response(proposal) -> ProposalResponse:
