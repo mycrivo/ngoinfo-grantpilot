@@ -11,6 +11,10 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.errors import DomainError
+from app.services.email_service import (
+    frontend_base_url,
+    send_subscription_activated_email,
+)
 from app.models.stripe_event import StripeEvent
 from app.models.user import User
 from app.models.user_plan import UserPlan
@@ -234,6 +238,26 @@ def handle_stripe_event(
             period_start=_to_datetime(subscription.get("current_period_start")),
             period_end=_to_datetime(subscription.get("current_period_end")),
         )
+        user = db.get(User, user_id)
+        if user:
+            try:
+                billing_portal_url = create_portal_session(db, user)
+            except Exception:
+                billing_portal_url = f"{frontend_base_url()}/billing"
+            try:
+                send_subscription_activated_email(
+                    db,
+                    user=user,
+                    plan_name=plan_name,
+                    billing_portal_url=billing_portal_url,
+                    event_key=f"stripe:{event.get('id')}:subscription_activated",
+                )
+            except Exception:
+                logger.exception(
+                    "subscription_activated_email_failed event_id=%s user_id=%s",
+                    event.get("id"),
+                    user_id,
+                )
         return PROCESSING_SUCCESS, None, False
 
     if event_type == "customer.subscription.updated":

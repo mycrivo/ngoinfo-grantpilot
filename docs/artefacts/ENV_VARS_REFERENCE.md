@@ -65,9 +65,10 @@ AUTH_JWT_SIGNING_KEY | Yes | <secret> | Strong secret (min 64 chars, cryptograph
 | Variable | Required | Example | Notes |
 |---|---:|---|---|
 | EMAIL_PROVIDER | Yes | resend | Locked for MVP |
-| EMAIL_FROM_NAME | Yes | GrantPilot | |
+| EMAIL_FROM_NAME | Yes | NGOInfo | |
 | EMAIL_FROM_ADDRESS | Yes | support@ngoinfo.org | Must be verified in Resend |
 | EMAIL_API_KEY | Yes | <secret> | Resend API key |
+| EMAIL_SUPPRESS_SENDING | Yes | false | true/false; when true, do not call Resend and mark email events as SUPPRESSED |
 
 ### F) OpenAI
 | Variable | Required | Example | Notes |

@@ -29,6 +29,7 @@ from app.services.auth_service import (
     is_redirect_allowed,
     normalize_email,
 )
+from app.services.email_service import maybe_send_welcome_email, send_magic_link_email
 
 logger = logging.getLogger("auth")
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -320,6 +321,10 @@ def oauth_exchange(
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
+    try:
+        maybe_send_welcome_email(db, user=user)
+    except Exception:
+        logger.exception("welcome_email_send_failed user_id=%s", user.id)
 
     return JSONResponse(
         status_code=200,
@@ -376,27 +381,14 @@ def magic_link_request(
 
     login_link = build_magic_link_url(raw_token)
     try:
-        email_resp = httpx.post(
-            "https://api.resend.com/emails",
-            headers={"Authorization": f"Bearer {settings.EMAIL_API_KEY}"},
-            json={
-                "from": f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM_ADDRESS}>",
-                "to": [email],
-                "subject": "Your GrantPilot login link",
-                "text": (
-                    "Click to log in to GrantPilot:\n"
-                    f"{login_link}\n\n"
-                    f"This link expires in {settings.AUTH_MAGIC_LINK_TTL_MIN} minutes."
-                ),
-            },
-            timeout=10.0,
+        send_magic_link_email(
+            db,
+            to_email=email,
+            login_link=login_link,
+            expires_minutes=settings.AUTH_MAGIC_LINK_TTL_MIN,
+            event_key=f"magic_link:{token_record.id}",
         )
     except Exception:
-        _log_auth_failure(request, "magic_link_provider_error")
-        return error_response(
-            request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
-        )
-    if email_resp.status_code >= 400:
         _log_auth_failure(request, "magic_link_provider_error")
         return error_response(
             request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
@@ -443,6 +435,10 @@ def magic_link_consume(
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
+    try:
+        maybe_send_welcome_email(db, user=user)
+    except Exception:
+        logger.exception("welcome_email_send_failed user_id=%s", user.id)
 
     logger.info("auth_success provider=magic_link user_id=%s", user.id)
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -18,8 +19,11 @@ from app.models.ngo_profile import NGOProfile
 from app.models.proposal import Proposal
 from app.models.user_plan import UserPlan
 from app.models.usage_ledger import UsageActionType, UsageLedger
+from app.services.email_service import send_proposal_draft_ready_email
 from app.services.profile_service import get_completeness, get_profile
 from app.services.quota_service import enforce_quota, get_or_create_user_plan, record_usage
+
+logger = logging.getLogger("proposal")
 
 MANUAL_REQUIRED_NOTE = (
     "This section requires manual input. AI generation is not available for this item."
@@ -154,6 +158,17 @@ class ProposalService:
             ) from exc
 
         self.db.refresh(proposal)
+        try:
+            send_proposal_draft_ready_email(
+                self.db,
+                user=user,
+                proposal_id=proposal.id,
+                opportunity_title=opportunity.title,
+                event_key=f"proposal:{proposal.id}:draft_ready",
+            )
+        except Exception:
+            # Non-blocking by contract: proposal creation must still succeed.
+            logger.exception("proposal_draft_ready_email_failed proposal_id=%s", proposal.id)
         return proposal
 
     def _persist_degraded_proposal(

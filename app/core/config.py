@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     EMAIL_FROM_NAME: str
     EMAIL_FROM_ADDRESS: str
     EMAIL_API_KEY: str
+    EMAIL_SUPPRESS_SENDING: bool = False
 
     OPENAI_API_KEY: str
     PROMPT_VERSION: str

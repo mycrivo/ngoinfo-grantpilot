@@ -40,6 +40,9 @@ class User(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    first_login_at: Mapped[DateTime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     last_login_at: Mapped[DateTime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

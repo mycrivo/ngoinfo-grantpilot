@@ -1,6 +1,7 @@
 from app.models.auth_magic_link_token import AuthMagicLinkToken
 from app.models.auth_oauth_exchange_code import AuthOAuthExchangeCode
 from app.models.auth_refresh_token import AuthRefreshToken
+from app.models.email_event import EmailEvent
 from app.models.fit_scan import FitScan
 from app.models.funding_opportunity import FundingOpportunity
 from app.models.ngo_profile import NGOProfile
@@ -14,6 +15,7 @@ __all__ = [
     "AuthMagicLinkToken",
     "AuthOAuthExchangeCode",
     "AuthRefreshToken",
+    "EmailEvent",
     "FitScan",
     "FundingOpportunity",
     "NGOProfile",
