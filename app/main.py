@@ -15,11 +15,14 @@ from app.core.errors import DomainError
 
 validate_config()
 settings = get_settings()
+cors_allow_origins = [
+    origin.strip() for origin in settings.CORS_ALLOWED_ORIGINS.split(",") if origin.strip()
+]
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ALLOWED_ORIGINS.split(","),
+    allow_origins=cors_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
