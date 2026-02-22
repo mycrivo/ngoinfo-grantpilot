@@ -16,6 +16,7 @@ from app.core.rate_limit import RateLimiter
 from app.core.security import generate_opaque_token, hash_token
 from app.db.session import get_db
 from app.models.auth_magic_link_token import AuthMagicLinkToken
+from app.models.auth_oauth_exchange_code import AuthOAuthExchangeCode
 from app.models.auth_refresh_token import AuthRefreshToken
 from app.models.user import User
 from app.services.auth_service import (
@@ -36,6 +37,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 rate_limiter = RateLimiter()
 oauth_state_store: dict[str, dict[str, Any]] = {}
 SMOKE_TEST_EMAIL = "smoke-test@grantpilot.local"
+OAUTH_EXCHANGE_REPLAY_WINDOW_SECONDS = 15
 
 
 class MagicLinkRequest(BaseModel):
@@ -161,6 +163,22 @@ def _consume_oauth_state(state: str) -> dict[str, Any] | None:
     return record
 
 
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _as_utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+def _lookup_oauth_exchange_code(db: Session, raw_code: str) -> AuthOAuthExchangeCode | None:
+    return db.execute(
+        select(AuthOAuthExchangeCode).where(AuthOAuthExchangeCode.code_hash == hash_token(raw_code))
+    ).scalar_one_or_none()
+
+
 @router.get("/google/start")
 def google_oauth_start(request: Request) -> JSONResponse:
     ip = _get_client_ip(request)
@@ -230,16 +248,23 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             code=code,
             code_verifier=code_verifier,
         )
-    except Exception:
-        logger.exception("oauth_token_exchange_failed")
-        _log_auth_failure(request, "oauth_internal_error")
+    except Exception as exc:
+        error_category = type(exc).__name__
+        logger.warning(
+            "oauth_callback_token_exchange_failed handler=google_callback error_category=%s redirect_uri=%s",
+            error_category,
+            settings.GOOGLE_OAUTH_REDIRECT_URI,
+        )
+        _log_auth_failure(
+            request, "oauth_internal_error", detail=f"google_token_exchange:{error_category}"
+        )
         return error_response(
             request, 500, "OAUTH_INTERNAL_ERROR", "OAuth internal error"
         )
 
     access_token = token.get("access_token") if isinstance(token, dict) else None
     if not access_token:
-        _log_auth_failure(request, "oauth_exchange_failed")
+        _log_auth_failure(request, "oauth_exchange_failed", detail="google_access_token_missing")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -258,7 +283,9 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         )
 
     if userinfo_resp.status_code != 200:
-        _log_auth_failure(request, "oauth_exchange_failed")
+        _log_auth_failure(
+            request, "oauth_exchange_failed", detail=f"userinfo_status:{userinfo_resp.status_code}"
+        )
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -270,7 +297,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     avatar_url = userinfo.get("picture")
 
     if not email or not google_sub:
-        _log_auth_failure(request, "oauth_exchange_failed")
+        _log_auth_failure(request, "oauth_exchange_failed", detail="userinfo_missing_claims")
         return error_response(
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
@@ -305,10 +332,30 @@ def oauth_exchange(
 
     code_record = consume_oauth_exchange_code(db, payload.code)
     if not code_record:
-        _log_auth_failure(request, "oauth_exchange_failed")
-        return error_response(
-            request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
-        )
+        existing_record = _lookup_oauth_exchange_code(db, payload.code)
+        now = _now_utc()
+        replay_allowed = False
+
+        if existing_record and existing_record.consumed_at is not None:
+            expires_at = _as_utc(existing_record.expires_at)
+            consumed_at = _as_utc(existing_record.consumed_at)
+            replay_deadline = consumed_at + timedelta(seconds=OAUTH_EXCHANGE_REPLAY_WINDOW_SECONDS)
+            replay_allowed = expires_at > now and now <= replay_deadline
+
+        if replay_allowed and existing_record is not None:
+            code_record = existing_record
+            _log_auth_failure(request, "oauth_exchange_replay", user_id=code_record.user_id, detail="accepted")
+        else:
+            detail = "code_not_found"
+            if existing_record:
+                if existing_record.consumed_at is not None:
+                    detail = "code_already_consumed"
+                elif _as_utc(existing_record.expires_at) <= now:
+                    detail = "code_expired"
+            _log_auth_failure(request, "oauth_exchange_failed", detail=detail)
+            return error_response(
+                request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
+            )
 
     user = db.execute(select(User).where(User.id == code_record.user_id)).scalar_one_or_none()
     if not user:
