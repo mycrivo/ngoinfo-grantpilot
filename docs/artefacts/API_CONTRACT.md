@@ -296,11 +296,26 @@ Failed, degraded, or invalid AI responses MUST NOT consume quota.
 
 Model-level ratings are mapped to product recommendations as defined in FIT_SCAN_CRITERIA_MATRIX.md.
 
+(DEFERRED / POST-MVP) GET /api/fit-scans  (list)
+Status: NOT part of MVP contract.
+Frontend MUST NOT call this endpoint in MVP.
+
 ### 7) Proposal Endpoints section
 POST /api/proposals (create)
 GET /api/proposals/{id} (retrieve)
 POST /api/proposals/{id}/regenerate (regenerate)
 POST /api/proposals/{id}/export (DOCX export)
+(DEFERRED / POST-MVP) GET /api/proposals  (list)
+Status: NOT part of MVP contract.
+Frontend MUST NOT call this endpoint in MVP.
+
+NOTE (contract completeness):
+Before frontend Phase C begins, this section MUST be expanded to fully define:
+- POST /api/proposals (request + response schema)
+- GET /api/proposals/{id} (response schema)
+- POST /api/proposals/{id}/regenerate (request + response schema)
+- POST /api/proposals/{id}/export (request + response behavior)
+No frontend work may assume fields not defined here.
 
 `POST /api/proposals` degraded behavior:
 - If `requirements_json` is missing/invalid, return a degraded proposal payload (not 422)

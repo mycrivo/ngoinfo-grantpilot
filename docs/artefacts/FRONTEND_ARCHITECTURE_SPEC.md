@@ -270,17 +270,21 @@ MVP is desktop-first but must be usable on tablet. Proposal content is long-form
 └──────────────────────────────────────────────────────────┘
 ```
 
-**API calls on page load:**
+**API calls on page load (MVP):**
 - `GET /api/me/entitlements` → quota + plan info
 - `GET /api/ngo-profile/completeness` → profile status
-- `GET /api/fit-scans` (list endpoint — may need to be added to API contract) → recent scans
-- `GET /api/proposals` (list endpoint — may need to be added to API contract) → recent proposals
 
-**Note on list endpoints:** The current API_CONTRACT.md only defines single-resource GET endpoints for fit scans and proposals. We'll likely need list endpoints:
-- `GET /api/fit-scans` → list user's fit scans (paginated, newest first)
-- `GET /api/proposals` → list user's proposals (paginated, newest first)
+**Recent activity panels (MVP):**
+- CTA-first (no backend list calls)
+- “Recent Fit Scans” and “My Proposals” render empty states + CTAs
+- Optional: show “last created in this session” links (in-memory only; no persistence)
 
-This should be flagged for the API contract update.
+**Post-MVP enhancement (deferred):**
+If/when we add list endpoints to `API_CONTRACT.md`:
+- `GET /api/fit-scans` → list user's fit scans (newest first)
+- `GET /api/proposals` → list user's proposals (newest first)
+Then update `/dashboard` to show “last 5 items” for each list.
+Until then, the MVP dashboard MUST NOT depend on list endpoints.
 
 **Empty states:**
 - No fit scans yet → "Find funding opportunities on NGOInfo.org and check your fit" [Browse Opportunities →]
@@ -735,23 +739,21 @@ This is pulled from PRICING_AND_ENTITLEMENTS.md and LAUNCH_JOURNEYS_SPEC.md. It 
 | `/auth/callback` | `POST /api/auth/exchange` |
 | `/auth/magic-link` | `POST /api/auth/magic-link/consume` |
 | `/start` | `GET /api/ngo-profile/completeness`, `GET /api/me/entitlements`, `POST /api/fit-scans` |
-| `/dashboard` | `GET /api/me/entitlements`, `GET /api/ngo-profile/completeness`, `GET /api/fit-scans` (list), `GET /api/proposals` (list) |
+| `/dashboard` | `GET /api/me/entitlements`, `GET /api/ngo-profile/completeness` |
 | `/profile` | `GET /api/ngo-profile`, `POST /api/ngo-profile`, `PUT /api/ngo-profile`, `GET /api/ngo-profile/completeness` |
 | `/fit-scan/{id}` | `GET /api/fit-scans/{id}` |
 | `/proposal/new` | `POST /api/proposals` |
 | `/proposal/{id}` | `GET /api/proposals/{id}`, `POST /api/proposals/{id}/regenerate`, `POST /api/proposals/{id}/export` |
 | `/billing` | `GET /api/me/entitlements`, `POST /api/billing/checkout`, `GET /api/billing/portal` |
 
-### Missing API Endpoints (Flag for Backend)
+### Post-MVP enhancement (deferred)
 
-These are needed for the dashboard but not yet in API_CONTRACT.md:
+If/when we add list endpoints to `API_CONTRACT.md`:
+- `GET /api/fit-scans` → list user's fit scans (newest first)
+- `GET /api/proposals` → list user's proposals (newest first)
 
-| Endpoint | Purpose | Suggested Shape |
-|----------|---------|-----------------|
-| `GET /api/fit-scans` | List user's fit scans | `{ fit_scans: [...], total: N }` |
-| `GET /api/proposals` | List user's proposals | `{ proposals: [...], total: N }` |
-
-Both should return newest first, paginated (or limited to last 20 for MVP).
+Then update `/dashboard` to show “last 5 items” for each list.
+Until then, the MVP dashboard MUST NOT depend on list endpoints.
 
 ---
 
