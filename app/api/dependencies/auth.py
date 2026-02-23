@@ -14,8 +14,8 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
     auth_header = request.headers.get("authorization")
     if not auth_header or not auth_header.lower().startswith("bearer "):
         raise DomainError(
-            error_code="AUTH_REQUIRED",
-            message="Authentication required",
+            error_code="UNAUTHORIZED",
+            message="Unauthorized",
             status_code=401,
         )
 
@@ -31,16 +31,16 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
         )
     except Exception:
         raise DomainError(
-            error_code="AUTH_INVALID",
-            message="Invalid authentication token",
+            error_code="UNAUTHORIZED",
+            message="Unauthorized",
             status_code=401,
         )
 
     user_id = payload.get("sub")
     if not user_id:
         raise DomainError(
-            error_code="AUTH_INVALID",
-            message="Invalid authentication token",
+            error_code="UNAUTHORIZED",
+            message="Unauthorized",
             status_code=401,
         )
 
@@ -48,16 +48,16 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
         user_uuid = uuid.UUID(str(user_id))
     except ValueError:
         raise DomainError(
-            error_code="AUTH_INVALID",
-            message="Invalid authentication token",
+            error_code="UNAUTHORIZED",
+            message="Unauthorized",
             status_code=401,
         )
 
     user = db.get(User, user_uuid)
     if not user:
         raise DomainError(
-            error_code="AUTH_INVALID",
-            message="Invalid authentication token",
+            error_code="UNAUTHORIZED",
+            message="Unauthorized",
             status_code=401,
         )
     return user
