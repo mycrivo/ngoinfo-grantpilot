@@ -124,6 +124,15 @@ class FitScanService:
             )
         return fit_scan
 
+    def list_fit_scans(self, *, user, limit: int) -> list[FitScan]:
+        statement = (
+            select(FitScan)
+            .where(FitScan.user_id == user.id)
+            .order_by(FitScan.created_at.desc())
+            .limit(limit)
+        )
+        return list(self.db.execute(statement).scalars().all())
+
     def _load_profile_or_raise(self, user_id: uuid.UUID) -> NGOProfile:
         try:
             return get_profile(self.db, user_id)

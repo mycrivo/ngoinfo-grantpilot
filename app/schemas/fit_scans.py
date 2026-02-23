@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -33,3 +34,26 @@ class FitScanResponse(BaseModel):
 
 class FitScanResponseEnvelope(BaseModel):
     fit_scan: FitScanResponse
+
+
+class StandardErrorResponse(BaseModel):
+    error_code: str
+    message: str
+    details: dict[str, Any] | None = None
+    request_id: str | None = None
+
+
+class FitScanListItem(BaseModel):
+    id: UUID
+    funding_opportunity_id: UUID
+    opportunity_title: str | None = None
+    overall_recommendation: Literal[
+        "RECOMMENDED", "APPLY_WITH_CAVEATS", "NOT_RECOMMENDED"
+    ]
+    model_rating: Literal["STRONG", "MODERATE", "WEAK"]
+    subscores: FitScanSubscores
+    created_at: datetime
+
+
+class FitScanListResponse(BaseModel):
+    fit_scans: list[FitScanListItem]
