@@ -239,7 +239,46 @@ def google_oauth_start(request: Request) -> JSONResponse:
     )
 
 
-@router.get("/google/callback")
+@router.get(
+    "/google/callback",
+    response_class=RedirectResponse,
+    status_code=302,
+    responses={
+        302: {
+            "description": "Redirect to frontend callback URL with OAuth exchange code",
+            "headers": {
+                "Location": {
+                    "description": "Frontend redirect URL containing one-time code query param",
+                    "schema": {"type": "string"},
+                }
+            },
+        },
+        400: {
+            "description": "OAuth request invalid",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/StandardErrorResponse"}
+                }
+            },
+        },
+        401: {
+            "description": "OAuth exchange failed",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/StandardErrorResponse"}
+                }
+            },
+        },
+        500: {
+            "description": "OAuth internal error",
+            "content": {
+                "application/json": {
+                    "schema": {"$ref": "#/components/schemas/StandardErrorResponse"}
+                }
+            },
+        },
+    },
+)
 def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     code = request.query_params.get("code")
     state = request.query_params.get("state")
