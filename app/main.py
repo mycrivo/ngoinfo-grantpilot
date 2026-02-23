@@ -143,6 +143,12 @@ def custom_openapi():
     )
     components = openapi_schema.setdefault("components", {})
     schemas = components.setdefault("schemas", {})
+    security_schemes = components.setdefault("securitySchemes", {})
+    security_schemes["HTTPBearer"] = {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+    }
     schemas["StandardErrorResponse"] = {
         "type": "object",
         "properties": {
@@ -180,6 +186,7 @@ def custom_openapi():
             }
 
             if path.startswith("/api") and path not in public_paths:
+                operation["security"] = [{"HTTPBearer": []}]
                 for code, description in (
                     ("401", "Unauthorized"),
                     ("403", "Forbidden"),
@@ -192,6 +199,8 @@ def custom_openapi():
                     content = response.setdefault("content", {})
                     app_json = content.setdefault("application/json", {})
                     app_json["schema"] = standard_error_ref
+            else:
+                operation.pop("security", None)
 
     app.openapi_schema = openapi_schema
     return app.openapi_schema
