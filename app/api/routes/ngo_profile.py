@@ -16,7 +16,7 @@ from app.services.profile_service import (
     update_profile,
 )
 
-router = APIRouter(prefix="/ngo-profile", tags=["ngo-profile"])
+router = APIRouter(prefix="/api/ngo-profile", tags=["ngo-profile"])
 
 
 @router.post("", response_model=NGOProfileRead)
