@@ -60,6 +60,28 @@ class OAuthExchangeRequest(BaseModel):
     code: str
 
 
+class UserInfo(BaseModel):
+    id: str
+    email: str
+    full_name: str | None
+    plan: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+    user: UserInfo | None = None
+
+
+class RefreshTokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+
+
 def error_response(
     request: Request, status_code: int, error_code: str, message: str, details: dict | None = None
 ) -> JSONResponse:
@@ -322,7 +344,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
     return RedirectResponse(url=redirect_url)
 
 
-@router.post("/exchange")
+@router.post("/exchange", response_model=TokenResponse)
 def oauth_exchange(
     payload: OAuthExchangeRequest, request: Request, db: Session = Depends(get_db)
 ):
@@ -445,7 +467,7 @@ def magic_link_request(
     return JSONResponse(status_code=200, content={"status": "sent"})
 
 
-@router.post("/magic-link/consume")
+@router.post("/magic-link/consume", response_model=TokenResponse)
 def magic_link_consume(
     payload: MagicLinkConsumeRequest, request: Request, db: Session = Depends(get_db)
 ):
@@ -506,7 +528,7 @@ def magic_link_consume(
     )
 
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=RefreshTokenResponse)
 def refresh_tokens(
     payload: RefreshRequest, request: Request, db: Session = Depends(get_db)
 ):
