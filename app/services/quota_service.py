@@ -23,13 +23,29 @@ EVENT_PROPOSAL = UsageActionType.PROPOSAL_CREATE.value
 class PlanQuota:
     fit_scans: int
     proposals: int
+    proposal_regenerations_per_proposal: int
     period_type: str
 
 
 PLAN_QUOTAS: dict[str, PlanQuota] = {
-    PLAN_FREE: PlanQuota(fit_scans=1, proposals=1, period_type="LIFETIME"),
-    PLAN_GROWTH: PlanQuota(fit_scans=10, proposals=3, period_type="BILLING_CYCLE"),
-    PLAN_IMPACT: PlanQuota(fit_scans=20, proposals=5, period_type="BILLING_CYCLE"),
+    PLAN_FREE: PlanQuota(
+        fit_scans=1,
+        proposals=1,
+        proposal_regenerations_per_proposal=0,
+        period_type="LIFETIME",
+    ),
+    PLAN_GROWTH: PlanQuota(
+        fit_scans=10,
+        proposals=3,
+        proposal_regenerations_per_proposal=3,
+        period_type="BILLING_CYCLE",
+    ),
+    PLAN_IMPACT: PlanQuota(
+        fit_scans=20,
+        proposals=5,
+        proposal_regenerations_per_proposal=3,
+        period_type="BILLING_CYCLE",
+    ),
 }
 
 
@@ -67,25 +83,6 @@ def _ensure_paid_period(plan: UserPlan) -> None:
     plan.billing_period_end = activated_at + timedelta(days=30)
 
 
-def _period_payload(plan: UserPlan) -> dict[str, str | None]:
-    if plan.plan_name == PLAN_FREE:
-        return {
-            "type": "LIFETIME",
-            "start_at": None,
-            "end_at": None,
-            "resets_at": None,
-        }
-    _ensure_paid_period(plan)
-    start_at = plan.billing_period_start
-    end_at = plan.billing_period_end
-    return {
-        "type": "BILLING_CYCLE",
-        "start_at": start_at.isoformat() if start_at else None,
-        "end_at": end_at.isoformat() if end_at else None,
-        "resets_at": end_at.isoformat() if end_at else None,
-    }
-
-
 def _usage_count(
     db: Session,
     user_id: uuid.UUID,
@@ -104,9 +101,17 @@ def _usage_count(
     return int(db.execute(query).scalar_one())
 
 
-def _build_quota_payload(allowed: int, used: int) -> dict[str, int]:
-    remaining = max(allowed - used, 0)
-    return {"allowed": allowed, "used": used, "remaining": remaining}
+def _build_quota_payload(
+    *, limit: int, used: int, period: str, reset_at: str | None
+) -> dict[str, int | str | None]:
+    remaining = max(limit - used, 0)
+    return {
+        "limit": limit,
+        "used": used,
+        "remaining": remaining,
+        "period": period,
+        "reset_at": reset_at,
+    }
 
 
 def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
@@ -118,6 +123,7 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
 
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
+    reset_at = period_end.isoformat() if period_end else None
 
     fit_used = _usage_count(db, user_id, EVENT_FIT_SCAN, period_start, period_end)
     proposal_create_used = _usage_count(db, user_id, EVENT_PROPOSAL, period_start, period_end)
@@ -132,10 +138,22 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
 
     return {
         "plan": plan.plan_name,
-        "period": _period_payload(plan),
-        "quotas": {
-            "fit_scans": _build_quota_payload(quota.fit_scans, fit_used),
-            "proposals": _build_quota_payload(quota.proposals, proposal_used),
+        "entitlements": {
+            "fit_scans": _build_quota_payload(
+                limit=quota.fit_scans,
+                used=fit_used,
+                period=quota.period_type,
+                reset_at=reset_at,
+            ),
+            "proposals": _build_quota_payload(
+                limit=quota.proposals,
+                used=proposal_used,
+                period=quota.period_type,
+                reset_at=reset_at,
+            ),
+            "proposal_regenerations": {
+                "limit_per_proposal": quota.proposal_regenerations_per_proposal
+            },
         },
     }
 
