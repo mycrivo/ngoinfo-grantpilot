@@ -24,6 +24,7 @@ class FitScanRiskFlag(BaseModel):
 class FitScanResponse(BaseModel):
     id: UUID
     funding_opportunity_id: UUID
+    opportunity_title: str | None = None
     overall_recommendation: str
     model_rating: str
     subscores: FitScanSubscores

@@ -86,6 +86,11 @@ def _to_response(fit_scan) -> FitScanResponse:
     return FitScanResponse(
         id=fit_scan.id,
         funding_opportunity_id=fit_scan.funding_opportunity_id,
+        opportunity_title=(
+            fit_scan.funding_opportunity.title
+            if fit_scan.funding_opportunity is not None
+            else None
+        ),
         overall_recommendation=fit_scan.overall_recommendation,
         model_rating=fit_scan.model_rating,
         subscores=fit_scan.subscores,
