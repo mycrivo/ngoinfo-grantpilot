@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,10 @@ from app.schemas.proposal import (
     ProposalCreateRequest,
     ProposalDetailResponse,
     ProposalExportRequest,
+    ProposalListItem,
+    ProposalListResponse,
     ProposalResponse,
+    StandardErrorResponse,
 )
 from app.services.export_service import ExportService
 from app.services.proposal_service import ProposalService
@@ -27,6 +30,45 @@ def create_proposal(
     service = ProposalService(db)
     proposal = service.create_proposal(user=current_user, payload=payload)
     return _to_summary_response(proposal)
+
+
+@router.get(
+    "/proposals",
+    response_model=ProposalListResponse,
+    responses={
+        401: {"model": StandardErrorResponse},
+        403: {"model": StandardErrorResponse},
+        422: {"model": StandardErrorResponse},
+        500: {"model": StandardErrorResponse},
+    },
+)
+def list_proposals(
+    limit: int = Query(default=5, ge=1, le=50),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    service = ProposalService(db)
+    proposals = service.list_proposals(user=current_user, limit=limit)
+    return ProposalListResponse(
+        proposals=[
+            ProposalListItem(
+                id=proposal.id,
+                funding_opportunity_id=proposal.funding_opportunity_id,
+                fit_scan_id=proposal.fit_scan_id,
+                opportunity_title=(
+                    proposal.funding_opportunity.title
+                    if proposal.funding_opportunity is not None
+                    else None
+                ),
+                status=proposal.status,
+                version=proposal.version,
+                created_at=proposal.created_at,
+                updated_at=proposal.updated_at,
+                generation_summary=(proposal.content_json or {}).get("generation_summary"),
+            )
+            for proposal in proposals
+        ]
+    )
 
 
 @router.get("/proposals/{proposal_id}", response_model=ProposalDetailResponse)

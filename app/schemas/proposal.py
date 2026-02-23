@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -33,3 +33,26 @@ class ProposalDetailResponse(BaseModel):
 
 class ProposalExportRequest(BaseModel):
     format: str
+
+
+class StandardErrorResponse(BaseModel):
+    error_code: str
+    message: str
+    details: dict[str, Any] | None = None
+    request_id: str | None = None
+
+
+class ProposalListItem(BaseModel):
+    id: UUID
+    funding_opportunity_id: UUID
+    fit_scan_id: UUID | None = None
+    opportunity_title: str | None = None
+    status: Literal["DRAFT", "DEGRADED"]
+    version: int
+    created_at: datetime
+    updated_at: datetime
+    generation_summary: dict[str, Any] | None = None
+
+
+class ProposalListResponse(BaseModel):
+    proposals: list[ProposalListItem]

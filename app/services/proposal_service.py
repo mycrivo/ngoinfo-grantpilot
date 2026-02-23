@@ -249,6 +249,15 @@ class ProposalService:
             )
         return proposal
 
+    def list_proposals(self, *, user, limit: int) -> list[Proposal]:
+        statement = (
+            select(Proposal)
+            .where(Proposal.user_id == user.id)
+            .order_by(Proposal.created_at.desc())
+            .limit(limit)
+        )
+        return list(self.db.execute(statement).scalars().all())
+
     def regenerate_proposal(self, *, user, proposal_id: uuid.UUID) -> Proposal:
         proposal = self.get_proposal(user=user, proposal_id=proposal_id)
         plan_name = _get_plan_name(self.db, user.id)
