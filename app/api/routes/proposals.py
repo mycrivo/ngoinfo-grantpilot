@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Body, Depends, Query
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ from app.schemas.proposal import (
     ProposalListItem,
     ProposalListResponse,
     ProposalResponse,
+    RegenerateRequest,
     ProposalSection,
     ProposalSectionConstraints,
     ProposalSectionContent,
@@ -90,9 +91,11 @@ def get_proposal(
 @router.post("/proposals/{proposal_id}/regenerate", response_model=ProposalDetailResponse)
 def regenerate_proposal(
     proposal_id: UUID,
+    payload: RegenerateRequest = Body(default_factory=RegenerateRequest),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    _ = payload
     service = ProposalService(db)
     proposal = service.regenerate_proposal(user=current_user, proposal_id=proposal_id)
     return _to_detail_response(proposal)

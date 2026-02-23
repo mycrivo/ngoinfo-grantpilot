@@ -74,6 +74,10 @@ class ProposalExportRequest(BaseModel):
     format: str
 
 
+class RegenerateRequest(BaseModel):
+    mode: Literal["FULL"] = "FULL"
+
+
 class StandardErrorResponse(BaseModel):
     error_code: str
     message: str
