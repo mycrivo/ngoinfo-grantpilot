@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime, timezone
+from typing import Literal
 
 import stripe
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -28,6 +30,18 @@ logger = logging.getLogger("billing")
 router = APIRouter(prefix="/api/billing", tags=["billing"])
 
 
+class CheckoutRequest(BaseModel):
+    plan: Literal["GROWTH", "IMPACT"]
+
+
+class CheckoutResponse(BaseModel):
+    checkout_url: str
+
+
+class PortalResponse(BaseModel):
+    portal_url: str
+
+
 def _billing_current_user(
     request: Request, db: Session = Depends(get_db)
 ):
@@ -43,20 +57,12 @@ def _billing_current_user(
         raise
 
 
-@router.post("/checkout")
+@router.post("/checkout", response_model=CheckoutResponse)
 def billing_checkout(
-    payload: dict,  # minimal schema; validated manually to match contract
+    payload: CheckoutRequest,
     db: Session = Depends(get_db),
     current_user=Depends(_billing_current_user),
 ) -> JSONResponse:
-    plan = payload.get("plan") if isinstance(payload, dict) else None
-    if not plan:
-        raise DomainError(
-            error_code="BAD_REQUEST",
-            message="Missing plan",
-            status_code=400,
-        )
-
     existing_plan = db.execute(
         select(UserPlan).where(UserPlan.user_id == current_user.id)
     ).scalar_one_or_none()
@@ -71,7 +77,7 @@ def billing_checkout(
         )
 
     try:
-        checkout_url = create_checkout_session(db, current_user, plan)
+        checkout_url = create_checkout_session(db, current_user, payload.plan)
     except stripe.error.StripeError as exc:
         logger.exception("stripe_checkout_error")
         raise DomainError(
@@ -83,7 +89,7 @@ def billing_checkout(
     return JSONResponse(status_code=200, content={"checkout_url": checkout_url})
 
 
-@router.get("/portal")
+@router.get("/portal", response_model=PortalResponse)
 def billing_portal(
     db: Session = Depends(get_db),
     current_user=Depends(_billing_current_user),
