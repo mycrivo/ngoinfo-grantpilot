@@ -67,6 +67,14 @@ def _assert_error_schema(step: str, response: httpx.Response) -> None:
         _fail(step, response, 0)
 
 
+def _safe_json(response: httpx.Response) -> Dict[str, Any]:
+    try:
+        payload = response.json()
+    except Exception:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def main() -> None:
     base_url = os.getenv("SMOKE_BASE_URL")
     test_secret = os.getenv("TEST_MODE_SECRET")
@@ -79,12 +87,26 @@ def main() -> None:
 
     with httpx.Client() as client:
         # Mint test tokens
+        smoke_email = os.getenv("SMOKE_TEST_EMAIL")
+        if not smoke_email:
+            smoke_email = f"smoke-e2e-{int(time.time())}@grantpilot.local"
+        smoke_name = os.getenv("SMOKE_TEST_FULL_NAME", "Smoke E2E Test")
+        smoke_plan = os.getenv("SMOKE_TEST_PLAN", "IMPACT")
         headers = {
             "x-request-id": str(uuid.uuid4()),
             "x-test-mode-secret": test_secret,
         }
         resp, latency = _request(
-            client, "POST", f"{base_url}/api/auth/test-mode/mint", headers=headers
+            client,
+            "POST",
+            f"{base_url}/api/auth/test-mode/mint",
+            headers=headers,
+            json_body={
+                "secret": test_secret,
+                "email": smoke_email,
+                "full_name": smoke_name,
+                "plan": smoke_plan,
+            },
         )
         _report("test_mode_mint", "POST", "/api/auth/test-mode/mint", resp.status_code, latency)
         if resp.status_code != 200:
@@ -144,6 +166,150 @@ def main() -> None:
         _report("ngo_profile_completeness", "GET", "/api/ngo-profile/completeness", resp.status_code, latency)
         if resp.status_code != 200:
             _fail("ngo_profile_completeness", resp, latency)
+
+        # F-1 missing journey checks: funding opportunity -> fit scan -> proposal lifecycle.
+        resp, latency = _request(client, "GET", f"{base_url}/api/fit-scans?limit=5", headers=auth_headers)
+        _report("fit_scans_list", "GET", "/api/fit-scans?limit=5", resp.status_code, latency)
+        if resp.status_code != 200:
+            _fail("fit_scans_list", resp, latency)
+        fit_scans_payload = _safe_json(resp)
+        fit_scans = fit_scans_payload.get("fit_scans")
+        if not isinstance(fit_scans, list):
+            _fail("fit_scans_list", resp, latency)
+
+        resp, latency = _request(client, "GET", f"{base_url}/api/proposals?limit=5", headers=auth_headers)
+        _report("proposals_list", "GET", "/api/proposals?limit=5", resp.status_code, latency)
+        if resp.status_code != 200:
+            _fail("proposals_list", resp, latency)
+        proposals_payload = _safe_json(resp)
+        proposals = proposals_payload.get("proposals")
+        if not isinstance(proposals, list):
+            _fail("proposals_list", resp, latency)
+
+        known_opp_id = os.getenv("SMOKE_FUNDING_OPPORTUNITY_ID")
+        if not known_opp_id and proposals and isinstance(proposals[0], dict):
+            maybe_opp = proposals[0].get("funding_opportunity_id")
+            if isinstance(maybe_opp, str) and maybe_opp:
+                known_opp_id = maybe_opp
+        if not known_opp_id and fit_scans and isinstance(fit_scans[0], dict):
+            maybe_opp = fit_scans[0].get("funding_opportunity_id")
+            if isinstance(maybe_opp, str) and maybe_opp:
+                known_opp_id = maybe_opp
+
+        if known_opp_id:
+            resp, latency = _request(
+                client,
+                "GET",
+                f"{base_url}/api/funding-opportunities/{known_opp_id}",
+                headers=auth_headers,
+            )
+            _report(
+                "funding_opportunity_detail",
+                "GET",
+                "/api/funding-opportunities/{id}",
+                resp.status_code,
+                latency,
+            )
+            if resp.status_code != 200:
+                _fail("funding_opportunity_detail", resp, latency)
+
+            resp, latency = _request(
+                client,
+                "POST",
+                f"{base_url}/api/fit-scans",
+                headers=auth_headers,
+                json_body={"funding_opportunity_id": known_opp_id},
+            )
+            _report("fit_scan_create", "POST", "/api/fit-scans", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("fit_scan_create", resp, latency)
+            fit_scan_payload = _safe_json(resp).get("fit_scan")
+            if not isinstance(fit_scan_payload, dict):
+                _fail("fit_scan_create", resp, latency)
+            fit_scan_id = fit_scan_payload.get("id")
+            if not isinstance(fit_scan_id, str) or not fit_scan_id:
+                _fail("fit_scan_create", resp, latency)
+
+            resp, latency = _request(
+                client,
+                "POST",
+                f"{base_url}/api/proposals",
+                headers=auth_headers,
+                json_body={
+                    "funding_opportunity_id": known_opp_id,
+                    "fit_scan_id": fit_scan_id,
+                },
+            )
+            _report("proposal_create", "POST", "/api/proposals", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("proposal_create", resp, latency)
+            proposal_create_payload = _safe_json(resp)
+            proposal_id = proposal_create_payload.get("id")
+            if not isinstance(proposal_id, str) or not proposal_id:
+                _fail("proposal_create", resp, latency)
+            if proposal_create_payload.get("status") not in ("DRAFT", "DEGRADED"):
+                _fail("proposal_create", resp, latency)
+
+            resp, latency = _request(
+                client,
+                "GET",
+                f"{base_url}/api/proposals/{proposal_id}",
+                headers=auth_headers,
+            )
+            _report("proposal_detail", "GET", "/api/proposals/{id}", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("proposal_detail", resp, latency)
+            proposal_detail_payload = _safe_json(resp)
+            content_json = proposal_detail_payload.get("content_json")
+            if not isinstance(content_json, dict):
+                _fail("proposal_detail", resp, latency)
+            if not isinstance(content_json.get("sections"), list):
+                _fail("proposal_detail", resp, latency)
+
+            resp, latency = _request(
+                client,
+                "POST",
+                f"{base_url}/api/proposals/{proposal_id}/regenerate",
+                headers=auth_headers,
+                json_body={"mode": "FULL"},
+            )
+            _report(
+                "proposal_regenerate_full",
+                "POST",
+                "/api/proposals/{id}/regenerate",
+                resp.status_code,
+                latency,
+            )
+            if resp.status_code != 200:
+                _fail("proposal_regenerate_full", resp, latency)
+
+            resp, latency = _request(
+                client,
+                "POST",
+                f"{base_url}/api/proposals/{proposal_id}/export",
+                headers=auth_headers,
+                json_body={"format": "DOCX"},
+            )
+            _report("proposal_export_docx", "POST", "/api/proposals/{id}/export", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("proposal_export_docx", resp, latency)
+            content_type = resp.headers.get("content-type", "")
+            content_disposition = resp.headers.get("content-disposition", "")
+            if not content_type.startswith(
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            ):
+                _fail("proposal_export_docx", resp, latency)
+            if "attachment;" not in content_disposition.lower():
+                _fail("proposal_export_docx", resp, latency)
+        else:
+            print(
+                json.dumps(
+                    {
+                        "extended_journey_checks": "skipped",
+                        "reason": "SMOKE_FUNDING_OPPORTUNITY_ID missing and no reusable funding_opportunity_id found",
+                    }
+                )
+            )
 
         # Refresh
         refresh_headers = {"x-request-id": str(uuid.uuid4())}
