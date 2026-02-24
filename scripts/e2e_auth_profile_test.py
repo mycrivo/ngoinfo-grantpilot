@@ -56,6 +56,17 @@ def _fail(step: str, response: httpx.Response, latency_ms: float) -> None:
     sys.exit(1)
 
 
+def _assert_error_schema(step: str, response: httpx.Response) -> None:
+    try:
+        payload = response.json()
+    except Exception:
+        _fail(step, response, 0)
+    if not isinstance(payload, dict):
+        _fail(step, response, 0)
+    if "error_code" not in payload or "message" not in payload:
+        _fail(step, response, 0)
+
+
 def main() -> None:
     base_url = os.getenv("SMOKE_BASE_URL")
     test_secret = os.getenv("TEST_MODE_SECRET")
@@ -88,22 +99,22 @@ def main() -> None:
         }
 
         # Get profile or create if missing
-        resp, latency = _request(client, "GET", f"{base_url}/ngo-profile", headers=auth_headers)
-        _report("ngo_profile_get", "GET", "/ngo-profile", resp.status_code, latency)
+        resp, latency = _request(client, "GET", f"{base_url}/api/ngo-profile", headers=auth_headers)
+        _report("ngo_profile_get", "GET", "/api/ngo-profile", resp.status_code, latency)
         if resp.status_code == 404:
             payload = {
                 "organization_name": "Smoke Test Org",
                 "country_of_registration": "Kenya",
                 "mission_statement": "Test mission statement",
-                "focus_sectors": ["Health"],
+                "focus_sectors": ["HEALTH"],
                 "geographic_areas_of_work": ["Nairobi"],
                 "target_groups": ["Youth"],
-                "past_projects": [{"title": "Pilot Project"}],
+                "past_projects": [{"project_title": "Pilot Project"}],
             }
             resp, latency = _request(
-                client, "POST", f"{base_url}/ngo-profile", headers=auth_headers, json_body=payload
+                client, "POST", f"{base_url}/api/ngo-profile", headers=auth_headers, json_body=payload
             )
-            _report("ngo_profile_create", "POST", "/ngo-profile", resp.status_code, latency)
+            _report("ngo_profile_create", "POST", "/api/ngo-profile", resp.status_code, latency)
             if resp.status_code != 200 and resp.status_code != 201:
                 _fail("ngo_profile_create", resp, latency)
         elif resp.status_code != 200:
@@ -114,23 +125,23 @@ def main() -> None:
             "organization_name": "Smoke Test Org Updated",
             "country_of_registration": "Kenya",
             "mission_statement": "Updated mission statement",
-            "focus_sectors": ["Health", "Education"],
+            "focus_sectors": ["HEALTH", "EDUCATION"],
             "geographic_areas_of_work": ["Nairobi", "Kisumu"],
             "target_groups": ["Youth"],
-            "past_projects": [{"title": "Pilot Project"}],
+            "past_projects": [{"project_title": "Pilot Project"}],
         }
         resp, latency = _request(
-            client, "PUT", f"{base_url}/ngo-profile", headers=auth_headers, json_body=payload_update
+            client, "PUT", f"{base_url}/api/ngo-profile", headers=auth_headers, json_body=payload_update
         )
-        _report("ngo_profile_update", "PUT", "/ngo-profile", resp.status_code, latency)
+        _report("ngo_profile_update", "PUT", "/api/ngo-profile", resp.status_code, latency)
         if resp.status_code != 200:
             _fail("ngo_profile_update", resp, latency)
 
         # Completeness
         resp, latency = _request(
-            client, "GET", f"{base_url}/ngo-profile/completeness", headers=auth_headers
+            client, "GET", f"{base_url}/api/ngo-profile/completeness", headers=auth_headers
         )
-        _report("ngo_profile_completeness", "GET", "/ngo-profile/completeness", resp.status_code, latency)
+        _report("ngo_profile_completeness", "GET", "/api/ngo-profile/completeness", resp.status_code, latency)
         if resp.status_code != 200:
             _fail("ngo_profile_completeness", resp, latency)
 
@@ -146,6 +157,10 @@ def main() -> None:
         _report("auth_refresh", "POST", "/api/auth/refresh", resp.status_code, latency)
         if resp.status_code != 200:
             _fail("auth_refresh", resp, latency)
+        refresh_payload = resp.json()
+        rotated_refresh_token = refresh_payload.get("refresh_token")
+        if isinstance(rotated_refresh_token, str) and rotated_refresh_token:
+            refresh_token = rotated_refresh_token
 
         # Logout
         resp, latency = _request(
@@ -160,10 +175,11 @@ def main() -> None:
             _fail("auth_logout", resp, latency)
 
         # Protected endpoint now returns 401
-        resp, latency = _request(client, "GET", f"{base_url}/ngo-profile", headers=headers_base)
-        _report("ngo_profile_post_logout", "GET", "/ngo-profile", resp.status_code, latency)
+        resp, latency = _request(client, "GET", f"{base_url}/api/ngo-profile", headers=headers_base)
+        _report("ngo_profile_post_logout", "GET", "/api/ngo-profile", resp.status_code, latency)
         if resp.status_code != 401:
             _fail("ngo_profile_post_logout", resp, latency)
+        _assert_error_schema("ngo_profile_post_logout", resp)
 
     print(json.dumps({"result": "success"}))
 
