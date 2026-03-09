@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PastProject(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     title: str | None = None
     donor: str | None = None
     duration: str | None = None
@@ -33,12 +35,16 @@ class NGOProfileBase(BaseModel):
 
 
 class NGOProfileCreate(NGOProfileBase):
+    model_config = ConfigDict(extra="forbid")
+
     organization_name: str
     country_of_registration: str
     mission_statement: str
 
 
 class NGOProfileUpdate(NGOProfileBase):
+    model_config = ConfigDict(extra="forbid")
+
     organization_name: str
     country_of_registration: str
     mission_statement: str

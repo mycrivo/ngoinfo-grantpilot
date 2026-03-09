@@ -131,7 +131,9 @@ def main() -> None:
                 "focus_sectors": ["HEALTH"],
                 "geographic_areas_of_work": ["Nairobi"],
                 "target_groups": ["Youth"],
-                "past_projects": [{"project_title": "Pilot Project"}],
+                "past_projects": [{"title": "Pilot Project", "donor": "Smoke Donor"}],
+                "monitoring_and_evaluation_practices": "Quarterly reviews",
+                "funders_worked_with_before": ["Smoke Donor"],
             }
             resp, latency = _request(
                 client, "POST", f"{base_url}/api/ngo-profile", headers=auth_headers, json_body=payload
@@ -150,7 +152,9 @@ def main() -> None:
             "focus_sectors": ["HEALTH", "EDUCATION"],
             "geographic_areas_of_work": ["Nairobi", "Kisumu"],
             "target_groups": ["Youth"],
-            "past_projects": [{"project_title": "Pilot Project"}],
+            "past_projects": [{"title": "Pilot Project", "donor": "Smoke Donor"}],
+            "monitoring_and_evaluation_practices": "Quarterly reviews",
+            "funders_worked_with_before": ["Smoke Donor"],
         }
         resp, latency = _request(
             client, "PUT", f"{base_url}/api/ngo-profile", headers=auth_headers, json_body=payload_update
@@ -165,6 +169,9 @@ def main() -> None:
         )
         _report("ngo_profile_completeness", "GET", "/api/ngo-profile/completeness", resp.status_code, latency)
         if resp.status_code != 200:
+            _fail("ngo_profile_completeness", resp, latency)
+        completeness_payload = _safe_json(resp)
+        if "profile_status" not in completeness_payload or "completeness_score" not in completeness_payload:
             _fail("ngo_profile_completeness", resp, latency)
 
         # F-1 missing journey checks: funding opportunity -> fit scan -> proposal lifecycle.
