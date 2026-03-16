@@ -1,7 +1,7 @@
 # API_CONTRACT.md (Canonical — Single Source of Truth)
 
 **Status:** Canonical — LOCKED FOR BUILD
-**Last updated:** 2026-03-09
+**Last updated:** 2026-03-16
 **Scope:** GrantPilot API contract for backend + frontend integration
 
 This file supersedes any duplicate copies. If multiple copies exist in different repos, they MUST be kept identical to this canonical version. Cursor MUST use this file as the authoritative source for all API call shapes, error codes, and response contracts. If any other document conflicts with this file, this file wins.
@@ -406,42 +406,57 @@ Auth: REQUIRED
 
 Response 200:
 
-```json
+json
 {
-  "ngo_profile": {
-    "id": "uuid",
-    "organization_name": "string",
-    "country_of_registration": "string",
-    "year_of_establishment": 0,
-    "website": "string or null",
-    "contact_person_name": "string or null",
-    "contact_email": "string or null",
-    "mission_statement": "string",
-    "focus_sectors": ["EDUCATION | HEALTH | AGRICULTURE | WASH | GOVERNANCE | CLIMATE | GENDER | LIVELIHOODS | PROTECTION | OTHER"],
-    "geographic_areas_of_work": ["string"],
-    "target_groups": ["string"],
-    "past_projects": [
-      {
-        "id": "uuid",
-        "title": "string",
-        "donor": "string or null",
-        "duration": "string or null",
-        "location": "string or null",
-        "summary": "string or null"
-      }
-    ],
-    "full_time_staff": 0,
-    "annual_budget_amount": 0,
-    "annual_budget_currency": "USD | GBP | EUR | INR | KES | string or null",
-    "monitoring_and_evaluation_practices": "string or null",
-    "funders_worked_with_before": ["string"],
-    "created_at": "ISO-8601 timestamp",
-    "updated_at": "ISO-8601 timestamp"
-  }
+  "id": "uuid",
+  "organization_name": "string",
+  "country_of_registration": "string",
+  "year_of_establishment": 0,
+  "website": "string or null",
+  "contact_person_name": "string or null",
+  "contact_email": "string or null",
+  "mission_statement": "string",
+  "focus_sectors": ["EDUCATION | HEALTH | AGRICULTURE | WASH | GOVERNANCE | CLIMATE | GENDER | LIVELIHOODS | PROTECTION | OTHER"],
+  "geographic_areas_of_work": ["string"],
+  "target_groups": ["string"],
+  "past_projects": [
+    {
+      "id": "uuid",
+      "title": "string",
+      "donor": "string or null",
+      "duration": "string or null",
+      "location": "string or null",
+      "summary": "string or null"
+    }
+  ],
+  "full_time_staff": 0,
+  "annual_budget_amount": 0,
+  "annual_budget_currency": "USD | GBP | EUR | INR | KES | string or null",
+  "monitoring_and_evaluation_practices": "string or null",
+  "funders_worked_with_before": ["string"],
+  "profile_status": "DRAFT | COMPLETE",
+  "completeness_score": 0,
+  "missing_fields": ["string"],
+  "created_at": "ISO-8601 timestamp",
+  "updated_at": "ISO-8601 timestamp"
 }
-```
 
-**Notes:** Arrays may be empty. `past_projects` may be empty; completeness rules define when it counts as "missing".
+
+**Response shape:** Top-level profile object. No envelope wrapper.
+
+**Notes:**
+- Arrays may be empty. `past_projects` may be empty; completeness rules define when it counts as "missing".
+- `profile_status`, `completeness_score`, and `missing_fields` are computed server-side on every create/update and returned with the profile for convenience.
+
+**Field name mapping (canonical):**
+| Field | Notes |
+|-------|-------|
+| `past_projects[].title` | NOT `project_title` |
+| `past_projects[].donor` | NOT `donor_funder` |
+| `monitoring_and_evaluation_practices` | NOT `me_practices` |
+| `funders_worked_with_before` | NOT `previous_funders` |
+
+Backend enforces `extra="forbid"` on Pydantic schemas. Sending legacy field names (`project_title`, `donor_funder`, `me_practices`, `previous_funders`) will return 422 `VALIDATION_ERROR`.
 
 Errors:
 
@@ -453,13 +468,15 @@ Errors:
 
 ### 6.2 POST /api/ngo-profile
 
+### 6.2 POST /api/ngo-profile
+
 Purpose: create authenticated user's NGO profile.
 
 Auth: REQUIRED
 
-Request: same shape as `ngo_profile` above, excluding `id` / `created_at` / `updated_at` and excluding `past_projects[].id`.
+Request: same field names as GET response above, excluding read-only fields (`id`, `profile_status`, `completeness_score`, `missing_fields`, `created_at`, `updated_at`) and excluding `past_projects[].id`.
 
-Response 200: same as `GET /api/ngo-profile`
+Response 200: same shape as `GET /api/ngo-profile` (top-level profile object, no envelope).
 
 Errors:
 
@@ -478,7 +495,7 @@ Auth: REQUIRED
 
 Request: same as POST.
 
-Response 200: same as `GET /api/ngo-profile`
+Response 200: same shape as `GET /api/ngo-profile` (top-level profile object, no envelope).
 
 Errors:
 
@@ -497,21 +514,28 @@ Auth: REQUIRED
 
 Response 200:
 
-```json
+\`\`\`json
 {
   "profile_status": "DRAFT | COMPLETE",
   "completeness_score": 0,
   "missing_fields": ["string"]
 }
-```
+\`\`\`
 
 **Rules:**
 
-- If no profile exists: returns **404** `PROFILE_NOT_FOUND` (not a 200 with status "MISSING").
+- If no profile exists: endpoint returns `404 PROFILE_NOT_FOUND` (not a JSON body with status "MISSING").
 - If profile exists but required fields missing: `profile_status="DRAFT"`, `missing_fields` contains remaining required keys.
 - If complete: `profile_status="COMPLETE"`, `missing_fields=[]`, `completeness_score=100`.
 - `past_projects` is considered missing if array is empty OR no item has non-empty `title`.
-- Backend does NOT return the previously documented required-field list or `updated_at` in this response.
+
+**Completeness scoring (informational, 0–100):**
+- Organization name + country: 20
+- Mission statement: 15
+- Focus sectors (≥1): 15
+- Geographic areas (≥1): 15
+- Target groups (≥1): 15
+- At least 1 past project with non-empty `title`: 20
 
 Errors:
 
@@ -974,6 +998,27 @@ These requirements ensure OpenAPI spec stays in sync with this contract. They ar
 3. **Standard error envelope:** All 4xx/5xx responses MUST reference a `StandardErrorResponse` model matching Section 1 — not FastAPI's default `HTTPValidationError` (except 422 where it may coexist).
 4. **Google callback semantics:** `/api/auth/google/callback` MUST be represented as 302 redirect in OpenAPI, not JSON 200.
 5. **NGO profile path:** Backend routes MUST use `/api/ngo-profile*` (with `/api` prefix) — not bare `/ngo-profile*`.
+
+
+## Changelog
+
+### 2026-03-16 — Contract alignment to live backend (Phase 1)
+
+**Decision:** Backend is source of truth. Contract updated to match deployed Railway backend behavior, verified by runtime audit (audit_1603.md).
+
+**Changes:**
+1. **Section 6.1–6.3:** Removed `ngo_profile` response envelope. All profile endpoints (GET/POST/PUT) return top-level profile objects.
+2. **Section 6.1:** Updated `past_projects` field names from `project_title`/`donor_funder` to `title`/`donor` (matches DB schema and Pydantic model).
+3. **Section 6.1:** Updated `me_practices` → `monitoring_and_evaluation_practices`, `previous_funders` → `funders_worked_with_before`.
+4. **Section 6.1:** Added `profile_status`, `completeness_score`, `missing_fields` to profile response (backend includes these computed fields in profile responses).
+5. **Section 6.4:** Updated completeness field names from `status`/`percent_complete`/`required_fields`/`updated_at` to `profile_status`/`completeness_score`/`missing_fields`.
+6. **Section 6.4:** Documented that 404 is returned when no profile exists (not a JSON body with `status: "MISSING"`).
+7. **Section 6.4:** Added completeness scoring breakdown for reference.
+8. **Section 6.2:** Clarified read-only fields excluded from request body.
+
+**Governance note:** This is a deliberate alignment decision, not a convenience edit. The backend Pydantic schemas enforce `extra="forbid"` — sending legacy field names returns 422. All three layers (backend, contract, frontend) must now converge on these canonical shapes.
+
+```
 
 ---
 
