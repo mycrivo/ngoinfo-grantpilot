@@ -74,12 +74,15 @@ AUTH_JWT_SIGNING_KEY | Yes | <secret> | Strong secret (min 64 chars, cryptograph
 | Variable | Required | Example | Notes |
 |---|---:|---|---|
 | OPENAI_API_KEY | Yes | <secret> | |
-| PROMPT_VERSION | Yes | v1.0.0 | Persist with outputs |
+| PROMPT_VERSION | Yes | v1.0.2 | Persist with outputs |
+| OPENAI_MODEL_PRIMARY | Yes | gpt-5.4 | Primary model for all AI calls. Must be a valid OpenAI Chat Completions model string. |
+| OPENAI_MODEL_FALLBACK | Yes | gpt-5.4-mini | Fallback model used automatically if primary returns HTTP 400 (deprecated/invalid model). |
 
 Note:
-- No environment variable is used to select the OpenAI model in MVP.
-- Model selection is locked at the application level to `gpt-5.2` (see OPENAI_PROMPTS_LIBRARY.md).
-- Environment-based model switching may be introduced post-MVP via artefact update.
+- Model selection is now environment-driven (changed from hardcoded constant in v1.0.2, 2026-03-23).
+- See OPENAI_PROMPTS_LIBRARY.md Section 1 for the full model strategy including upgrade procedure.
+- When upgrading models: set new model as PRIMARY, move previous model to FALLBACK. No code deploy needed.
+- Monitor Railway logs for `openai_primary_model_failed` warnings — this means the fallback activated and PRIMARY needs updating.
 
 
 ### G) Stripe Billing (Test-First)

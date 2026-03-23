@@ -4,8 +4,8 @@
 **Depends on:** DB_FIELD_CONTRACT_FUNDING_OPPORTUNITY.md, PROMPT_INPUTS_FIELD_MAPPING.md  
 **System of Record:** Railway Postgres (GrantPilot DB)  
 **Primary Driver:** funding_opportunity.requirements_json (embedded into prompt_inputs.requirements)  
-**Version:** 1.0.1  
-**Last Updated:** 2026-01-24  
+**Version:** 1.0.2  
+**Last Updated:** 2026-03-23  
 
 ---
 
@@ -193,24 +193,42 @@ Always output `assumptions[]` where assumptions exist.
 - **Proposals:** Higher temp (0.65) for natural language variation + `frequency_penalty=0.4` to reduce repetition and prevent AI-sounding patterns
 - **Max Tokens:** 2500 for proposals to handle long sections (700 words ≈ 1000 tokens + JSON overhead + assumptions/evidence arrays)
 
-### Model Selection (MVP – Locked)
+### Model Selection (Environment-Driven with Fallback)
 
-GrantPilot MVP uses OpenAI model **gpt-5.2** for all GP prompts.
+GrantPilot uses OpenAI models configured via Railway environment variables. This replaces the previous hardcoded `gpt-5.2` constant, which broke when OpenAI deprecated the model (smoke test 2026-03-23).
 
-The model is referenced as a backend constant (not via environment variables) to ensure:
-- deterministic configuration,
-- reproducible Fit Scan behavior,
-- no hidden dependency on undeclared runtime settings.
+**Active configuration (as of 2026-03-23):**
 
-Any change to the model requires:
-- an explicit update to this artefact, and
-- a prompt library version bump.
+| Env Var | Value | Purpose |
+|---------|-------|---------|
+| `OPENAI_MODEL_PRIMARY` | `gpt-5.4` | Primary model for all GP prompts |
+| `OPENAI_MODEL_FALLBACK` | `gpt-5.4-mini` | Automatic fallback if primary returns HTTP 400 (model deprecated/unavailable) |
+
+**How it works:**
+1. All AI calls use `OPENAI_MODEL_PRIMARY` (currently `gpt-5.4`).
+2. If OpenAI returns HTTP 400 (Bad Request) — which indicates the model string is invalid or deprecated — the system automatically retries with `OPENAI_MODEL_FALLBACK` (currently `gpt-5.4-mini`).
+3. A WARNING-level log is emitted when the fallback is used: `openai_primary_model_failed`. This signals that the primary model env var needs updating.
+4. All other errors (429 rate limit, 500 server error, timeouts) follow existing retry logic — the fallback chain only activates on 400.
+
+**Model applies uniformly:** Both fit scans and proposal generation use the same primary/fallback pair. Per-prompt-type model differentiation is a post-launch consideration.
+
+**Upgrading the model:**
+1. Update `OPENAI_MODEL_PRIMARY` in Railway to the new model string (e.g., `gpt-5.5` when available).
+2. Move the previous primary to `OPENAI_MODEL_FALLBACK` (e.g., `gpt-5.4`).
+3. No code deploy required — takes effect on next Railway restart.
+4. Update this artefact with the new values and add a changelog entry.
+
+**Valid model strings (as of March 2026):**
+- `gpt-5.4` — flagship reasoning model, $2.50/1M input, $15.00/1M output, 1.05M context
+- `gpt-5.4-mini` — faster/cheaper, $0.75/1M input, $4.50/1M output, 400K context
+- `gpt-5.4-nano` — fastest/cheapest, $0.20/1M input, $1.25/1M output, 400K context
+- Dated snapshots also work: `gpt-5.4-2026-03-05`, `gpt-5.4-mini-2026-03-17`
 
 **Response Format:**  
 `response_format: {"type": "json_object"}` (strict JSON mode for all prompts)
 
 **Cost Ceiling:**  
-$1.25 USD per complete proposal (Fit Scan + all sections + up to 3 regenerations)
+$1.50 USD per complete proposal (Fit Scan + all sections + up to 3 regenerations). Revised upward from $1.25 to reflect GPT-5.4 pricing vs previous GPT-5.2 pricing.
 
 ---
 
@@ -231,6 +249,7 @@ Rollback must be supported by selecting an earlier `prompt_id@version`.
 | 1.0.0 | 2026-01-23 | ALL | Initial locked prompt library | Foundation aligned to Doctrine + DB Field Contract | No |
 | 1.0.0 | 2026-01-23 | GP-P01/P02 | Set temp=0.65, frequency_penalty=0.4 for proposal generation | Prevent robotic, repetitive text | No |
 | 1.0.1 | 2026-01-24 | ALL | Refactor all prompts to prompt_inputs_json-only + resolve CAPACITY budget mismatch + deterministic CAPACITY thresholds | Remove contract ambiguity blocking Cursor; preserve full functionality | Yes (to 1.0.0) |
+| 1.0.2 | 2026-03-23 | ALL | Model selection moved from hardcoded `gpt-5.2` constant to env-var-driven (`OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK`) with automatic fallback on HTTP 400. Default: `gpt-5.4` primary, `gpt-5.4-mini` fallback. | `gpt-5.2` deprecated by OpenAI; smoke test B6 returned 500. Env-var approach prevents future breakage on model deprecation. | Yes (to 1.0.1 by restoring hardcoded constant + setting env var to any valid model) |
 
 **Rollback Procedure:**
 1. Identify target version in changelog
