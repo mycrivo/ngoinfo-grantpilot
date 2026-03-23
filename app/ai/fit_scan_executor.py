@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
 
 PROMPT_LIBRARY_VERSION = "1.0.1"
-MODEL_NAME = "gpt-5.2"
 
 SYSTEM_PROMPT = (
     "You are GrantPilot, a consultant-grade fit assessment system.\n"
@@ -183,6 +183,7 @@ class FitScanExecutor:
     def execute(
         self, prompt_inputs: dict, *, feature: str = "fit_scan", user_id: str | None = None
     ) -> dict[str, Any]:
+        settings = get_settings()
         prompt_inputs_json = json.dumps(prompt_inputs, separators=(",", ":"), ensure_ascii=False)
         selected_variant_id = (
             prompt_inputs.get("prompt_inputs", {})
@@ -198,7 +199,8 @@ class FitScanExecutor:
 
         try:
             response = self._client.create_chat_completion(
-                model=MODEL_NAME,
+                model=settings.OPENAI_MODEL_PRIMARY,
+                fallback_model=settings.OPENAI_MODEL_FALLBACK,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},

@@ -40,6 +40,8 @@ class Settings(BaseSettings):
     EMAIL_SUPPRESS_SENDING: bool = False
 
     OPENAI_API_KEY: str
+    OPENAI_MODEL_PRIMARY: str = "gpt-5.4"
+    OPENAI_MODEL_FALLBACK: str = "gpt-5.4-mini"
     PROMPT_VERSION: str
 
     STRIPE_MODE: str

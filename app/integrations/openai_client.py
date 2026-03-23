@@ -35,6 +35,7 @@ class OpenAIClient:
         self,
         *,
         model: str,
+        fallback_model: str | None = None,
         messages: list[dict[str, Any]],
         response_format: dict[str, Any],
         temperature: float,
@@ -45,100 +46,118 @@ class OpenAIClient:
         feature: str = "unknown",
         user_id: str | None = None,
     ) -> dict[str, Any]:
-        payload = {
-            "model": model,
-            "messages": messages,
-            "response_format": response_format,
-            "temperature": temperature,
-            "top_p": top_p,
-            "frequency_penalty": frequency_penalty,
-            "presence_penalty": presence_penalty,
-            "max_tokens": max_tokens,
-        }
+        def _create_with_model(request_model: str) -> dict[str, Any]:
+            payload = {
+                "model": request_model,
+                "messages": messages,
+                "response_format": response_format,
+                "temperature": temperature,
+                "top_p": top_p,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "max_tokens": max_tokens,
+            }
 
-        max_attempts = _MAX_RETRIES + 1
-        last_error: OpenAIServiceError | None = None
+            max_attempts = _MAX_RETRIES + 1
+            last_error: OpenAIServiceError | None = None
 
-        for attempt in range(max_attempts):
-            start = time.monotonic()
-            try:
-                resp = self._client.post(
-                    f"{self._base_url}/chat/completions",
-                    headers={"Authorization": f"Bearer {self._api_key}"},
-                    json=payload,
-                )
-                if resp.status_code == 429:
-                    raise OpenAIServiceError(
-                        category="rate_limit",
+            for attempt in range(max_attempts):
+                start = time.monotonic()
+                try:
+                    resp = self._client.post(
+                        f"{self._base_url}/chat/completions",
+                        headers={"Authorization": f"Bearer {self._api_key}"},
+                        json=payload,
+                    )
+                    if resp.status_code == 429:
+                        raise OpenAIServiceError(
+                            category="rate_limit",
+                            retryable=True,
+                            status_code=resp.status_code,
+                            retry_attempted=attempt,
+                        )
+                    if resp.status_code >= 500:
+                        raise OpenAIServiceError(
+                            category="server_error",
+                            retryable=True,
+                            status_code=resp.status_code,
+                            retry_attempted=attempt,
+                        )
+                    if resp.status_code >= 400:
+                        raise OpenAIServiceError(
+                            category="request_error",
+                            retryable=False,
+                            status_code=resp.status_code,
+                            retry_attempted=attempt,
+                        )
+                    data = resp.json()
+                    latency_ms = int((time.monotonic() - start) * 1000)
+                    logger.info(
+                        "openai_call_success feature=%s user_id=%s latency_ms=%s attempts=%s",
+                        feature,
+                        user_id or "unknown",
+                        latency_ms,
+                        attempt + 1,
+                    )
+                    return data
+                except OpenAIServiceError as exc:
+                    last_error = exc
+                except httpx.TimeoutException as exc:
+                    last_error = OpenAIServiceError(
+                        category="timeout",
                         retryable=True,
-                        status_code=resp.status_code,
                         retry_attempted=attempt,
                     )
-                if resp.status_code >= 500:
-                    raise OpenAIServiceError(
-                        category="server_error",
+                except httpx.RequestError as exc:
+                    last_error = OpenAIServiceError(
+                        category="connection_error",
                         retryable=True,
-                        status_code=resp.status_code,
                         retry_attempted=attempt,
                     )
-                if resp.status_code >= 400:
-                    raise OpenAIServiceError(
-                        category="request_error",
-                        retryable=False,
-                        status_code=resp.status_code,
-                        retry_attempted=attempt,
-                    )
-                data = resp.json()
+
                 latency_ms = int((time.monotonic() - start) * 1000)
-                logger.info(
-                    "openai_call_success feature=%s user_id=%s latency_ms=%s attempts=%s",
+                retryable = last_error.retryable if last_error else False
+                logger.warning(
+                    "openai_call_error feature=%s user_id=%s category=%s retryable=%s "
+                    "attempt=%s latency_ms=%s",
                     feature,
                     user_id or "unknown",
-                    latency_ms,
+                    last_error.category if last_error else "unknown",
+                    retryable,
                     attempt + 1,
-                )
-                return data
-            except OpenAIServiceError as exc:
-                last_error = exc
-            except httpx.TimeoutException as exc:
-                last_error = OpenAIServiceError(
-                    category="timeout",
-                    retryable=True,
-                    retry_attempted=attempt,
-                )
-            except httpx.RequestError as exc:
-                last_error = OpenAIServiceError(
-                    category="connection_error",
-                    retryable=True,
-                    retry_attempted=attempt,
+                    latency_ms,
                 )
 
-            latency_ms = int((time.monotonic() - start) * 1000)
-            retryable = last_error.retryable if last_error else False
-            logger.warning(
-                "openai_call_error feature=%s user_id=%s category=%s retryable=%s "
-                "attempt=%s latency_ms=%s",
-                feature,
-                user_id or "unknown",
-                last_error.category if last_error else "unknown",
-                retryable,
-                attempt + 1,
-                latency_ms,
-            )
+                if not last_error or not retryable or attempt >= _MAX_RETRIES:
+                    break
 
-            if not last_error or not retryable or attempt >= _MAX_RETRIES:
-                break
+                delay = _RETRY_BASE_DELAY_SECONDS * (2**attempt) + random.uniform(0, 0.2)
+                time.sleep(delay)
+                logger.info(
+                    "openai_call_retry feature=%s user_id=%s attempt=%s delay_s=%.2f",
+                    feature,
+                    user_id or "unknown",
+                    attempt + 2,
+                    delay,
+                )
 
-            delay = _RETRY_BASE_DELAY_SECONDS * (2**attempt) + random.uniform(0, 0.2)
-            time.sleep(delay)
-            logger.info(
-                "openai_call_retry feature=%s user_id=%s attempt=%s delay_s=%.2f",
-                feature,
-                user_id or "unknown",
-                attempt + 2,
-                delay,
-            )
+            if last_error:
+                raise last_error
+            raise OpenAIServiceError(category="unknown_error", retryable=False)
 
-        if last_error:
-            raise last_error
-        raise OpenAIServiceError(category="unknown_error", retryable=False)
+        try:
+            return _create_with_model(model)
+        except OpenAIServiceError as exc:
+            if (
+                fallback_model
+                and fallback_model != model
+                and exc.category == "request_error"
+                and exc.status_code == 400
+            ):
+                logger.warning(
+                    "openai_primary_model_failed model=%s falling_back_to=%s",
+                    model,
+                    fallback_model,
+                )
+                return _create_with_model(fallback_model)
+            raise
