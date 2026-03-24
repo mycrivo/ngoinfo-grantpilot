@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any
 
 from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
+
+logger = logging.getLogger("openai")
 
 PROMPT_LIBRARY_VERSION = "1.0.1"
 
@@ -224,6 +227,12 @@ class FitScanExecutor:
                     "retry_attempted": exc.retry_attempted,
                 },
             ) from exc
+        logger.info(
+            "fit_scan_raw_response_keys feature=%s user_id=%s keys=%s",
+            feature,
+            user_id or "unknown",
+            list(response.keys()) if isinstance(response, dict) else type(response).__name__,
+        )
         payload = _extract_json_payload(response)
         _validate_fit_scan_payload(payload)
         return payload
