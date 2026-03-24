@@ -60,6 +60,13 @@ class OAuthExchangeRequest(BaseModel):
     code: str
 
 
+class TestModeMintRequest(BaseModel):
+    secret: str | None = None
+    email: str | None = None
+    full_name: str | None = None
+    plan: str | None = None
+
+
 class UserInfo(BaseModel):
     id: str
     email: str
@@ -649,7 +656,11 @@ def logout(payload: LogoutRequest, request: Request, db: Session = Depends(get_d
 
 
 @router.post("/test-mode/mint")
-def test_mode_mint(request: Request, db: Session = Depends(get_db)):
+def test_mode_mint(
+    request: Request,
+    payload: TestModeMintRequest | None = None,
+    db: Session = Depends(get_db),
+):
     """TODO: Remove test-mode mint endpoint post-launch."""
     settings = get_settings()
     if not settings.TEST_MODE:
@@ -666,11 +677,23 @@ def test_mode_mint(request: Request, db: Session = Depends(get_db)):
         _log_test_mode_event(request, "rate_limited")
         return error_response(request, 429, "RATE_LIMITED", "Too many requests")
 
-    user = db.execute(select(User).where(User.email == SMOKE_TEST_EMAIL)).scalar_one_or_none()
+    requested_email = (
+        normalize_email(payload.email)
+        if payload and payload.email
+        else SMOKE_TEST_EMAIL
+    )
+    requested_full_name = (
+        payload.full_name.strip()
+        if payload and payload.full_name and payload.full_name.strip()
+        else None
+    )
+
+    user = db.execute(select(User).where(User.email == requested_email)).scalar_one_or_none()
     now = datetime.now(timezone.utc)
     if user is None:
         user = User(
-            email=SMOKE_TEST_EMAIL,
+            email=requested_email,
+            full_name=requested_full_name,
             auth_provider="email",
             last_login_at=now,
         )
