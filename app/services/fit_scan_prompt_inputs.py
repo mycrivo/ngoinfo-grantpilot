@@ -89,26 +89,8 @@ def _build_opportunity_payload(opportunity: FundingOpportunity) -> dict[str, Any
         "eligibility_criteria": opportunity.eligibility_criteria,
         "application_process": opportunity.application_process,
         "contact_information": opportunity.contact_information,
-        "status": opportunity.status.value
-        if hasattr(opportunity.status, "value")
-        else opportunity.status,
-        "is_active": bool(opportunity.is_active),
-        "is_archived": bool(opportunity.is_archived),
-        "last_verified": opportunity.last_verified.isoformat()
-        if opportunity.last_verified
-        else None,
         "organization_types": opportunity.organization_types,
         "geographic_focus": opportunity.geographic_focus,
-        "processing_status": opportunity.processing_status,
-        "parsing_confidence": _coerce_number(opportunity.parsing_confidence),
-        "internal_notes": opportunity.internal_notes,
-        "created_at": opportunity.created_at.isoformat()
-        if opportunity.created_at
-        else None,
-        "updated_at": opportunity.updated_at.isoformat()
-        if opportunity.updated_at
-        else None,
-        "requirements_json": opportunity.requirements_json or {},
     }
 
 
@@ -145,7 +127,6 @@ def _build_derived_payload(
 ) -> dict[str, Any]:
     today = datetime.now(timezone.utc).date()
     selected_variant_id = _select_variant_id(requirements, ngo, user)
-    selected_variant = _extract_variant(requirements, selected_variant_id)
 
     return {
         "today_utc_date": today.isoformat(),
@@ -156,7 +137,6 @@ def _build_derived_payload(
             requirements, opportunity
         ),
         "selected_variant_id": selected_variant_id,
-        "selected_variant": selected_variant,
         "deadline_days_remaining": _deadline_days_remaining(opportunity, today),
         "applicant_type": "NGO",
     }
