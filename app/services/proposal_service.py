@@ -692,11 +692,10 @@ class ProposalService:
         submission_item_json = json.dumps(
             submission_item, separators=(",", ":"), ensure_ascii=True
         )
-        user_prompt = GP_P02_USER_PROMPT_TEMPLATE.format(
-            prompt_inputs_json=prompt_inputs_json,
-            fit_scan_output_json=fit_scan_output_json,
-            submission_item_json=submission_item_json,
-        )
+        user_prompt = GP_P02_USER_PROMPT_TEMPLATE
+        user_prompt = user_prompt.replace("{prompt_inputs_json}", prompt_inputs_json)
+        user_prompt = user_prompt.replace("{fit_scan_output_json}", fit_scan_output_json)
+        user_prompt = user_prompt.replace("{submission_item_json}", submission_item_json)
         try:
             return run_prompt(
                 prompt_id=prompt_id,
