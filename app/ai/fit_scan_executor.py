@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import json
-import logging
 from typing import Any
 
 from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
-
-logger = logging.getLogger("openai")
 
 PROMPT_LIBRARY_VERSION = "1.0.1"
 
@@ -187,10 +184,6 @@ class FitScanExecutor:
         self, prompt_inputs: dict, *, feature: str = "fit_scan", user_id: str | None = None
     ) -> dict[str, Any]:
         settings = get_settings()
-        model = settings.OPENAI_MODEL_PRIMARY
-        fallback_model = settings.OPENAI_MODEL_FALLBACK
-        response_format = {"type": "json_object"}
-        max_tokens_value = 900
         prompt_inputs_json = json.dumps(prompt_inputs, separators=(",", ":"), ensure_ascii=False)
         selected_variant_id = (
             prompt_inputs.get("prompt_inputs", {})
@@ -204,32 +197,20 @@ class FitScanExecutor:
             .replace("{selected_variant_id}", selected_variant_id)
         )
 
-        logger.info(
-            "fit_scan_request_params feature=%s user_id=%s model=%s fallback_model=%s "
-            "max_tokens_param_name=%s max_tokens_value=%s response_format=%s has_reasoning_effort=%s",
-            feature,
-            user_id or "unknown",
-            model,
-            fallback_model,
-            "max_tokens (client maps to max_completion_tokens then fallback to max_tokens)",
-            max_tokens_value,
-            response_format,
-            False,
-        )
         try:
             response = self._client.create_chat_completion(
-                model=model,
-                fallback_model=fallback_model,
+                model=settings.OPENAI_MODEL_PRIMARY,
+                fallback_model=settings.OPENAI_MODEL_FALLBACK,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},
                 ],
-                response_format=response_format,
+                response_format={"type": "json_object"},
                 temperature=0.2,
                 top_p=1.0,
                 frequency_penalty=0.0,
                 presence_penalty=0.0,
-                max_tokens=max_tokens_value,
+                max_tokens=900,
                 feature=feature,
                 user_id=user_id,
             )
@@ -249,23 +230,6 @@ class FitScanExecutor:
 
 
 def _extract_json_payload(response: dict[str, Any]) -> dict[str, Any]:
-    msg = response.get("choices", [{}])[0].get("message", {}) if isinstance(response, dict) else {}
-    content = msg.get("content") if isinstance(msg, dict) else None
-    reasoning = None
-    if isinstance(msg, dict):
-        reasoning = msg.get("reasoning_content") or msg.get("reasoning")
-    logger.info(
-        "fit_scan_message_debug message_keys=%s content_len=%s has_reasoning=%s has_refusal=%s "
-        "has_tool_calls=%s has_function_call=%s content_preview=%r reasoning_preview=%r",
-        list(msg.keys()) if isinstance(msg, dict) else type(msg).__name__,
-        len(content or "") if isinstance(content, str) else 0,
-        isinstance(msg, dict) and ("reasoning_content" in msg or "reasoning" in msg),
-        bool(msg.get("refusal")) if isinstance(msg, dict) else False,
-        bool(msg.get("tool_calls")) if isinstance(msg, dict) else False,
-        bool(msg.get("function_call")) if isinstance(msg, dict) else False,
-        (content or "")[:200] if isinstance(content, str) else "",
-        (reasoning or "")[:200] if isinstance(reasoning, str) else "",
-    )
     try:
         content = response["choices"][0]["message"]["content"]
         return json.loads(content)
