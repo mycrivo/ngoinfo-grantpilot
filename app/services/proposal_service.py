@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import copy
 import json
 import logging
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -471,6 +473,7 @@ class ProposalService:
         ]
         items_to_generate = generatable_items[:5]
         manual_due_to_cap = {item.get("item_id") for item in generatable_items[5:]}
+        generation_started_at = time.monotonic()
 
         warnings: list[str] = []
         _, variant_warning = select_variant_deterministic(
@@ -565,6 +568,13 @@ class ProposalService:
             "manual_required": manual_required,
             "warnings": warnings,
         }
+        logger.info(
+            'GP-P02 generation_summary total=%s generated=%s failed=%s total_elapsed_s=%.2f',
+            len(items_to_generate),
+            generated,
+            failed,
+            time.monotonic() - generation_started_at,
+        )
         return sections, summary
 
     def _regenerate_sections(
@@ -685,7 +695,24 @@ class ProposalService:
     ) -> dict[str, Any]:
         prompt_id = "GP-P02"
         config = PROMPT_CONFIGS[prompt_id]
-        prompt_inputs_json = json.dumps(prompt_inputs, separators=(",", ":"), ensure_ascii=True)
+        trimmed_inputs = copy.deepcopy(prompt_inputs)
+        trimmed_payload = trimmed_inputs.get("prompt_inputs")
+        if isinstance(trimmed_payload, dict):
+            opportunity_payload = trimmed_payload.get("opportunity")
+            if isinstance(opportunity_payload, dict):
+                for key in (
+                    "overview_text",
+                    "internal_notes",
+                    "eligibility_criteria",
+                    "application_process",
+                ):
+                    opportunity_payload.pop(key, None)
+
+            requirements_payload = trimmed_payload.get("requirements")
+            if isinstance(requirements_payload, dict):
+                requirements_payload.pop("variants", None)
+
+        prompt_inputs_json = json.dumps(trimmed_inputs, separators=(",", ":"), ensure_ascii=True)
         fit_scan_output_json = json.dumps(
             fit_scan_output, separators=(",", ":"), ensure_ascii=True
         )
@@ -696,8 +723,10 @@ class ProposalService:
         user_prompt = user_prompt.replace("{prompt_inputs_json}", prompt_inputs_json)
         user_prompt = user_prompt.replace("{fit_scan_output_json}", fit_scan_output_json)
         user_prompt = user_prompt.replace("{submission_item_json}", submission_item_json)
+        section_label = submission_item.get("label") or "unknown"
+        section_started_at = time.monotonic()
         try:
-            return run_prompt(
+            result = run_prompt(
                 prompt_id=prompt_id,
                 system_prompt=GP_P01_SYSTEM_PROMPT,
                 user_prompt=user_prompt,
@@ -707,7 +736,19 @@ class ProposalService:
                 presence_penalty=float(config["presence_penalty"]),
                 max_tokens=int(config["max_tokens"]),
             )
+            logger.info(
+                'GP-P02 section_generate label="%s" status=success elapsed_s=%.2f',
+                section_label,
+                time.monotonic() - section_started_at,
+            )
+            return result
         except DomainError as exc:
+            logger.info(
+                'GP-P02 section_generate label="%s" status=failed error_code=%s elapsed_s=%.2f',
+                section_label,
+                exc.error_code,
+                time.monotonic() - section_started_at,
+            )
             return {"generation_status": "FAILED", "warnings": [exc.error_code]}
 
 

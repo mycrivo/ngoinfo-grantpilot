@@ -31,7 +31,7 @@ class OpenAIClient:
         settings = get_settings()
         self._api_key = api_key or settings.OPENAI_API_KEY
         self._base_url = base_url.rstrip("/")
-        self._client = httpx.Client(timeout=30.0)
+        self._client = httpx.Client(timeout=90.0)
 
     def create_chat_completion(
         self,
@@ -182,10 +182,10 @@ class OpenAIClient:
                     return data
                 except OpenAIServiceError as exc:
                     last_error = exc
-                except httpx.TimeoutException as exc:
+                except httpx.TimeoutException:
                     last_error = OpenAIServiceError(
                         category="timeout",
-                        retryable=True,
+                        retryable=False,
                         retry_attempted=attempt,
                     )
                 except httpx.RequestError as exc:
