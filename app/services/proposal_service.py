@@ -155,17 +155,17 @@ class ProposalService:
         )
 
         try:
-            with self.db.begin():
-                # GUARDRAILS: atomic quota decrement with persistence.
-                self.db.add(proposal)
-                self.db.flush()
-                record_usage(
-                    self.db,
-                    user.id,
-                    UsageActionType.PROPOSAL_CREATE.value,
-                    idempotency_key=str(uuid.uuid4()),
-                    commit=False,
-                )
+            # GUARDRAILS: atomic quota decrement with persistence.
+            self.db.add(proposal)
+            self.db.flush()
+            record_usage(
+                self.db,
+                user.id,
+                UsageActionType.PROPOSAL_CREATE.value,
+                idempotency_key=str(uuid.uuid4()),
+                commit=False,
+            )
+            self.db.commit()
         except DomainError:
             raise
         except Exception as exc:  # pragma: no cover - DB-level failure
@@ -239,9 +239,9 @@ class ProposalService:
             status="DRAFT",
         )
         try:
-            with self.db.begin():
-                self.db.add(proposal)
-                self.db.flush()
+            self.db.add(proposal)
+            self.db.flush()
+            self.db.commit()
         except Exception as exc:  # pragma: no cover - DB-level failure
             self.db.rollback()
             raise DomainError(
@@ -388,16 +388,16 @@ class ProposalService:
         proposal.updated_at = datetime.now(timezone.utc)
 
         try:
-            with self.db.begin():
-                self.db.add(proposal)
-                self.db.flush()
-                record_usage(
-                    self.db,
-                    user.id,
-                    UsageActionType.PROPOSAL_REGEN.value,
-                    idempotency_key=str(uuid.uuid4()),
-                    commit=False,
-                )
+            self.db.add(proposal)
+            self.db.flush()
+            record_usage(
+                self.db,
+                user.id,
+                UsageActionType.PROPOSAL_REGEN.value,
+                idempotency_key=str(uuid.uuid4()),
+                commit=False,
+            )
+            self.db.commit()
         except DomainError:
             raise
         except Exception as exc:  # pragma: no cover - DB-level failure
