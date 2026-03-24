@@ -5,6 +5,7 @@ import json
 import logging
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -33,6 +34,7 @@ MANUAL_REQUIRED_NOTE = (
 GENERATION_LIMIT_NOTE = (
     "This section exceeds the generation limit. Please write it manually."
 )
+MAX_CONCURRENT_SECTIONS = 5
 
 
 class ProposalService:
@@ -132,13 +134,14 @@ class ProposalService:
             submission_items=submission_items,
         )
 
-        if summary["generated"] <= 0:
+        if summary["generated"] == 0:
             raise DomainError(
                 error_code="PROPOSAL_GENERATION_FAILED",
                 message="All proposal sections failed to generate",
                 status_code=500,
             )
 
+        proposal_status = "DRAFT" if summary["failed"] == 0 else "DEGRADED"
         plan_name = _get_plan_name(self.db, user.id)
         proposal = Proposal(
             user_id=user.id,
@@ -147,6 +150,7 @@ class ProposalService:
             plan_at_creation=plan_name,
             prompt_version=PROMPT_LIBRARY_VERSION,
             selected_variant_id=derived.get("selected_variant_id"),
+            status=proposal_status,
             content_json={"sections": sections, "generation_summary": summary},
         )
 
@@ -468,11 +472,13 @@ class ProposalService:
         fit_scan_output: dict[str, Any],
         submission_items: list[dict[str, Any]],
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        generatable_items = [
-            item for item in submission_items if item.get("generation_allowed") is True
+        generatable_positions = [
+            idx
+            for idx, item in enumerate(submission_items)
+            if item.get("generation_allowed") is True
         ]
-        items_to_generate = generatable_items[:5]
-        manual_due_to_cap = {item.get("item_id") for item in generatable_items[5:]}
+        positions_to_generate = generatable_positions[:MAX_CONCURRENT_SECTIONS]
+        manual_due_to_cap_positions = set(generatable_positions[MAX_CONCURRENT_SECTIONS:])
         generation_started_at = time.monotonic()
 
         warnings: list[str] = []
@@ -489,7 +495,36 @@ class ProposalService:
         failed = 0
         manual_required = 0
 
-        for item in submission_items:
+        results_by_position: dict[int, dict[str, Any]] = {}
+        if positions_to_generate:
+            max_workers = min(len(positions_to_generate), MAX_CONCURRENT_SECTIONS)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_position = {
+                    executor.submit(
+                        self._generate_item,
+                        prompt_inputs=prompt_inputs,
+                        fit_scan_output=fit_scan_output,
+                        submission_item=submission_items[position],
+                    ): position
+                    for position in positions_to_generate
+                }
+                for future in as_completed(future_to_position):
+                    position = future_to_position[future]
+                    try:
+                        results_by_position[position] = future.result()
+                    except Exception as exc:  # pragma: no cover - runtime safeguard
+                        label = submission_items[position].get("label") or "unknown"
+                        logger.error(
+                            'GP-P02 section_generate label="%s" unhandled_exception=%s',
+                            label,
+                            str(exc),
+                        )
+                        results_by_position[position] = {
+                            "generation_status": "FAILED",
+                            "warnings": [str(exc)],
+                        }
+
+        for position, item in enumerate(submission_items):
             item_id = item.get("item_id")
             label = item.get("label") or ""
             format_constraints = item.get("format_constraints") or {}
@@ -507,7 +542,7 @@ class ProposalService:
                 )
                 continue
 
-            if item_id in manual_due_to_cap:
+            if position in manual_due_to_cap_positions:
                 manual_required += 1
                 sections.append(
                     _manual_section(
@@ -519,11 +554,9 @@ class ProposalService:
                 )
                 continue
 
-            result = self._generate_item(
-                prompt_inputs=prompt_inputs,
-                fit_scan_output=fit_scan_output,
-                submission_item=item,
-            )
+            result = results_by_position.get(position)
+            if not isinstance(result, dict):
+                result = {"generation_status": "FAILED", "warnings": ["AI_SERVICE_ERROR"]}
             status = result.get("generation_status")
             if status == "GENERATED":
                 generated += 1
@@ -570,7 +603,7 @@ class ProposalService:
         }
         logger.info(
             'GP-P02 generation_summary total=%s generated=%s failed=%s total_elapsed_s=%.2f',
-            len(items_to_generate),
+            len(positions_to_generate),
             generated,
             failed,
             time.monotonic() - generation_started_at,
