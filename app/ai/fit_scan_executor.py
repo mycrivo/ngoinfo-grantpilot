@@ -1,14 +1,11 @@
 from __future__ import annotations
 
 import json
-import logging
 from typing import Any
 
 from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
-
-logger = logging.getLogger("openai")
 
 PROMPT_LIBRARY_VERSION = "1.0.1"
 
@@ -227,35 +224,16 @@ class FitScanExecutor:
                     "retry_attempted": exc.retry_attempted,
                 },
             ) from exc
-        logger.info(
-            "fit_scan_raw_response_keys feature=%s user_id=%s keys=%s",
-            feature,
-            user_id or "unknown",
-            list(response.keys()) if isinstance(response, dict) else type(response).__name__,
-        )
         payload = _extract_json_payload(response)
         _validate_fit_scan_payload(payload)
         return payload
 
 
 def _extract_json_payload(response: dict[str, Any]) -> dict[str, Any]:
-    content: Any = None
     try:
         content = response["choices"][0]["message"]["content"]
         return json.loads(content)
     except Exception as exc:  # pragma: no cover - runtime safeguard
-        stripped = content.lstrip() if isinstance(content, str) else ""
-        logger.info(
-            "fit_scan_payload_parse_failed error_type=%s response_type=%s choices_type=%s "
-            "content_type=%s content_len=%s starts_with_brace=%s starts_with_code_fence=%s",
-            type(exc).__name__,
-            type(response).__name__,
-            type(response.get("choices")).__name__ if isinstance(response, dict) else "n/a",
-            type(content).__name__ if content is not None else "missing",
-            len(content) if isinstance(content, str) else -1,
-            stripped.startswith("{"),
-            stripped.startswith("```"),
-        )
         _raise_fit_scan_failed("Invalid Fit Scan response payload", reason="AI_OUTPUT_INVALID")
 
 
