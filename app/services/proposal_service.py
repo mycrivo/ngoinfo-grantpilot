@@ -89,8 +89,21 @@ class ProposalService:
             )
 
         prompt_inputs = build_prompt_inputs(profile, opportunity, payload.model_dump())
-        derived = prompt_inputs["prompt_inputs"]["derived"]
-        selected_variant = derived.get("selected_variant") or {}
+        prompt_inputs_payload = prompt_inputs.get("prompt_inputs", {})
+        derived = (
+            prompt_inputs_payload.get("derived")
+            if isinstance(prompt_inputs_payload, dict)
+            else {}
+        )
+        requirements_payload = (
+            prompt_inputs_payload.get("requirements")
+            if isinstance(prompt_inputs_payload, dict)
+            else None
+        )
+        selected_variant_id = (
+            derived.get("selected_variant_id") if isinstance(derived, dict) else None
+        )
+        selected_variant = _find_variant_by_id(requirements_payload, selected_variant_id)
         if not selected_variant:
             return self._persist_degraded_proposal(
                 user_id=user.id,
@@ -307,8 +320,21 @@ class ProposalService:
 
         user_inputs = {"selected_variant_id": proposal.selected_variant_id}
         prompt_inputs = build_prompt_inputs(profile, opportunity, user_inputs)
-        derived = prompt_inputs["prompt_inputs"]["derived"]
-        selected_variant = derived.get("selected_variant") or {}
+        prompt_inputs_payload = prompt_inputs.get("prompt_inputs", {})
+        derived = (
+            prompt_inputs_payload.get("derived")
+            if isinstance(prompt_inputs_payload, dict)
+            else {}
+        )
+        requirements_payload = (
+            prompt_inputs_payload.get("requirements")
+            if isinstance(prompt_inputs_payload, dict)
+            else None
+        )
+        selected_variant_id = (
+            derived.get("selected_variant_id") if isinstance(derived, dict) else None
+        )
+        selected_variant = _find_variant_by_id(requirements_payload, selected_variant_id)
         if not selected_variant:
             raise DomainError(
                 error_code="REQUIREMENTS_INVALID",
@@ -779,6 +805,20 @@ def _degraded_payload(
         "missing_items": missing_items,
         "next_actions": next_actions,
     }
+
+
+def _find_variant_by_id(
+    requirements: dict[str, Any] | None, selected_variant_id: str | None
+) -> dict[str, Any]:
+    if not isinstance(requirements, dict) or not selected_variant_id:
+        return {}
+    variants = requirements.get("variants")
+    if not isinstance(variants, list):
+        return {}
+    for variant in variants:
+        if isinstance(variant, dict) and variant.get("variant_id") == selected_variant_id:
+            return variant
+    return {}
 
 
 def _requirements_structurally_valid(requirements: dict) -> bool:

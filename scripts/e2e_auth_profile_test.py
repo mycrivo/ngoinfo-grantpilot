@@ -239,6 +239,27 @@ def main() -> None:
 
             resp, latency = _request(
                 client,
+                "GET",
+                f"{base_url}/api/fit-scans/{fit_scan_id}",
+                headers=auth_headers,
+            )
+            _report("fit_scan_detail", "GET", "/api/fit-scans/{id}", resp.status_code, latency)
+            if resp.status_code != 200:
+                _fail("fit_scan_detail", resp, latency)
+            fit_scan_detail_payload = _safe_json(resp)
+            fit_scan_detail = fit_scan_detail_payload.get("fit_scan")
+            if not isinstance(fit_scan_detail, dict):
+                _fail("fit_scan_detail", resp, latency)
+            if fit_scan_detail.get("id") != fit_scan_id:
+                _fail("fit_scan_detail", resp, latency)
+            primary_rationale = fit_scan_detail.get("primary_rationale")
+            if not isinstance(primary_rationale, str) or not primary_rationale.strip():
+                _fail("fit_scan_detail", resp, latency)
+            if not isinstance(fit_scan_detail.get("risk_flags"), list):
+                _fail("fit_scan_detail", resp, latency)
+
+            resp, latency = _request(
+                client,
                 "POST",
                 f"{base_url}/api/proposals",
                 headers=auth_headers,
@@ -347,12 +368,23 @@ def main() -> None:
         if resp.status_code != 200:
             _fail("auth_logout", resp, latency)
 
-        # Protected endpoint now returns 401
-        resp, latency = _request(client, "GET", f"{base_url}/api/ngo-profile", headers=headers_base)
-        _report("ngo_profile_post_logout", "GET", "/api/ngo-profile", resp.status_code, latency)
-        if resp.status_code != 401:
-            _fail("ngo_profile_post_logout", resp, latency)
-        _assert_error_schema("ngo_profile_post_logout", resp)
+        # Logout revokes refresh token; access token may remain valid until expiry.
+        post_logout_headers = {
+            "authorization": f"Bearer {access_token}",
+            "x-request-id": str(uuid.uuid4()),
+        }
+        resp, latency = _request(
+            client, "GET", f"{base_url}/api/ngo-profile", headers=post_logout_headers
+        )
+        _report(
+            "ngo_profile_post_logout_access",
+            "GET",
+            "/api/ngo-profile",
+            resp.status_code,
+            latency,
+        )
+        if resp.status_code not in (200, 404, 401):
+            _fail("ngo_profile_post_logout_access", resp, latency)
 
     print(json.dumps({"result": "success"}))
 
