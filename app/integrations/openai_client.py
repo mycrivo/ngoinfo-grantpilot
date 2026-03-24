@@ -167,10 +167,29 @@ class OpenAIClient:
                             openai_rejected_param=openai_rejected_param,
                         )
                     data = resp.json()
+                    choices = data.get("choices") if isinstance(data, dict) else None
+                    choice0 = choices[0] if isinstance(choices, list) and choices else None
+                    finish_reason = (
+                        choice0.get("finish_reason")
+                        if isinstance(choice0, dict)
+                        else None
+                    )
+                    usage = data.get("usage") if isinstance(data, dict) else None
+                    prompt_tokens = usage.get("prompt_tokens") if isinstance(usage, dict) else None
+                    completion_tokens = (
+                        usage.get("completion_tokens") if isinstance(usage, dict) else None
+                    )
+                    total_tokens = usage.get("total_tokens") if isinstance(usage, dict) else None
+                    usage_extra_keys = (
+                        [k for k in usage.keys() if k not in {"prompt_tokens", "completion_tokens", "total_tokens"}]
+                        if isinstance(usage, dict)
+                        else []
+                    )
                     latency_ms = int((time.monotonic() - start) * 1000)
                     logger.info(
                         "openai_call_success feature=%s user_id=%s model=%s api_path=%s token_param=%s "
-                        "latency_ms=%s attempts=%s",
+                        "latency_ms=%s attempts=%s finish_reason=%s prompt_tokens=%s "
+                        "completion_tokens=%s total_tokens=%s usage_extra_keys=%s",
                         feature,
                         user_id or "unknown",
                         request_model,
@@ -178,6 +197,11 @@ class OpenAIClient:
                         token_param,
                         latency_ms,
                         attempt + 1,
+                        finish_reason if finish_reason is not None else "none",
+                        prompt_tokens if prompt_tokens is not None else "none",
+                        completion_tokens if completion_tokens is not None else "none",
+                        total_tokens if total_tokens is not None else "none",
+                        usage_extra_keys,
                     )
                     return data
                 except OpenAIServiceError as exc:
