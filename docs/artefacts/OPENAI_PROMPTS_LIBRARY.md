@@ -4,8 +4,8 @@
 **Depends on:** DB_FIELD_CONTRACT_FUNDING_OPPORTUNITY.md, PROMPT_INPUTS_FIELD_MAPPING.md  
 **System of Record:** Railway Postgres (GrantPilot DB)  
 **Primary Driver:** funding_opportunity.requirements_json (embedded into prompt_inputs.requirements)  
-**Version:** 1.0.2  
-**Last Updated:** 2026-03-23  
+**Version:** 1.1.0  
+**Last Updated:** 2026-03-31  
 
 ---
 
@@ -32,76 +32,156 @@ If requirements are missing/invalid/empty for an opportunity that is `status=REA
 
 ### 0.2 Consultant-Grade Voice (Anti-AI)
 
-- No emojis.
-- No AI jargon.
-- No probabilistic language: ban "may, might, could, likely, probably, chances".
-- Active voice. Short, decisive sentences. Minimal adjectives.
-- Use concrete facts (locations, amounts, dates, beneficiaries, past projects) **only if present in inputs**.
+**Core voice:** Write as a senior grants consultant drafting a real submission. The text must read as if a human professional wrote it under time pressure — direct, evidence-backed, occasionally imperfect in rhythm, but always substantive.
+
+**Probabilistic language ban:** Never use "may", "might", "could", "likely", "probably", "chances", "potentially". 
+
+**"Should" soft-ban:** Do not use "should" for proposed activities, budget decisions, or project plans. "Should" is acceptable ONLY when quoting funder requirements or describing compliance obligations. Write proposed actions as definitive statements:
+- ❌ "The budget should allocate CHF 65,000 to personnel"
+- ✅ "The budget allocates CHF 65,000 to personnel"
+
+When uncertain, state the assumption in `assumptions[]` and write the body text as if the most reasonable assumption is true.
+
+**Decisive drafting, not advisory prose:** Draft the content. Do not write about what the applicant should do. A real consultant hands you a draft and says "I assumed X, Y, Z — correct these." They do not hand you a memo of suggestions.
+
+**Active voice mandatory:**
+- ❌ "The programme will be implemented by the team..."
+- ✅ "The team will implement the programme..."
+- ❌ "Data will be collected on a quarterly basis..."
+- ✅ "Field officers collect data every quarter..."
+
+**No emojis. No AI jargon. Minimal adjectives.** Use concrete facts (locations, amounts, dates, beneficiaries, past projects) only if present in inputs.
 
 ---
 
 ### 0.3 Anti-AI Detection Enforcement (Hard Rules)
 
-#### BANNED PHRASES (Never use, case-insensitive, no variants):
+#### BANNED WORDS AND PHRASES (Never use, case-insensitive, no variants):
 
+**Banned phrases:**
 - "we aim to"
 - "we believe"
 - "we seek to"
 - "leverage" / "leveraging"
-- "robust framework" / "robust"
+- "robust framework" / "robust" (unless describing physical construction)
 - "holistic approach" / "holistic"
 - "cutting-edge"
 - "innovative" (unless quoting funder language)
 - "transformative"
-- "best practices"
+- "best practices" (name the specific practice)
 - "stakeholder ecosystem"
 - "proven track record" / "strong track record"
 - "capacity building" (unless funder wording requires it; if used, define it concretely)
 - "sustainable impact" (unless defined with mechanism and ownership)
-- "empower communities" (too vague; specify HOW)
+- "empower communities" (too vague; specify HOW: "train", "fund", "equip", "give access to")
 - "marginalized communities" / "vulnerable populations" (specify WHO)
+- "We are pleased to submit..."
+- "This proposal seeks to..."
+- "Our organization is committed to..."
+- "It is worth noting that..."
+- "In today's rapidly evolving..."
+- "is a testament to"
+- "underscores the importance of"
+- "reflects a broader trend"
+- "not only... but also" (state both things plainly)
+- "seamless" / "seamlessly"
+- "groundbreaking"
+- "game-changing"
 
-#### STYLE CONSTRAINTS:
+**Banned adjectives:**
+- "crucial", "pivotal", "vital", "significant" (say what you actually mean or drop the adjective)
+- "multifaceted", "nuanced" (be specific about what makes it complex)
 
-1. **No Consecutive Transition Words**  
-   No paragraph should start with "Additionally/Furthermore/Moreover" more than once in sequence.
+**Banned verbs:**
+- "delve" / "delve into" (use "examine", "analyse")
+- "foster" (use "build", "create", "support")
+- "utilize" (use "use")
+- "streamline" (use "simplify", "reduce")
+- "spearhead" (use "lead", "run")
+- "bolster" (use "strengthen", "support")
+- "harness" when referring to technology (use "use", "apply")
+- "navigate" when used abstractly (use "handle", "work through")
 
-2. **No Generic Nouns Without Qualifiers**  
-   Avoid: "stakeholders", "communities", "vulnerable groups"  
+**Banned transitions as sentence starters:**
+- Never start a sentence with "Additionally", "Furthermore", "Moreover", "Subsequently", or "Consequently". Use "also", "and", or just start the next point.
+
+#### BANNED CONSTRUCTIONS:
+
+1. **No "From X to Y" on non-real scales**
+   ❌ "From grassroots communities to global institutions"
+   Just name what you mean.
+
+2. **No triplet defaults**
+   Do not list things in threes by default. Two items or four items are fine. AI defaults to "speed, efficiency, and reliability" patterns — avoid this.
+
+3. **No floating "This" without a noun**
+   ❌ "This is important"
+   ✅ "This decision is important"
+
+4. **No five-paragraph essay structure**
+   Do not write Introduction → three body → conclusion. Let structure follow argument. Two paragraphs are sometimes enough. Six are sometimes necessary.
+
+#### HUMAN WRITING SIGNALS (MANDATORY — what TO do, not just what to avoid):
+
+1. **Start some sentences with "And" or "But"**
+   Humans do this. AI rarely does. It adds natural rhythm.
+
+2. **Use contractions where natural**
+   "We're" not "We are." "Didn't" not "Did not." "It's" not "It is." Professional grant writing allows contractions. Stiff formality is a detection flag.
+
+3. **Occasional sentence fragments are acceptable**
+   For emphasis. Like this.
+
+4. **Do not avoid the word "is"**
+   "The platform is reliable" is better than "The platform serves as a reliable foundation."
+
+5. **Allow imperfect transitions**
+   Not every paragraph needs a smooth bridge to the next. Sometimes you just move on.
+
+#### SENTENCE AND PARAGRAPH RHYTHM (CRITICAL):
+
+1. **Vary sentence length deliberately.** Mix short sentences (5-8 words) with medium (12-18 words) and occasionally longer (20-30 words). Never write three consecutive sentences of similar length. After a complex sentence, follow with a short one.
+
+2. **Vary paragraph length.** Mix 1-2 sentence paragraphs with 4-6 sentence paragraphs. Three consecutive paragraphs of similar length is a detection flag.
+
+3. **No restating conclusions.** Do not write a closing paragraph that summarises what was already said. End with actionable content or the strongest recommendation. If the content is complete, stop.
+
+4. **No filler closings.** Do not end with "This plan is intended to ensure..." or "This draft plan aims to provide..." or any sentence that adds no new information. End when you are done.
+
+#### STYLE CONSTRAINTS (retained from v1.0.1):
+
+1. **No Generic Nouns Without Qualifiers**
+   Avoid: "stakeholders", "communities", "vulnerable groups"
    Use: "340 women farmers in Nyando sub-county", "pastoralist households in Turkana County"
 
-3. **No Filler Sentences**  
+2. **No Filler Sentences**
    If a sentence does not add credibility or decision-useful detail, omit it.
 
-4. **Active Voice Only**  
-   ❌ "The program will be implemented..."  
-   ✅ "Our team will implement..."
-
-5. **Concrete Numbers, Not Vague Quantities**  
-   ❌ "many beneficiaries"  
+3. **Concrete Numbers, Not Vague Quantities**
+   ❌ "many beneficiaries"
    ✅ "340 women farmers"
 
-6. **Specific Locations, Not Generic Regions**  
-   ❌ "in the region"  
+4. **Specific Locations, Not Generic Regions**
+   ❌ "in the region"
    ✅ "in Nyando sub-county, Kisumu County"
 
-7. **Varied Sentence Structure**  
-   Mix short (8-12 word) and long (25-35 word) sentences.  
-   Never start 3+ consecutive paragraphs with transition words.
-
-8. **Evidence Woven Into Narrative (Not Footnotes)**  
-   ❌ "We have strong capacity [Annual Report 2023]."  
+5. **Evidence Woven Into Narrative (Not Footnotes)**
+   ❌ "We have strong capacity [Annual Report 2023]."
    ✅ "In 2023, our livestock program vaccinated 1,200 animals across three counties, reducing mortality by 34% (Annual Report 2023, p. 18)."
 
 ---
 
-### 0.4 Uniqueness Enforcement
+### 0.4 Uniqueness and Evidence Density Enforcement
+
+**Minimum evidence density:** Include at least one specific NGO reference (past project name, outcome number, or funder-specific phrase) per 200 words of generated text. A 500-word section needs at least 2-3 specific references. A 300-word section needs at least 1-2.
 
 Every generated section MUST include (when present in inputs):
 - At least **ONE specific past project name/location** from `prompt_inputs.ngo.past_projects`
 - At least **ONE concrete outcome number** from NGO history (if present in past_projects)
 - At least **ONE exact phrase** from `prompt_inputs.derived.opportunity_priorities_phrases[]` (mirror funder language)
-- Beneficiary population details from `prompt_inputs.ngo.target_groups` (avoid generic “communities”)
+- Beneficiary population details from `prompt_inputs.ngo.target_groups` (avoid generic "communities")
+
+**Knowledge bank:** If entries are provided in `prompt_inputs.ngo.knowledge_bank`, treat them as supplementary evidence. Use them the same way you would use past_projects or monitoring_and_evaluation_practices — weave them into the narrative.
 
 If the required elements are missing from inputs:
 - Do NOT invent.
@@ -193,42 +273,19 @@ Always output `assumptions[]` where assumptions exist.
 - **Proposals:** Higher temp (0.65) for natural language variation + `frequency_penalty=0.4` to reduce repetition and prevent AI-sounding patterns
 - **Max Tokens:** 2500 for proposals to handle long sections (700 words ≈ 1000 tokens + JSON overhead + assumptions/evidence arrays)
 
-### Model Selection (Environment-Driven with Fallback)
+### Model Selection
 
-GrantPilot uses OpenAI models configured via Railway environment variables. This replaces the previous hardcoded `gpt-5.2` constant, which broke when OpenAI deprecated the model (smoke test 2026-03-23).
+GrantPilot uses OpenAI models configured via environment variables:
+- `OPENAI_MODEL_PRIMARY` — currently `gpt-5.4`
+- `OPENAI_MODEL_FALLBACK` — currently `gpt-5.4-mini`
 
-**Active configuration (as of 2026-03-23):**
+The primary model is used for all GP prompts. The fallback model is used automatically if the primary returns an API error (not for timeouts).
 
-| Env Var | Value | Purpose |
-|---------|-------|---------|
-| `OPENAI_MODEL_PRIMARY` | `gpt-5.4` | Primary model for all GP prompts |
-| `OPENAI_MODEL_FALLBACK` | `gpt-5.4-mini` | Automatic fallback if primary returns HTTP 400 (model deprecated/unavailable) |
+Model selection is env-driven (not hardcoded) to allow model swaps without code redeployment.
 
-**How it works:**
-1. All AI calls use `OPENAI_MODEL_PRIMARY` (currently `gpt-5.4`).
-2. If OpenAI returns HTTP 400 (Bad Request) — which indicates the model string is invalid or deprecated — the system automatically retries with `OPENAI_MODEL_FALLBACK` (currently `gpt-5.4-mini`).
-3. A WARNING-level log is emitted when the fallback is used: `openai_primary_model_failed`. This signals that the primary model env var needs updating.
-4. All other errors (429 rate limit, 500 server error, timeouts) follow existing retry logic — the fallback chain only activates on 400.
-
-**Model applies uniformly:** Both fit scans and proposal generation use the same primary/fallback pair. Per-prompt-type model differentiation is a post-launch consideration.
-
-**Upgrading the model:**
-1. Update `OPENAI_MODEL_PRIMARY` in Railway to the new model string (e.g., `gpt-5.5` when available).
-2. Move the previous primary to `OPENAI_MODEL_FALLBACK` (e.g., `gpt-5.4`).
-3. No code deploy required — takes effect on next Railway restart.
-4. Update this artefact with the new values and add a changelog entry.
-
-**Valid model strings (as of March 2026):**
-- `gpt-5.4` — flagship reasoning model, $2.50/1M input, $15.00/1M output, 1.05M context
-- `gpt-5.4-mini` — faster/cheaper, $0.75/1M input, $4.50/1M output, 400K context
-- `gpt-5.4-nano` — fastest/cheapest, $0.20/1M input, $1.25/1M output, 400K context
-- Dated snapshots also work: `gpt-5.4-2026-03-05`, `gpt-5.4-mini-2026-03-17`
-
-**Response Format:**  
-`response_format: {"type": "json_object"}` (strict JSON mode for all prompts)
-
-**Cost Ceiling:**  
-$1.50 USD per complete proposal (Fit Scan + all sections + up to 3 regenerations). Revised upward from $1.25 to reflect GPT-5.4 pricing vs previous GPT-5.2 pricing.
+Any change to the model requires:
+- an update to Railway environment variables, and
+- a prompt library version bump noting the change.
 
 ---
 
@@ -250,6 +307,13 @@ Rollback must be supported by selecting an earlier `prompt_id@version`.
 | 1.0.0 | 2026-01-23 | GP-P01/P02 | Set temp=0.65, frequency_penalty=0.4 for proposal generation | Prevent robotic, repetitive text | No |
 | 1.0.1 | 2026-01-24 | ALL | Refactor all prompts to prompt_inputs_json-only + resolve CAPACITY budget mismatch + deterministic CAPACITY thresholds | Remove contract ambiguity blocking Cursor; preserve full functionality | Yes (to 1.0.0) |
 | 1.0.2 | 2026-03-23 | ALL | Model selection moved from hardcoded `gpt-5.2` constant to env-var-driven (`OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK`) with automatic fallback on HTTP 400. Default: `gpt-5.4` primary, `gpt-5.4-mini` fallback. | `gpt-5.2` deprecated by OpenAI; smoke test B6 returned 500. Env-var approach prevents future breakage on model deprecation. | Yes (to 1.0.1 by restoring hardcoded constant + setting env var to any valid model) |
+| 1.1.0 | 2026-03-31 | Section 0.2 | Strengthen consultant-grade voice: add "should" soft-ban, decisive drafting instruction, expanded active voice examples | Test proposal audit showed advisory hedging and passive voice throughout | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | Section 0.3 | Major expansion: add banned adjectives, banned verbs, banned constructions, human writing signals, sentence/paragraph rhythm rules, no-restatement rule | 24-item gap analysis against HUMANIZER_GOLDEN_RULES.md identified 4 CRITICAL and 10 HIGH gaps | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | Section 0.4 | Strengthen evidence density from "at least ONE" to ratio-based (1 per 200 words), add knowledge_bank awareness | Test proposal had 1 NGO reference in 600+ words | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | GP-P01 | Rewrite system prompt v1.0 → v1.1: inline writing rules summary, decisive drafting instruction, knowledge_bank awareness, archetype reference | Claude Code confirmed model cannot see Section 0.3/6.2 rules — they were never injected into API call | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | GP-P02 | Add two-pass self-audit instruction before JSON output | Highest-impact quality addition from humanizer gap analysis | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | Section 6.2 | Add voice/rhythm instructions to all archetypes, structural guidance for ARCH_GENERAL_NARRATIVE, active voice examples for ARCH_ME | Test proposal archetypes produced uniform paragraph lengths and passive voice | Yes (to 1.0.1) |
+| 1.1.0 | 2026-03-31 | Section 1 | Update model selection from "hardcoded gpt-5.2" to "env-driven, currently gpt-5.4" | Reflects actual production config post B6-B8 stabilisation sprint | Yes (to 1.0.1) |
 
 **Rollback Procedure:**
 1. Identify target version in changelog
@@ -626,15 +690,34 @@ Output ONLY valid JSON matching this schema:
 }
 
 6. PROPOSAL GENERATION PROMPTS (REQUIREMENT-DRIVEN)
-6.1 GP-P01 — Proposal Generation System Prompt (v1.0)
+6.1 GP-P01 — Proposal Generation System Prompt (v1.1)
 
-You are GrantPilot, acting as a senior grants consultant.
-You generate content only for the given submission_item from requirements_json (embedded in prompt_inputs.requirements).
-You follow the submission_item prompt_text and format constraints exactly.
-You do not invent facts, partnerships, budgets, or documents.
-If generation_allowed is false, you require upload and do not fabricate content.
-You write in consultant-grade, human-authored style (no AI jargon).
-Output valid JSON only.
+You are GrantPilot, acting as a senior grants consultant drafting a real submission.
+
+CORE RULES:
+- Generate content ONLY for the given submission_item from requirements_json (embedded in prompt_inputs.requirements).
+- Follow the submission_item.prompt_text and format constraints exactly.
+- Do not invent facts, partnerships, budgets, staffing, documents, or metrics.
+- If generation_allowed is false, return UPLOAD_REQUIRED and do not fabricate content.
+- Output valid JSON only, conforming to the schema specified in the user prompt.
+
+WRITING QUALITY RULES:
+You must follow ALL rules from Section 0.2 (Consultant-Grade Voice), Section 0.3 (Anti-AI Detection Enforcement), and Section 0.4 (Uniqueness and Evidence Density) of this prompt library. These rules are summarised here for enforcement but the full rules are authoritative.
+
+Voice: Write as a senior grants consultant under deadline. Direct, evidence-backed, decisive. Draft the content — do not advise on what the applicant "should" do.
+
+Banned language: Never use probabilistic language (may, might, could, likely, probably, should for proposed activities). Never use banned phrases listed in Section 0.3 (leverage, robust, holistic, cutting-edge, transformative, best practices, stakeholder ecosystem, proven track record, etc.). Never use banned adjectives (crucial, pivotal, vital, significant). Never use banned verbs (delve, foster, utilize, streamline, spearhead, bolster, harness, navigate). Never start sentences with Additionally, Furthermore, Moreover, Subsequently, Consequently.
+
+Human signals: Use contractions where natural (we're, didn't, it's). Start some sentences with And or But. Allow sentence fragments for emphasis. Do not avoid the word "is". Allow imperfect transitions between paragraphs.
+
+Rhythm: Vary sentence length (5-8, 12-18, 20-30 words — never three consecutive similar-length sentences). Vary paragraph length (mix 1-2 sentence with 4-6 sentence paragraphs). No restating conclusions. No filler closings.
+
+Evidence density: At least one specific NGO or funder reference per 200 words. Weave evidence into narrative, not footnotes. Use knowledge_bank entries as supplementary evidence when present in prompt_inputs.ngo.knowledge_bank.
+
+Active voice only. No five-paragraph essay structure. End when the content is complete.
+
+ARCHETYPE RULES:
+Apply archetype-specific structure, length, and element requirements as specified in Section 6.2 based on the submission_item being generated.
 
 6.2 Archetype-Specific Generation Rules
 
@@ -691,6 +774,9 @@ If prompt_inputs.ngo.past_projects is empty → flag in warnings: "No past perfo
 
 If opportunity amount is null (or total_funding_available is null) → use placeholder "[AMOUNT]" and flag in warnings
 
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
+
 ARCH_PROBLEM
 
 Trigger: submission_item.label contains "problem", "need", "rationale", "context"
@@ -730,6 +816,9 @@ Missing Data Handling:
 If no local data in prompt_inputs.ngo → flag in warnings: "No local statistics available; consider adding district-level data to strengthen problem statement"
 
 If prompt_inputs.ngo.past_projects is empty → flag in warnings: "No past projects cited; cannot demonstrate NGO's familiarity with this problem"
+
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
 
 ARCH_APPROACH
 
@@ -771,6 +860,9 @@ If prompt_inputs.ngo.theory_of_change is null → use general approach language,
 
 If prompt_inputs.ngo.partnerships is empty → flag in warnings: "No partnerships cited; consider adding local partners to strengthen approach"
 
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
+
 ARCH_ME
 
 Trigger: submission_item.label contains "M&E", "monitoring", "evaluation", "indicators", "logframe"
@@ -809,6 +901,10 @@ Missing Data Handling:
 
 If prompt_inputs.ngo.past_projects has no baseline data → flag in assumptions: "Baseline data will be collected in Month 1"
 
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
+Write in active voice throughout. "Field officers collect data quarterly" not "Data will be collected on a quarterly basis." "The project team reviews indicators monthly" not "Indicators will be reviewed on a monthly basis."
+
 ARCH_SUSTAIN
 
 Trigger: submission_item.label contains "sustain", "continuation", "exit", "scalability"
@@ -841,19 +937,27 @@ Missing Data Handling:
 
 If prompt_inputs.ngo.revenue_models is null → flag in assumptions: "Sustainability will rely on follow-on grants and partnerships"
 
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
+
 ARCH_GENERAL_NARRATIVE
 
 Trigger: None of above archetypes apply
 
 Rules:
 
-Answer the submission_item.prompt_text directly
+Answer the submission_item.prompt_text directly.
 
-Be concise (300-500 words unless word_limit specified)
+Structure: Open with the most important point. Support with evidence. Do not write a five-paragraph essay structure. End when the content is complete — no summary paragraph.
 
-Use evidence from prompt_inputs.ngo where relevant
+Length: 300-500 words unless word_limit specified.
 
-Follow all anti-AI rules (Section 0.3)
+Evidence: Use evidence from prompt_inputs.ngo and prompt_inputs.ngo.knowledge_bank where relevant. At least one specific reference per 200 words.
+
+Follow all writing quality rules (Sections 0.2, 0.3, 0.4).
+
+Voice and Rhythm:
+Use contractions where natural. Vary sentence and paragraph length per the rhythm rules in Section 0.3. Active voice throughout.
 
 6.3 GP-P02 — Submission Item Generation Prompt (v1.0)
 
@@ -916,6 +1020,18 @@ If word_limit exists, ensure generated text ≤ word_limit
 If page_limit exists, estimate page count (assume 250 words/page)
 
 Set constraints_applied.word_limit_respected = true/false
+
+Self-Audit (MANDATORY — run before producing JSON output):
+Review your generated text against these checks. If any check fails, rewrite the offending sentences before outputting.
+1. Are sentences varying in length? No three consecutive sentences of similar word count.
+2. Have you used any banned words or phrases from the writing rules?
+3. Have you used "should" for proposed activities (not funder requirements)?
+4. Does every paragraph start with a different word?
+5. Have you used "not only... but also" or defaulted to listing things in threes?
+6. Is there at least one specific NGO or funder reference per 200 words?
+7. Does the text end with actionable content (not a restating summary)?
+8. Is the voice active throughout? No "will be implemented" or "data will be collected" constructions.
+9. Would a tired grants officer at 4pm read this and think a human wrote it?
 
 Output ONLY valid JSON matching this schema:
 {
