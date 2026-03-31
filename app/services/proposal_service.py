@@ -14,7 +14,11 @@ from sqlalchemy.orm import Session
 
 from app.ai.prompt_inputs_builder import build_prompt_inputs, select_variant_deterministic
 from app.ai.prompt_runner import PROMPT_LIBRARY_VERSION, PROMPT_CONFIGS, run_prompt
-from app.ai.prompts.proposal import GP_P01_SYSTEM_PROMPT, GP_P02_USER_PROMPT_TEMPLATE
+from app.ai.prompts.proposal import (
+    ARCHETYPE_RULES_TEXT,
+    GP_P01_SYSTEM_PROMPT,
+    GP_P02_USER_PROMPT_TEMPLATE,
+)
 from app.core.errors import ConflictError, DomainError, ForbiddenError, NotFoundError
 from app.models.fit_scan import FitScan
 from app.models.funding_opportunity import FundingOpportunity, OpportunityStatus
@@ -756,6 +760,7 @@ class ProposalService:
         user_prompt = user_prompt.replace("{prompt_inputs_json}", prompt_inputs_json)
         user_prompt = user_prompt.replace("{fit_scan_output_json}", fit_scan_output_json)
         user_prompt = user_prompt.replace("{submission_item_json}", submission_item_json)
+        user_prompt = user_prompt.replace("{archetype_rules}", ARCHETYPE_RULES_TEXT)
         section_label = submission_item.get("label") or "unknown"
         section_started_at = time.monotonic()
         try:
