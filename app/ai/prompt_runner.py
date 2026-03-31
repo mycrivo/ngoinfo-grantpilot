@@ -7,7 +7,7 @@ from app.core.config import get_settings
 from app.core.errors import DomainError
 from app.integrations.openai_client import OpenAIClient, OpenAIServiceError
 
-PROMPT_LIBRARY_VERSION = "1.0.1"
+PROMPT_LIBRARY_VERSION = "1.1.0"
 
 PROMPT_CONFIGS: dict[str, dict[str, float | int]] = {
     "GP-P01": {

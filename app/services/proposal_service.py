@@ -138,14 +138,14 @@ class ProposalService:
             submission_items=submission_items,
         )
 
-        if summary["generated"] == 0:
+        if summary["failed"] == summary["total_items"]:
             raise DomainError(
                 error_code="PROPOSAL_GENERATION_FAILED",
                 message="All proposal sections failed to generate",
                 status_code=500,
             )
 
-        proposal_status = "DRAFT" if summary["failed"] == 0 else "DEGRADED"
+        proposal_status = "DEGRADED" if summary["failed"] > 0 else "DRAFT"
         plan_name = _get_plan_name(self.db, user.id)
         proposal = Proposal(
             user_id=user.id,
@@ -228,6 +228,7 @@ class ProposalService:
                 "generated": 0,
                 "failed": 0,
                 "manual_required": 1,
+                "needs_user_input": 0,
                 "warnings": [reason],
             },
             "status": "DEGRADED",
@@ -376,7 +377,7 @@ class ProposalService:
             submission_items=submission_items,
             existing_sections=existing_sections,
         )
-        if summary["generated"] <= 0:
+        if summary["failed"] == summary["total_items"]:
             raise DomainError(
                 error_code="PROPOSAL_REGEN_FAILED",
                 message="All proposal sections failed to regenerate",
@@ -387,6 +388,7 @@ class ProposalService:
             "sections": regenerated_sections,
             "generation_summary": summary,
         }
+        proposal.status = "DEGRADED" if summary["failed"] > 0 else "DRAFT"
         proposal.version = int(proposal.version) + 1
         proposal.regeneration_count = int(proposal.regeneration_count) + 1
         proposal.updated_at = datetime.now(timezone.utc)
@@ -498,6 +500,8 @@ class ProposalService:
         generated = 0
         failed = 0
         manual_required = 0
+        needs_user_input = 0
+        section_diagnostics: list[dict[str, Any]] = []
 
         results_by_position: dict[int, dict[str, Any]] = {}
         if positions_to_generate:
@@ -561,18 +565,21 @@ class ProposalService:
             result = results_by_position.get(position)
             if not isinstance(result, dict):
                 result = {"generation_status": "FAILED", "warnings": ["AI_SERVICE_ERROR"]}
+            diagnostic = result.get("_section_diagnostic")
+            if isinstance(diagnostic, dict):
+                section_diagnostics.append(diagnostic)
             status = result.get("generation_status")
             if status == "GENERATED":
                 generated += 1
                 sections.append(_generated_section(item, result))
             elif status == "INSUFFICIENT_INPUT":
-                failed += 1
+                needs_user_input += 1
                 sections.append(
-                    _failed_section(
+                    _needs_user_input_section(
                         item_id,
                         label,
                         word_limit,
-                        "INSUFFICIENT_INPUT",
+                        result.get("warnings") or [],
                     )
                 )
             elif status == "UPLOAD_REQUIRED":
@@ -603,8 +610,25 @@ class ProposalService:
             "generated": generated,
             "failed": failed,
             "manual_required": manual_required,
+            "needs_user_input": needs_user_input,
             "warnings": warnings,
         }
+        slowest = max(
+            section_diagnostics,
+            key=lambda d: float(d.get("wall_time_s") or 0.0),
+            default=None,
+        )
+        logger.info(
+            '[GENERATION_DIAGNOSTIC] total_sections=%s generated=%s failed=%s manual=%s needs_input=%s total_wall_time_s=%.2f slowest_section="%s" slowest_wall_time_s=%.2f',
+            len(submission_items),
+            generated,
+            failed,
+            manual_required,
+            needs_user_input,
+            time.monotonic() - generation_started_at,
+            (slowest or {}).get("item_id") or "none",
+            float((slowest or {}).get("wall_time_s") or 0.0),
+        )
         logger.info(
             'GP-P02 generation_summary total=%s generated=%s failed=%s total_elapsed_s=%.2f',
             len(positions_to_generate),
@@ -632,6 +656,7 @@ class ProposalService:
         generated = 0
         failed = 0
         manual_required = 0
+        needs_user_input = 0
 
         for section in existing_sections:
             status = section.get("generation_status")
@@ -641,6 +666,10 @@ class ProposalService:
 
             if status == "MANUAL_REQUIRED":
                 manual_required += 1
+                regenerated.append(section)
+                continue
+            if status == "NEEDS_USER_INPUT":
+                needs_user_input += 1
                 regenerated.append(section)
                 continue
 
@@ -682,13 +711,13 @@ class ProposalService:
                 generated += 1
                 regenerated.append(_generated_section(submission_item, result))
             elif result_status == "INSUFFICIENT_INPUT":
-                failed += 1
+                needs_user_input += 1
                 regenerated.append(
-                    _failed_section(
+                    _needs_user_input_section(
                         item_id,
                         label,
                         word_limit,
-                        "INSUFFICIENT_INPUT",
+                        result.get("warnings") or [],
                     )
                 )
             elif result_status == "UPLOAD_REQUIRED":
@@ -719,6 +748,7 @@ class ProposalService:
             "generated": generated,
             "failed": failed,
             "manual_required": manual_required,
+            "needs_user_input": needs_user_input,
             "warnings": warnings,
         }
         return regenerated, summary
@@ -762,6 +792,21 @@ class ProposalService:
         user_prompt = user_prompt.replace("{submission_item_json}", submission_item_json)
         user_prompt = user_prompt.replace("{archetype_rules}", ARCHETYPE_RULES_TEXT)
         section_label = submission_item.get("label") or "unknown"
+        item_id = submission_item.get("item_id") or "unknown"
+        prompt_text = submission_item.get("prompt_text") or ""
+        payload_json = json.dumps(
+            {
+                "messages": [
+                    {"role": "system", "content": GP_P01_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ]
+            },
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        payload_chars = len(payload_json)
+        est_tokens = payload_chars // 4
+        prompt_text_chars = len(prompt_text)
         section_started_at = time.monotonic()
         try:
             result = run_prompt(
@@ -774,20 +819,85 @@ class ProposalService:
                 presence_penalty=float(config["presence_penalty"]),
                 max_tokens=int(config["max_tokens"]),
             )
+            wall_time_s = time.monotonic() - section_started_at
+            finish_reason = "unavailable"
+            usage = {}
+            if isinstance(result.get("_meta"), dict):
+                finish_reason = str(result["_meta"].get("finish_reason") or "unavailable")
+                usage = result["_meta"].get("usage") or {}
+            prompt_tokens = usage.get("prompt_tokens")
+            completion_tokens = usage.get("completion_tokens")
+            total_tokens = usage.get("total_tokens")
+            diagnostic = {
+                "item_id": item_id,
+                "label": section_label,
+                "payload_chars": payload_chars,
+                "est_tokens": est_tokens,
+                "prompt_text_chars": prompt_text_chars,
+                "wall_time_s": round(wall_time_s, 2),
+                "finish_reason": finish_reason,
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": total_tokens,
+            }
+            result["_section_diagnostic"] = diagnostic
+            logger.info(
+                '[SECTION_DIAGNOSTIC] label="%s" item_id="%s" payload_chars=%s est_tokens=%s prompt_text_chars=%s wall_time_s=%.2f finish_reason="%s" prompt_tokens=%s completion_tokens=%s total_tokens=%s',
+                section_label,
+                item_id,
+                payload_chars,
+                est_tokens,
+                prompt_text_chars,
+                wall_time_s,
+                finish_reason,
+                prompt_tokens if prompt_tokens is not None else "na",
+                completion_tokens if completion_tokens is not None else "na",
+                total_tokens if total_tokens is not None else "na",
+            )
             logger.info(
                 'GP-P02 section_generate label="%s" status=success elapsed_s=%.2f',
                 section_label,
-                time.monotonic() - section_started_at,
+                wall_time_s,
             )
             return result
         except DomainError as exc:
+            wall_time_s = time.monotonic() - section_started_at
+            diagnostic = {
+                "item_id": item_id,
+                "label": section_label,
+                "payload_chars": payload_chars,
+                "est_tokens": est_tokens,
+                "prompt_text_chars": prompt_text_chars,
+                "wall_time_s": round(wall_time_s, 2),
+                "finish_reason": "error",
+                "prompt_tokens": None,
+                "completion_tokens": None,
+                "total_tokens": None,
+            }
+            logger.info(
+                '[SECTION_DIAGNOSTIC] label="%s" item_id="%s" payload_chars=%s est_tokens=%s prompt_text_chars=%s wall_time_s=%.2f finish_reason="%s" prompt_tokens=%s completion_tokens=%s total_tokens=%s',
+                section_label,
+                item_id,
+                payload_chars,
+                est_tokens,
+                prompt_text_chars,
+                wall_time_s,
+                "error",
+                "na",
+                "na",
+                "na",
+            )
             logger.info(
                 'GP-P02 section_generate label="%s" status=failed error_code=%s elapsed_s=%.2f',
                 section_label,
                 exc.error_code,
-                time.monotonic() - section_started_at,
+                wall_time_s,
             )
-            return {"generation_status": "FAILED", "warnings": [exc.error_code]}
+            return {
+                "generation_status": "FAILED",
+                "warnings": [exc.error_code],
+                "_section_diagnostic": diagnostic,
+            }
 
 
 def _generated_section(item: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
@@ -846,6 +956,28 @@ def _failed_section(
         "archetype": None,
         "content": {"text": "", "assumptions": [], "evidence_used": []},
         "failure_reason": reason,
+        "constraints_applied": {
+            "word_limit": word_limit,
+            "word_limit_respected": False,
+        },
+    }
+
+
+def _needs_user_input_section(
+    item_id: str | None,
+    label: str,
+    word_limit: int,
+    missing_inputs: list[Any],
+) -> dict[str, Any]:
+    parsed_missing = [value for value in missing_inputs if isinstance(value, str) and value]
+    return {
+        "submission_item_id": item_id,
+        "label": label,
+        "generation_status": "NEEDS_USER_INPUT",
+        "missing_inputs": parsed_missing,
+        "archetype": None,
+        "content": {"text": "", "assumptions": [], "evidence_used": []},
+        "failure_reason": "INSUFFICIENT_INPUT",
         "constraints_applied": {
             "word_limit": word_limit,
             "word_limit_respected": False,

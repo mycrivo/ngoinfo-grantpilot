@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from typing import Any
@@ -7,6 +8,8 @@ from typing import Any
 from app.core.errors import DomainError
 from app.models.funding_opportunity import FundingOpportunity
 from app.models.ngo_profile import NGOProfile
+
+logger = logging.getLogger("prompt_inputs_builder")
 
 
 def build_prompt_inputs(
@@ -27,6 +30,8 @@ def build_prompt_inputs(
     user = _build_user_payload(user_inputs)
     derived = _build_derived_payload(ngo, opportunity, requirements, user)
     _apply_opportunity_aliases(opportunity, derived, requirements)
+    # TEMP diagnostic: verify derived keys include selected variant fields.
+    logger.debug("prompt_inputs_derived_keys=%s", sorted(derived.keys()))
 
     return {
         "prompt_inputs": {
@@ -136,6 +141,13 @@ def _build_derived_payload(
 ) -> dict[str, Any]:
     today = datetime.now(timezone.utc).date()
     selected_variant_id, _ = select_variant_deterministic(requirements, ngo, user)
+    selected_variant = _extract_variant(requirements, selected_variant_id)
+    variant_lookup_warning = None
+    if selected_variant_id and not selected_variant:
+        variant_lookup_warning = (
+            f"SELECTED_VARIANT_NOT_FOUND:{selected_variant_id}"
+        )
+        logger.warning(variant_lookup_warning)
 
     return {
         "today_utc_date": today.isoformat(),
@@ -146,6 +158,8 @@ def _build_derived_payload(
             requirements, opportunity
         ),
         "selected_variant_id": selected_variant_id,
+        "selected_variant": selected_variant or None,
+        "selected_variant_warning": variant_lookup_warning,
         "deadline_days_remaining": _deadline_days_remaining(opportunity, today),
         "applicant_type": "NGO",
     }
