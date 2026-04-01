@@ -1,7 +1,7 @@
 # API_CONTRACT.md (Canonical — Single Source of Truth)
 
 **Status:** Canonical — LOCKED FOR BUILD
-**Last updated:** 2026-03-16
+**Last updated:** 2026-04-01
 **Scope:** GrantPilot API contract for backend + frontend integration
 
 This file supersedes any duplicate copies. If multiple copies exist in different repos, they MUST be kept identical to this canonical version. Cursor MUST use this file as the authoritative source for all API call shapes, error codes, and response contracts. If any other document conflicts with this file, this file wins.
@@ -434,6 +434,7 @@ json
   "annual_budget_currency": "USD | GBP | EUR | INR | KES | string or null",
   "monitoring_and_evaluation_practices": "string or null",
   "funders_worked_with_before": ["string"],
+  "knowledge_bank": {},
   "profile_status": "DRAFT | COMPLETE",
   "completeness_score": 0,
   "missing_fields": ["string"],
@@ -541,6 +542,50 @@ Errors:
 
 - 401 `UNAUTHORIZED`
 - 404 `PROFILE_NOT_FOUND` (no profile exists for this user)
+- 500 `INTERNAL_SERVER_ERROR`
+
+---
+
+### 6.5 PUT /api/ngo-profile/knowledge-bank
+
+Purpose: save user-provided data to NGO profile knowledge bank for reuse across proposals.
+
+Auth: REQUIRED
+
+Request:
+
+```json
+{
+  "entries": [
+    {
+      "key": "string",
+      "text": "string",
+      "opportunity_id": "string or null"
+    }
+  ]
+}
+```
+
+Response 200:
+
+```json
+{
+  "knowledge_bank": {
+    "key_name": {
+      "text": "string",
+      "source": "user_input",
+      "opportunity_id": "string or null",
+      "updated_at": "ISO-8601"
+    }
+  }
+}
+```
+
+Errors:
+
+- 401 `UNAUTHORIZED`
+- 404 `PROFILE_NOT_FOUND`
+- 422 `VALIDATION_ERROR` (empty `key` or `text`)
 - 500 `INTERNAL_SERVER_ERROR`
 
 ---
@@ -704,7 +749,7 @@ Valid values for the `status` field on all proposal responses:
 
 | Status | Meaning |
 |--------|---------|
-| `DRAFT` | Proposal persisted, generation complete (default terminal state for successful generation) |
+| `DRAFT` | Proposal persisted and usable; includes fully generated proposals and proposals with `NEEDS_USER_INPUT` sections (as long as there are no `FAILED` sections) |
 | `DEGRADED` | Generated with degraded inputs (e.g., missing `requirements_json`); safe placeholders used |
 | `FAILED` | All sections failed to generate; proposal was NOT persisted (only visible in error responses, never in GET) |
 
@@ -772,6 +817,61 @@ Errors:
 
 ---
 
+### 9.1A POST /api/proposals/pre-flight
+
+Purpose: run pre-generation gap check against NGO profile for a specific funding opportunity. No OpenAI calls. No quota consumption.
+
+Auth: REQUIRED
+
+Request:
+
+```json
+{
+  "funding_opportunity_id": "uuid",
+  "selected_variant_id": "string or null"
+}
+```
+
+Response 200:
+
+```json
+{
+  "opportunity_title": "string",
+  "variant_id": "string",
+  "ready_to_generate": true,
+  "readiness_percent": 67,
+  "sections": [
+    {
+      "submission_item_id": "string",
+      "label": "string",
+      "status": "READY | NEEDS_INPUT | MANUAL_REQUIRED",
+      "missing_fields": ["string"],
+      "prompt_for_user": "string or null",
+      "generation_allowed": true
+    }
+  ],
+  "summary": {
+    "total_sections": 6,
+    "ready": 3,
+    "needs_input": 2,
+    "manual_required": 1
+  }
+}
+```
+
+Readiness calculation:
+- `readiness_percent = (READY sections / generatable sections) * 100` (rounded to nearest integer)
+- `MANUAL_REQUIRED` sections are excluded from the denominator
+- `ready_to_generate = true` only when `readiness_percent == 100`
+
+Errors:
+- 401 `UNAUTHORIZED`
+- 404 `OPPORTUNITY_NOT_FOUND`
+- 409 `PROFILE_INCOMPLETE`
+- 500 `INTERNAL_SERVER_ERROR`
+
+---
+
 ### 9.2 GET /api/proposals/{id}
 
 Purpose: retrieve proposal with full `content_json` including per-section statuses.
@@ -796,7 +896,8 @@ Response 200 (ProposalDetailResponse):
       {
         "submission_item_id": "string",
         "label": "string",
-        "generation_status": "GENERATED | FAILED | MANUAL_REQUIRED",
+        "generation_status": "GENERATED | FAILED | MANUAL_REQUIRED | NEEDS_USER_INPUT",
+        "missing_inputs": ["string"],
         "archetype": "string or null",
         "content": {
           "text": "string",
@@ -815,6 +916,7 @@ Response 200 (ProposalDetailResponse):
       "generated": 0,
       "failed": 0,
       "manual_required": 0,
+      "needs_user_input": 0,
       "warnings": ["string"]
     }
   }
@@ -828,6 +930,7 @@ Response 200 (ProposalDetailResponse):
 | `GENERATED` | Show content normally with section heading |
 | `FAILED` | Show "This section could not be generated." + retry option (regenerate) |
 | `MANUAL_REQUIRED` | Show "This section requires manual input. AI generation is not available for this item." — no retry button |
+| `NEEDS_USER_INPUT` | Show missing data prompts + input field + "Save & Regenerate" button |
 
 Errors:
 
