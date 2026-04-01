@@ -7,7 +7,11 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import ConflictError, DomainError, NotFoundError
 from app.models.ngo_profile import NGOProfile
-from app.schemas.ngo_profile import NGOProfileCreate, NGOProfileUpdate
+from app.schemas.ngo_profile import (
+    KnowledgeBankUpdateRequest,
+    NGOProfileCreate,
+    NGOProfileUpdate,
+)
 
 
 def _normalize_list(values: Iterable[str] | None) -> list[str]:
@@ -187,3 +191,24 @@ def update_profile(db: Session, user_id: uuid.UUID, payload: NGOProfileUpdate) -
 def get_completeness(db: Session, user_id: uuid.UUID) -> tuple[str, int, list[str]]:
     profile = get_profile(db, user_id)
     return profile.profile_status, profile.completeness_score, profile.missing_fields
+
+
+def update_knowledge_bank(
+    db: Session, user_id: uuid.UUID, payload: KnowledgeBankUpdateRequest
+) -> NGOProfile:
+    profile = get_profile(db, user_id)
+    knowledge_bank = profile.knowledge_bank if isinstance(profile.knowledge_bank, dict) else {}
+    updated_knowledge_bank = dict(knowledge_bank)
+
+    for entry in payload.entries:
+        updated_knowledge_bank[entry.key] = {
+            "text": entry.text,
+            "source": "user_input",
+            "opportunity_id": str(entry.opportunity_id) if entry.opportunity_id else None,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
+    profile.knowledge_bank = updated_knowledge_bank
+    db.commit()
+    db.refresh(profile)
+    return profile

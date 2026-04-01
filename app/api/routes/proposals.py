@@ -14,6 +14,8 @@ from app.schemas.proposal import (
     ProposalGenerationSummary,
     ProposalListItem,
     ProposalListResponse,
+    ProposalPreFlightRequest,
+    ProposalPreFlightResponse,
     ProposalResponse,
     RegenerateRequest,
     ProposalSection,
@@ -36,6 +38,16 @@ def create_proposal(
     service = ProposalService(db)
     proposal = service.create_proposal(user=current_user, payload=payload)
     return _to_summary_response(proposal)
+
+
+@router.post("/proposals/pre-flight", response_model=ProposalPreFlightResponse)
+def proposal_pre_flight(
+    payload: ProposalPreFlightRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    service = ProposalService(db)
+    return service.pre_flight(user=current_user, payload=payload)
 
 
 @router.get(

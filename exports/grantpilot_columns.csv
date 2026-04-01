@@ -1,0 +1,145 @@
+table_name,column_name,data_type,is_nullable,ordinal_position
+alembic_version,version_num,character varying,NO,1
+auth_magic_link_tokens,id,uuid,NO,1
+auth_magic_link_tokens,email,text,NO,2
+auth_magic_link_tokens,token_hash,text,NO,3
+auth_magic_link_tokens,requested_ip,text,YES,4
+auth_magic_link_tokens,user_agent,text,YES,5
+auth_magic_link_tokens,issued_at,timestamp with time zone,NO,6
+auth_magic_link_tokens,expires_at,timestamp with time zone,NO,7
+auth_magic_link_tokens,consumed_at,timestamp with time zone,YES,8
+auth_oauth_exchange_codes,id,uuid,NO,1
+auth_oauth_exchange_codes,user_id,uuid,NO,2
+auth_oauth_exchange_codes,code_hash,text,NO,3
+auth_oauth_exchange_codes,issued_at,timestamp with time zone,NO,4
+auth_oauth_exchange_codes,expires_at,timestamp with time zone,NO,5
+auth_oauth_exchange_codes,consumed_at,timestamp with time zone,YES,6
+auth_refresh_tokens,id,uuid,NO,1
+auth_refresh_tokens,user_id,uuid,NO,2
+auth_refresh_tokens,token_hash,text,NO,3
+auth_refresh_tokens,issued_at,timestamp with time zone,NO,4
+auth_refresh_tokens,expires_at,timestamp with time zone,NO,5
+auth_refresh_tokens,revoked_at,timestamp with time zone,YES,6
+auth_refresh_tokens,replaced_by_token_id,uuid,YES,7
+email_events,id,uuid,NO,1
+email_events,event_key,text,NO,2
+email_events,event_type,text,NO,3
+email_events,user_id,uuid,YES,4
+email_events,to_email,text,NO,5
+email_events,status,text,NO,6
+email_events,provider_message_id,text,YES,7
+email_events,error_message,text,YES,8
+email_events,created_at,timestamp with time zone,NO,9
+fit_scans,id,uuid,NO,1
+fit_scans,user_id,uuid,NO,2
+fit_scans,funding_opportunity_id,uuid,NO,3
+fit_scans,plan_at_time_of_scan,text,NO,4
+fit_scans,prompt_version,text,NO,5
+fit_scans,model_rating,text,NO,6
+fit_scans,overall_recommendation,text,NO,7
+fit_scans,subscores,jsonb,NO,8
+fit_scans,result_json,jsonb,NO,9
+fit_scans,created_at,timestamp with time zone,NO,10
+funding_opportunities,id,uuid,NO,1
+funding_opportunities,created_at,timestamp without time zone,NO,2
+funding_opportunities,updated_at,timestamp without time zone,NO,3
+funding_opportunities,source_url,text,NO,4
+funding_opportunities,application_url,text,NO,5
+funding_opportunities,title,text,NO,6
+funding_opportunities,donor_organization,text,NO,7
+funding_opportunities,funding_type,text,NO,8
+funding_opportunities,applicant_type,USER-DEFINED,NO,9
+funding_opportunities,location_text,text,NO,10
+funding_opportunities,focus_areas,text,NO,11
+funding_opportunities,deadline_type,USER-DEFINED,NO,12
+funding_opportunities,application_deadline,date,YES,13
+funding_opportunities,currency,text,YES,14
+funding_opportunities,amount_min,numeric,YES,15
+funding_opportunities,amount_max,numeric,YES,16
+funding_opportunities,total_funding_available,numeric,YES,17
+funding_opportunities,short_summary,text,NO,18
+funding_opportunities,overview_text,text,YES,19
+funding_opportunities,eligibility_criteria,text,YES,20
+funding_opportunities,application_process,text,YES,21
+funding_opportunities,status,USER-DEFINED,NO,22
+funding_opportunities,is_active,boolean,NO,23
+funding_opportunities,is_archived,boolean,NO,24
+funding_opportunities,last_verified,date,YES,25
+funding_opportunities,requirements_json,jsonb,NO,26
+funding_opportunities,organization_types,text,YES,27
+funding_opportunities,geographic_focus,text,YES,28
+funding_opportunities,contact_information,text,YES,29
+funding_opportunities,processing_status,text,YES,30
+funding_opportunities,parsing_confidence,numeric,YES,31
+funding_opportunities,internal_notes,text,YES,32
+ngo_profiles,id,uuid,NO,1
+ngo_profiles,user_id,uuid,NO,2
+ngo_profiles,organization_name,text,NO,3
+ngo_profiles,country_of_registration,text,NO,4
+ngo_profiles,mission_statement,text,NO,5
+ngo_profiles,focus_sectors,jsonb,NO,6
+ngo_profiles,geographic_areas_of_work,jsonb,NO,7
+ngo_profiles,target_groups,jsonb,NO,8
+ngo_profiles,past_projects,jsonb,NO,9
+ngo_profiles,profile_status,text,NO,10
+ngo_profiles,completeness_score,integer,NO,11
+ngo_profiles,missing_fields,jsonb,NO,12
+ngo_profiles,created_at,timestamp with time zone,NO,13
+ngo_profiles,updated_at,timestamp with time zone,NO,14
+ngo_profiles,last_completed_at,timestamp with time zone,YES,15
+ngo_profiles,year_of_establishment,integer,YES,16
+ngo_profiles,contact_person_name,text,YES,17
+ngo_profiles,contact_email,text,YES,18
+ngo_profiles,website,text,YES,19
+ngo_profiles,full_time_staff,integer,YES,20
+ngo_profiles,annual_budget_amount,numeric,YES,21
+ngo_profiles,annual_budget_currency,text,YES,22
+ngo_profiles,monitoring_and_evaluation_practices,text,YES,23
+ngo_profiles,funders_worked_with_before,jsonb,NO,24
+proposals,id,uuid,NO,1
+proposals,user_id,uuid,NO,2
+proposals,funding_opportunity_id,uuid,NO,3
+proposals,fit_scan_id,uuid,YES,4
+proposals,version,integer,NO,5
+proposals,status,text,NO,6
+proposals,plan_at_creation,text,NO,7
+proposals,prompt_version,text,NO,8
+proposals,selected_variant_id,text,YES,9
+proposals,content_json,jsonb,NO,10
+proposals,regeneration_count,integer,NO,11
+proposals,created_at,timestamp with time zone,NO,12
+proposals,updated_at,timestamp with time zone,NO,13
+stripe_events,id,uuid,NO,1
+stripe_events,stripe_event_id,text,NO,2
+stripe_events,event_type,text,NO,3
+stripe_events,payload,jsonb,NO,4
+stripe_events,received_at,timestamp with time zone,NO,5
+stripe_events,processed_at,timestamp with time zone,YES,6
+stripe_events,processing_result,text,YES,7
+stripe_events,error_message,text,YES,8
+usage_ledger,id,uuid,NO,1
+usage_ledger,user_id,uuid,NO,2
+usage_ledger,action_type,text,NO,3
+usage_ledger,idempotency_key,text,NO,4
+usage_ledger,metadata,jsonb,NO,5
+usage_ledger,created_at,timestamp with time zone,NO,6
+user_plans,id,uuid,NO,1
+user_plans,user_id,uuid,NO,2
+user_plans,plan_name,text,NO,3
+user_plans,stripe_subscription_id,text,YES,4
+user_plans,billing_period_start,timestamp with time zone,YES,5
+user_plans,billing_period_end,timestamp with time zone,YES,6
+user_plans,created_at,timestamp with time zone,NO,7
+user_plans,updated_at,timestamp with time zone,NO,8
+user_plans,plan_activated_at,timestamp with time zone,YES,9
+users,id,uuid,NO,1
+users,email,text,NO,2
+users,full_name,text,YES,3
+users,avatar_url,text,YES,4
+users,google_sub,text,YES,5
+users,auth_provider,text,NO,6
+users,created_at,timestamp with time zone,NO,7
+users,updated_at,timestamp with time zone,NO,8
+users,last_login_at,timestamp with time zone,YES,9
+users,stripe_customer_id,text,YES,10
+users,first_login_at,timestamp with time zone,YES,11

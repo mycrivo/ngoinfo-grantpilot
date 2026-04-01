@@ -1,4 +1,7 @@
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Any
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class PastProject(BaseModel):
@@ -9,6 +12,9 @@ class PastProject(BaseModel):
     duration: str | None = None
     location: str | None = None
     summary: str | None = None
+    beneficiaries_reached: str | None = None
+    budget: str | None = None
+    outcomes: str | None = None
 
 
 class NGOProfileBase(BaseModel):
@@ -59,9 +65,39 @@ class NGOProfileRead(NGOProfileBase):
     created_at: str
     updated_at: str
     last_completed_at: str | None
+    knowledge_bank: dict[str, Any] = Field(default_factory=dict)
 
 
 class NGOProfileCompletenessResponse(BaseModel):
     profile_status: str
     completeness_score: int
     missing_fields: list[str]
+
+
+class KnowledgeBankEntryInput(BaseModel):
+    key: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    opportunity_id: UUID | None = None
+
+    @field_validator("key", "text")
+    @classmethod
+    def _non_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("must not be empty")
+        return stripped
+
+
+class KnowledgeBankUpdateRequest(BaseModel):
+    entries: list[KnowledgeBankEntryInput] = Field(min_length=1)
+
+
+class KnowledgeBankValue(BaseModel):
+    text: str
+    source: str
+    opportunity_id: UUID | None = None
+    updated_at: str
+
+
+class KnowledgeBankUpdateResponse(BaseModel):
+    knowledge_bank: dict[str, Any]

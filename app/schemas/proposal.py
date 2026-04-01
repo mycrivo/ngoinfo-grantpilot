@@ -12,6 +12,36 @@ class ProposalCreateRequest(BaseModel):
     user_overrides: dict[str, Any] | None = None
 
 
+class ProposalPreFlightRequest(BaseModel):
+    funding_opportunity_id: UUID
+    selected_variant_id: str | None = None
+
+
+class ProposalPreFlightSection(BaseModel):
+    submission_item_id: str
+    label: str
+    status: Literal["READY", "NEEDS_INPUT", "MANUAL_REQUIRED"]
+    missing_fields: list[str]
+    prompt_for_user: str | None = None
+    generation_allowed: bool
+
+
+class ProposalPreFlightSummary(BaseModel):
+    total_sections: int
+    ready: int
+    needs_input: int
+    manual_required: int
+
+
+class ProposalPreFlightResponse(BaseModel):
+    opportunity_title: str
+    variant_id: str
+    ready_to_generate: bool
+    readiness_percent: int
+    sections: list[ProposalPreFlightSection]
+    summary: ProposalPreFlightSummary
+
+
 class ProposalGenerationSummary(BaseModel):
     total_items: int
     generated: int

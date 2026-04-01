@@ -39,6 +39,17 @@ GENERATION_LIMIT_NOTE = (
     "This section exceeds the generation limit. Please write it manually."
 )
 MAX_CONCURRENT_SECTIONS = 5
+PREFLIGHT_FIELD_LABELS: dict[str, str] = {
+    "past_projects": "past project experience with outcomes and beneficiary numbers",
+    "mission_statement": "your organisation's mission statement",
+    "monitoring_and_evaluation_practices": "your monitoring and evaluation practices",
+    "annual_budget_amount": "your organisation's annual budget",
+    "focus_sectors": "your thematic focus areas",
+    "geographic_areas_of_work": "your geographic areas of operation",
+    "target_groups": "your target beneficiary groups",
+    "full_time_staff": "your staff capacity (number of full-time staff)",
+    "funders_worked_with_before": "previous funders you've worked with",
+}
 
 
 class ProposalService:
@@ -193,6 +204,189 @@ class ProposalService:
             # Non-blocking by contract: proposal creation must still succeed.
             logger.exception("proposal_draft_ready_email_failed proposal_id=%s", proposal.id)
         return proposal
+
+    def pre_flight(self, *, user, payload) -> dict[str, Any]:
+        opportunity = self.db.get(FundingOpportunity, payload.funding_opportunity_id)
+        if (
+            not opportunity
+            or not opportunity.is_active
+            or opportunity.is_archived
+            or opportunity.status not in {OpportunityStatus.READY, OpportunityStatus.PUBLISHED}
+        ):
+            raise NotFoundError(
+                error_code="OPPORTUNITY_NOT_FOUND",
+                message="Funding opportunity not found",
+                status_code=404,
+            )
+
+        profile = self._load_profile_or_raise(user.id)
+        status, _, missing_fields = get_completeness(self.db, user.id)
+        if status != "COMPLETE":
+            raise ConflictError(
+                error_code="PROFILE_INCOMPLETE",
+                message="Profile is incomplete",
+                status_code=409,
+                details={"missing_fields": missing_fields},
+            )
+
+        requirements = opportunity.requirements_json
+        if not requirements or not isinstance(requirements, dict):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; pre-flight cannot run.",
+                status_code=422,
+                details={"reason": "missing_requirements_json"},
+            )
+        if not _requirements_structurally_valid(requirements):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; pre-flight cannot run.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
+
+        if payload.selected_variant_id:
+            selected_variant_id = payload.selected_variant_id
+            selected_variant = _find_variant_by_id(requirements, selected_variant_id)
+            if not selected_variant:
+                raise DomainError(
+                    error_code="REQUIREMENTS_INVALID",
+                    message="Selected variant does not exist for this opportunity.",
+                    status_code=422,
+                    details={"reason": "variant_not_found"},
+                )
+        else:
+            prompt_inputs = build_prompt_inputs(
+                profile,
+                opportunity,
+                {"selected_variant_id": None},
+            )
+            prompt_inputs_payload = prompt_inputs.get("prompt_inputs", {})
+            derived = (
+                prompt_inputs_payload.get("derived")
+                if isinstance(prompt_inputs_payload, dict)
+                else {}
+            )
+            selected_variant_id = (
+                derived.get("selected_variant_id") if isinstance(derived, dict) else None
+            )
+            selected_variant = _find_variant_by_id(requirements, selected_variant_id)
+            if not selected_variant:
+                raise DomainError(
+                    error_code="REQUIREMENTS_INVALID",
+                    message="Opportunity requirements are incomplete; pre-flight cannot run.",
+                    status_code=422,
+                    details={"reason": "invalid_requirements_structure"},
+                )
+
+        submission_items = selected_variant.get("submission_items")
+        if not isinstance(submission_items, list):
+            raise DomainError(
+                error_code="REQUIREMENTS_INVALID",
+                message="Opportunity requirements are incomplete; pre-flight cannot run.",
+                status_code=422,
+                details={"reason": "invalid_requirements_structure"},
+            )
+
+        knowledge_bank = getattr(profile, "knowledge_bank", None)
+        if not isinstance(knowledge_bank, dict):
+            knowledge_bank = {}
+
+        donor_organization = str(opportunity.donor_organization or "the funder")
+        review_criteria_excerpt = _review_criteria_excerpt(requirements)
+        sections: list[dict[str, Any]] = []
+        ready = 0
+        needs_input = 0
+        manual_required = 0
+        generatable_count = 0
+
+        for item in submission_items:
+            if not isinstance(item, dict):
+                continue
+            submission_item_id = str(item.get("item_id") or "")
+            label = str(item.get("label") or "")
+            generation_allowed = item.get("generation_allowed") is True
+            prompt_text = str(item.get("prompt_text") or "")
+
+            if not generation_allowed:
+                manual_required += 1
+                sections.append(
+                    {
+                        "submission_item_id": submission_item_id,
+                        "label": label,
+                        "status": "MANUAL_REQUIRED",
+                        "missing_fields": [],
+                        "prompt_for_user": None,
+                        "generation_allowed": False,
+                    }
+                )
+                continue
+
+            generatable_count += 1
+            raw_required = item.get("inputs_required")
+            inputs_required = raw_required if isinstance(raw_required, list) else []
+            missing_for_item: list[str] = []
+
+            for required in inputs_required:
+                if not isinstance(required, str):
+                    continue
+                field_name = _strip_ngo_profile_prefix(required)
+                if not field_name:
+                    continue
+                profile_value = getattr(profile, field_name, None)
+                knowledge_value = knowledge_bank.get(field_name)
+                if _has_meaningful_value(profile_value) or _has_meaningful_value(
+                    knowledge_value
+                ):
+                    continue
+                missing_for_item.append(field_name)
+
+            if missing_for_item:
+                needs_input += 1
+                sections.append(
+                    {
+                        "submission_item_id": submission_item_id,
+                        "label": label,
+                        "status": "NEEDS_INPUT",
+                        "missing_fields": missing_for_item,
+                        "prompt_for_user": _build_prompt_for_user(
+                            donor_organization=donor_organization,
+                            review_criteria_excerpt=review_criteria_excerpt,
+                            missing_fields=missing_for_item,
+                            prompt_text=prompt_text,
+                        ),
+                        "generation_allowed": True,
+                    }
+                )
+            else:
+                ready += 1
+                sections.append(
+                    {
+                        "submission_item_id": submission_item_id,
+                        "label": label,
+                        "status": "READY",
+                        "missing_fields": [],
+                        "prompt_for_user": None,
+                        "generation_allowed": True,
+                    }
+                )
+
+        readiness_percent = (
+            round((ready / generatable_count) * 100) if generatable_count > 0 else 100
+        )
+        return {
+            "opportunity_title": str(opportunity.title or ""),
+            "variant_id": str(selected_variant_id or ""),
+            "ready_to_generate": readiness_percent == 100,
+            "readiness_percent": readiness_percent,
+            "sections": sections,
+            "summary": {
+                "total_sections": len(sections),
+                "ready": ready,
+                "needs_input": needs_input,
+                "manual_required": manual_required,
+            },
+        }
 
     def _persist_degraded_proposal(
         self,
@@ -1043,3 +1237,77 @@ def _requirements_structurally_valid(requirements: dict) -> bool:
     if not variants:
         return False
     return True
+
+
+def _strip_ngo_profile_prefix(required_input: str) -> str:
+    if required_input.startswith("ngo_profile."):
+        return required_input.split(".", 1)[1].strip()
+    return required_input.strip()
+
+
+def _has_meaningful_value(value: Any) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value) > 0
+    return True
+
+
+def _review_criteria_excerpt(requirements: dict[str, Any]) -> str:
+    global_notes = requirements.get("global_notes")
+    if not isinstance(global_notes, dict):
+        return ""
+    review_criteria = global_notes.get("review_criteria")
+    if not isinstance(review_criteria, list):
+        return ""
+    criteria = [str(item).strip() for item in review_criteria if str(item).strip()]
+    if not criteria:
+        return ""
+    return ", ".join(criteria[:3])
+
+
+def _field_label(field_name: str) -> str:
+    if field_name in PREFLIGHT_FIELD_LABELS:
+        return PREFLIGHT_FIELD_LABELS[field_name]
+    return field_name.replace("_", " ")
+
+
+def _describe_missing_fields(missing_fields: list[str]) -> str:
+    labels = [_field_label(field) for field in missing_fields]
+    if not labels:
+        return "additional details"
+    if len(labels) == 1:
+        return labels[0]
+    if len(labels) == 2:
+        return f"{labels[0]} and {labels[1]}"
+    return f"{', '.join(labels[:-1])}, and {labels[-1]}"
+
+
+def _prompt_text_to_question(prompt_text: str) -> str:
+    normalized = " ".join(prompt_text.split()).strip()
+    if not normalized:
+        return "What details can you share for this section?"
+    normalized = normalized.rstrip(".")
+    if normalized.endswith("?"):
+        return normalized
+    return f"{normalized}?"
+
+
+def _build_prompt_for_user(
+    *,
+    donor_organization: str,
+    review_criteria_excerpt: str,
+    missing_fields: list[str],
+    prompt_text: str,
+) -> str:
+    pieces: list[str] = []
+    if review_criteria_excerpt:
+        pieces.append(
+            f"The {donor_organization} evaluates proposals on {review_criteria_excerpt}."
+        )
+    missing_desc = _describe_missing_fields(missing_fields)
+    pieces.append(f"This section needs {missing_desc}.")
+    pieces.append(_prompt_text_to_question(prompt_text))
+    return " ".join(pieces)

@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from app.api.dependencies.auth import get_current_user
 from app.db.session import get_db
 from app.schemas.ngo_profile import (
+    KnowledgeBankUpdateRequest,
+    KnowledgeBankUpdateResponse,
     NGOProfileCompletenessResponse,
     NGOProfileCreate,
     NGOProfileRead,
@@ -13,6 +15,7 @@ from app.services.profile_service import (
     create_profile,
     get_completeness,
     get_profile,
+    update_knowledge_bank,
     update_profile,
 )
 
@@ -54,6 +57,7 @@ def create_ngo_profile(
         last_completed_at=profile.last_completed_at.isoformat()
         if profile.last_completed_at
         else None,
+        knowledge_bank=profile.knowledge_bank or {},
     )
 
 
@@ -91,6 +95,7 @@ def read_ngo_profile(
         last_completed_at=profile.last_completed_at.isoformat()
         if profile.last_completed_at
         else None,
+        knowledge_bank=profile.knowledge_bank or {},
     )
 
 
@@ -129,7 +134,19 @@ def update_ngo_profile(
         last_completed_at=profile.last_completed_at.isoformat()
         if profile.last_completed_at
         else None,
+        knowledge_bank=profile.knowledge_bank or {},
     )
+
+
+@router.put("/knowledge-bank", response_model=KnowledgeBankUpdateResponse)
+def put_knowledge_bank(
+    payload: KnowledgeBankUpdateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    profile = update_knowledge_bank(db, current_user.id, payload)
+    return KnowledgeBankUpdateResponse(knowledge_bank=profile.knowledge_bank or {})
 
 
 @router.get("/completeness", response_model=NGOProfileCompletenessResponse)

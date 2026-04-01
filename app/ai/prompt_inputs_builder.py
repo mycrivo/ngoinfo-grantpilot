@@ -24,18 +24,22 @@ def build_prompt_inputs(
             status_code=500,
         )
 
-    ngo = _build_ngo_payload(ngo_profile)
+    prompt_inputs_ngo = _build_ngo_payload(ngo_profile)
+    logger.debug(
+        "knowledge_bank_keys=%s",
+        list(prompt_inputs_ngo.get("knowledge_bank", {}).keys()),
+    )
     opportunity = _build_opportunity_payload(funding_opportunity)
     requirements = _normalize_requirements(funding_opportunity.requirements_json)
     user = _build_user_payload(user_inputs)
-    derived = _build_derived_payload(ngo, opportunity, requirements, user)
+    derived = _build_derived_payload(prompt_inputs_ngo, opportunity, requirements, user)
     _apply_opportunity_aliases(opportunity, derived, requirements)
     # TEMP diagnostic: verify derived keys include selected variant fields.
     logger.debug("prompt_inputs_derived_keys=%s", sorted(derived.keys()))
 
     return {
         "prompt_inputs": {
-            "ngo": ngo,
+            "ngo": prompt_inputs_ngo,
             "opportunity": opportunity,
             "requirements": requirements,
             "user": user,
@@ -62,6 +66,7 @@ def _build_ngo_payload(profile: NGOProfile) -> dict[str, Any]:
         "contact_email": profile.contact_email,
         "monitoring_and_evaluation_practices": profile.monitoring_and_evaluation_practices,
         "funders_worked_with_before": profile.funders_worked_with_before or [],
+        "knowledge_bank": profile.knowledge_bank or {},
     }
 
     # Legacy alias support (Section 7).
