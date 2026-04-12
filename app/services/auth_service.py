@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime, timedelta, timezone
+import logging
 from urllib.parse import urlparse
 
 from sqlalchemy import select
@@ -13,8 +14,11 @@ from app.core.security import generate_opaque_token, hash_token
 from app.models.auth_oauth_exchange_code import AuthOAuthExchangeCode
 from app.models.user import User
 from app.models.user_plan import UserPlan
+from app.services.email_service import EmailService, frontend_base_url
 
 PLAN_FREE = "FREE"
+logger = logging.getLogger("auth_service")
+_email_service = EmailService()
 
 
 def normalize_email(email: str) -> str:
@@ -28,7 +32,7 @@ def get_or_create_user_for_google(
     google_sub: str,
     full_name: str | None,
     avatar_url: str | None,
-) -> User:
+) -> tuple[User, bool]:
     normalized_email = normalize_email(email)
     user = db.execute(select(User).where(User.google_sub == google_sub)).scalar_one_or_none()
     now = datetime.now(timezone.utc)
@@ -39,7 +43,7 @@ def get_or_create_user_for_google(
         user.avatar_url = avatar_url or user.avatar_url
         user.auth_provider = "google"
         user.last_login_at = now
-        return user
+        return user, False
 
     user = db.execute(select(User).where(User.email == normalized_email)).scalar_one_or_none()
     if user:
@@ -51,7 +55,7 @@ def get_or_create_user_for_google(
         user.avatar_url = avatar_url or user.avatar_url
         user.auth_provider = "google"
         user.last_login_at = now
-        return user
+        return user, False
 
     user = User(
         email=normalized_email,
@@ -63,10 +67,10 @@ def get_or_create_user_for_google(
     )
     db.add(user)
     db.flush()
-    return user
+    return user, True
 
 
-def get_or_create_user_for_magic_link(db: Session, *, email: str) -> User:
+def get_or_create_user_for_magic_link(db: Session, *, email: str) -> tuple[User, bool]:
     normalized_email = normalize_email(email)
     user = db.execute(select(User).where(User.email == normalized_email)).scalar_one_or_none()
     now = datetime.now(timezone.utc)
@@ -75,7 +79,7 @@ def get_or_create_user_for_magic_link(db: Session, *, email: str) -> User:
             user.email = normalized_email
         user.auth_provider = "email"
         user.last_login_at = now
-        return user
+        return user, False
 
     user = User(
         email=normalized_email,
@@ -84,7 +88,22 @@ def get_or_create_user_for_magic_link(db: Session, *, email: str) -> User:
     )
     db.add(user)
     db.flush()
-    return user
+    return user, True
+
+
+def maybe_send_welcome_for_new_user(*, user: User, is_new_user: bool) -> None:
+    if not is_new_user:
+        return
+    try:
+        _email_service.send_welcome(
+            user_id=user.id,
+            user_email=user.email,
+            full_name=user.full_name,
+            profile_link=f"{frontend_base_url()}/profile",
+            idempotency_key=f"{user.id}:welcome",
+        )
+    except Exception:
+        logger.exception("welcome_email_send_failed user_id=%s", user.id)
 
 
 def resolve_user_plan(db: Session, user_id: uuid.UUID) -> str:

@@ -26,11 +26,12 @@ from app.models.ngo_profile import NGOProfile
 from app.models.proposal import Proposal
 from app.models.user_plan import UserPlan
 from app.models.usage_ledger import UsageActionType, UsageLedger
-from app.services.email_service import send_proposal_draft_ready_email
+from app.services.email_service import EmailService, frontend_base_url
 from app.services.profile_service import get_completeness, get_profile
 from app.services.quota_service import enforce_quota, get_or_create_user_plan, record_usage
 
 logger = logging.getLogger("proposal")
+_email_service = EmailService()
 
 MANUAL_REQUIRED_NOTE = (
     "This section requires manual input. AI generation is not available for this item."
@@ -193,12 +194,16 @@ class ProposalService:
 
         self.db.refresh(proposal)
         try:
-            send_proposal_draft_ready_email(
-                self.db,
-                user=user,
+            _email_service.send_proposal_ready(
                 proposal_id=proposal.id,
+                user_id=user.id,
+                user_email=user.email,
+                full_name=user.full_name,
                 opportunity_title=opportunity.title,
-                event_key=f"proposal:{proposal.id}:draft_ready",
+                proposal_link=f"{frontend_base_url()}/proposal/{proposal.id}",
+                upgrade_link=f"{frontend_base_url()}/dashboard/billing",
+                is_free_plan=plan_name == "FREE",
+                idempotency_key=f"{proposal.id}:draft_ready",
             )
         except Exception:
             # Non-blocking by contract: proposal creation must still succeed.

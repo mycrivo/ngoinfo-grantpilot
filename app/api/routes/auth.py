@@ -26,11 +26,12 @@ from app.services.auth_service import (
     get_post_login_redirect_url,
     get_or_create_user_for_google,
     get_or_create_user_for_magic_link,
+    maybe_send_welcome_for_new_user,
     issue_access_token,
     is_redirect_allowed,
     normalize_email,
 )
-from app.services.email_service import maybe_send_welcome_email, send_magic_link_email
+from app.services.email_service import send_magic_link
 
 logger = logging.getLogger("auth")
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -370,7 +371,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
             request, 401, "OAUTH_EXCHANGE_FAILED", "OAuth exchange failed"
         )
 
-    user = get_or_create_user_for_google(
+    user, is_new_user = get_or_create_user_for_google(
         db,
         email=email,
         google_sub=google_sub,
@@ -386,6 +387,7 @@ def google_oauth_callback(request: Request, db: Session = Depends(get_db)):
         )
     code = create_oauth_exchange_code(db, user.id)
     db.commit()
+    maybe_send_welcome_for_new_user(user=user, is_new_user=is_new_user)
     redirect_url = f"{base_redirect}?code={code}"
     return RedirectResponse(url=redirect_url)
 
@@ -436,10 +438,6 @@ def oauth_exchange(
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
-    try:
-        maybe_send_welcome_email(db, user=user)
-    except Exception:
-        logger.exception("welcome_email_send_failed user_id=%s", user.id)
 
     return JSONResponse(
         status_code=200,
@@ -495,19 +493,14 @@ def magic_link_request(
     db.commit()
 
     login_link = build_magic_link_url(raw_token)
-    try:
-        send_magic_link_email(
-            db,
-            to_email=email,
-            login_link=login_link,
-            expires_minutes=settings.AUTH_MAGIC_LINK_TTL_MIN,
-            event_key=f"magic_link:{token_record.id}",
-        )
-    except Exception:
-        _log_auth_failure(request, "magic_link_provider_error")
-        return error_response(
-            request, 500, "EMAIL_PROVIDER_ERROR", "Email provider error"
-        )
+    send_magic_link(
+        user_email=email,
+        full_name=None,
+        login_link=login_link,
+        expires_minutes=settings.AUTH_MAGIC_LINK_TTL_MIN,
+        user_id=None,
+        idempotency_key=None,
+    )
 
     logger.info("magic_link_requested")
     return JSONResponse(status_code=200, content={"status": "sent"})
@@ -544,16 +537,13 @@ def magic_link_consume(
 
     token_record.consumed_at = datetime.now(timezone.utc)
     email = token_record.email
-    user = get_or_create_user_for_magic_link(db, email=email)
+    user, is_new_user = get_or_create_user_for_magic_link(db, email=email)
 
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)
     db.commit()
-    try:
-        maybe_send_welcome_email(db, user=user)
-    except Exception:
-        logger.exception("welcome_email_send_failed user_id=%s", user.id)
+    maybe_send_welcome_for_new_user(user=user, is_new_user=is_new_user)
 
     logger.info("auth_success provider=magic_link user_id=%s", user.id)
 

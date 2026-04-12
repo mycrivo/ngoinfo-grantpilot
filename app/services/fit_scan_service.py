@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import uuid
 
 from sqlalchemy import select
@@ -13,6 +14,7 @@ from app.models.ngo_profile import NGOProfile
 from app.models.user_plan import UserPlan
 from app.models.usage_ledger import UsageActionType
 from app.services.fit_scan_prompt_inputs import build_fit_scan_prompt_inputs
+from app.services.email_service import EmailService, frontend_base_url
 from app.services.profile_service import get_completeness, get_profile
 from app.services.quota_service import enforce_quota, record_usage
 
@@ -31,6 +33,8 @@ MISSING_PROFILE_FIELDS = [
     "target_groups",
     "past_projects",
 ]
+logger = logging.getLogger("fit_scan")
+_email_service = EmailService()
 
 
 class FitScanService:
@@ -106,6 +110,19 @@ class FitScanService:
             ) from exc
 
         self.db.refresh(fit_scan)
+        try:
+            _email_service.send_fit_scan_ready(
+                fit_scan_id=fit_scan.id,
+                user_id=user.id,
+                user_email=user.email,
+                full_name=user.full_name,
+                opportunity_title=opportunity.title,
+                overall_fit_rating=fit_scan.overall_recommendation,
+                fit_scan_link=f"{frontend_base_url()}/fit-scan/{fit_scan.id}",
+                idempotency_key=f"{fit_scan.id}:result_ready",
+            )
+        except Exception:
+            logger.exception("fit_scan_ready_email_failed fit_scan_id=%s", fit_scan.id)
         return fit_scan
 
     def get_fit_scan(self, *, user, fit_scan_id: uuid.UUID) -> FitScan:

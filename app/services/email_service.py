@@ -1,129 +1,448 @@
 from __future__ import annotations
 
 import logging
+import threading
 import uuid
-from urllib.parse import urlparse
+from datetime import datetime, timezone
 
 import httpx
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.errors import DomainError
-from app.models.email_event import EmailEvent
 from app.models.user import User
+from app.models.user_plan import UserPlan
+from app.services.email_templates import (
+    EmailTemplate,
+    build_fit_scan_ready_template,
+    build_magic_link_template,
+    build_payment_failed_template,
+    build_profile_complete_template,
+    build_proposal_ready_template,
+    build_subscription_activated_template,
+    build_subscription_cancelled_template,
+    build_welcome_template,
+)
 
 logger = logging.getLogger("email")
 
-STATUS_SENT = "SENT"
-STATUS_FAILED = "FAILED"
-STATUS_SUPPRESSED = "SUPPRESSED"
+_IDEMPOTENT_SENT_KEYS: dict[str, str] = {}
+_IDEMPOTENCY_LOCK = threading.Lock()
 
-EVENT_MAGIC_LINK_LOGIN = "MAGIC_LINK_LOGIN"
-EVENT_WELCOME = "WELCOME"
-EVENT_PROPOSAL_DRAFT_READY = "PROPOSAL_DRAFT_READY"
-EVENT_SUBSCRIPTION_ACTIVATED = "SUBSCRIPTION_ACTIVATED"
 
-LOGO_URL = "https://ngoinfo.org/wp-content/uploads/2025/06/NGOInfo-logo-1.png"
-BG_COLOR = "#F8F9FC"
-CARD_COLOR = "#FFFFFF"
-CTA_COLOR = "#1A1F71"
-TEXT_COLOR = "#111827"
-MUTED_COLOR = "#6B7280"
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _normalize_user_id(user_id: uuid.UUID | str | None) -> str | None:
+    if user_id is None:
+        return None
+    return str(user_id)
 
 
 def frontend_base_url() -> str:
     settings = get_settings()
-    parsed = urlparse(settings.AUTH_POST_LOGIN_REDIRECT_URL)
-    if not parsed.scheme or not parsed.netloc:
-        return settings.APP_BASE_URL.rstrip("/")
-    return f"{parsed.scheme}://{parsed.netloc}"
+    return settings.EMAIL_BASE_URL.rstrip("/")
+
+
+class EmailService:
+    def __init__(self) -> None:
+        self.settings = get_settings()
+
+    def _log_event(
+        self,
+        *,
+        user_id: uuid.UUID | str | None,
+        email_to: str,
+        template_name: str,
+        status: str,
+        provider_message_id: str | None = None,
+        error_message: str | None = None,
+    ) -> None:
+        logger.info(
+            "email_send user_id=%s email_to=%s template_name=%s status=%s provider_message_id=%s error_message=%s timestamp=%s",
+            _normalize_user_id(user_id) or "unknown",
+            email_to,
+            template_name,
+            status,
+            provider_message_id or "none",
+            error_message or "none",
+            _now_iso(),
+        )
+
+    def _already_sent(self, idempotency_key: str | None) -> bool:
+        if not idempotency_key:
+            return False
+        with _IDEMPOTENCY_LOCK:
+            return idempotency_key in _IDEMPOTENT_SENT_KEYS
+
+    def _mark_sent(self, idempotency_key: str | None) -> None:
+        if not idempotency_key:
+            return
+        with _IDEMPOTENCY_LOCK:
+            _IDEMPOTENT_SENT_KEYS[idempotency_key] = _now_iso()
+
+    def _send_email(
+        self,
+        *,
+        user_id: uuid.UUID | str | None,
+        email_to: str,
+        template_name: str,
+        template: EmailTemplate,
+        idempotency_key: str | None,
+    ) -> None:
+        if self.settings.EMAIL_PROVIDER.lower() != "resend":
+            self._log_event(
+                user_id=user_id,
+                email_to=email_to,
+                template_name=template_name,
+                status="failed",
+                error_message=f"unsupported_provider:{self.settings.EMAIL_PROVIDER}",
+            )
+            return
+
+        if self._already_sent(idempotency_key):
+            self._log_event(
+                user_id=user_id,
+                email_to=email_to,
+                template_name=template_name,
+                status="suppressed",
+                error_message="idempotency_key_already_sent",
+            )
+            return
+
+        if self.settings.EMAIL_SUPPRESS_SENDING:
+            self._log_event(
+                user_id=user_id,
+                email_to=email_to,
+                template_name=template_name,
+                status="suppressed",
+                error_message="EMAIL_SUPPRESS_SENDING=true",
+            )
+            return
+
+        try:
+            response = httpx.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {self.settings.EMAIL_API_KEY}"},
+                json={
+                    "from": f"{self.settings.EMAIL_FROM_NAME} <{self.settings.EMAIL_FROM_ADDRESS}>",
+                    "to": [email_to],
+                    "subject": template.subject,
+                    "html": template.html,
+                    "text": template.text,
+                },
+                timeout=10.0,
+            )
+            provider_message_id: str | None = None
+            if response.status_code < 400:
+                try:
+                    payload = response.json()
+                    if isinstance(payload, dict) and payload.get("id") is not None:
+                        provider_message_id = str(payload.get("id"))
+                except Exception:
+                    provider_message_id = None
+                self._mark_sent(idempotency_key)
+                self._log_event(
+                    user_id=user_id,
+                    email_to=email_to,
+                    template_name=template_name,
+                    status="sent",
+                    provider_message_id=provider_message_id,
+                )
+                return
+
+            self._log_event(
+                user_id=user_id,
+                email_to=email_to,
+                template_name=template_name,
+                status="failed",
+                error_message=f"provider_status_{response.status_code}",
+            )
+        except Exception as exc:
+            self._log_event(
+                user_id=user_id,
+                email_to=email_to,
+                template_name=template_name,
+                status="failed",
+                error_message=str(exc)[:300],
+            )
+
+    def send_magic_link(
+        self,
+        *,
+        user_email: str,
+        full_name: str | None,
+        login_link: str,
+        expires_minutes: int,
+        user_id: uuid.UUID | str | None = None,
+        idempotency_key: str | None = None,
+    ) -> None:
+        template = build_magic_link_template(
+            full_name=full_name,
+            login_link=login_link,
+            expires_minutes=expires_minutes,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="magic_link",
+            template=template,
+            idempotency_key=idempotency_key,
+        )
+
+    def send_welcome(
+        self,
+        *,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        profile_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or f"{user_id}:welcome"
+        template = build_welcome_template(
+            full_name=full_name,
+            profile_link=profile_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="welcome",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_profile_complete(
+        self,
+        *,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        dashboard_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or f"{user_id}:profile_complete"
+        template = build_profile_complete_template(
+            full_name=full_name,
+            dashboard_link=dashboard_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="profile_complete",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_fit_scan_ready(
+        self,
+        *,
+        fit_scan_id: uuid.UUID | str,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        opportunity_title: str,
+        overall_fit_rating: str,
+        fit_scan_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or f"{fit_scan_id}:result_ready"
+        template = build_fit_scan_ready_template(
+            full_name=full_name,
+            opportunity_title=opportunity_title,
+            overall_fit_rating=overall_fit_rating,
+            fit_scan_link=fit_scan_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="fit_scan_ready",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_proposal_ready(
+        self,
+        *,
+        proposal_id: uuid.UUID | str,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        opportunity_title: str,
+        proposal_link: str,
+        upgrade_link: str,
+        is_free_plan: bool,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or f"{proposal_id}:draft_ready"
+        template = build_proposal_ready_template(
+            full_name=full_name,
+            opportunity_title=opportunity_title,
+            proposal_link=proposal_link,
+            upgrade_link=upgrade_link,
+            is_free_plan=is_free_plan,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="proposal_ready",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_subscription_activated(
+        self,
+        *,
+        stripe_event_id: str,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        plan_name: str,
+        dashboard_link: str,
+        billing_portal_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or stripe_event_id
+        template = build_subscription_activated_template(
+            full_name=full_name,
+            plan_name=plan_name,
+            dashboard_link=dashboard_link,
+            billing_portal_link=billing_portal_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="subscription_activated",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_payment_failed(
+        self,
+        *,
+        stripe_event_id: str,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        plan_name: str,
+        billing_portal_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or stripe_event_id
+        template = build_payment_failed_template(
+            full_name=full_name,
+            plan_name=plan_name,
+            billing_portal_link=billing_portal_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="payment_failed",
+            template=template,
+            idempotency_key=key,
+        )
+
+    def send_subscription_cancelled(
+        self,
+        *,
+        stripe_event_id: str,
+        user_id: uuid.UUID | str,
+        user_email: str,
+        full_name: str | None,
+        plan_name: str,
+        access_end_date: datetime | None,
+        billing_portal_link: str,
+        idempotency_key: str | None = None,
+    ) -> None:
+        key = idempotency_key or stripe_event_id
+        template = build_subscription_cancelled_template(
+            full_name=full_name,
+            plan_name=plan_name,
+            access_end_date=access_end_date,
+            billing_portal_link=billing_portal_link,
+            base_url=frontend_base_url(),
+        )
+        self._send_email(
+            user_id=user_id,
+            email_to=user_email,
+            template_name="subscription_cancelled",
+            template=template,
+            idempotency_key=key,
+        )
+
+
+_EMAIL_SERVICE = EmailService()
+
+
+def send_magic_link(
+    *,
+    user_email: str,
+    full_name: str | None,
+    login_link: str,
+    expires_minutes: int,
+    user_id: uuid.UUID | str | None = None,
+    idempotency_key: str | None = None,
+) -> None:
+    _EMAIL_SERVICE.send_magic_link(
+        user_email=user_email,
+        full_name=full_name,
+        login_link=login_link,
+        expires_minutes=expires_minutes,
+        user_id=user_id,
+        idempotency_key=idempotency_key,
+    )
 
 
 def maybe_send_welcome_email(db: Session, *, user: User) -> None:
     if user.first_login_at is not None:
         return
-    user.first_login_at = _now_utc()
+    user.first_login_at = datetime.now(timezone.utc)
     db.add(user)
     db.commit()
-    send_welcome_email(
-        db,
-        user=user,
-        event_key=f"user:{user.id}:welcome",
+    _EMAIL_SERVICE.send_welcome(
+        user_id=user.id,
+        user_email=user.email,
+        full_name=user.full_name,
+        profile_link=f"{frontend_base_url()}/profile",
+        idempotency_key=f"{user.id}:welcome",
     )
 
 
 def send_magic_link_email(
-    db: Session,
+    db: Session,  # kept for compatibility with existing call sites
     *,
     to_email: str,
     login_link: str,
     expires_minutes: int,
     event_key: str,
 ) -> None:
-    subject = "Your GrantPilot login link"
-    title = "Sign in to NGOInfo GrantPilot"
-    body_lines = [
-        "Use the secure link below to sign in to your account.",
-        f"This link expires in {expires_minutes} minutes.",
-    ]
-    html = _render_email_html(
-        title=title,
-        body_lines=body_lines,
-        primary_cta_label="Sign in to GrantPilot",
-        primary_cta_url=login_link,
-        fallback_url=login_link,
-    )
-    text = (
-        "Sign in to NGOInfo GrantPilot.\n\n"
-        "Use the secure link below to sign in:\n"
-        f"{login_link}\n\n"
-        f"This link expires in {expires_minutes} minutes."
-    )
-    _send_transactional_email(
-        db,
-        event_type=EVENT_MAGIC_LINK_LOGIN,
-        event_key=event_key,
-        user_id=None,
-        to_email=to_email,
-        subject=subject,
-        html=html,
-        text=text,
-        raise_on_failure=True,
+    _ = db
+    _ = event_key
+    send_magic_link(
+        user_email=to_email,
+        full_name=None,
+        login_link=login_link,
+        expires_minutes=expires_minutes,
+        idempotency_key=None,
     )
 
 
 def send_welcome_email(db: Session, *, user: User, event_key: str) -> None:
-    dashboard_url = f"{frontend_base_url()}/dashboard"
-    explore_url = "https://ngoinfo.org"
-    html = _render_email_html(
-        title="Welcome to NGOInfo GrantPilot",
-        body_lines=[
-            "You are now part of a growing community of NGOs using smarter tools to find funding and develop stronger proposals.",
-            "GrantPilot helps you assess donor fit, generate structured drafts, refine submissions, and maintain proposal history.",
-            "If you have feedback, you can reply to this email.",
-        ],
-        primary_cta_label="Go to Dashboard",
-        primary_cta_url=dashboard_url,
-        secondary_link_label="Explore NGOInfo.org",
-        secondary_link_url=explore_url,
-    )
-    text = (
-        "Welcome to NGOInfo GrantPilot.\n\n"
-        "GrantPilot helps you assess donor fit, generate proposal drafts, and maintain proposal history.\n"
-        f"Go to Dashboard: {dashboard_url}\n"
-        f"Explore NGOInfo.org: {explore_url}"
-    )
-    _send_transactional_email(
-        db,
-        event_type=EVENT_WELCOME,
-        event_key=event_key,
+    _ = db
+    _EMAIL_SERVICE.send_welcome(
         user_id=user.id,
-        to_email=user.email,
-        subject="Welcome to NGOInfo",
-        html=html,
-        text=text,
-        raise_on_failure=False,
+        user_email=user.email,
+        full_name=user.full_name,
+        profile_link=f"{frontend_base_url()}/profile",
+        idempotency_key=event_key,
     )
 
 
@@ -135,32 +454,18 @@ def send_proposal_draft_ready_email(
     opportunity_title: str,
     event_key: str,
 ) -> None:
-    proposal_url = f"{frontend_base_url()}/proposals/{proposal_id}"
-    html = _render_email_html(
-        title="Your proposal draft is ready",
-        body_lines=[
-            "Your AI-generated proposal is now available in your NGOInfo GrantPilot dashboard.",
-            f"Opportunity: {opportunity_title}",
-            "You can review, refine, or export your draft at any time.",
-        ],
-        primary_cta_label="View Proposal",
-        primary_cta_url=proposal_url,
-    )
-    text = (
-        "Your proposal draft is ready.\n\n"
-        f"Opportunity: {opportunity_title}\n"
-        f"View Proposal: {proposal_url}"
-    )
-    _send_transactional_email(
-        db,
-        event_type=EVENT_PROPOSAL_DRAFT_READY,
-        event_key=event_key,
+    plan = db.execute(select(UserPlan).where(UserPlan.user_id == user.id)).scalar_one_or_none()
+    is_free_plan = not plan or plan.plan_name == "FREE"
+    _EMAIL_SERVICE.send_proposal_ready(
+        proposal_id=proposal_id,
         user_id=user.id,
-        to_email=user.email,
-        subject="Your proposal draft is ready - NGOInfo",
-        html=html,
-        text=text,
-        raise_on_failure=False,
+        user_email=user.email,
+        full_name=user.full_name,
+        opportunity_title=opportunity_title,
+        proposal_link=f"{frontend_base_url()}/proposal/{proposal_id}",
+        upgrade_link=f"{frontend_base_url()}/billing",
+        is_free_plan=is_free_plan,
+        idempotency_key=event_key,
     )
 
 
@@ -172,200 +477,14 @@ def send_subscription_activated_email(
     billing_portal_url: str,
     event_key: str,
 ) -> None:
-    plan_label = (plan_name or "").strip().upper() or "PAID"
-    html = _render_email_html(
-        title="Your plan is now active",
-        body_lines=[
-            f"Your {plan_label} plan is now active within NGOInfo GrantPilot.",
-            "You now have access to proposal generation, fit scoring, and proposal history.",
-        ],
-        primary_cta_label="Manage Billing",
-        primary_cta_url=billing_portal_url,
-    )
-    text = (
-        "Your subscription is active.\n\n"
-        f"Plan: {plan_label}\n"
-        f"Manage Billing: {billing_portal_url}"
-    )
-    _send_transactional_email(
-        db,
-        event_type=EVENT_SUBSCRIPTION_ACTIVATED,
-        event_key=event_key,
+    _ = db
+    _EMAIL_SERVICE.send_subscription_activated(
+        stripe_event_id=event_key,
         user_id=user.id,
-        to_email=user.email,
-        subject="Your subscription is active - NGOInfo",
-        html=html,
-        text=text,
-        raise_on_failure=False,
+        user_email=user.email,
+        full_name=user.full_name,
+        plan_name=plan_name,
+        dashboard_link=f"{frontend_base_url()}/dashboard",
+        billing_portal_link=billing_portal_url,
+        idempotency_key=event_key,
     )
-
-
-def _send_transactional_email(
-    db: Session,
-    *,
-    event_type: str,
-    event_key: str,
-    user_id: uuid.UUID | None,
-    to_email: str,
-    subject: str,
-    html: str,
-    text: str,
-    raise_on_failure: bool,
-) -> None:
-    settings = get_settings()
-    existing = db.execute(
-        select(EmailEvent).where(EmailEvent.event_key == event_key)
-    ).scalar_one_or_none()
-    if existing and existing.status in {STATUS_SENT, STATUS_SUPPRESSED}:
-        logger.info(
-            "email_event_duplicate event_type=%s event_key=%s status=%s",
-            event_type,
-            event_key,
-            existing.status,
-        )
-        return
-
-    event = existing or EmailEvent(
-        event_key=event_key,
-        event_type=event_type,
-        user_id=user_id,
-        to_email=to_email,
-        status=STATUS_FAILED,
-    )
-    if existing is None:
-        db.add(event)
-        db.flush()
-
-    if settings.EMAIL_SUPPRESS_SENDING:
-        event.status = STATUS_SUPPRESSED
-        event.provider_message_id = None
-        event.error_message = None
-        db.add(event)
-        db.commit()
-        logger.info(
-            "email_event event_type=%s user_id=%s to_email=%s event_key=%s status=%s",
-            event_type,
-            user_id,
-            to_email,
-            event_key,
-            STATUS_SUPPRESSED,
-        )
-        return
-
-    try:
-        resp = httpx.post(
-            "https://api.resend.com/emails",
-            headers={"Authorization": f"Bearer {settings.EMAIL_API_KEY}"},
-            json={
-                "from": f"{settings.EMAIL_FROM_NAME} <{settings.EMAIL_FROM_ADDRESS}>",
-                "to": [to_email],
-                "subject": subject,
-                "html": html,
-                "text": text,
-            },
-            timeout=10.0,
-        )
-        if resp.status_code >= 400:
-            raise RuntimeError(f"provider_status_{resp.status_code}")
-        provider_id = None
-        try:
-            payload = resp.json()
-            provider_id = str(payload.get("id")) if payload.get("id") else None
-        except Exception:
-            provider_id = None
-
-        event.status = STATUS_SENT
-        event.provider_message_id = provider_id
-        event.error_message = None
-        db.add(event)
-        db.commit()
-        logger.info(
-            "email_event event_type=%s user_id=%s to_email=%s event_key=%s status=%s provider_message_id=%s",
-            event_type,
-            user_id,
-            to_email,
-            event_key,
-            STATUS_SENT,
-            provider_id,
-        )
-    except Exception as exc:
-        safe_error = str(exc)[:300]
-        event.status = STATUS_FAILED
-        event.provider_message_id = None
-        event.error_message = safe_error
-        db.add(event)
-        db.commit()
-        logger.error(
-            "email_event event_type=%s user_id=%s to_email=%s event_key=%s status=%s",
-            event_type,
-            user_id,
-            to_email,
-            event_key,
-            STATUS_FAILED,
-        )
-        if raise_on_failure:
-            raise DomainError(
-                error_code="EMAIL_PROVIDER_ERROR",
-                message="Email provider error",
-                status_code=500,
-            ) from exc
-
-
-def _render_email_html(
-    *,
-    title: str,
-    body_lines: list[str],
-    primary_cta_label: str,
-    primary_cta_url: str,
-    secondary_link_label: str | None = None,
-    secondary_link_url: str | None = None,
-    fallback_url: str | None = None,
-) -> str:
-    body_html = "".join(
-        f'<p style="margin:0 0 14px 0;color:{TEXT_COLOR};line-height:1.6;">{line}</p>'
-        for line in body_lines
-    )
-    secondary_html = ""
-    if secondary_link_label and secondary_link_url:
-        secondary_html = (
-            f'<p style="margin:18px 0 0 0;color:{MUTED_COLOR};line-height:1.6;">'
-            f'<a href="{secondary_link_url}" style="color:{CTA_COLOR};text-decoration:none;">'
-            f"{secondary_link_label}</a></p>"
-        )
-    fallback_html = ""
-    if fallback_url:
-        fallback_html = (
-            f'<p style="margin:18px 0 0 0;color:{MUTED_COLOR};line-height:1.6;">'
-            f"If the button does not work, use this link:<br>"
-            f'<a href="{fallback_url}" style="color:{CTA_COLOR};word-break:break-all;">{fallback_url}</a></p>'
-        )
-    return f"""
-<!doctype html>
-<html>
-  <body style="margin:0;padding:24px;background:{BG_COLOR};font-family:'DM Sans',Arial,sans-serif;color:{TEXT_COLOR};">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;margin:0 auto;background:{CARD_COLOR};border:1px solid #E5E7EB;border-radius:12px;">
-      <tr>
-        <td style="padding:24px;">
-          <img src="{LOGO_URL}" alt="NGOInfo" width="180" style="display:block;margin:0 0 20px 0;" />
-          <h1 style="margin:0 0 14px 0;font-size:24px;line-height:1.3;color:{CTA_COLOR};">{title}</h1>
-          {body_html}
-          <p style="margin:22px 0 0 0;">
-            <a href="{primary_cta_url}" style="display:inline-block;background:{CTA_COLOR};color:#FFFFFF;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600;">
-              {primary_cta_label}
-            </a>
-          </p>
-          {secondary_html}
-          {fallback_html}
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>
-""".strip()
-
-
-def _now_utc():
-    from datetime import datetime, timezone
-
-    return datetime.now(timezone.utc)
-

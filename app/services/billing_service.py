@@ -11,15 +11,13 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.errors import DomainError
-from app.services.email_service import (
-    frontend_base_url,
-    send_subscription_activated_email,
-)
+from app.services.email_service import EmailService, frontend_base_url
 from app.models.stripe_event import StripeEvent
 from app.models.user import User
 from app.models.user_plan import UserPlan
 
 logger = logging.getLogger("billing")
+_email_service = EmailService()
 
 PLAN_FREE = "FREE"
 PLAN_GROWTH = "GROWTH"
@@ -240,17 +238,19 @@ def handle_stripe_event(
         )
         user = db.get(User, user_id)
         if user:
+            user_plan = db.execute(
+                select(UserPlan).where(UserPlan.user_id == user.id)
+            ).scalar_one_or_none()
             try:
-                billing_portal_url = create_portal_session(db, user)
-            except Exception:
-                billing_portal_url = f"{frontend_base_url()}/billing"
-            try:
-                send_subscription_activated_email(
-                    db,
-                    user=user,
-                    plan_name=plan_name,
-                    billing_portal_url=billing_portal_url,
-                    event_key=f"stripe:{event.get('id')}:subscription_activated",
+                _email_service.send_subscription_activated(
+                    stripe_event_id=str(event.get("id") or ""),
+                    user_id=user.id,
+                    user_email=user.email,
+                    full_name=user.full_name,
+                    plan_name=user_plan.plan_name if user_plan else plan_name,
+                    dashboard_link=f"{frontend_base_url()}/dashboard",
+                    billing_portal_link=f"{frontend_base_url()}/dashboard/billing",
+                    idempotency_key=str(event.get("id") or ""),
                 )
             except Exception:
                 logger.exception(
@@ -266,6 +266,13 @@ def handle_stripe_event(
         user_id = _resolve_user_id(db, metadata=None, customer_id=customer_id)
         if not user_id:
             return PROCESSING_FAILED, "USER_NOT_FOUND", False
+        existing_plan = db.execute(
+            select(UserPlan).where(UserPlan.user_id == user_id)
+        ).scalar_one_or_none()
+        previous_plan_name = (
+            existing_plan.plan_name if existing_plan and existing_plan.plan_name else PLAN_FREE
+        )
+        previous_period_end = existing_plan.billing_period_end if existing_plan else None
 
         price_id = (
             data_object.get("items", {})
@@ -287,6 +294,27 @@ def handle_stripe_event(
             period_start=_to_datetime(data_object.get("current_period_start")),
             period_end=_to_datetime(data_object.get("current_period_end")),
         )
+        if bool(data_object.get("cancel_at_period_end")):
+            user = db.get(User, user_id)
+            if user:
+                try:
+                    _email_service.send_subscription_cancelled(
+                        stripe_event_id=str(event.get("id") or ""),
+                        user_id=user.id,
+                        user_email=user.email,
+                        full_name=user.full_name,
+                        plan_name=previous_plan_name if previous_plan_name != PLAN_FREE else plan_name,
+                        access_end_date=previous_period_end
+                        or _to_datetime(data_object.get("current_period_end")),
+                        billing_portal_link=f"{frontend_base_url()}/dashboard/billing",
+                        idempotency_key=str(event.get("id") or ""),
+                    )
+                except Exception:
+                    logger.exception(
+                        "subscription_cancelled_email_failed event_id=%s user_id=%s",
+                        event.get("id"),
+                        user_id,
+                    )
         return PROCESSING_SUCCESS, None, False
 
     if event_type == "customer.subscription.deleted":
@@ -294,10 +322,61 @@ def handle_stripe_event(
         user_id = _resolve_user_id(db, metadata=None, customer_id=customer_id)
         if not user_id:
             return PROCESSING_FAILED, "USER_NOT_FOUND", False
+        existing_plan = db.execute(
+            select(UserPlan).where(UserPlan.user_id == user_id)
+        ).scalar_one_or_none()
+        previous_plan_name = (
+            existing_plan.plan_name if existing_plan and existing_plan.plan_name else PLAN_FREE
+        )
+        previous_period_end = existing_plan.billing_period_end if existing_plan else None
         _sync_free_plan(db, user_id)
+        user = db.get(User, user_id)
+        if user:
+            try:
+                _email_service.send_subscription_cancelled(
+                    stripe_event_id=str(event.get("id") or ""),
+                    user_id=user.id,
+                    user_email=user.email,
+                    full_name=user.full_name,
+                    plan_name=previous_plan_name,
+                    access_end_date=previous_period_end,
+                    billing_portal_link=f"{frontend_base_url()}/dashboard/billing",
+                    idempotency_key=str(event.get("id") or ""),
+                )
+            except Exception:
+                logger.exception(
+                    "subscription_cancelled_email_failed event_id=%s user_id=%s",
+                    event.get("id"),
+                    user_id,
+                )
         return PROCESSING_SUCCESS, None, False
 
     if event_type == "invoice.payment_failed":
+        customer_id = data_object.get("customer")
+        user_id = _resolve_user_id(db, metadata=None, customer_id=customer_id)
+        if not user_id:
+            return PROCESSING_FAILED, "USER_NOT_FOUND", False
+        user = db.get(User, user_id)
+        user_plan = db.execute(
+            select(UserPlan).where(UserPlan.user_id == user_id)
+        ).scalar_one_or_none()
+        if user:
+            try:
+                _email_service.send_payment_failed(
+                    stripe_event_id=str(event.get("id") or ""),
+                    user_id=user.id,
+                    user_email=user.email,
+                    full_name=user.full_name,
+                    plan_name=user_plan.plan_name if user_plan else PLAN_FREE,
+                    billing_portal_link=f"{frontend_base_url()}/dashboard/billing",
+                    idempotency_key=str(event.get("id") or ""),
+                )
+            except Exception:
+                logger.exception(
+                    "payment_failed_email_failed event_id=%s user_id=%s",
+                    event.get("id"),
+                    user_id,
+                )
         logger.info("stripe_payment_failed event_id=%s", event.get("id"))
         return PROCESSING_SUCCESS, None, False
 

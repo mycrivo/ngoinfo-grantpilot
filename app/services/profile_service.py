@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 from typing import Iterable
 import uuid
 
@@ -7,11 +8,16 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import ConflictError, DomainError, NotFoundError
 from app.models.ngo_profile import NGOProfile
+from app.models.user import User
+from app.services.email_service import EmailService, frontend_base_url
 from app.schemas.ngo_profile import (
     KnowledgeBankUpdateRequest,
     NGOProfileCreate,
     NGOProfileUpdate,
 )
+
+logger = logging.getLogger("profile")
+_email_service = EmailService()
 
 
 def _normalize_list(values: Iterable[str] | None) -> list[str]:
@@ -153,6 +159,7 @@ def get_profile(db: Session, user_id: uuid.UUID) -> NGOProfile:
 
 def update_profile(db: Session, user_id: uuid.UUID, payload: NGOProfileUpdate) -> NGOProfile:
     profile = get_profile(db, user_id)
+    previous_status = profile.profile_status
 
     _validate_year(payload.year_of_establishment)
     _validate_budget(payload.annual_budget_amount)
@@ -185,6 +192,19 @@ def update_profile(db: Session, user_id: uuid.UUID, payload: NGOProfileUpdate) -
 
     db.commit()
     db.refresh(profile)
+    if previous_status == "DRAFT" and profile.profile_status == "COMPLETE":
+        user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
+        if user:
+            try:
+                _email_service.send_profile_complete(
+                    user_id=user.id,
+                    user_email=user.email,
+                    full_name=user.full_name,
+                    dashboard_link=f"{frontend_base_url()}/dashboard",
+                    idempotency_key=f"{user.id}:profile_complete",
+                )
+            except Exception:
+                logger.exception("profile_complete_email_failed user_id=%s", user_id)
     return profile
 
 

@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     EMAIL_FROM_NAME: str
     EMAIL_FROM_ADDRESS: str
     EMAIL_API_KEY: str
+    EMAIL_BASE_URL: str = "https://grantpilot.ngoinfo.org"
     EMAIL_SUPPRESS_SENDING: bool = False
 
     OPENAI_API_KEY: str
@@ -113,6 +114,7 @@ def validate_config() -> Settings:
         "EMAIL_FROM_NAME": settings.EMAIL_FROM_NAME,
         "EMAIL_FROM_ADDRESS": settings.EMAIL_FROM_ADDRESS,
         "EMAIL_API_KEY": settings.EMAIL_API_KEY,
+        "EMAIL_BASE_URL": settings.EMAIL_BASE_URL,
         "OPENAI_API_KEY": settings.OPENAI_API_KEY,
         "PROMPT_VERSION": settings.PROMPT_VERSION,
         "STRIPE_MODE": settings.STRIPE_MODE,
@@ -164,6 +166,8 @@ def validate_config() -> Settings:
         errors.append("CONFIG_ERROR EMAIL_PROVIDER: must be resend for MVP")
     if "@" not in settings.EMAIL_FROM_ADDRESS:
         errors.append("CONFIG_ERROR EMAIL_FROM_ADDRESS: must be a valid email address")
+    if not _is_valid_url(settings.EMAIL_BASE_URL):
+        errors.append("CONFIG_ERROR EMAIL_BASE_URL: must be a valid http(s) URL")
 
     if not _is_valid_url(settings.GOOGLE_OAUTH_REDIRECT_URI):
         errors.append("CONFIG_ERROR GOOGLE_OAUTH_REDIRECT_URI: must be a valid http(s) URL")
