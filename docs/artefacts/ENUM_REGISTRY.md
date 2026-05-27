@@ -54,27 +54,6 @@ Important:
 - Default: DRAFT
 - Note: Keep as text for MVP to avoid enum churn, unless you explicitly want it as Postgres ENUM.
 
-### 3.3 Usage Ledger action_type (text field, MVP)
-
-**Field:** `usage_ledger.action_type` (text, not null)
-
-**Allowed Values (application-validated):**
-- FIT_SCAN
-- PROPOSAL_CREATE
-- PROPOSAL_REGEN
-- DOCX_EXPORT
-
-**Validation:**
-- Enforced in `app/services/quota_service.py`
-- If invalid action_type provided → raise ValueError
-- SQLAlchemy model uses `Enum` type with Python-only validation (no DB constraint)
-
-**Migration Path (Post-MVP):**
-If action types stabilize and performance matters:
-1. Create Postgres ENUM type `usage_action_type`
-2. Alter column to use ENUM
-3. Update SQLAlchemy models with `create_type=False`
-
 ### 3.3 usage_ledger.action_type (text field with application validation)
 
 **Implementation Strategy (MVP):**
@@ -87,6 +66,18 @@ If action types stabilize and performance matters:
 - PROPOSAL_CREATE
 - PROPOSAL_REGEN
 - DOCX_EXPORT
+- REPORT_CREATE *(M&E — Stage J)*
+- REPORT_EXPORT *(M&E — Stage J)*
+
+**Python / DB aliasing (CRITICAL — do not drift):**
+
+| Python attribute (`UsageLedger`) | DB column |
+|----------------------------------|-----------|
+| `event_type` | `action_type` |
+| `occurred_at` | `created_at` |
+| `metadata_json` | `metadata` |
+
+New M&E action types use DB column name **`action_type`**, not `event_type`.
 
 **Validation Location:**
 - `app/models/usage_ledger.py`: Python Enum class for type hints
@@ -109,10 +100,124 @@ If action types stabilize and we need DB-level enforcement:
 4) Future enums (reserved; for Prompt 8+)
 ============================================================
 
-4.1 Plan names (planned)
-- FREE | GROWTH | IMPACT
+4.1 Plan names
+- FREE | GROWTH | IMPACT | **IMPACT_PRO** *(M&E — Stage J)*
 
-4.2 Usage action types (planned)
-- FIT_SCAN | PROPOSAL_CREATE | PROPOSAL_REGEN | DOCX_EXPORT
+**Field:** `user_plans.plan_name` (TEXT + CHECK constraint)
+
+**Rules:**
+- `IMPACT_PRO` is a **new enum value** — do NOT overload `IMPACT` (Decision D-004).
+- JWT `plan` claim and `GET /api/me/entitlements` must reflect `IMPACT_PRO` when active.
+- Migration (Stage J): extend CHECK constraint on `user_plans.plan_name`.
+
+4.2 Usage action types — see §3.3 (includes M&E additions)
 
 These are registry-only until the corresponding tables exist.
+
+============================================================
+5) M&E Module enums (Stage B — LOCKED)
+============================================================
+
+Implementation: TEXT columns + CHECK constraints in `0014_me_module_*.py` migrations (Stage C).
+Python enums in `app/reports/` must match exactly.
+
+### 5.1 donor_reports.status
+
+| Value | Meaning |
+|-------|---------|
+| DRAFT | Created; intake not started |
+| EXTRACTING | Pipeline running pre–Gate 1 |
+| AWAITING_REVIEW | Halted at human gate |
+| GENERATING | Synthesis/critic running |
+| DEGRADED | Partial section success |
+| COMPLETE | All sections accepted; export ready |
+
+**Field:** `donor_reports.status` · Default: `DRAFT`
+
+### 5.2 Partial-success interaction
+
+When `status = DEGRADED`, `content_json.generation_summary` MUST reflect failed sections. Export allowed only when Gate 3 satisfied per API §12.13.
+
+### 5.3 uploaded_documents.classification
+
+| Value | Meaning |
+|-------|---------|
+| proposal | Winning proposal / application |
+| grant_letter | Funder award letter |
+| mou | Memorandum of understanding |
+| indicator_data | Spreadsheet / CSV indicators |
+| photo | Image evidence |
+| deck | Presentation |
+| other | Unclassified |
+
+**Nullable** until classifier runs.
+
+### 5.4 uploaded_documents.extraction_status
+
+| Value | Meaning |
+|-------|---------|
+| PENDING | Uploaded; not yet processed |
+| PROCESSING | Docling / extractor running |
+| COMPLETE | extracted_json populated |
+| FAILED | extraction error |
+
+**Default:** `PENDING`
+
+### 5.5 funder_report_templates.reporting_frequency
+
+| Value | Meaning |
+|-------|---------|
+| end_of_grant | Final / end-of-grant report |
+| annual | Annual progress / review |
+| quarterly | Quarterly performance |
+| interim | Interim reporting period |
+| final | Final report (distinct from end_of_grant where funder uses both) |
+
+### 5.6 report_jobs.stage
+
+| Value | Order | Meaning |
+|-------|-------|---------|
+| classify | 1 | Document classifier |
+| extract | 2 | Specialist extractors |
+| reconcile | 3 | Knowledge-bank reconciler → Gate 1 |
+| gap | 4 | Gap/compliance → Gate 2 |
+| synthesise | 5 | Section synthesis |
+| critique | 6 | Fact-safety critic → Gate 3 |
+| export | 7 | docxtpl render |
+
+### 5.7 report_jobs.status
+
+| Value | Meaning |
+|-------|---------|
+| queued | Waiting for worker |
+| running | Agent executing |
+| awaiting_human | Server-enforced gate halt |
+| failed | Terminal error |
+| done | Stage or pipeline complete |
+
+**Default:** `queued`
+
+### 5.8 content_json section generation_status (enum-like)
+
+| Value | Meaning |
+|-------|---------|
+| GENERATED | AI draft ready for Gate 3 review |
+| FAILED | Section generation failed |
+| AWAITING_REVIEW | Pending human review |
+| ACCEPTED | Human accepted; export-eligible |
+
+### 5.9 critic_flags.severity (enum-like, in JSONB)
+
+| Value | Meaning |
+|-------|---------|
+| BLOCK | Must resolve or accept before export |
+| WARN | Advisory |
+
+### 5.10 M&E quota entitlements (API / usage_ledger — Stage J)
+
+| Entitlement key | usage_ledger.action_type | Period |
+|-----------------|--------------------------|--------|
+| reports | REPORT_CREATE | BILLING_CYCLE (2/month on IMPACT_PRO) |
+| report_exports | REPORT_EXPORT | Idempotent per report version |
+
+**Cross-reference:** `PRICING_AND_ENTITLEMENTS.md` (Stage J extension), `API_CONTRACT.md` §12.0, §12.14.

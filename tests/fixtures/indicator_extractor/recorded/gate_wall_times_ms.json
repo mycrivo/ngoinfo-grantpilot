@@ -1,0 +1,52 @@
+{
+  "runs": [
+    {
+      "label": "correctness",
+      "extraction_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": 2,
+      "wall_ms": 58861,
+      "degraded_code": null,
+      "rows": 8
+    },
+    {
+      "label": "stability_1",
+      "extraction_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": 2,
+      "wall_ms": 86794,
+      "degraded_code": null,
+      "rows": 8
+    },
+    {
+      "label": "stability_2",
+      "extraction_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": 2,
+      "wall_ms": 60427,
+      "degraded_code": null,
+      "rows": 8
+    },
+    {
+      "label": "stability_3",
+      "extraction_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": 2,
+      "wall_ms": 55724,
+      "degraded_code": null,
+      "rows": 8
+    }
+  ],
+  "correctness_ms": 58861,
+  "stability_ms": [
+    86794,
+    60427,
+    55724
+  ],
+  "spread": {
+    "min_ms": 55724,
+    "max_ms": 86794,
+    "median_ms": 59644,
+    "runs": 4
+  }
+}

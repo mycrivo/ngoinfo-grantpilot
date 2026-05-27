@@ -1,0 +1,61 @@
+{
+  "fixture": "fcdo_bridgelight_indicator_data.xlsx",
+  "source_docx": "M_E_Module/Sample_docs/FCDO_Test_Set/03_FCDO_BridgeLight_Logframe_Data_Table.docx",
+  "sheet_name": "Indicators",
+  "header_row_index": 1,
+  "source_row_ids": [
+    "op1_1_girls_reenrolled",
+    "op1_2_girls_attending",
+    "disagg_non_sum",
+    "op1_1_target_only",
+    "hidden_continuation_row",
+    "cell_state_demo",
+    "op2_1_latrine_stances",
+    "ocm1_attendance_80pct"
+  ],
+  "data_row_count": 8,
+  "planted_conflicts": {
+    "planted_a_no_recompute": {
+      "row_id": "disagg_non_sum",
+      "description": "Stated gender total 100 with breakdown 40+35+30 that does not sum to 100",
+      "stated_total_raw": "100",
+      "breakdown_labels": ["Male", "Female", "Other"],
+      "breakdown_raws": ["40", "35", "30"],
+      "forbidden_normalized_total": "105"
+    },
+    "planted_b_absent_actual": {
+      "row_id": "op1_1_target_only",
+      "description": "Target stated; actual cell blank — must be absent, not invented",
+      "target_normalized": "500",
+      "actual_must_be_absent": true
+    },
+    "planted_c_row_integrity": {
+      "row_id": "hidden_continuation_row",
+      "description": "Row after merged spacer block must still appear in output",
+      "sheet_row_index": 7
+    }
+  },
+  "cell_state_demo": {
+    "row_id": "cell_state_demo",
+    "target_cell_ref": "Indicators!D8",
+    "actual_cell_ref": "Indicators!E8",
+    "unit_cell_ref": "Indicators!F8",
+    "expected": {
+      "target_cell_state": "stated",
+      "target_raw": "0",
+      "actual_cell_state": "blank",
+      "unit_cell_state": "not_applicable",
+      "unit_raw": "N/A"
+    }
+  },
+  "structural_cells": {
+    "blank_actual_ref": "Indicators!E5",
+    "zero_target_ref": "Indicators!D8"
+  },
+  "expected_present": {
+    "indicator_refs": ["OP1.1", "OP1.2", "DISAGG", "OP-HIDDEN", "DEMO", "OP2.1", "OCM1"],
+    "financials_budget_normalized": "1240000",
+    "financials_actual_normalized": "1184000",
+    "financials_currency": "GBP"
+  }
+}

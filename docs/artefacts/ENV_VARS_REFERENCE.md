@@ -113,6 +113,21 @@ Future (post-MVP):
 | TEST_MODE | Optional | true/false; when true, enables test-mode token mint endpoint |
 | TEST_MODE_SECRET | Conditional | Required when TEST_MODE=true; long random secret |
 
+### J) M&E Module (Stage C)
+| Variable | Required | Example | Notes |
+|---|---:|---|---|
+| ME_MODULE_ENABLED | Yes | false | Default off; when true, mounts `/api/reports*` routes |
+| ME_DOCUMENTS_S3_ENDPOINT | Conditional | https://... | Required when `ME_MODULE_ENABLED=true`; Railway Buckets S3-compatible endpoint |
+| ME_DOCUMENTS_S3_ACCESS_KEY | Conditional | <key> | Required when `ME_MODULE_ENABLED=true` |
+| ME_DOCUMENTS_S3_SECRET | Conditional | <secret> | Required when `ME_MODULE_ENABLED=true` |
+| ME_DOCUMENTS_S3_BUCKET | Conditional | grantpilot-me-documents | Required when `ME_MODULE_ENABLED=true` |
+| ANTHROPIC_API_KEY | Yes | <secret> | Backend + worker; passed explicitly into each Claude Agent SDK subprocess via `ClaudeAgentOptions.env` (`merge_claude_subprocess_env` in `app/reports/agents/claude_sdk_env.py`). Headless runs must not rely on interactive `claude /login` — Railway worker has no terminal. No expiry — store in secrets manager only; never commit, log, or persist in `agent_trace_json`. |
+| ME_CLASSIFIER_MODEL | Optional | haiku | Selects classifier model class; default `haiku` when omitted. |
+| ME_RECONCILER_MODEL | Optional | opus | E1 knowledge-bank reconciler model class; default `opus` when omitted. |
+| ME_RECONCILER_TIMEOUT_SECONDS | Optional | 180 | Per-attempt wall timeout for reconciler agent (D-035: 2 attempts then degraded). |
+
+**Namespace rule:** M&E document uploads use `ME_DOCUMENTS_S3_*` only. Generic `S3_*` names are **reserved** for a future core exports bucket (see GUARDRAILS_RUNTIME_AND_SECURITY.md) and must not be used by M&E.
+
 ---
 
 ## FRONTEND (Railway) — Allowed Variables Only

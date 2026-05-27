@@ -1,0 +1,7 @@
+## Partial proposal fragment
+
+Impact: Something vague without numbers.
+
+Outcome indicator OCM99: mentioned in narrative only, no baseline or target table row.
+
+Activity: One activity listed without detail.

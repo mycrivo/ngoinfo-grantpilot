@@ -1,0 +1,74 @@
+{
+  "fixture": "fcdo_bridgelight_award_letter.md",
+  "source_docx": "M_E_Module/Sample_docs/FCDO_Test_Set/02_FCDO_BridgeLight_Award_Letter.docx",
+  "answer_key_docx": "M_E_Module/Sample_docs/FCDO_Test_Set/04_FCDO_Answer_Key_DO_NOT_INCLUDE_IN_DOCUMENTS.docx",
+  "planted_conflicts": {
+    "conflict_3_reporting_period_intra_doc": {
+      "reading": "intra_doc",
+      "field": "reporting_period",
+      "description": "Contractual AR1 period (15 Oct 2024–14 Oct 2025) vs inception-call October–September discussion in same letter",
+      "expect_multi_value": true,
+      "expect_no_winner": true,
+      "conflict_intact_checks": {
+        "contractual_raw_must_include": ["15 October 2024", "14 October 2025"],
+        "inception_alternative": {
+          "whole_phrase": "October to September",
+          "split_tokens": ["October", "September"]
+        }
+      }
+    },
+    "conflict_budget_cross_doc_note": {
+      "reading": "cross_doc_guard_for_d3",
+      "field": "award_budget.amount",
+      "description": "Award letter states GBP 1,240,000; proposal uses 1,184,000 — D3 must record letter value exactly, not drift",
+      "expected_raw_substrings": ["1,240,000"],
+      "forbidden_normalized_amounts": ["1184000", "1,184,000"]
+    }
+  },
+  "expected_present": {
+    "funder": {
+      "raw_substrings": ["Foreign, Commonwealth", "Development Office"],
+      "normalized_contains": "FCDO"
+    },
+    "grant_reference": {
+      "raw": "MWI-EDU-AR-4471",
+      "normalized": "MWI-EDU-AR-4471"
+    },
+    "award_budget": {
+      "amount": {
+        "raw_substrings": ["1,240,000"],
+        "normalized": "1240000"
+      },
+      "currency": {
+        "raw_substrings": ["GBP"],
+        "normalized": "GBP"
+      }
+    },
+    "grant_period": {
+      "start": {
+        "raw_substrings": ["15 October 2024"],
+        "normalized": "2024-10-15"
+      },
+      "end": {
+        "raw_substrings": ["14 October 2026"],
+        "normalized": "2026-10-14"
+      }
+    },
+    "reporting_deadlines": [
+      {
+        "raw_substrings": ["21 November 2025"],
+        "normalized": "2025-11-21"
+      }
+    ],
+    "reporting_obligations_min": 1,
+    "reporting_obligation_types": ["annual review", "annual_review"]
+  },
+  "expected_absent_fields": [
+    "award_budget.tranches"
+  ],
+  "acceptance_signing_deadline": {
+    "raw_substrings": ["4 October 2024"],
+    "normalized": "2024-10-04",
+    "note": "Optional letter term; not a top-level contract field — may appear in reporting_deadlines or obligations"
+  }
+}

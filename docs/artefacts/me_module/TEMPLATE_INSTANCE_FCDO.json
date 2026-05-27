@@ -1,0 +1,386 @@
+{
+  "funder_name": "Foreign, Commonwealth & Development Office",
+  "template_name": "FCDO Annual Review",
+  "region": "UK",
+  "reporting_frequency": "annual",
+  "docx_template_ref": "app/reports/templates/docx/fcdo-annual-review.docx",
+  "is_active": true,
+  "version": 1,
+  "report_sections_json": [
+    {
+      "section_key": "summary_and_overview",
+      "label": "A. Summary and Overview",
+      "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+      "word_limit": 900,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "review_summary_sheet",
+          "label": "Annual Review Summary Sheet",
+          "min_rows": 1,
+          "data_source": "manual",
+          "columns": [
+            {"column_key": "programme_title", "label": "Programme title", "data_type": "text"},
+            {"column_key": "programme_code", "label": "Programme code", "data_type": "text"},
+            {"column_key": "review_date", "label": "Review date", "data_type": "date"},
+            {"column_key": "review_period", "label": "Review period", "data_type": "text"},
+            {"column_key": "budget", "label": "Budget", "data_type": "text"},
+            {"column_key": "overall_score_or_rating", "label": "Overall score or rating", "data_type": "text"},
+            {"column_key": "risk_rating", "label": "Risk rating", "data_type": "text"},
+            {"column_key": "review_team", "label": "Review team", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "overall_progress",
+        "main_results_achieved",
+        "main_issues",
+        "key_recommendations"
+      ],
+      "tone": "formal, evidence-led, concise",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "label": "B. Performance and Conclusions",
+      "archetype": "ARCH_PERFORMANCE_CONCLUSIONS",
+      "word_limit": 1200,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "outcome_assessment",
+          "label": "Annual Outcome Assessment",
+          "min_rows": 1,
+          "data_source": "indicators",
+          "columns": [
+            {"column_key": "outcome_statement", "label": "Outcome statement", "data_type": "text"},
+            {"column_key": "progress_summary", "label": "Progress summary", "data_type": "text"},
+            {"column_key": "evidence", "label": "Evidence", "data_type": "text"},
+            {"column_key": "issues", "label": "Issues", "data_type": "text"},
+            {"column_key": "assessment", "label": "Assessment", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "outcome_indicators",
+        "progress_against_expected_results",
+        "major_deviations",
+        "gender_age_or_vulnerable_group_disaggregation_where_relevant"
+      ],
+      "tone": "analytical, transparent, performance-focused",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "label": "C. Detailed Output Scoring",
+      "archetype": "ARCH_OUTPUT_SCORING_TABLE",
+      "word_limit": null,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "output_score_table",
+          "label": "Output scoring against logframe",
+          "min_rows": 1,
+          "data_source": "indicators",
+          "columns": [
+            {"column_key": "output", "label": "Output", "data_type": "text"},
+            {"column_key": "impact_weighting", "label": "Impact weighting", "data_type": "text"},
+            {"column_key": "risk_rating", "label": "Risk rating", "data_type": "rag_rating"},
+            {"column_key": "indicator", "label": "Indicator", "data_type": "text"},
+            {"column_key": "baseline", "label": "Baseline", "data_type": "text"},
+            {"column_key": "milestone", "label": "Milestone", "data_type": "text"},
+            {"column_key": "actual", "label": "Actual", "data_type": "text"},
+            {"column_key": "score", "label": "Score", "data_type": "enum", "enum_values": ["1", "2", "3", "4", "5"]},
+            {"column_key": "evidence", "label": "Evidence", "data_type": "text"},
+            {"column_key": "explanation_for_variance", "label": "Explanation for variance", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "output_indicators",
+        "logframe_milestones",
+        "actual_results",
+        "impact_weightings",
+        "risk_ratings",
+        "output_scores"
+      ],
+      "tone": "technical, precise, evidence-linked",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "label": "Evidence and Evaluation",
+      "archetype": "ARCH_EVIDENCE_AND_EVALUATION_REVIEW",
+      "word_limit": 900,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "evidence_quality_matrix",
+          "label": "Evidence quality and gaps",
+          "min_rows": 0,
+          "data_source": "manual",
+          "columns": [
+            {"column_key": "result_or_claim", "label": "Result or claim", "data_type": "text"},
+            {"column_key": "evidence_source", "label": "Evidence source", "data_type": "text"},
+            {"column_key": "evidence_quality", "label": "Evidence quality", "data_type": "text"},
+            {"column_key": "limitations", "label": "Limitations", "data_type": "text"},
+            {"column_key": "implication_for_assessment", "label": "Implication for assessment", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "evidence_base_strength",
+        "new_evidence",
+        "evaluation_progress",
+        "data_quality_limitations"
+      ],
+      "tone": "critical, factual, transparent about evidence limits",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "label": "Risk, Assumptions and Safeguarding",
+      "archetype": "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS",
+      "word_limit": 900,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "risk_register_update",
+          "label": "Risk update",
+          "min_rows": 0,
+          "data_source": "manual",
+          "columns": [
+            {"column_key": "risk", "label": "Risk", "data_type": "text"},
+            {"column_key": "previous_rating", "label": "Previous rating", "data_type": "rag_rating"},
+            {"column_key": "current_rating", "label": "Current rating", "data_type": "rag_rating"},
+            {"column_key": "mitigation", "label": "Mitigation", "data_type": "text"},
+            {"column_key": "owner", "label": "Owner", "data_type": "text"},
+            {"column_key": "status", "label": "Status", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "new_risks",
+        "realised_assumptions",
+        "funds_not_used_as_intended_risk",
+        "climate_environment_risk",
+        "safeguarding_risk_where_relevant"
+      ],
+      "tone": "clear, candid, control-focused",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "value_for_money",
+      "label": "D. Value for Money",
+      "archetype": "ARCH_VALUE_FOR_MONEY_4E",
+      "word_limit": 1200,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "vfm_measures",
+          "label": "Value for Money measures",
+          "min_rows": 1,
+          "data_source": "indicators",
+          "columns": [
+            {"column_key": "vfm_measure", "label": "VfM measure", "data_type": "text"},
+            {"column_key": "business_case_proposition_or_baseline", "label": "Business case proposition or baseline", "data_type": "text"},
+            {"column_key": "current_performance", "label": "Current performance", "data_type": "text"},
+            {"column_key": "evidence", "label": "Evidence", "data_type": "text"},
+            {"column_key": "assessment", "label": "Assessment", "data_type": "text"},
+            {"column_key": "change_needed", "label": "Change needed", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "economy",
+        "efficiency",
+        "effectiveness",
+        "equity",
+        "cost_drivers",
+        "forecast_vs_actual_costs",
+        "commercial_improvement_where_relevant"
+      ],
+      "tone": "analytical, cost-aware, evidence-linked",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "label": "F. Programme Management: Delivery, Commercial and Financial Performance",
+      "archetype": "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW",
+      "word_limit": 1200,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "delivery_financial_performance",
+          "label": "Delivery, commercial and financial performance",
+          "min_rows": 0,
+          "data_source": "financials",
+          "columns": [
+            {"column_key": "area", "label": "Area", "data_type": "text"},
+            {"column_key": "planned_position", "label": "Planned position", "data_type": "text"},
+            {"column_key": "actual_position", "label": "Actual position", "data_type": "text"},
+            {"column_key": "variance_or_issue", "label": "Variance or issue", "data_type": "text"},
+            {"column_key": "management_action", "label": "Management action", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "partner_performance",
+        "supplier_or_consultant_performance",
+        "financial_delivery",
+        "forecast_vs_actual_spend",
+        "commercial_or_procurement_issues",
+        "FCDO_management_actions"
+      ],
+      "tone": "formal, management-focused, concise",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "label": "Recommendations and Action Points",
+      "archetype": "ARCH_RECOMMENDATIONS_ACTION_PLAN",
+      "word_limit": null,
+      "required": true,
+      "required_tables": [
+        {
+          "table_key": "recommendations_action_plan",
+          "label": "Recommendations and action points",
+          "min_rows": 1,
+          "data_source": "manual",
+          "columns": [
+            {"column_key": "recommendation", "label": "Recommendation", "data_type": "text"},
+            {"column_key": "owner", "label": "Owner", "data_type": "text"},
+            {"column_key": "due_date", "label": "Due date", "data_type": "date"},
+            {"column_key": "priority", "label": "Priority", "data_type": "text"},
+            {"column_key": "status", "label": "Status", "data_type": "text"},
+            {"column_key": "follow_up_required", "label": "Follow-up required", "data_type": "text"}
+          ]
+        }
+      ],
+      "required_indicators": [
+        "recommendations_from_current_review",
+        "updates_on_previous_recommendations",
+        "priorities_for_next_period"
+      ],
+      "tone": "direct, accountable, implementation-focused",
+      "conditional_display": {"enabled": false, "condition": null},
+      "evidence_rules": {
+        "claim_level_citation_required": true,
+        "numeric_claims_must_have_source": true,
+        "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      }
+    }
+  ],
+  "format_rules_json": {
+    "document_title": "FCDO Annual Review",
+    "logframe": {
+      "enabled": true,
+      "levels": ["impact", "outcome", "output"],
+      "columns": [
+        {"column_key": "indicator", "label": "Indicator"},
+        {"column_key": "baseline", "label": "Baseline"},
+        {"column_key": "milestone", "label": "Milestone"},
+        {"column_key": "target", "label": "Target"},
+        {"column_key": "actual", "label": "Actual"},
+        {"column_key": "score", "label": "Score"},
+        {"column_key": "commentary", "label": "Commentary"}
+      ],
+      "source": "indicator_actuals_json"
+    },
+    "value_for_money": {
+      "enabled": true,
+      "metrics": [
+        {"metric_key": "economy", "label": "Economy", "required": true},
+        {"metric_key": "efficiency", "label": "Efficiency", "required": true},
+        {"metric_key": "effectiveness", "label": "Effectiveness", "required": true},
+        {"metric_key": "equity", "label": "Equity", "required": false}
+      ],
+      "narrative_section_key": "value_for_money",
+      "word_limit": 1200
+    },
+    "rag": {
+      "enabled": false,
+      "note": "needs_confirmation_per_programme — section-level rag_rating columns used where relevant; enable global rag block when P0 FCDO template confirms"
+    },
+    "narrative_constraints": {
+      "voice": "third_person_formal",
+      "strict_word_limits": true
+    },
+    "extensions": {
+      "submission_style": "structured_institutional_annual_review",
+      "requires_logframe_or_equivalent": true,
+      "requires_output_scoring": true,
+      "requires_outcome_assessment": true,
+      "requires_value_for_money_assessment": true,
+      "requires_risk_assessment": true,
+      "requires_evidence_assessment": true,
+      "requires_forecast_vs_actual_cost_review": true,
+      "requires_gender_age_or_vulnerability_disaggregation_where_relevant": true,
+      "requires_recommendations_action_plan": true,
+      "scoring_system": {
+        "type": "five_point_output_scoring",
+        "scope": "outputs_at_annual_review",
+        "note": "Outcome is assessed at Annual Review; outputs are scored. PCR scoring differs."
+      },
+      "publication": {
+        "annual_reviews_published_to_devtracker": true,
+        "sensitivity_exclusions_possible": true
+      },
+      "source_note": "Normalized from WORKSTREAM_T2_NLCF_FCDO_REFERENCE_TEMPLATES.md §3.1. Global rag block disabled pending P0 grantee template confirmation."
+    }
+  },
+  "terminology_map_json": {
+    "canonical_to_funder": {
+      "project": "programme / project",
+      "report": "Annual Review",
+      "impact": "Impact",
+      "outcomes": "Outcome",
+      "outputs": "Outputs",
+      "indicators": "Indicators",
+      "milestones": "Milestones",
+      "results_framework": "Results framework / logframe",
+      "budget": "Budget / forecast and actual costs",
+      "value_for_money": "Value for Money / VfM",
+      "risk": "Risk rating / assumptions / controls",
+      "funder": "FCDO",
+      "review_system": "AMP / DevTracker publication context"
+    },
+    "forbidden_terms": [],
+    "preferred_terms": {}
+  }
+}

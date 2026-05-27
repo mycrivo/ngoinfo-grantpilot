@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrantPilot · Donor Report Writer — Blueprint v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ─── BRAND TOKENS (NGOInfo Brand Guidelines) ─────────────────────────────── */
+:root {
+  --navy:          #1A1F71;
+  --navy-dark:     #111653;
+  --navy-deep:     #101828;
+  --blue:          #2563EB;
+  --purple:        #6D35FF;
+  --purple-dark:   #4F2BD9;
+  --purple-light:  #8B5CFF;
+  --bg:            #F7F8FC;
+  --bg-soft:       #F3F5FA;
+  --card:          #FFFFFF;
+  --border:        #E2E6F0;
+  --divider:       #EEF1F7;
+  --text:          #1F2937;
+  --muted:         #64748B;
+  --success:       #059669;
+  --success-soft:  #D1FAE5;
+  --warning:       #D97706;
+  --warning-soft:  #FEF3C7;
+  --error:         #DC2626;
+  --footer:        #101828;
+
+  /* Semantic roles for pipeline colour-coding */
+  --agent:         #6D35FF;   /* purple — agent/autonomous work */
+  --agent-soft:    #EDE9FF;
+  --gate:          #2563EB;   /* blue — human gate */
+  --gate-soft:     #DBEAFE;
+  --action:        #1A1F71;   /* navy — primary action */
+  --action-soft:   #E8EAFB;
+
+  --radius-sm:     6px;
+  --radius:        10px;
+  --radius-lg:     14px;
+  --shadow-sm:     0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow:        0 4px 16px rgba(15,23,42,0.08), 0 1px 4px rgba(15,23,42,0.04);
+  --shadow-md:     0 8px 24px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.06);
+}
+
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ───────────────────────────────────────────────────────────────── */
+.wrap { max-width: 1120px; margin: 0 auto; padding: 56px 32px 120px; }
+
+/* ─── MASTHEAD ──────────────────────────────────────────────────────────────  */
+.mast {
+  background: var(--navy-deep);
+  border-radius: var(--radius-lg);
+  padding: 40px 48px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.mast::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(109,53,255,0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.mast-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(109,53,255,0.18);
+  border: 1px solid rgba(109,53,255,0.35);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: #C4B5FD;
+  margin-bottom: 20px;
+}
+.mast-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #6D35FF; }
+.mast h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: #FFFFFF;
+  margin-bottom: 14px;
+}
+.mast h1 em { font-style: normal; color: #A78BFA; }
+.mast-desc {
+  font-size: 15px; color: #94A3B8;
+  max-width: 620px; line-height: 1.65;
+  margin-bottom: 24px;
+}
+.mast-meta {
+  display: flex; flex-wrap: wrap; gap: 8px 24px;
+  font-size: 12.5px; color: #64748B;
+}
+.mast-meta span { display: flex; align-items: center; gap: 6px; }
+.mast-meta b { color: #CBD5E1; font-weight: 600; }
+
+/* ─── LEGEND ───────────────────────────────────────────────────────────────── */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 20px 0 40px;
+}
+.legend-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 12.5px; font-weight: 600; color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+.legend-chip .swatch {
+  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+}
+.sw-agent { background: var(--agent); }
+.sw-gate  { background: var(--gate); }
+.sw-action{ background: var(--action); }
+
+/* ─── SECTION LABEL ────────────────────────────────────────────────────────── */
+.section-label {
+  display: flex; align-items: center; gap: 12px;
+  margin: 48px 0 16px;
+  font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted);
+}
+.section-label .bar {
+  width: 28px; height: 2px;
+  background: linear-gradient(90deg, var(--purple), var(--blue));
+  border-radius: 2px; flex-shrink: 0;
+}
+.section-label .num {
+  font-size: 13px; font-weight: 700;
+  color: var(--navy); background: var(--action-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+.section-label .gate-badge {
+  color: var(--gate); background: var(--gate-soft);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+
+/* ─── PIPELINE ──────────────────────────────────────────────────────────────  */
+.pipeline {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 28px 24px 20px;
+  overflow-x: auto;
+}
+.pipe-track {
+  display: flex; align-items: flex-start; gap: 0;
+  min-width: 700px;
+}
+.pipe-stage {
+  flex: 1; text-align: center; position: relative; padding: 0 6px;
+}
+.pipe-stage + .pipe-stage::before {
+  content: '';
+  position: absolute; left: 0; top: 28px;
+  width: 100%; height: 2px;
+  background: var(--divider);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+.pipe-stage:first-child::before { display: none; }
+.pipe-icon {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+  font-size: 18px;
+  position: relative; z-index: 1;
+  border: 2px solid var(--border);
+  background: var(--bg);
+}
+.pipe-stage.is-agent .pipe-icon {
+  background: var(--agent-soft); border-color: var(--agent); color: var(--agent);
+}
+.pipe-stage.is-gate .pipe-icon {
+  background: var(--gate-soft); border-color: var(--gate); color: var(--gate);
+}
+.pipe-num {
+  font-size: 10px; font-weight: 700; color: var(--muted);
+  margin-bottom: 4px; letter-spacing: .06em;
+}
+.pipe-label {
+  font-size: 11.5px; font-weight: 600; line-height: 1.3;
+  color: var(--text);
+}
+.pipe-stage.is-agent .pipe-label { color: var(--agent); }
+.pipe-stage.is-gate   .pipe-label { color: var(--gate); }
+.pipe-note {
+  font-size: 11.5px; color: var(--muted);
+  text-align: center; margin-top: 16px;
+  padding-top: 14px; border-top: 1px solid var(--divider);
+  line-height: 1.55;
+}
+
+/* ─── SCREEN FRAME ──────────────────────────────────────────────────────────  */
+.screen {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+@media (max-width: 780px) { .screen { grid-template-columns: 1fr; } }
+
+.frame { border-right: 1px solid var(--border); }
+@media (max-width: 780px) { .frame { border-right: none; border-bottom: 1px solid var(--border); } }
+
+/* Browser chrome */
+.chrome {
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px 10px 58px;
+  display: flex; align-items: center; gap: 8px;
+  position: relative;
+}
+.chrome::before {
+  content: '';
+  position: absolute; left: 14px; top: 13px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #FDA4AF;
+  box-shadow: 14px 0 0 #FCD34D, 28px 0 0 #86EFAC;
+}
+.url-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 11.5px; color: var(--muted);
+  font-family: 'DM Sans', monospace;
+  flex: 1;
+}
+
+/* Screen number badge */
+.scr-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  padding: 4px 10px;
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+
+.view { padding: 20px 22px 24px; }
+
+/* ─── UI ATOMS ──────────────────────────────────────────────────────────────  */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--divider);
+}
+.ui-logo {
+  font-size: 15px; font-weight: 700; color: var(--navy); letter-spacing: -.01em;
+}
+.ui-logo span { color: var(--purple); }
+
+.tier-badge {
+  display: inline-flex; align-items: center;
+  background: var(--action-soft); color: var(--navy);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
+}
+
+.ui-h { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: -.01em; margin-bottom: 4px; }
+.ui-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+
+/* Skeleton lines */
+.sk { height: 8px; background: var(--bg-soft); border-radius: 4px; margin: 6px 0; }
+.sk.xs { width: 25%; } .sk.s { width: 40%; } .sk.m { width: 65%; } .sk.l { width: 88%; }
+
+/* Cards */
+.ui-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.ui-card.selected  { border-color: var(--navy);   background: var(--action-soft); }
+.ui-card.is-agent  { border-color: var(--agent);  background: var(--agent-soft); }
+.ui-card.is-gate   { border-color: var(--gate);   background: var(--gate-soft); }
+.ui-card.is-dashed { border-style: dashed; background: var(--card); }
+.ui-card.is-success{ border-color: var(--success); background: var(--success-soft); }
+
+.card-label {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 4px;
+}
+.card-label.agent { color: var(--agent); }
+.card-label.gate  { color: var(--gate); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 12.5px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: none; cursor: pointer;
+}
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: var(--navy-dark); }
+.btn-purple { background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%); color: #fff; }
+.btn-ghost { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
+.btn-sm { padding: 6px 12px; font-size: 11.5px; }
+
+/* Doc rows */
+.doc-row {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px; margin-bottom: 6px;
+  font-size: 12px;
+}
+.doc-ico {
+  width: 26px; height: 26px; flex-shrink: 0;
+  border: 1px solid var(--border); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; background: var(--bg-soft);
+}
+.doc-name { flex: 1; font-weight: 500; color: var(--text); }
+.doc-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  padding: 2px 8px; border-radius: 4px;
+}
+.tag-agent { background: var(--agent-soft); color: var(--agent); }
+.tag-complete { background: var(--success-soft); color: var(--success); }
+.tag-gate { background: var(--gate-soft); color: var(--gate); }
+.tag-proposal { background: var(--action-soft); color: var(--navy); }
+.tag-warn { background: var(--warning-soft); color: var(--warning); }
+
+/* Funder tiles */
+.funder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.funder-tile {
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.funder-tile.active { border-color: var(--navy); background: var(--action-soft); }
+.funder-tile .ft { font-size: 13px; font-weight: 700; color: var(--navy); }
+.funder-tile .fd { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+
+/* Agent progress */
+.agent-line {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--muted);
+  margin: 6px 0;
+}
+.agent-dot {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  background: var(--agent-soft); border: 2px solid var(--agent);
+}
+.agent-dot.done { background: var(--agent); }
+.agent-dot.running { background: var(--card); position: relative; }
+.agent-dot.running::after {
+  content: ''; position: absolute; inset: 2px; border-radius: 50%;
+  background: var(--agent); animation: pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+.agent-line b { color: var(--text); font-weight: 600; }
+.agent-line.dim { opacity: .4; }
+
+/* Conflict box */
+.conflict-card {
+  border: 1.5px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius);
+  padding: 12px 14px; margin-bottom: 8px;
+}
+.conflict-title { font-size: 12px; font-weight: 700; color: var(--warning); margin-bottom: 6px; }
+.conflict-opts { display: flex; gap: 7px; margin-top: 8px; }
+.conflict-opt {
+  flex: 1; border: 1.5px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); padding: 7px; font-size: 11px;
+  text-align: center; font-weight: 600; color: var(--text);
+}
+.conflict-opt.picked { border-color: var(--navy); box-shadow: inset 0 0 0 1px var(--navy); color: var(--navy); }
+
+/* Progress meter */
+.meter-wrap { margin: 4px 0 2px; }
+.meter-bar {
+  height: 8px; background: var(--bg-soft); border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.meter-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--blue)); border-radius: 8px; }
+
+/* Flag */
+.flag-card {
+  display: flex; align-items: flex-start; gap: 8px;
+  border: 1.5px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius);
+  padding: 10px 12px; font-size: 12px; margin-bottom: 10px;
+}
+.flag-icon { font-size: 14px; line-height: 1; flex-shrink: 0; }
+
+/* Section checklist */
+.sec-list { margin: 4px 0 10px; }
+.sec-row {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); background: var(--card);
+  border-radius: var(--radius-sm); padding: 9px 12px; margin-bottom: 5px; font-size: 12px;
+}
+.sec-name { flex: 1; font-weight: 500; }
+.sec-status {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .06em; padding: 2px 7px; border-radius: 4px;
+}
+.s-ok   { background: var(--success-soft); color: var(--success); }
+.s-warn { background: var(--warning-soft); color: var(--warning); }
+.s-edit { background: var(--gate-soft); color: var(--gate); }
+
+/* Button row */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+
+/* Grid 2 col */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+/* Cost meter */
+.cost-note {
+  font-size: 11.5px; color: var(--muted); background: var(--bg-soft);
+  border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; margin-top: 8px;
+}
+
+/* ─── ANNOTATION COLUMN ─────────────────────────────────────────────────────  */
+.annot {
+  padding: 28px 26px;
+  background: var(--bg-soft);
+}
+.annot-stage {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--purple);
+  background: var(--agent-soft);
+  border: 1px solid rgba(109,53,255,.2);
+  border-radius: 20px;
+  padding: 4px 10px;
+  margin-bottom: 12px;
+}
+.annot-stage.is-gate { color: var(--gate); background: var(--gate-soft); border-color: rgba(37,99,235,.2); }
+.annot h3 {
+  font-size: 18px; font-weight: 700; color: var(--navy);
+  letter-spacing: -.01em; margin-bottom: 10px; line-height: 1.3;
+}
+.annot p { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.6; }
+.annot p b { color: var(--text); font-weight: 600; }
+.who {
+  border-top: 1px solid var(--divider);
+  padding-top: 12px; margin-top: 4px;
+}
+.who-label {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 5px;
+}
+.who-value {
+  font-size: 12.5px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--text);
+}
+.who-swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+
+/* ─── ENDNOTE ───────────────────────────────────────────────────────────────  */
+.endnote {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 32px 36px;
+  margin-top: 48px;
+}
+.endnote h2 {
+  font-size: 22px; font-weight: 700; color: var(--navy);
+  letter-spacing: -.01em; margin-bottom: 16px;
+}
+.endnote ul { padding-left: 20px; }
+.endnote li { font-size: 14px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+.endnote li b { color: var(--text); font-weight: 600; }
+
+/* ─── FOOTER NOTE ───────────────────────────────────────────────────────────  */
+.foot {
+  text-align: center; font-size: 12px; color: var(--muted);
+  margin-top: 32px; letter-spacing: .04em;
+}
+
+/* ─── DIVIDER ───────────────────────────────────────────────────────────────  */
+hr.div { border: none; border-top: 1px solid var(--divider); margin: 4px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════════ MASTHEAD ═══════════════════ -->
+  <div class="mast">
+    <div class="mast-eyebrow"><span class="dot"></span> GrantPilot · M&amp;E Module Blueprint · v1</div>
+    <h1>Donor Report Writer<br><em>Wireframe &amp; Flow</em></h1>
+    <p class="mast-desc">How a charity turns the messy reality they already have — the winning proposal, the grant letter, a spreadsheet, some photos — into a funder-ready report. Agents do the labour; the human owns the truth at three gates.</p>
+    <div class="mast-meta">
+      <span><b>Pattern</b> · Level-2 agentic + human gates</span>
+      <span><b>Runtime</b> · Claude Agent SDK</span>
+      <span><b>Extraction</b> · Docling</span>
+      <span><b>Export</b> · docxtpl</span>
+      <span><b>Queue</b> · in-app background job</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ LEGEND ═══════════════════ -->
+  <div class="legend">
+    <span class="legend-chip"><span class="swatch sw-agent"></span> Agent does the work autonomously</span>
+    <span class="legend-chip"><span class="swatch sw-gate"></span> Human gate — confirm / decide (server-enforced)</span>
+    <span class="legend-chip"><span class="swatch sw-action"></span> Primary action — user initiates</span>
+  </div>
+
+  <!-- ═══════════════════ PIPELINE OVERVIEW ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">00</span> The pipeline at a glance</div>
+  <div class="pipeline">
+    <div class="pipe-track">
+      <div class="pipe-stage">
+        <div class="pipe-num">01</div>
+        <div class="pipe-icon">⤓</div>
+        <div class="pipe-label">Intake &amp; Upload</div>
+      </div>
+      <div class="pipe-stage is-agent">
+        <div class="pipe-num">02</div>
+        <div class="pipe-icon">⊞</div>
+        <div class="pipe-label">Classify</div>
+      </div>
+      <div class="pipe-stage is-agent">
+        <div class="pipe-num">03</div>
+        <div class="pipe-icon">⚙</div>
+        <div class="pipe-label">Extract</div>
+      </div>
+      <div class="pipe-stage is-agent">
+        <div class="pipe-num">04</div>
+        <div class="pipe-icon">⤝</div>
+        <div class="pipe-label">Reconcile</div>
+      </div>
+      <div class="pipe-stage is-gate">
+        <div class="pipe-num">G1</div>
+        <div class="pipe-icon">✓</div>
+        <div class="pipe-label">Confirm Facts</div>
+      </div>
+      <div class="pipe-stage is-gate">
+        <div class="pipe-num">G2</div>
+        <div class="pipe-icon">?</div>
+        <div class="pipe-label">Fill Gaps</div>
+      </div>
+      <div class="pipe-stage is-agent">
+        <div class="pipe-num">06</div>
+        <div class="pipe-icon">✎</div>
+        <div class="pipe-label">Write + Critic</div>
+      </div>
+      <div class="pipe-stage is-gate">
+        <div class="pipe-num">G3</div>
+        <div class="pipe-icon">⎙</div>
+        <div class="pipe-label">Review + Export</div>
+      </div>
+    </div>
+    <p class="pipe-note">
+      <strong style="color:var(--agent)">Purple stages</strong> run autonomously in the background job queue — user can close the tab and return.&ensp;
+      <strong style="color:var(--gate)">Blue gates</strong> halt the pipeline for a required human decision — enforced server-side, not just UI.
+    </p>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 1 — DASHBOARD ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">01</span> Entry — the dashboard</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 1</div>
+      <div class="chrome"><span class="url-bar">grantpilot.ngoinfo.org/reports</span></div>
+      <div class="view">
+        <div class="topbar">
+          <span class="ui-logo">Grant<span>Pilot</span></span>
+          <span class="tier-badge">IMPACT PRO · Plan</span>
+        </div>
+        <div class="ui-h">Your reports</div>
+        <div class="ui-sub">Won a grant — with us or anyone else? Generate the funder report.</div>
+        <div class="ui-card selected" style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div class="card-label">Start here</div>
+            <strong style="font-size:13px;color:var(--navy)">+ New donor report</strong>
+          </div>
+          <button class="btn btn-primary btn-sm">Begin</button>
+        </div>
+        <div class="card-label" style="margin:14px 0 7px">In progress</div>
+        <div class="doc-row">
+          <div class="doc-ico">◴</div>
+          <span class="doc-name">FCDO Annual Review — Water Project</span>
+          <span class="doc-tag tag-warn">GATE 2</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-ico">✓</div>
+          <span class="doc-name">NLCF End-of-Grant — Youth Mentoring</span>
+          <span class="doc-tag tag-complete">COMPLETE</span>
+        </div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage">Stage 01 · Intake</div>
+      <h3>The "won elsewhere" hook</h3>
+      <p>The headline deliberately invites NGOs who <b>didn't</b> win through GrantPilot. This is the wider top-of-funnel — the report is the urgent, frequent entry product that later converts them to proposals.</p>
+      <p>Reports in flight show their current <b>gate</b>, so a returning user knows exactly what's waiting on them.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value"><span class="who-swatch sw-action"></span> Human — one click to start</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 2 — FUNDER CHOICE ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">02</span> Choose the grant &amp; funder template</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 2</div>
+      <div class="chrome"><span class="url-bar">/reports/new</span></div>
+      <div class="view">
+        <div class="ui-h">What are you reporting on?</div>
+        <div class="ui-sub">Pick the funder. Every funder wants something different — we shape the whole report around it.</div>
+        <div class="funder-grid">
+          <div class="funder-tile active"><div class="ft">FCDO</div><div class="fd">Annual Review · logframe + RAG</div></div>
+          <div class="funder-tile"><div class="ft">NLCF</div><div class="fd">Lottery · learning narrative</div></div>
+          <div class="funder-tile"><div class="ft">Comic Relief</div><div class="fd">End-of-grant impact</div></div>
+          <div class="funder-tile"><div class="ft">EU / ECHO</div><div class="fd">Single Form</div></div>
+          <div class="funder-tile"><div class="ft">USAID</div><div class="fd">Quarterly · IPTT</div></div>
+          <div class="funder-tile"><div class="ft">Other funder</div><div class="fd">Generic template →</div></div>
+        </div>
+        <div class="ui-card is-dashed">
+          <div class="card-label">Reporting period</div>
+          <div class="g2" style="margin-top:4px"><div class="sk m"></div><div class="sk m"></div></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:10px">Next — add your documents →</button>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage">Stage 01 · Intake</div>
+      <h3>Funder choice = the whole shape</h3>
+      <p>This single choice loads the <b>funder template</b>: section order, word limits, required tables (FCDO's RAG ratings, ECHO's Single Form blocks), terminology and tone. The 8 specific templates plus 2 generic fallbacks mean no one is turned away.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value"><span class="who-swatch sw-action"></span> Human picks · template config loads</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 3 — UPLOAD ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">03</span> Upload the mess you already have</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 3</div>
+      <div class="chrome"><span class="url-bar">/reports/new/documents</span></div>
+      <div class="view">
+        <div class="ui-h">Bring what you've got</div>
+        <div class="ui-sub">The proposal, the grant letter, your spreadsheet, photos, a deck — anything. We'll read and organise it.</div>
+        <div class="ui-card is-dashed" style="text-align:center;padding:22px 16px">
+          <div style="font-size:26px;margin-bottom:6px">⤓</div>
+          <strong style="font-size:13px;color:var(--navy)">Drag files here</strong>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">PDF · Word · Excel · PPT · images&ensp;|&ensp;or pull from Drive / Gmail</div>
+        </div>
+        <div class="doc-row">
+          <div class="doc-ico">📄</div>
+          <span class="doc-name">winning-proposal.pdf</span>
+          <span class="doc-tag tag-proposal">proposal</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-ico">✉</div>
+          <span class="doc-name">FCDO-grant-letter.pdf</span>
+          <span class="doc-tag tag-proposal">grant terms</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-ico">▦</div>
+          <span class="doc-name">indicators-Q3.xlsx</span>
+          <span class="doc-tag tag-agent">indicator data</span>
+        </div>
+        <div class="doc-row">
+          <div class="doc-ico">▢</div>
+          <span class="doc-name">field-photos (×12)</span>
+          <span class="doc-tag tag-agent">evidence</span>
+        </div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage">Stage 02 · Classify — Agent</div>
+      <h3>It labels as you drop</h3>
+      <p>The <b>document classifier agent</b> tags each file the moment it lands — proposal, grant letter, MoU, indicator data, photo, deck — and routes each to the right specialist extractor. Powered by <b>Docling</b> under the hood (one parser for every format including scans).</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value"><span class="who-swatch sw-agent"></span> Classifier agent (cheap model)</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 4 — AGENT WORK ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">04</span> Watch the agents work</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 4</div>
+      <div class="chrome"><span class="url-bar">/reports/r_88x/extracting</span></div>
+      <div class="view">
+        <div class="ui-h">Reading your documents…</div>
+        <div class="ui-sub">Running in the background — you can leave and come back.</div>
+        <div class="ui-card is-agent">
+          <div class="card-label agent" style="margin-bottom:10px">Extraction agents — running</div>
+          <div class="agent-line"><span class="agent-dot done"></span><div><b>Grant-terms agent</b> — found reporting period &amp; deadline (31 Mar)</div></div>
+          <div class="agent-line"><span class="agent-dot done"></span><div><b>Proposal agent</b> — found 4 objectives, 6 indicators</div></div>
+          <div class="agent-line"><span class="agent-dot running"></span><div><b>Indicator agent</b> — reading actuals from indicators-Q3.xlsx…</div></div>
+          <div class="agent-line"><span class="agent-dot running"></span><div><b>Vision agent</b> — 3 of 12 photos show training sessions</div></div>
+          <div class="agent-line dim"><span class="agent-dot"></span><div>Reconciler — queued</div></div>
+        </div>
+        <div class="cost-note"><strong style="color:var(--text)">Cost meter</strong> — extraction running on cheap + vision models · est. £0.40 so far</div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage">Stage 03 · Extract — Agents</div>
+      <h3>Specialists, in parallel</h3>
+      <p>Each extractor runs concurrently in the <b>background job queue</b> — no blocking, no waiting on a single thread. This is the genuinely agentic moment the user sees: the system reasoning across Excel, PDF and photos at once.</p>
+      <p>The visible <b>cost meter</b> reflects the multi-model split — cheap models for bulk extraction, strong models held back for judgement.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value"><span class="who-swatch sw-agent"></span> Extractor + vision agents (concurrent)</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 5 — GATE 1 ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">05</span> <span class="gate-badge">Gate 1</span> &nbsp;— confirm the facts</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 5</div>
+      <div class="chrome"><span class="url-bar">/reports/r_88x/confirm</span></div>
+      <div class="view">
+        <div class="ui-h">Here's what we found. Right?</div>
+        <div class="ui-sub">Confirm or fix before we write anything. Nothing is invented later.</div>
+        <div class="ui-card">
+          <div class="card-label">Beneficiaries reached</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy)">347 <span style="font-size:11px;font-weight:400;color:var(--muted)">from indicators-Q3.xlsx</span></div>
+        </div>
+        <div class="conflict-card">
+          <div class="conflict-title">⚠ Conflict — which target is right?</div>
+          <div style="font-size:11.5px;color:var(--muted)">Proposal says <strong style="color:var(--text)">500</strong>; spreadsheet says <strong style="color:var(--text)">450</strong>.</div>
+          <div class="conflict-opts">
+            <div class="conflict-opt picked">500 (proposal)</div>
+            <div class="conflict-opt">450 (sheet)</div>
+            <div class="conflict-opt">Other…</div>
+          </div>
+        </div>
+        <div class="ui-card">
+          <div class="card-label">Key activities</div>
+          <div class="sk l"></div><div class="sk m"></div>
+        </div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage is-gate">Stage 04 → Gate 1 · Human</div>
+      <h3>The knowledge bank, confirmed</h3>
+      <p>The <b>reconciler agent</b> merges every extraction into one picture and — crucially — <b>surfaces contradictions</b> instead of silently averaging them. The human resolves each. This confirmed knowledge bank becomes the only thing the writer is allowed to use.</p>
+      <p>The pipeline <b>cannot advance</b> past this gate without recorded confirmations — enforced server-side.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value">
+          <span class="who-swatch sw-agent"></span> Reconciler surfaces &ensp;
+          <span class="who-swatch sw-gate"></span> Human decides
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 6 — GATE 2 ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">06</span> <span class="gate-badge">Gate 2</span> &nbsp;— fill only the gaps</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 6</div>
+      <div class="chrome"><span class="url-bar">/reports/r_88x/gaps</span></div>
+      <div class="view">
+        <div class="ui-h">You're 80% ready</div>
+        <div class="meter-wrap">
+          <div class="meter-bar"><div class="meter-fill" style="width:80%"></div></div>
+        </div>
+        <div class="ui-sub" style="margin-top:8px">FCDO needs two things your documents didn't cover. Just these — nothing else.</div>
+        <div class="ui-card is-gate">
+          <div class="card-label gate">Missing · required by FCDO</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">Value-for-money narrative</div>
+          <div class="ui-card" style="background:var(--card);margin-bottom:0"><div class="sk l"></div><div class="sk m"></div></div>
+        </div>
+        <div class="ui-card is-gate">
+          <div class="card-label gate">Missing · indicator 6</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">Actual figure for "schools engaged"</div>
+          <div class="g2"><div class="ui-card" style="background:var(--card);margin-bottom:0"><div class="sk xs"></div></div></div>
+        </div>
+        <button class="btn btn-purple" style="margin-top:4px">Generate report →</button>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage is-gate">Stage 05 → Gate 2 · Human</div>
+      <h3>Funder-aware, not blank-page</h3>
+      <p>The <b>gap / compliance agent</b> holds the funder template against the knowledge bank and asks <b>only</b> for what's genuinely missing — in the funder's own terms. This is what kills intake friction: no empty form, just two targeted questions.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value">
+          <span class="who-swatch sw-agent"></span> Gap agent asks &ensp;
+          <span class="who-swatch sw-gate"></span> Human answers
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 7 — GATE 3 ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">07</span> <span class="gate-badge">Gate 3</span> &nbsp;— review with the critic</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 7</div>
+      <div class="chrome"><span class="url-bar">/reports/r_88x/review</span></div>
+      <div class="view">
+        <div class="ui-h">Your draft — your call</div>
+        <div class="ui-sub">Written in FCDO's structure. The critic checked every number against your sources.</div>
+        <div class="flag-card">
+          <span class="flag-icon">⚠</span>
+          <div><strong>Critic flag:</strong> draft says "reached 500". Your confirmed figure is <strong>347</strong>. Fix before export?</div>
+        </div>
+        <div class="sec-list">
+          <div class="sec-row"><span class="sec-name">Progress against objectives</span><span class="sec-status s-ok">CHECKED</span></div>
+          <div class="sec-row"><span class="sec-name">Indicator achievement table</span><span class="sec-status s-warn">1 FLAG</span></div>
+          <div class="sec-row"><span class="sec-name">Challenges &amp; adaptation</span><span class="sec-status s-ok">CHECKED</span></div>
+          <div class="sec-row"><span class="sec-name">Value for money</span><span class="sec-status s-edit">EDITED</span></div>
+          <div class="sec-row"><span class="sec-name">Lessons learned</span><span class="sec-status s-ok">CHECKED</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+          <button class="btn btn-primary btn-sm">Export DOCX ⎙</button>
+        </div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage is-gate">Stage 06 → Gate 3 · Human</div>
+      <h3>The fact-safety net</h3>
+      <p>Synthesis agents write each section (reusing the humaniser rules — challenges and adaptation included, not a glossy everything-was-perfect story). Then the <b>fact-safety critic</b> checks every specific claim back against the sources and <b>flags mismatches</b>. The human stays the author — accepting, editing, overriding.</p>
+      <p>This is the guardrail that makes a compliance product trustworthy.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value">
+          <span class="who-swatch sw-agent"></span> Writers + critic &ensp;
+          <span class="who-swatch sw-gate"></span> Human approves
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ SCR 8 — EXPORT ═══════════════════ -->
+  <div class="section-label"><span class="bar"></span><span class="num">08</span> Export — funder-formatted</div>
+  <div class="screen">
+    <div class="frame">
+      <div class="scr-badge">SCR 8</div>
+      <div class="chrome"><span class="url-bar">/reports/r_88x/done</span></div>
+      <div class="view">
+        <div class="ui-h" style="display:flex;align-items:center;gap:8px">Ready to submit <span style="color:var(--success)">✓</span></div>
+        <div class="ui-sub">Formatted exactly the way FCDO expects. One read-through and it's done.</div>
+        <div class="ui-card is-success" style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:52px;border:1px solid var(--border);background:var(--card);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⎙</div>
+          <div style="flex:1">
+            <strong style="font-size:13px;color:var(--navy)">FCDO-Annual-Review-WaterProject.docx</strong>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">5 sections · indicator table · RAG ratings · 2,140 words</div>
+          </div>
+          <button class="btn btn-primary btn-sm">Download</button>
+        </div>
+        <div class="btn-row" style="margin-top:8px">
+          <button class="btn btn-ghost btn-sm">Re-export</button>
+          <button class="btn btn-ghost btn-sm">Duplicate for next period</button>
+        </div>
+        <div class="ui-card is-dashed" style="margin-top:10px;font-size:12px;color:var(--muted)">
+          <strong style="color:var(--text)">What took 40 hours</strong> took an afternoon. Your data is saved for next quarter's report.
+        </div>
+      </div>
+    </div>
+    <div class="annot">
+      <div class="annot-stage">Stage 08 · Export</div>
+      <h3>One input → the funder's format</h3>
+      <p><b>docxtpl</b> renders the confirmed content into a hand-designed funder layout — RAG ratings, indicator tables, the lot. Re-export is idempotent from stored content; <b>"duplicate for next period"</b> turns the saved knowledge bank into recurring revenue.</p>
+      <div class="who">
+        <div class="who-label">Driven by</div>
+        <div class="who-value">
+          <span class="who-swatch sw-agent"></span> docxtpl render &ensp;
+          <span class="who-swatch sw-action"></span> Human downloads
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════ ENDNOTE ═══════════════════ -->
+  <div class="endnote">
+    <h2>How to read this blueprint</h2>
+    <ul>
+      <li><b>Purple stages run themselves.</b> Classification, extraction and reconciliation happen in the background job queue — the user can close the tab and the work continues.</li>
+      <li><b>Blue gates are the product's conscience.</b> Three points where the pipeline halts for a human: confirm the facts, fill the gaps, approve the draft. Each is enforced on the server, not just the screen.</li>
+      <li><b>The critic is the difference</b> between a compliance tool people trust and a liability. Every number in the final report traces back to a source document or a human answer.</li>
+      <li><b>The build reuses the plumbing</b> (Docling, Claude Agent SDK, docxtpl, n8n) and builds only the brain — orchestrator, reconciler, gap/compliance agent, critic, funder templates — the part with no open-source equivalent and all of the moat.</li>
+    </ul>
+  </div>
+
+  <div class="foot">GrantPilot · Donor Report Writer · wireframe blueprint v1 · schematic — not final visual design</div>
+
+</div>
+</body>
+</html>

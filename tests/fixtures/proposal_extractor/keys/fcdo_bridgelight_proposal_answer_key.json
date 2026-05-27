@@ -1,0 +1,59 @@
+{
+  "fixture": "fcdo_bridgelight_proposal.md",
+  "source_docx": "M_E_Module/Sample_docs/FCDO_Test_Set/01_FCDO_BridgeLight_Winning_Proposal.docx",
+  "project_title": "Girls Return to Learning and Safety Programme",
+  "organisation": "BridgeLight Education Trust",
+  "expected_objective_keys": [
+    "impact_girls_complete_basic_education",
+    "outcome_improved_retention_attendance_2026"
+  ],
+  "expected_activity_keys": [
+    "identify_out_of_school_girls",
+    "reentry_counselling_family_engagement",
+    "bridge_learning_remedial_sessions",
+    "rehabilitate_girls_latrines",
+    "menstrual_health_supply_distribution",
+    "hardship_grants_reentry_kits",
+    "safeguarding_referral_mapping",
+    "district_learning_meetings_evidence_briefs"
+  ],
+  "expected_indicator_keys": [
+    "ocm1_attendance_80pct",
+    "ocm2_progression_reentry",
+    "ocm3_safe_school_menstruation_travel",
+    "op1_1_girls_reenrolled",
+    "op1_2_girls_attending_80pct",
+    "op1_3_remedial_sessions_completed",
+    "op2_1_latrine_stances",
+    "op2_2_menstrual_health_supplies_schools",
+    "op2_3_safeguarding_pathway_schools",
+    "op3_1_caregivers_hardship_grant",
+    "op3_2_girls_reentry_kit",
+    "op3_3_hardship_grant_attendance_followup",
+    "op4_1_district_learning_meetings",
+    "op4_2_learning_briefs",
+    "op4_3_actors_trained_reentry_safeguarding"
+  ],
+  "indicators_with_numeric_targets": [
+    {
+      "indicator_key": "ocm1_attendance_80pct",
+      "endline_target": "70%"
+    },
+    {
+      "indicator_key": "op1_1_girls_reenrolled",
+      "endline_target": "1200"
+    }
+  ],
+  "indicators_with_absent_target": [
+    {
+      "indicator_key": "equity_support_reach_qualitative",
+      "label_contains": "share of support reaching girls with disabilities",
+      "target_absent": true,
+      "reason": "VfM equity assessment described qualitatively without baseline/milestone/endline numeric targets in the proposal"
+    }
+  ],
+  "forbidden_inventions": [
+    "beneficiaries_reached_fabricated",
+    "total_budget_usd_invented"
+  ]
+}

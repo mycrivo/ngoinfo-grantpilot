@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     TEST_MODE: bool = False
     TEST_MODE_SECRET: str | None = None
 
+    ME_MODULE_ENABLED: bool = False
+    ME_DOCUMENTS_S3_ENDPOINT: str = ""
+    ME_DOCUMENTS_S3_ACCESS_KEY: str = ""
+    ME_DOCUMENTS_S3_SECRET: str = ""
+    ME_DOCUMENTS_S3_BUCKET: str = ""
+
 
 _VALID_APP_ENVS = {"dev", "staging", "prod"}
 _VALID_LOG_LEVELS = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
@@ -187,6 +193,19 @@ def validate_config() -> Settings:
             errors.append(
                 "CONFIG_ERROR STRIPE_PORTAL_RETURN_URL: must be a valid http(s) URL"
             )
+
+    if settings.ME_MODULE_ENABLED:
+        me_storage_vars = {
+            "ME_DOCUMENTS_S3_ENDPOINT": settings.ME_DOCUMENTS_S3_ENDPOINT,
+            "ME_DOCUMENTS_S3_ACCESS_KEY": settings.ME_DOCUMENTS_S3_ACCESS_KEY,
+            "ME_DOCUMENTS_S3_SECRET": settings.ME_DOCUMENTS_S3_SECRET,
+            "ME_DOCUMENTS_S3_BUCKET": settings.ME_DOCUMENTS_S3_BUCKET,
+        }
+        for name, value in me_storage_vars.items():
+            if not value.strip():
+                errors.append(
+                    f"CONFIG_ERROR {name}: must not be empty when ME_MODULE_ENABLED=true"
+                )
 
     if errors:
         _log_errors(errors)

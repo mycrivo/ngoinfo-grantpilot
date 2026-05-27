@@ -19,6 +19,13 @@ from app.models.usage_ledger import UsageLedger  # noqa: F401
 from app.models.user import User  # noqa: F401
 from app.models.user_plan import UserPlan  # noqa: F401
 
+# M&E module models — Stage C
+# See docs/artefacts/me_module/REPO_MAP_ME_MODULE.md
+from app.reports.models.donor_report import DonorReport  # noqa: F401
+from app.reports.models.funder_report_template import FunderReportTemplate  # noqa: F401
+from app.reports.models.uploaded_document import UploadedDocument  # noqa: F401
+from app.reports.models.report_job import ReportJob  # noqa: F401
+
 config = context.config
 
 if config.config_file_name is not None:

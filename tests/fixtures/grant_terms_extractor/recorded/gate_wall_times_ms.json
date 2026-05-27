@@ -1,0 +1,14 @@
+{
+  "correctness_ms": 63028,
+  "stability_ms": [
+    66114,
+    65146,
+    55932
+  ],
+  "spread": {
+    "min_ms": 55932,
+    "max_ms": 66114,
+    "median_ms": 64087,
+    "runs": 4
+  }
+}

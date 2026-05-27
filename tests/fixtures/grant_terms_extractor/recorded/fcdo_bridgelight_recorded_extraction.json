@@ -1,0 +1,346 @@
+{
+  "extractor_agent": "grant_terms_extractor",
+  "extracted_at": "2026-05-25T21:07:26.217134Z",
+  "raw_text_ref": null,
+  "structured": {
+    "schema_version": "1.0.0",
+    "funder": {
+      "absent": false,
+      "raw": "Foreign, Commonwealth & Development Office",
+      "normalized": "FCDO",
+      "normalization_ambiguous": false,
+      "provenance": {
+        "excerpt": "Foreign, Commonwealth & Development Office has approved funding",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null
+      },
+      "multi_value": false,
+      "stated_values": []
+    },
+    "grant_reference": {
+      "absent": false,
+      "raw": "MWI-EDU-AR-4471",
+      "normalized": "MWI-EDU-AR-4471",
+      "normalization_ambiguous": false,
+      "provenance": {
+        "excerpt": "Programme code: MWI-EDU-AR-4471",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null
+      },
+      "multi_value": false,
+      "stated_values": []
+    },
+    "award_budget": {
+      "amount": {
+        "absent": false,
+        "raw": "1,240,000",
+        "normalized": "1240000",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "approved FCDO contribution is GBP 1,240,000",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      },
+      "currency": {
+        "absent": false,
+        "raw": "GBP",
+        "normalized": "GBP",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "approved FCDO contribution is GBP 1,240,000",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      },
+      "tranches": []
+    },
+    "grant_period": {
+      "start": {
+        "absent": false,
+        "raw": "15 October 2024",
+        "normalized": "2024-10-15",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "programme start date is 15 October 2024",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      },
+      "end": {
+        "absent": false,
+        "raw": "14 October 2026",
+        "normalized": "2026-10-14",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "programme end date is 14 October 2026",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      }
+    },
+    "reporting_period": {
+      "start": {
+        "absent": false,
+        "raw": "15 October 2024",
+        "normalized": "2024-10-15",
+        "normalization_ambiguous": false,
+        "provenance": null,
+        "multi_value": true,
+        "stated_values": [
+          {
+            "raw": "15 October 2024",
+            "normalized": "2024-10-15",
+            "normalization_ambiguous": false,
+            "provenance": {
+              "excerpt": "first Annual Review will cover the period 15 October 2024",
+              "section_label": null,
+              "page": null,
+              "char_start": null,
+              "char_end": null
+            }
+          },
+          {
+            "raw": "October",
+            "normalized": null,
+            "normalization_ambiguous": true,
+            "provenance": {
+              "excerpt": "project team discussed \"October to September\" in inception call",
+              "section_label": null,
+              "page": null,
+              "char_start": null,
+              "char_end": null
+            }
+          }
+        ]
+      },
+      "end": {
+        "absent": false,
+        "raw": "14 October 2025",
+        "normalized": "2025-10-14",
+        "normalization_ambiguous": false,
+        "provenance": null,
+        "multi_value": true,
+        "stated_values": [
+          {
+            "raw": "14 October 2025",
+            "normalized": "2025-10-14",
+            "normalization_ambiguous": false,
+            "provenance": {
+              "excerpt": "period 15 October 2024 to 14 October 2025",
+              "section_label": null,
+              "page": null,
+              "char_start": null,
+              "char_end": null
+            }
+          },
+          {
+            "raw": "September",
+            "normalized": null,
+            "normalization_ambiguous": true,
+            "provenance": {
+              "excerpt": "project team discussed \"October to September\" in inception call",
+              "section_label": null,
+              "page": null,
+              "char_start": null,
+              "char_end": null
+            }
+          }
+        ]
+      }
+    },
+    "reporting_obligations": [
+      {
+        "report_type": "Annual Review narrative",
+        "frequency": "Annual",
+        "raw": "Annual Review narrative against the agreed results framework",
+        "provenance": {
+          "excerpt": "Annual Review narrative against the agreed results framework",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Updated logframe",
+        "frequency": "Annual",
+        "raw": "Updated logframe with milestones, actuals, output scores and variance explanations",
+        "provenance": {
+          "excerpt": "Updated logframe with milestones, actuals, output scores",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Forecast versus actual expenditure statement",
+        "frequency": "Annual",
+        "raw": "Forecast versus actual expenditure statement",
+        "provenance": {
+          "excerpt": "Forecast versus actual expenditure statement",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Value for Money assessment",
+        "frequency": "Annual",
+        "raw": "Value for Money assessment, including economy, efficiency, effectiveness and equity",
+        "provenance": {
+          "excerpt": "Value for Money assessment, including economy, efficiency",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Risk, safeguarding and assumptions update",
+        "frequency": "Annual",
+        "raw": "Risk, safeguarding and assumptions update",
+        "provenance": {
+          "excerpt": "Risk, safeguarding and assumptions update",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Recommendations and action plan",
+        "frequency": "Annual",
+        "raw": "Recommendations and action plan for the next review period",
+        "provenance": {
+          "excerpt": "Recommendations and action plan for the next review period",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Evaluation or learning outputs",
+        "frequency": "As produced",
+        "raw": "Any evaluation or learning outputs produced during the year",
+        "provenance": {
+          "excerpt": "Any evaluation or learning outputs produced during the year",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Supporting documents",
+        "frequency": "On request",
+        "raw": "FCDO reserves the right to request supporting documents, including attendance registers, payment records, procurement files, safeguarding incident logs, training attendance sheets, and WASH completion records",
+        "provenance": {
+          "excerpt": "FCDO reserves the right to request supporting documents",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Logframe and results framework",
+        "frequency": "Maintain ongoing",
+        "raw": "BridgeLight is required to maintain a logframe or equivalent results framework showing outputs, indicators, baselines, milestones, targets and achieved results",
+        "provenance": {
+          "excerpt": "maintain a logframe or equivalent results framework showing",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      },
+      {
+        "report_type": "Monitoring data disaggregation",
+        "frequency": "Ongoing",
+        "raw": "Monitoring data must be disaggregated where relevant by gender, age and vulnerability group",
+        "provenance": {
+          "excerpt": "Monitoring data must be disaggregated where relevant by",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        }
+      }
+    ],
+    "reporting_deadlines": [
+      {
+        "absent": false,
+        "raw": "21 November 2025",
+        "normalized": "2025-11-21",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "review pack is due to FCDO by 21 November 2025",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      },
+      {
+        "absent": false,
+        "raw": "4 October 2024",
+        "normalized": "2024-10-04",
+        "normalization_ambiguous": false,
+        "provenance": {
+          "excerpt": "Please sign and return the attached acceptance form by 4 October 2024",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "multi_value": false,
+        "stated_values": []
+      }
+    ],
+    "extraction_outcome": "complete",
+    "summary": {
+      "total_fields": 10,
+      "present_fields": 10,
+      "absent_fields": 0,
+      "multi_value_fields": 2
+    }
+  },
+  "confidence": 0.95,
+  "error": null,
+  "agent_trace": {
+    "model_used": "haiku",
+    "latency_ms": 55182,
+    "input_tokens": 16,
+    "output_tokens": 10116,
+    "max_turns": 3,
+    "content_hash": "123ea52fdc0e8a64f2ec5184a27a56237d423047b43170f715d8e411cff89681",
+    "attempt_count": null,
+    "degraded_code": null
+  }
+}

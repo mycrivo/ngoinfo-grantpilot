@@ -1,0 +1,7 @@
+indicator_key,label,target,actual,unit,reporting_period
+beneficiaries_trained,Youth trained,120,98,persons,Q3 2025
+apprenticeships_secured,Apprenticeships,60,41,persons,Q3 2025
+employer_partnerships,Employer MOUs,15,12,count,Q3 2025
+budget_spent,Budget spent,45000,38250,GBP,Q3 2025
+
+Disaggregation notes: 54% female, 38% BAME participants.

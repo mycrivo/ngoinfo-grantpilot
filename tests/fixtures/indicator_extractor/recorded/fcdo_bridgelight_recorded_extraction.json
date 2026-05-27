@@ -1,0 +1,748 @@
+{
+  "extractor_agent": "indicator_data_extractor",
+  "extracted_at": "2026-05-26T12:12:36.674456Z",
+  "raw_text_ref": null,
+  "structured": {
+    "schema_version": "1.0.0",
+    "indicators": [
+      {
+        "row_id": "op1_1_girls_reenrolled",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OP1.1",
+          "normalized": "OP1.1",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B2"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Girls re-enrolled to formal education",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C2"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "1200",
+          "normalized": "1200",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D2"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "985",
+          "normalized": "985",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E2"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "persons",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F2"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A2"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "op1_2_girls_attending",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OP1.2",
+          "normalized": "OP1.2",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B3"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Girls attending at least 80% of sessions",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C3"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "900",
+          "normalized": "900",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D3"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "712",
+          "normalized": "712",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E3"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "persons",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F3"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A3"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "disagg_non_sum",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "DISAGG",
+          "normalized": "DISAGG",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B4"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Beneficiaries reached by gender",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C4"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "100",
+          "normalized": "100",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D4"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "98",
+          "normalized": "98",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E4"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "persons",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F4"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [
+          {
+            "dimension": "gender",
+            "stated_total": {
+              "absent": false,
+              "raw": "100",
+              "normalized": "100",
+              "cell_state": "stated",
+              "normalization_ambiguous": false,
+              "source_locator": {
+                "sheet": "Indicators",
+                "cell_range": "H4"
+              },
+              "multi_value": false,
+              "stated_values": []
+            },
+            "breakdown": [
+              {
+                "label": "male",
+                "value": {
+                  "absent": false,
+                  "raw": "40",
+                  "normalized": "40",
+                  "cell_state": "stated",
+                  "normalization_ambiguous": false,
+                  "source_locator": {
+                    "sheet": "Indicators",
+                    "cell_range": "I4"
+                  },
+                  "multi_value": false,
+                  "stated_values": []
+                }
+              },
+              {
+                "label": "female",
+                "value": {
+                  "absent": false,
+                  "raw": "35",
+                  "normalized": "35",
+                  "cell_state": "stated",
+                  "normalization_ambiguous": false,
+                  "source_locator": {
+                    "sheet": "Indicators",
+                    "cell_range": "J4"
+                  },
+                  "multi_value": false,
+                  "stated_values": []
+                }
+              },
+              {
+                "label": "other",
+                "value": {
+                  "absent": false,
+                  "raw": "30",
+                  "normalized": "30",
+                  "cell_state": "stated",
+                  "normalization_ambiguous": false,
+                  "source_locator": {
+                    "sheet": "Indicators",
+                    "cell_range": "K4"
+                  },
+                  "multi_value": false,
+                  "stated_values": []
+                }
+              }
+            ]
+          }
+        ],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A4"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "op1_1_target_only",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OP1.T",
+          "normalized": "OP1.T",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B5"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Girls trained Q4 (target only row)",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C5"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "500",
+          "normalized": "500",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D5"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": true,
+          "raw": null,
+          "normalized": null,
+          "cell_state": null,
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E5"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "persons",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F5"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A5"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "hidden_continuation_row",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OP-HIDDEN",
+          "normalized": "OP-HIDDEN",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B7"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "District learning meetings held (continuation block)",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C7"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "12",
+          "normalized": "12",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D7"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "11",
+          "normalized": "11",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E7"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "count",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F7"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A7"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "cell_state_demo",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "DEMO",
+          "normalized": "DEMO",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B8"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Cell state demonstration row",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C8"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "0",
+          "normalized": "0",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D8"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": true,
+          "raw": null,
+          "normalized": null,
+          "cell_state": null,
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E8"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "N/A",
+          "normalized": null,
+          "cell_state": "not_applicable",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F8"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A8"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "op2_1_latrine_stances",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OP2.1",
+          "normalized": "OP2.1",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B9"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Latrine stances rehabilitated",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C9"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "24",
+          "normalized": "24",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D9"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "22",
+          "normalized": "22",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E9"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "stances",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F9"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A9"
+        },
+        "multi_value": false
+      },
+      {
+        "row_id": "ocm1_attendance_80pct",
+        "indicator_ref": {
+          "absent": false,
+          "raw": "OCM1",
+          "normalized": "OCM1",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "B10"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "indicator_name": {
+          "absent": false,
+          "raw": "Girls meeting 80% attendance threshold",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "C10"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "target": {
+          "absent": false,
+          "raw": "70%",
+          "normalized": "70%",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "D10"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "actual": {
+          "absent": false,
+          "raw": "68%",
+          "normalized": "68%",
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "E10"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "unit": {
+          "absent": false,
+          "raw": "percent",
+          "normalized": null,
+          "cell_state": "stated",
+          "normalization_ambiguous": false,
+          "source_locator": {
+            "sheet": "Indicators",
+            "cell_range": "F10"
+          },
+          "multi_value": false,
+          "stated_values": []
+        },
+        "disaggregation": [],
+        "source_locator": {
+          "sheet": "Indicators",
+          "cell_range": "A10"
+        },
+        "multi_value": false
+      }
+    ],
+    "financials": {
+      "currency": {
+        "absent": false,
+        "raw": "GBP",
+        "normalized": null,
+        "cell_state": "stated",
+        "normalization_ambiguous": false,
+        "source_locator": {
+          "sheet": "Financials",
+          "cell_range": "E2"
+        },
+        "multi_value": false,
+        "stated_values": []
+      },
+      "lines": [
+        {
+          "line_key": "budget_total",
+          "label": {
+            "absent": false,
+            "raw": "Total programme budget",
+            "normalized": null,
+            "cell_state": "stated",
+            "normalization_ambiguous": false,
+            "source_locator": {
+              "sheet": "Financials",
+              "cell_range": "B2"
+            },
+            "multi_value": false,
+            "stated_values": []
+          },
+          "budget": {
+            "absent": false,
+            "raw": "1240000",
+            "normalized": "1240000",
+            "cell_state": "stated",
+            "normalization_ambiguous": false,
+            "source_locator": {
+              "sheet": "Financials",
+              "cell_range": "C2"
+            },
+            "multi_value": false,
+            "stated_values": []
+          },
+          "actual": {
+            "absent": false,
+            "raw": "1184000",
+            "normalized": "1184000",
+            "cell_state": "stated",
+            "normalization_ambiguous": false,
+            "source_locator": {
+              "sheet": "Financials",
+              "cell_range": "D2"
+            },
+            "multi_value": false,
+            "stated_values": []
+          }
+        }
+      ]
+    },
+    "extraction_outcome": "complete",
+    "summary": {
+      "total_rows": 8,
+      "rows_with_target": 8,
+      "rows_with_actual_absent": 2,
+      "multi_value_fields": 0
+    }
+  },
+  "confidence": 0.95,
+  "error": null,
+  "agent_trace": {
+    "model_used": "haiku",
+    "latency_ms": 52097,
+    "input_tokens": 16,
+    "output_tokens": 10204,
+    "max_turns": 3,
+    "num_turns": 2,
+    "content_hash": "ad9b0de1724f4039a903fdb21e4788c28fb3db128b820ac33ef50ba2ccb624ee",
+    "attempt_count": 1,
+    "degraded_code": null
+  }
+}
