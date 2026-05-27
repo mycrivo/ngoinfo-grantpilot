@@ -1,0 +1,64 @@
+{
+  "gate_passed": true,
+  "failure_reason": null,
+  "failure_label": null,
+  "stability_policy": "invariant-stable on every run (grade_knowledge_bank); byte fingerprint is observability only, not pass/fail",
+  "runs": [
+    {
+      "label": "correctness",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 113526,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 2,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": [],
+      "fingerprint_matches_correctness": null
+    },
+    {
+      "label": "stability_1",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 119566,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 4,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": [],
+      "fingerprint_matches_correctness": false
+    },
+    {
+      "label": "stability_2",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 115596,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 2,
+      "facts_count": 52,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": [],
+      "fingerprint_matches_correctness": false
+    },
+    {
+      "label": "stability_3",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 118987,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 4,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": [],
+      "fingerprint_matches_correctness": false
+    }
+  ]
+}

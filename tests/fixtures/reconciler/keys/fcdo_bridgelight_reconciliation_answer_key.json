@@ -1,0 +1,74 @@
+{
+  "fixture": "fcdo_bridgelight_reconciliation",
+  "document_ids": {
+    "proposal": "a1111111-1111-4111-8111-111111111101",
+    "grant_letter": "a1111111-1111-4111-8111-111111111102",
+    "indicator_data": "a1111111-1111-4111-8111-111111111103",
+    "synthetic_same_field": "a1111111-1111-4111-8111-111111111104",
+    "unreadable": "a1111111-1111-4111-8111-111111111105"
+  },
+  "planted_cases": {
+    "case1_value_mismatch_same_field": {
+      "conflict_type": "VALUE_MISMATCH",
+      "corroborated_side_normalized": "1240000",
+      "corroborating_source_document_ids": [
+        "a1111111-1111-4111-8111-111111111102",
+        "a1111111-1111-4111-8111-111111111103"
+      ],
+      "required_value_sources": [
+        {
+          "normalized": "1240000",
+          "source_document_id": "a1111111-1111-4111-8111-111111111102"
+        },
+        {
+          "normalized": "1240000",
+          "source_document_id": "a1111111-1111-4111-8111-111111111103"
+        },
+        {
+          "normalized": "1184000",
+          "source_document_id": "a1111111-1111-4111-8111-111111111104"
+        }
+      ],
+      "forbidden_resolved_value": true
+    },
+    "case2_different_fields": {
+      "target_normalized": "1200",
+      "target_corroborating_source_document_ids": [
+        "a1111111-1111-4111-8111-111111111101",
+        "a1111111-1111-4111-8111-111111111103"
+      ],
+      "target_require_coverage": "agreed",
+      "target_require_single_fact": true,
+      "actual_normalized": "985",
+      "actual_source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "forbidden_conflict_normalized_pairs": [["1200", "985"]]
+    },
+    "case3_temptation_unresolved": {
+      "conflict_type": "VALUE_MISMATCH",
+      "required_value_sources": [
+        {
+          "normalized": "40",
+          "source_document_id": "a1111111-1111-4111-8111-111111111101"
+        },
+        {
+          "normalized": "24",
+          "source_document_id": "a1111111-1111-4111-8111-111111111103"
+        }
+      ],
+      "required_raw_substrings": [
+        "rehabilitated or newly functional",
+        "Latrine stances rehabilitated"
+      ],
+      "forbidden_resolved_value": true
+    },
+    "case4_unreadable": {
+      "source_document_id": "a1111111-1111-4111-8111-111111111105",
+      "code": "UNREADABLE_DOCUMENT_LOW_CONTENT",
+      "must_not_appear_in_facts": true
+    }
+  },
+  "global_checks": {
+    "every_fact_has_provenance": true,
+    "no_resolved_conflicts_at_e1": true
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "facts": [
+    {
+      "value": "1240000",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "gbp",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "1184000",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "fcdo",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "2026-10-14",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "2024-10-15",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "mwi-edu-ar-4471",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "0",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "98",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "100",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "11",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "12",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "68",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "70",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "65",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "72",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "985",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "1200",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "500",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "712",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "900",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "850",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "22",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103"
+    },
+    {
+      "value": "40",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "40",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "40",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "800",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "1100",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "85",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "8",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "5",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "240",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "adolescentgirlscompletebasiceducationinsafermoresupportivelearningenvironments",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "girlsdemonstrateimprovedretentionattendanceandlearningcontinuity",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101"
+    },
+    {
+      "value": "2024-10-04",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "2025-11-21",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "annualreviewnarrativeagainsttheagreedresultsframework",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "anyevaluationorlearningoutputsproducedduringtheyear",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "forecastversusactualexpenditurestatement",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "bridgelightisrequiredtomaintainalogframeorequivalentresultsframeworkshowingoutputsindicatorsbaselinesmilestonestargetsandachievedresults",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "monitoringdatamustbedisaggregatedwhererelevantbygenderageandvulnerabilitygroup",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "recommendationsandactionplanforthenextreviewperiod",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "risksafeguardingandassumptionsupdate",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "fcdoreservestherighttorequestsupportingdocumentsincludingattendanceregisterspaymentrecordsprocurementfilessafeguardingincidentlogstrainingattendancesheetsandwashcompletionrecords",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "updatedlogframewithmilestonesactualsoutputscoresandvarianceexplanations",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "valueformoneyassessmentincludingeconomyefficiencyeffectivenessandequity",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "2025-10-14",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    },
+    {
+      "value": "2024-10-15",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102"
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_type": "VALUE_MISMATCH",
+      "value_sources": [
+        [
+          "1184000",
+          "a1111111-1111-4111-8111-111111111104"
+        ],
+        [
+          "1240000",
+          "a1111111-1111-4111-8111-111111111102"
+        ],
+        [
+          "1240000",
+          "a1111111-1111-4111-8111-111111111103"
+        ]
+      ]
+    },
+    {
+      "conflict_type": "VALUE_MISMATCH",
+      "value_sources": [
+        [
+          "2024-10-15",
+          "a1111111-1111-4111-8111-111111111102"
+        ],
+        [
+          "october(ambiguous\u2014nospecificdate)",
+          "a1111111-1111-4111-8111-111111111102"
+        ]
+      ]
+    },
+    {
+      "conflict_type": "VALUE_MISMATCH",
+      "value_sources": [
+        [
+          "2025-10-14",
+          "a1111111-1111-4111-8111-111111111102"
+        ],
+        [
+          "september(ambiguous\u2014nospecificdate)",
+          "a1111111-1111-4111-8111-111111111102"
+        ]
+      ]
+    },
+    {
+      "conflict_type": "VALUE_MISMATCH",
+      "value_sources": [
+        [
+          "24",
+          "a1111111-1111-4111-8111-111111111103"
+        ],
+        [
+          "40",
+          "a1111111-1111-4111-8111-111111111101"
+        ]
+      ]
+    }
+  ],
+  "unreadable_ids": [
+    "a1111111-1111-4111-8111-111111111105"
+  ],
+  "outcome": "complete"
+}

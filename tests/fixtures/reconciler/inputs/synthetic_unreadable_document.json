@@ -1,0 +1,28 @@
+{
+  "extractor_agent": "grant_terms_extractor",
+  "extracted_at": "2026-05-26T12:00:00Z",
+  "structured": {
+    "schema_version": "1.0.0",
+    "funder": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+    "grant_reference": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+    "award_budget": {
+      "amount": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+      "currency": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+      "tranches": []
+    },
+    "grant_period": {
+      "start": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+      "end": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] }
+    },
+    "reporting_period": {
+      "start": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] },
+      "end": { "absent": true, "raw": null, "normalized": null, "multi_value": false, "stated_values": [] }
+    },
+    "reporting_obligations": [],
+    "reporting_deadlines": [],
+    "extraction_outcome": "unreadable",
+    "summary": { "total_fields": 0, "present_fields": 0, "absent_fields": 0, "multi_value_fields": 0 }
+  },
+  "error": "UNREADABLE_DOCUMENT_LOW_CONTENT",
+  "agent_trace": { "unreadable_code": "UNREADABLE_DOCUMENT_LOW_CONTENT" }
+}

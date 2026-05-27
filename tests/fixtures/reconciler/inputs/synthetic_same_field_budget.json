@@ -1,0 +1,52 @@
+{
+  "extractor_agent": "indicator_data_extractor",
+  "extracted_at": "2026-05-26T12:00:00Z",
+  "structured": {
+    "schema_version": "1.0.0",
+    "indicators": [],
+    "financials": {
+      "currency": {
+        "absent": false,
+        "raw": "GBP",
+        "normalized": "GBP",
+        "cell_state": "stated",
+        "source_locator": { "sheet": "Financials", "cell_range": "E9" },
+        "multi_value": false,
+        "stated_values": []
+      },
+      "lines": [
+        {
+          "line_key": "approved_budget_contract",
+          "label": {
+            "absent": false,
+            "raw": "Total approved programme budget (contract)",
+            "normalized": null,
+            "cell_state": "stated",
+            "source_locator": { "sheet": "Financials", "cell_range": "B9" },
+            "multi_value": false,
+            "stated_values": []
+          },
+          "budget": {
+            "absent": false,
+            "raw": "1,184,000",
+            "normalized": "1184000",
+            "cell_state": "stated",
+            "source_locator": { "sheet": "Financials", "cell_range": "C9" },
+            "multi_value": false,
+            "stated_values": []
+          },
+          "actual": {
+            "absent": true,
+            "raw": null,
+            "normalized": null,
+            "cell_state": null,
+            "multi_value": false,
+            "stated_values": []
+          }
+        }
+      ]
+    },
+    "extraction_outcome": "complete",
+    "summary": { "total_rows": 0, "rows_with_target": 0, "rows_with_actual_absent": 0, "multi_value_fields": 0 }
+  }
+}

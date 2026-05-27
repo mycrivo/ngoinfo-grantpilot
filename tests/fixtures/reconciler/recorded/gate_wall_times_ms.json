@@ -1,0 +1,61 @@
+{
+  "runs": [
+    {
+      "label": "correctness",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 113526,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 2,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": []
+    },
+    {
+      "label": "stability_1",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 119566,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 4,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": []
+    },
+    {
+      "label": "stability_2",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 115596,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 2,
+      "facts_count": 52,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": []
+    },
+    {
+      "label": "stability_3",
+      "reconciliation_outcome": "complete",
+      "attempt_count": 1,
+      "num_turns": null,
+      "wall_ms": 118987,
+      "degraded_code": null,
+      "conflicts_surfaced_count": 4,
+      "facts_count": 49,
+      "unreadable_count": 1,
+      "grade_passed": true,
+      "grade_errors": []
+    }
+  ],
+  "spread": {
+    "min_ms": 113526,
+    "max_ms": 119566,
+    "median_ms": 117291
+  }
+}

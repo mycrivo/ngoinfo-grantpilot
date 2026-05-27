@@ -1,0 +1,1162 @@
+{
+  "schema_version": "1.0.0",
+  "facts": {
+    "objectives.impact_girls_basic_education": {
+      "value": "Adolescent girls complete basic education in safer, more supportive learning environments",
+      "unit": null,
+      "semantic_label": "Objective (impact) \u2014 girls basic education",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Adolescent girls complete basic education in safer, more supportive learning environments",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "objectives.outcome_retention_attendance_continuity": {
+      "value": "Girls demonstrate improved retention, attendance, and learning continuity",
+      "unit": null,
+      "semantic_label": "Objective (outcome) \u2014 retention, attendance and learning continuity",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Girls demonstrate improved school retention, attendance and learning continuity, with reduced practical and safeguarding barriers",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.ocm1_attendance_80pct.target": {
+      "value": "70",
+      "unit": "%",
+      "semantic_label": "Indicator OCM1 target \u2014 % girls attending school at least 80% of days",
+      "coverage": "agreed",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "% of supported girls attending school at least 80% of school days in the last completed term",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Corroborated by a1111111-1111-4111-8111-111111111103 (fcdo_bridgelight_indicator_data.xlsx), cell Indicators!D10, excerpt: '70%'.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.ocm1_attendance_80pct.actual": {
+      "value": "68",
+      "unit": "%",
+      "semantic_label": "Indicator OCM1 actual \u2014 % girls attending school at least 80% of days",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "68%",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E10"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.ocm2_progression_reentry.target": {
+      "value": "65",
+      "unit": "%",
+      "semantic_label": "Indicator OCM2 target \u2014 % girls progressing to next grade or completing re-entry pathway",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "% of supported girls progressing to the next grade or completing re-entry pathway",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.ocm3_safe_school_menstruation.target": {
+      "value": "72",
+      "unit": "%",
+      "semantic_label": "Indicator OCM3 target \u2014 % girls reporting school is safe during menstruation and travel",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "% of girls reporting that school is safe during menstruation and travel",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_1_girls_reenrolled.target": {
+      "value": "1200",
+      "unit": null,
+      "semantic_label": "Indicator OP1.1 target \u2014 number of out-of-school or at-risk girls re-enrolled or newly retained",
+      "coverage": "agreed",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of out-of-school or at-risk girls re-enrolled or newly retained through support package",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Corroborated by a1111111-1111-4111-8111-111111111103 (fcdo_bridgelight_indicator_data.xlsx), cell Indicators!D2, excerpt: '1200'.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_1_girls_reenrolled.actual": {
+      "value": "985",
+      "unit": null,
+      "semantic_label": "Indicator OP1.1 actual \u2014 number of out-of-school or at-risk girls re-enrolled or newly retained",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "985",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E2"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_2_girls_attending_80pct.target": {
+      "value": "900",
+      "unit": null,
+      "semantic_label": "Indicator OP1.2 target \u2014 number of supported girls attending at least 80% of school days",
+      "coverage": "agreed",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of supported girls attending at least 80% of school days in last completed term",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Corroborated by a1111111-1111-4111-8111-111111111103 (fcdo_bridgelight_indicator_data.xlsx), cell Indicators!D3, excerpt: '900'.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_2_girls_attending_80pct.actual": {
+      "value": "712",
+      "unit": null,
+      "semantic_label": "Indicator OP1.2 actual \u2014 number of supported girls attending at least 80% of school days",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "712",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E3"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_3_remedial_sessions_20plus.target": {
+      "value": "850",
+      "unit": null,
+      "semantic_label": "Indicator OP1.3 target \u2014 number of girls completing at least 20 remedial learning sessions",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of girls completing at least 20 remedial learning sessions",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op2_2_schools_menstrual_health.target": {
+      "value": "40",
+      "unit": null,
+      "semantic_label": "Indicator OP2.2 target \u2014 number of schools with menstrual health supplies and trained focal teachers",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of schools with menstrual health supplies and trained focal teachers",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op2_3_schools_safeguarding_referral.target": {
+      "value": "40",
+      "unit": null,
+      "semantic_label": "Indicator OP2.3 target \u2014 number of schools with active safeguarding referral pathway",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of schools with active safeguarding referral pathway tested through termly case-review meeting",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op3_1_caregivers_hardship_grant.target": {
+      "value": "800",
+      "unit": null,
+      "semantic_label": "Indicator OP3.1 target \u2014 number of caregivers receiving education hardship grant",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of caregivers receiving education hardship grant linked to girls attendance plan",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op3_2_girls_reentry_kit.target": {
+      "value": "1100",
+      "unit": null,
+      "semantic_label": "Indicator OP3.2 target \u2014 number of girls receiving school re-entry kit or learning materials package",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of girls receiving school re-entry kit or learning materials package",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op3_3_hardship_grant_followup_45days.target": {
+      "value": "85",
+      "unit": "%",
+      "semantic_label": "Indicator OP3.3 target \u2014 % of hardship grant households with verified attendance follow-up within 45 days",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "% of hardship grant households with verified attendance follow-up within 45 days",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op4_1_district_learning_meetings.target": {
+      "value": "8",
+      "unit": null,
+      "semantic_label": "Indicator OP4.1 target \u2014 number of district learning meetings held with documented action points",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of district learning meetings held with documented action points",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op4_2_learning_briefs.target": {
+      "value": "5",
+      "unit": null,
+      "semantic_label": "Indicator OP4.2 target \u2014 number of learning briefs produced and shared with district education stakeholders",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of learning briefs produced and shared with district education stakeholders",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op4_3_actors_trained.target": {
+      "value": "240",
+      "unit": null,
+      "semantic_label": "Indicator OP4.3 target \u2014 number of school/community actors trained on girls re-entry and safeguarding protocols",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Number of school/community actors trained on girls re-entry and safeguarding protocols",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.equity_support_reach_qualitative.target": {
+      "value": null,
+      "unit": null,
+      "semantic_label": "Equity indicator target \u2014 qualitative assessment of support reaching girls with disabilities, ultra-poor households, previously out of school",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111101",
+      "source_label": "fcdo_bridgelight_proposal.md",
+      "provenance": {
+        "excerpt": "Equity assessed through share of support reaching girls with disabilities, ultra-poor households, previously out of school",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.disagg_non_sum.target": {
+      "value": "100",
+      "unit": null,
+      "semantic_label": "Indicator disagg_non_sum target",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "100",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!D4"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.disagg_non_sum.actual": {
+      "value": "98",
+      "unit": null,
+      "semantic_label": "Indicator disagg_non_sum actual",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "98",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E4"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op1_1_target_only.target": {
+      "value": "500",
+      "unit": null,
+      "semantic_label": "Indicator op1_1_target_only target",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "500",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!D5"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.hidden_continuation_row.target": {
+      "value": "12",
+      "unit": null,
+      "semantic_label": "Indicator hidden_continuation_row target",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "12",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!D7"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.hidden_continuation_row.actual": {
+      "value": "11",
+      "unit": null,
+      "semantic_label": "Indicator hidden_continuation_row actual",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "11",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E7"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.cell_state_demo.target": {
+      "value": "0",
+      "unit": null,
+      "semantic_label": "Indicator cell_state_demo target",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "0",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!D8"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "funder": {
+      "value": "FCDO",
+      "unit": null,
+      "semantic_label": "Funder \u2014 Foreign, Commonwealth & Development Office",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Foreign, Commonwealth & Development Office has approved funding",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "grant_reference": {
+      "value": "MWI-EDU-AR-4471",
+      "unit": null,
+      "semantic_label": "Grant reference / programme code",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Programme code: MWI-EDU-AR-4471",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "award_budget.amount": {
+      "value": "1240000",
+      "unit": "GBP",
+      "semantic_label": "Total approved FCDO contribution (award letter)",
+      "coverage": "agreed",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "approved FCDO contribution is GBP 1,240,000",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Corroborated by a1111111-1111-4111-8111-111111111103 (fcdo_bridgelight_indicator_data.xlsx), cell Financials!C2, excerpt: '1240000', as the total programme budget figure.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "award_budget.currency": {
+      "value": "GBP",
+      "unit": null,
+      "semantic_label": "Award budget currency",
+      "coverage": "agreed",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "approved FCDO contribution is GBP 1,240,000",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Corroborated by a1111111-1111-4111-8111-111111111103 (fcdo_bridgelight_indicator_data.xlsx), cell Financials!E2, excerpt: 'GBP'; and by a1111111-1111-4111-8111-111111111104 (fcdo_amended_budget_schedule.xlsx), cell Financials!E9, excerpt: 'GBP'.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "grant_period.start": {
+      "value": "2024-10-15",
+      "unit": null,
+      "semantic_label": "Grant period start date",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "programme start date is 15 October 2024",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "grant_period.end": {
+      "value": "2026-10-14",
+      "unit": null,
+      "semantic_label": "Grant period end date",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "programme end date is 14 October 2026",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_period.first_annual_review.start": {
+      "value": "2024-10-15",
+      "unit": null,
+      "semantic_label": "First Annual Review reporting period start (award letter formal statement)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "first Annual Review will cover the period 15 October 2024",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "A second value 'October' (ambiguous, no year) was also noted in the same document from an inception call discussion ('October to September'). That value is normalization-ambiguous and cannot be compared as a distinct date; it is recorded separately as reporting_period.inception_call_cycle.start_month.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_period.inception_call_cycle.start_month": {
+      "value": "October",
+      "unit": null,
+      "semantic_label": "Reporting cycle start month discussed at inception call (ambiguous, no year)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "project team discussed \"October to September\" in inception call",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Normalization ambiguous \u2014 no year or specific date provided. Cannot be reconciled numerically against the formal 2024-10-15 start date. Flagged for Gate-1 human review.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_period.first_annual_review.end": {
+      "value": "2025-10-14",
+      "unit": null,
+      "semantic_label": "First Annual Review reporting period end (award letter formal statement)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "period 15 October 2024 to 14 October 2025",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "A second value 'September' (ambiguous, no year) was also noted in the same document from an inception call discussion ('October to September'). That value is normalization-ambiguous and recorded separately as reporting_period.inception_call_cycle.end_month.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_period.inception_call_cycle.end_month": {
+      "value": "September",
+      "unit": null,
+      "semantic_label": "Reporting cycle end month discussed at inception call (ambiguous, no year)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "project team discussed \"October to September\" in inception call",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": "Normalization ambiguous \u2014 no year or specific date provided. Cannot be reconciled numerically against the formal 2025-10-14 end date. Flagged for Gate-1 human review.",
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.annual_review_narrative": {
+      "value": "Annual Review narrative against the agreed results framework",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Annual Review narrative",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Annual Review narrative against the agreed results framework",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.updated_logframe": {
+      "value": "Updated logframe with milestones, actuals, output scores and variance explanations",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Updated logframe",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Updated logframe with milestones, actuals, output scores",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.forecast_vs_actual_expenditure": {
+      "value": "Forecast versus actual expenditure statement",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Forecast versus actual expenditure statement",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Forecast versus actual expenditure statement",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.value_for_money_assessment": {
+      "value": "Value for Money assessment, including economy, efficiency, effectiveness and equity",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Value for Money assessment",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Value for Money assessment, including economy, efficiency",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.risk_safeguarding_assumptions_update": {
+      "value": "Risk, safeguarding and assumptions update",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Risk, safeguarding and assumptions update",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Risk, safeguarding and assumptions update",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.recommendations_and_action_plan": {
+      "value": "Recommendations and action plan for the next review period",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Recommendations and action plan",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Recommendations and action plan for the next review period",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.evaluation_or_learning_outputs": {
+      "value": "Any evaluation or learning outputs produced during the year",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Evaluation or learning outputs",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Any evaluation or learning outputs produced during the year",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.supporting_documents": {
+      "value": "FCDO reserves the right to request supporting documents, including attendance registers, payment records, procurement files, safeguarding incident logs, training attendance sheets, and WASH completion records",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Supporting documents (FCDO right to request)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "FCDO reserves the right to request supporting documents",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.logframe_and_results_framework": {
+      "value": "BridgeLight is required to maintain a logframe or equivalent results framework showing outputs, indicators, baselines, milestones, targets and achieved results",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Logframe and results framework maintenance",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "maintain a logframe or equivalent results framework showing",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_obligations.monitoring_data_disaggregation": {
+      "value": "Monitoring data must be disaggregated where relevant by gender, age and vulnerability group",
+      "unit": null,
+      "semantic_label": "Reporting obligation \u2014 Monitoring data disaggregation requirement",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Monitoring data must be disaggregated where relevant by",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_deadlines.annual_review_pack_due": {
+      "value": "2025-11-21",
+      "unit": null,
+      "semantic_label": "Reporting deadline \u2014 Annual Review pack due to FCDO",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "review pack is due to FCDO by 21 November 2025",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "reporting_deadlines.acceptance_form_return": {
+      "value": "2024-10-04",
+      "unit": null,
+      "semantic_label": "Reporting deadline \u2014 Acceptance form return deadline",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111102",
+      "source_label": "fcdo_bridgelight_award_letter.md",
+      "provenance": {
+        "excerpt": "Please sign and return the attached acceptance form by 4 October 2024",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": null
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "financials.total_programme_budget.actual_spend": {
+      "value": "1184000",
+      "unit": "GBP",
+      "semantic_label": "Total programme budget \u2014 actual spend to date",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "1184000",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Financials!D2"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op2_1_latrine_stances_rehabilitated.target_amended_budget_schedule": {
+      "value": "24",
+      "unit": null,
+      "semantic_label": "Indicator OP2.1 target \u2014 latrine stances rehabilitated (indicator data spreadsheet)",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "24",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!D9"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "indicators.op2_1_latrine_stances_rehabilitated.actual": {
+      "value": "22",
+      "unit": null,
+      "semantic_label": "Indicator OP2.1 actual \u2014 latrine stances rehabilitated",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111103",
+      "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+      "provenance": {
+        "excerpt": "22",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Indicators!E9"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    },
+    "financials.approved_budget_contract.amended_budget_schedule": {
+      "value": "1184000",
+      "unit": "GBP",
+      "semantic_label": "Total approved programme budget (contract) per amended budget schedule",
+      "coverage": "single_source",
+      "source_document_id": "a1111111-1111-4111-8111-111111111104",
+      "source_label": "fcdo_amended_budget_schedule.xlsx",
+      "provenance": {
+        "excerpt": "1,184,000",
+        "section_label": null,
+        "page": null,
+        "char_start": null,
+        "char_end": null,
+        "cell_ref": "Financials!C9"
+      },
+      "interpretation_note": null,
+      "confirmed": false,
+      "confirmed_at": null,
+      "confirmed_by_user": false
+    }
+  },
+  "conflicts": [
+    {
+      "fact_key": "indicators.op2_1_latrine_stances_rehabilitated.target",
+      "conflict_type": "VALUE_MISMATCH",
+      "values": [
+        {
+          "value": "40",
+          "unit": null,
+          "source_document_id": "a1111111-1111-4111-8111-111111111101",
+          "source_label": "fcdo_bridgelight_proposal.md",
+          "provenance": {
+            "excerpt": "Number of separate, lockable girls latrine stances rehabilitated or newly functional",
+            "section_label": null,
+            "page": null,
+            "char_start": null,
+            "char_end": null,
+            "cell_ref": null
+          }
+        },
+        {
+          "value": "24",
+          "unit": null,
+          "source_document_id": "a1111111-1111-4111-8111-111111111103",
+          "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+          "provenance": {
+            "excerpt": "24",
+            "section_label": null,
+            "page": null,
+            "char_start": null,
+            "char_end": null,
+            "cell_ref": "Indicators!D9"
+          }
+        }
+      ],
+      "annotation": "The proposal (doc 101) states a target of 40 latrine stances; the indicator data spreadsheet (doc 103) records 24. This may reflect a target revision post-award or a data entry error. Human review required to confirm which figure is authoritative for the current grant period.",
+      "resolved_value": null,
+      "resolved_at": null
+    },
+    {
+      "fact_key": "financials.total_programme_budget.budget_figure",
+      "conflict_type": "VALUE_MISMATCH",
+      "values": [
+        {
+          "value": "1240000",
+          "unit": "GBP",
+          "source_document_id": "a1111111-1111-4111-8111-111111111102",
+          "source_label": "fcdo_bridgelight_award_letter.md",
+          "provenance": {
+            "excerpt": "approved FCDO contribution is GBP 1,240,000",
+            "section_label": null,
+            "page": null,
+            "char_start": null,
+            "char_end": null,
+            "cell_ref": null
+          }
+        },
+        {
+          "value": "1240000",
+          "unit": "GBP",
+          "source_document_id": "a1111111-1111-4111-8111-111111111103",
+          "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+          "provenance": {
+            "excerpt": "1240000",
+            "section_label": null,
+            "page": null,
+            "char_start": null,
+            "char_end": null,
+            "cell_ref": "Financials!C2"
+          }
+        },
+        {
+          "value": "1184000",
+          "unit": "GBP",
+          "source_document_id": "a1111111-1111-4111-8111-111111111104",
+          "source_label": "fcdo_amended_budget_schedule.xlsx",
+          "provenance": {
+            "excerpt": "1,184,000",
+            "section_label": null,
+            "page": null,
+            "char_start": null,
+            "char_end": null,
+            "cell_ref": "Financials!C9"
+          }
+        }
+      ],
+      "annotation": "The award letter (doc 102) and indicator data spreadsheet (doc 103) both state the total approved programme budget as GBP 1,240,000. The amended budget schedule (doc 104) records GBP 1,184,000 as the 'approved budget (contract)'. The lower figure in doc 104 may reflect a formal budget amendment reducing the contract value, or it may be a labelling difference (e.g. doc 104 excludes a contingency or co-financing element). Note also that GBP 1,184,000 appears as the actual spend figure in doc 103 (Financials!D2), raising the possibility of a copy-paste error in doc 104. Human review required to determine whether a budget amendment has occurred and which figure represents the current contracted amount.",
+      "resolved_value": null,
+      "resolved_at": null
+    }
+  ],
+  "unreadable_sources": [
+    {
+      "source_document_id": "a1111111-1111-4111-8111-111111111105",
+      "source_label": "fcdo_scan_unreadable.pdf",
+      "code": "UNREADABLE_DOCUMENT_LOW_CONTENT",
+      "message": "UNREADABLE_DOCUMENT_LOW_CONTENT"
+    }
+  ],
+  "reconciliation_outcome": "complete",
+  "gate1_confirmed_at": null,
+  "gate2_confirmed_at": null,
+  "gate3_confirmed_at": null,
+  "gap_answers": {},
+  "reconciliation_version": "1.0.0",
+  "reconciler_agent": "knowledge_bank_reconciler",
+  "reconciled_at": "2026-05-27T08:21:15.035595+00:00",
+  "agent_trace": {
+    "model_used": "claude-sonnet-4-6",
+    "latency_ms": 115225,
+    "input_tokens": 16719,
+    "output_tokens": 10299,
+    "max_turns": null,
+    "attempt_count": 1,
+    "num_turns": null,
+    "degraded_code": null,
+    "conflicts_surfaced_count": 2
+  }
+}

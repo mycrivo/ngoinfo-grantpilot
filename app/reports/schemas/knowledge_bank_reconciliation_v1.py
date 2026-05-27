@@ -1,0 +1,182 @@
+"""Knowledge-bank reconciliation schema v1.0.0 — E1 output persisted to donor_reports.knowledge_bank_json."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field, model_validator
+
+KNOWLEDGE_BANK_RECONCILIATION_VERSION = "1.0.0"
+RECONCILER_AGENT_NAME = "knowledge_bank_reconciler"
+
+ReconciliationOutcome = Literal["complete", "degraded"]
+ConflictType = Literal["VALUE_MISMATCH", "UNIT_GRANULARITY"]
+FactCoverage = Literal["agreed", "single_source"]
+
+
+class KnowledgeProvenance(BaseModel):
+    excerpt: str = Field(min_length=1)
+    section_label: str | None = None
+    page: int | None = None
+    char_start: int | None = None
+    char_end: int | None = None
+    cell_ref: str | None = None
+
+
+class KnowledgeBankFact(BaseModel):
+    value: Any = None
+    unit: str | None = None
+    semantic_label: str = Field(min_length=1)
+    coverage: FactCoverage = "single_source"
+    source_document_id: str = Field(min_length=1)
+    source_label: str = Field(min_length=1)
+    provenance: KnowledgeProvenance
+    interpretation_note: str | None = None
+    confirmed: bool = False
+    confirmed_at: datetime | None = None
+    confirmed_by_user: bool = False
+
+
+class ConflictValueEntry(BaseModel):
+    value: Any = None
+    unit: str | None = None
+    source_document_id: str = Field(min_length=1)
+    source_label: str = Field(min_length=1)
+    provenance: KnowledgeProvenance
+
+
+class KnowledgeBankConflict(BaseModel):
+    fact_key: str = Field(min_length=1)
+    conflict_type: ConflictType
+    values: list[ConflictValueEntry] = Field(min_length=2)
+    annotation: str | None = None
+    resolved_value: Any | None = None
+    resolved_at: datetime | None = None
+
+
+class UnreadableSource(BaseModel):
+    source_document_id: str = Field(min_length=1)
+    source_label: str = Field(min_length=1)
+    code: str = Field(min_length=1)
+    message: str = Field(min_length=1)
+
+
+class ReconciliationAgentTrace(BaseModel):
+    model_used: str | None = None
+    latency_ms: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    max_turns: int | None = None
+    attempt_count: int | None = None
+    num_turns: int | None = None
+    degraded_code: str | None = None
+    conflicts_surfaced_count: int | None = None
+
+
+class KnowledgeBankReconciliationOutput(BaseModel):
+    schema_version: str = KNOWLEDGE_BANK_RECONCILIATION_VERSION
+    facts: dict[str, KnowledgeBankFact] = Field(default_factory=dict)
+    conflicts: list[KnowledgeBankConflict] = Field(default_factory=list)
+    unreadable_sources: list[UnreadableSource] = Field(default_factory=list)
+    reconciliation_outcome: ReconciliationOutcome = "complete"
+    gate1_confirmed_at: datetime | None = None
+    gate2_confirmed_at: datetime | None = None
+    gate3_confirmed_at: datetime | None = None
+    gap_answers: dict[str, Any] = Field(default_factory=dict)
+
+
+class KnowledgeBankReconciledEnvelope(BaseModel):
+    """Shape persisted to donor_reports.knowledge_bank_json."""
+
+    reconciliation_version: str = KNOWLEDGE_BANK_RECONCILIATION_VERSION
+    reconciler_agent: str = RECONCILER_AGENT_NAME
+    reconciled_at: datetime | None = None
+    structured: KnowledgeBankReconciliationOutput
+    error: str | None = None
+    agent_trace: ReconciliationAgentTrace | None = None
+
+
+def validate_e1_knowledge_bank(output: KnowledgeBankReconciliationOutput) -> list[str]:
+    """Deterministic E1 contract checks — fail closed before persist."""
+    errors: list[str] = []
+    for fact_key, fact in output.facts.items():
+        if not fact.source_document_id:
+            errors.append(f"fact {fact_key!r} missing source_document_id")
+        if not fact.provenance or not fact.provenance.excerpt:
+            errors.append(f"fact {fact_key!r} missing provenance excerpt")
+    for conflict in output.conflicts:
+        if conflict.resolved_value is not None:
+            errors.append(
+                f"conflict {conflict.fact_key!r} has resolved_value set (forbidden at E1)"
+            )
+        if conflict.resolved_at is not None:
+            errors.append(
+                f"conflict {conflict.fact_key!r} has resolved_at set (forbidden at E1)"
+            )
+        if len(conflict.values) < 2:
+            errors.append(f"conflict {conflict.fact_key!r} requires >= 2 values")
+        for entry in conflict.values:
+            if not entry.source_document_id:
+                errors.append(
+                    f"conflict {conflict.fact_key!r} value missing source_document_id"
+                )
+            if not entry.provenance or not entry.provenance.excerpt:
+                errors.append(
+                    f"conflict {conflict.fact_key!r} value missing provenance excerpt"
+                )
+    return errors
+
+
+class _LLMProvenance(BaseModel):
+    excerpt: str
+    section_label: str | None = None
+    page: int | None = None
+    char_start: int | None = None
+    char_end: int | None = None
+    cell_ref: str | None = None
+
+
+class _LLMFact(BaseModel):
+    fact_key: str
+    value: Any = None
+    unit: str | None = None
+    semantic_label: str
+    coverage: FactCoverage = "single_source"
+    source_document_id: str
+    source_label: str
+    provenance: _LLMProvenance
+    interpretation_note: str | None = None
+
+
+class _LLMConflictValue(BaseModel):
+    value: Any = None
+    unit: str | None = None
+    source_document_id: str
+    source_label: str
+    provenance: _LLMProvenance
+
+
+class _LLMConflict(BaseModel):
+    fact_key: str
+    conflict_type: ConflictType
+    values: list[_LLMConflictValue] = Field(min_length=2)
+    annotation: str | None = None
+
+
+class _LLMUnreadableSource(BaseModel):
+    source_document_id: str
+    source_label: str
+    code: str
+    message: str
+
+
+class KnowledgeBankReconcilerLLMOutput(BaseModel):
+    facts: list[_LLMFact] = Field(default_factory=list)
+    conflicts: list[_LLMConflict] = Field(default_factory=list)
+    unreadable_sources: list[_LLMUnreadableSource] = Field(default_factory=list)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def no_resolved_fields(self) -> KnowledgeBankReconcilerLLMOutput:
+        return self

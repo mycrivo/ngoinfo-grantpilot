@@ -1,0 +1,506 @@
+{
+  "extractor_agent": "proposal_extractor",
+  "extracted_at": "2026-05-25T18:48:23.195577Z",
+  "raw_text_ref": null,
+  "structured": {
+    "schema_version": "1.0.0",
+    "objectives": [
+      {
+        "objective_key": "impact_girls_basic_education",
+        "label": "Adolescent girls complete basic education in safer, more supportive learning environments",
+        "level": "impact",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Adolescent girls complete basic education in safer, more supportive learning environments",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "objective_key": "outcome_retention_attendance_continuity",
+        "label": "Girls demonstrate improved retention, attendance, and learning continuity",
+        "level": "outcome",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Girls demonstrate improved school retention, attendance and learning continuity, with reduced practical and safeguarding barriers",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      }
+    ],
+    "activities": [
+      {
+        "activity_key": "act_girl_identification",
+        "label": "School and community identification of out-of-school and at-risk girls",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "School and community identification of out-of-school girls and girls at risk of dropout",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_reentry_counselling",
+        "label": "Re-entry counselling and family engagement through mother groups and school committees",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Re-entry counselling and family engagement through mother groups and school committees",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_bridge_learning",
+        "label": "Bridge learning and remedial sessions delivered by trained teachers after school",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Bridge learning and remedial sessions delivered by trained teachers after school hours",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_latrine_rehabilitation",
+        "label": "Rehabilitation of girls latrines with lockable doors and handwashing points",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Rehabilitation of girls latrines, with lockable doors, handwashing points and menstrual disposal",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_menstrual_health",
+        "label": "Menstrual health supply distribution through trained focal teachers",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Menstrual health supply distribution through trained focal teachers",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_hardship_grants",
+        "label": "Hardship grants and school re-entry kits for girls facing direct cost barriers",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Hardship grants and school re-entry kits for girls facing direct cost barriers",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_safeguarding_referral",
+        "label": "Safeguarding referral mapping with district social welfare officers and headteachers",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Safeguarding referral mapping with district social welfare officers and headteachers",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      },
+      {
+        "activity_key": "act_district_learning",
+        "label": "Quarterly district learning meetings and short evidence briefs",
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Quarterly district learning meetings and short evidence briefs",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "linked_objective_keys": [],
+        "error_message": null
+      }
+    ],
+    "indicators": [
+      {
+        "indicator_key": "ocm1_attendance_80pct",
+        "label": "% of supported girls attending school \u226580% of school days in last term",
+        "level": "outcome",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 70,
+          "unit": "%",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "% of supported girls attending school at least 80% of school days in the last completed term",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "ocm2_progression_reentry",
+        "label": "% of supported girls progressing to next grade or completing re-entry pathway",
+        "level": "outcome",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 65,
+          "unit": "%",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "% of supported girls progressing to the next grade or completing re-entry pathway",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "ocm3_safe_school_menstruation",
+        "label": "% of girls reporting school is safe during menstruation and travel",
+        "level": "outcome",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 72,
+          "unit": "%",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "% of girls reporting that school is safe during menstruation and travel",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op1_1_girls_reenrolled",
+        "label": "Number of out-of-school or at-risk girls re-enrolled or newly retained",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 1200,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of out-of-school or at-risk girls re-enrolled or newly retained through support package",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op1_2_girls_attending_80pct",
+        "label": "Number of supported girls attending \u226580% of school days in last term",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 900,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of supported girls attending at least 80% of school days in last completed term",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op1_3_remedial_sessions_20plus",
+        "label": "Number of girls completing \u226520 remedial learning sessions",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 850,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of girls completing at least 20 remedial learning sessions",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op2_1_latrine_stances_rehabilitated",
+        "label": "Number of separate, lockable girls latrine stances rehabilitated",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 40,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of separate, lockable girls latrine stances rehabilitated or newly functional",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op2_2_schools_menstrual_health",
+        "label": "Number of schools with menstrual health supplies and trained focal teachers",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 40,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of schools with menstrual health supplies and trained focal teachers",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op2_3_schools_safeguarding_referral",
+        "label": "Number of schools with active safeguarding referral pathway tested",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 40,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of schools with active safeguarding referral pathway tested through termly case-review meeting",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op3_1_caregivers_hardship_grant",
+        "label": "Number of caregivers receiving education hardship grant linked to attendance",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 800,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of caregivers receiving education hardship grant linked to girls attendance plan",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op3_2_girls_reentry_kit",
+        "label": "Number of girls receiving school re-entry kit or learning materials package",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 1100,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of girls receiving school re-entry kit or learning materials package",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op3_3_hardship_grant_followup_45days",
+        "label": "% of hardship grant households with verified attendance follow-up within 45 days",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 85,
+          "unit": "%",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "% of hardship grant households with verified attendance follow-up within 45 days",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op4_1_district_learning_meetings",
+        "label": "Number of district learning meetings held with documented action points",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 8,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of district learning meetings held with documented action points",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op4_2_learning_briefs",
+        "label": "Number of learning briefs produced and shared with district education stakeholders",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 5,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of learning briefs produced and shared with district education stakeholders",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "op4_3_actors_trained",
+        "label": "Number of school/community actors trained on girls re-entry and safeguarding",
+        "level": "output",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": 240,
+          "unit": "number",
+          "absent": false
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Number of school/community actors trained on girls re-entry and safeguarding protocols",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      },
+      {
+        "indicator_key": "equity_support_reach_qualitative",
+        "label": "Share of support reaching girls with disabilities, ultra-poor, previously out-of-school",
+        "level": "outcome",
+        "baseline": null,
+        "milestone": null,
+        "target": {
+          "value": null,
+          "unit": null,
+          "absent": true
+        },
+        "status": "extracted",
+        "provenance": {
+          "excerpt": "Equity assessed through share of support reaching girls with disabilities, ultra-poor households, previously out of school",
+          "section_label": null,
+          "page": null,
+          "char_start": null,
+          "char_end": null
+        },
+        "error_message": null
+      }
+    ],
+    "extraction_outcome": "complete",
+    "summary": {
+      "total": 26,
+      "succeeded": 26,
+      "failed": 0
+    }
+  },
+  "confidence": 0.98,
+  "error": null,
+  "agent_trace": {
+    "model_used": "haiku",
+    "latency_ms": 72363,
+    "input_tokens": 16,
+    "output_tokens": 12904,
+    "max_turns": 3,
+    "content_hash": "422b2e10a1aa9ae2d5e1938feecefae7f8d552f0d7f01c16e9bb7046f1a0e0bd"
+  }
+}

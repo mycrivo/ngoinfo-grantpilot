@@ -1,0 +1,35 @@
+{
+  "fixture": "fcdo_bridgelight_reconciliation",
+  "documents": [
+    {
+      "id": "a1111111-1111-4111-8111-111111111101",
+      "classification": "proposal",
+      "original_filename": "fcdo_bridgelight_proposal.md",
+      "extracted_json_path": "recorded/proposal_extraction.json"
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111102",
+      "classification": "grant_letter",
+      "original_filename": "fcdo_bridgelight_award_letter.md",
+      "extracted_json_path": "recorded/grant_terms_extraction.json"
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111103",
+      "classification": "indicator_data",
+      "original_filename": "fcdo_bridgelight_indicator_data.xlsx",
+      "extracted_json_path": "recorded/indicator_data_extraction.json"
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111104",
+      "classification": "indicator_data",
+      "original_filename": "fcdo_amended_budget_schedule.xlsx",
+      "extracted_json_path": "synthetic_same_field_budget.json"
+    },
+    {
+      "id": "a1111111-1111-4111-8111-111111111105",
+      "classification": "grant_letter",
+      "original_filename": "fcdo_scan_unreadable.pdf",
+      "extracted_json_path": "synthetic_unreadable_document.json"
+    }
+  ]
+}
