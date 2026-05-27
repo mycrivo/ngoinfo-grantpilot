@@ -1,0 +1,225 @@
+{
+  "fixture": "fcdo_incomplete",
+  "report_context": {
+    "report_type": "annual"
+  },
+  "expected_missing": [
+    {
+      "section_key": "summary_and_overview",
+      "required_item_type": "indicator",
+      "required_item_ref": "main_results_achieved"
+    },
+    {
+      "section_key": "summary_and_overview",
+      "required_item_type": "indicator",
+      "required_item_ref": "main_issues"
+    },
+    {
+      "section_key": "summary_and_overview",
+      "required_item_type": "indicator",
+      "required_item_ref": "key_recommendations"
+    },
+    {
+      "section_key": "summary_and_overview",
+      "required_item_type": "table",
+      "required_item_ref": "review_summary_sheet"
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "outcome_indicators"
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "progress_against_expected_results"
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "major_deviations"
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "gender_age_or_vulnerable_group_disaggregation_where_relevant"
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "table",
+      "required_item_ref": "outcome_assessment"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "output_indicators"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "logframe_milestones"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "actual_results"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "impact_weightings"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "risk_ratings"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "indicator",
+      "required_item_ref": "output_scores"
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "required_item_type": "table",
+      "required_item_ref": "output_score_table"
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "required_item_type": "indicator",
+      "required_item_ref": "evidence_base_strength"
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "required_item_type": "indicator",
+      "required_item_ref": "new_evidence"
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "required_item_type": "indicator",
+      "required_item_ref": "evaluation_progress"
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "required_item_type": "indicator",
+      "required_item_ref": "data_quality_limitations"
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "required_item_type": "indicator",
+      "required_item_ref": "new_risks"
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "required_item_type": "indicator",
+      "required_item_ref": "realised_assumptions"
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "required_item_type": "indicator",
+      "required_item_ref": "funds_not_used_as_intended_risk"
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "required_item_type": "indicator",
+      "required_item_ref": "climate_environment_risk"
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "required_item_type": "indicator",
+      "required_item_ref": "safeguarding_risk_where_relevant"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "economy"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "efficiency"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "effectiveness"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "equity"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "cost_drivers"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "forecast_vs_actual_costs"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "indicator",
+      "required_item_ref": "commercial_improvement_where_relevant"
+    },
+    {
+      "section_key": "value_for_money",
+      "required_item_type": "table",
+      "required_item_ref": "vfm_measures"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "partner_performance"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "supplier_or_consultant_performance"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "financial_delivery"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "forecast_vs_actual_spend"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "commercial_or_procurement_issues"
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "required_item_type": "indicator",
+      "required_item_ref": "FCDO_management_actions"
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "required_item_type": "indicator",
+      "required_item_ref": "recommendations_from_current_review"
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "required_item_type": "indicator",
+      "required_item_ref": "updates_on_previous_recommendations"
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "required_item_type": "indicator",
+      "required_item_ref": "priorities_for_next_period"
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "required_item_type": "table",
+      "required_item_ref": "recommendations_action_plan"
+    }
+  ],
+  "forbidden_gaps": [],
+  "max_gaps": null
+}

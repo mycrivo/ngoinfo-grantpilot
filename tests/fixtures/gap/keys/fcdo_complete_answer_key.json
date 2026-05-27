@@ -1,0 +1,9 @@
+{
+  "fixture": "fcdo_complete",
+  "report_context": {
+    "report_type": "annual"
+  },
+  "expected_missing": [],
+  "forbidden_gaps": [],
+  "max_gaps": 0
+}

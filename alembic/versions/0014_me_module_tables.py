@@ -193,6 +193,12 @@ def upgrade() -> None:
                 server_default=sa.text("'{}'::jsonb"),
             ),
             sa.Column(
+                "gap_analysis_json",
+                postgresql.JSONB(astext_type=sa.Text()),
+                nullable=False,
+                server_default=sa.text("'{}'::jsonb"),
+            ),
+            sa.Column(
                 "indicator_actuals_json",
                 postgresql.JSONB(astext_type=sa.Text()),
                 nullable=False,

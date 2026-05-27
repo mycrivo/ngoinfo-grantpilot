@@ -28,9 +28,13 @@ def test_anthropic_api_key_configured(monkeypatch):
     assert not anthropic_api_key_configured()
 
 
-def test_classifier_build_agent_options_forwards_key(monkeypatch):
+def test_classifier_messages_api_auth_and_compat_options(monkeypatch):
+    """D1 uses AsyncAnthropic (env key), not SDK ClaudeAgentOptions.env."""
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-forwarded")
     from app.reports.agents.classifier import build_agent_options
 
+    assert anthropic_api_key_configured()
     options = build_agent_options()
-    assert options.env["ANTHROPIC_API_KEY"] == "sk-test-forwarded"
+    assert options.model
+    assert options.output_format.get("type") == "json_schema"
+    assert not hasattr(options, "env")

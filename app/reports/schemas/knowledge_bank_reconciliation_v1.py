@@ -97,6 +97,71 @@ class KnowledgeBankReconciledEnvelope(BaseModel):
     agent_trace: ReconciliationAgentTrace | None = None
 
 
+STRUCTURED_KNOWLEDGE_BANK_KEYS = frozenset(
+    {
+        "schema_version",
+        "facts",
+        "conflicts",
+        "unreadable_sources",
+        "reconciliation_outcome",
+        "gate1_confirmed_at",
+        "gate2_confirmed_at",
+        "gate3_confirmed_at",
+        "gap_answers",
+    }
+)
+
+
+def structured_payload_from_persisted(knowledge_bank_json: dict) -> dict:
+    """Extract KnowledgeBankReconciliationOutput fields from persisted JSONB."""
+    return {
+        key: knowledge_bank_json.get(key)
+        for key in STRUCTURED_KNOWLEDGE_BANK_KEYS
+        if key in knowledge_bank_json
+    }
+
+
+def validate_gate1_knowledge_bank(output: KnowledgeBankReconciliationOutput) -> list[str]:
+    """Gate 1 confirm — provenance required; human may set conflict resolutions."""
+    errors: list[str] = []
+    for fact_key, fact in output.facts.items():
+        if not fact.source_document_id:
+            errors.append(f"fact {fact_key!r} missing source_document_id")
+        if not fact.provenance or not fact.provenance.excerpt:
+            errors.append(f"fact {fact_key!r} missing provenance excerpt")
+    for conflict in output.conflicts:
+        if len(conflict.values) < 2:
+            errors.append(f"conflict {conflict.fact_key!r} requires >= 2 values")
+        for entry in conflict.values:
+            if not entry.source_document_id:
+                errors.append(
+                    f"conflict {conflict.fact_key!r} value missing source_document_id"
+                )
+            if not entry.provenance or not entry.provenance.excerpt:
+                errors.append(
+                    f"conflict {conflict.fact_key!r} value missing provenance excerpt"
+                )
+    return errors
+
+
+def validate_gate1_confirm_payload(knowledge_bank_json: dict) -> list[str]:
+    """Validate human-confirmed knowledge bank before persist (no model call)."""
+    errors: list[str] = []
+    if knowledge_bank_json.get("schema_version") != KNOWLEDGE_BANK_RECONCILIATION_VERSION:
+        errors.append("invalid or missing schema_version")
+    if knowledge_bank_json.get("reconciler_agent") != RECONCILER_AGENT_NAME:
+        errors.append("knowledge bank must be reconciled before Gate 1 confirmation")
+    try:
+        structured = KnowledgeBankReconciliationOutput.model_validate(
+            structured_payload_from_persisted(knowledge_bank_json)
+        )
+    except Exception as exc:
+        errors.append(f"structured payload invalid: {exc}")
+        return errors
+    errors.extend(validate_gate1_knowledge_bank(structured))
+    return errors
+
+
 def validate_e1_knowledge_bank(output: KnowledgeBankReconciliationOutput) -> list[str]:
     """Deterministic E1 contract checks — fail closed before persist."""
     errors: list[str] = []
