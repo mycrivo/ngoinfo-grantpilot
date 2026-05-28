@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision: str = "0015_donor_reports_gap_analysis_json"
+revision: str = "0015_gap_analysis_json"
 down_revision: Union[str, Sequence[str], None] = "0014_me_module_tables"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
