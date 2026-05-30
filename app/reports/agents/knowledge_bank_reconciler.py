@@ -1035,11 +1035,18 @@ async def reconcile_documents(
 
     model: str | None = None,
 
+    per_attempt_timeout_seconds: float | None = None,
+
 ) -> KnowledgeBankReconcilerResult:
 
     bundle = build_reconciliation_bundle(documents)
 
-    return await reconcile_bundle(bundle, query_fn=query_fn, model=model)
+    return await reconcile_bundle(
+        bundle,
+        query_fn=query_fn,
+        model=model,
+        per_attempt_timeout_seconds=per_attempt_timeout_seconds,
+    )
 
 
 

@@ -1,0 +1,292 @@
+"""Create donor reports, upload documents, enqueue jobs, and read pipeline state."""
+
+from __future__ import annotations
+
+import logging
+import uuid
+from datetime import datetime, timezone
+from typing import Any
+
+from sqlalchemy.orm import Session
+
+from app.core.errors import ConflictError, DomainError, NotFoundError
+from app.reports.models.donor_report import DonorReport
+from app.reports.models.enums import (
+    DonorReportStatus,
+    ExtractionStatus,
+    ReportJobStage,
+    ReportJobStatus,
+)
+from app.reports.models.funder_report_template import FunderReportTemplate
+from app.reports.models.report_job import ReportJob
+from app.reports.models.uploaded_document import UploadedDocument
+from app.reports.services.document_storage_service import DocumentStorageService
+from app.reports.services.report_access import get_owned_donor_report
+
+logger = logging.getLogger("reports.services.donor_report_lifecycle")
+
+_DEFAULT_FUNDER_NAME = "__default__"
+_DEFAULT_TEMPLATE_NAME = "__lifecycle_default__"
+_MAX_UPLOAD_BYTES = 50 * 1024 * 1024
+
+_ACTIVE_JOB_STATUSES = frozenset(
+    {
+        ReportJobStatus.QUEUED.value,
+        ReportJobStatus.RUNNING.value,
+        ReportJobStatus.AWAITING_HUMAN.value,
+    }
+)
+
+
+def get_or_create_default_funder_template(db: Session) -> FunderReportTemplate:
+    template = (
+        db.query(FunderReportTemplate)
+        .filter(
+            FunderReportTemplate.funder_name == _DEFAULT_FUNDER_NAME,
+            FunderReportTemplate.template_name == _DEFAULT_TEMPLATE_NAME,
+            FunderReportTemplate.is_active.is_(True),
+        )
+        .first()
+    )
+    if template is not None:
+        return template
+
+    now = datetime.now(timezone.utc)
+    template = FunderReportTemplate(
+        id=uuid.uuid4(),
+        funder_name=_DEFAULT_FUNDER_NAME,
+        template_name=_DEFAULT_TEMPLATE_NAME,
+        region="global",
+        reporting_frequency="annual",
+        report_sections_json=[],
+        format_rules_json={},
+        terminology_map_json={},
+        docx_template_ref="system/default.docx",
+        is_active=True,
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(template)
+    db.flush()
+    return template
+
+
+def _resolve_funder_template(
+    db: Session,
+    *,
+    funder_report_template_id: uuid.UUID | None,
+) -> FunderReportTemplate:
+    if funder_report_template_id is not None:
+        template = db.get(FunderReportTemplate, funder_report_template_id)
+        if template is None or not template.is_active:
+            raise NotFoundError(
+                error_code="TEMPLATE_NOT_FOUND",
+                message=f"Funder template {funder_report_template_id} not found",
+                status_code=404,
+            )
+        return template
+    return get_or_create_default_funder_template(db)
+
+
+def create_donor_report(
+    db: Session,
+    *,
+    user_id: uuid.UUID,
+    reporting_period_start,
+    reporting_period_end,
+    linked_proposal_id: uuid.UUID | None = None,
+    funder_report_template_id: uuid.UUID | None = None,
+) -> DonorReport:
+    if reporting_period_end < reporting_period_start:
+        raise DomainError(
+            error_code="VALIDATION_ERROR",
+            message="reporting_period_end must be on or after reporting_period_start",
+            status_code=422,
+        )
+
+    template = _resolve_funder_template(
+        db, funder_report_template_id=funder_report_template_id
+    )
+    now = datetime.now(timezone.utc)
+    report = DonorReport(
+        id=uuid.uuid4(),
+        user_id=user_id,
+        funder_report_template_id=template.id,
+        linked_proposal_id=linked_proposal_id,
+        reporting_period_start=reporting_period_start,
+        reporting_period_end=reporting_period_end,
+        status=DonorReportStatus.DRAFT.value,
+        knowledge_bank_json={},
+        gap_analysis_json={},
+        indicator_actuals_json={},
+        content_json={},
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(report)
+    db.commit()
+    db.refresh(report)
+    logger.info("donor_report_created id=%s user_id=%s", report.id, user_id)
+    return report
+
+
+def upload_document(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    user_id: uuid.UUID,
+    filename: str,
+    mime_type: str,
+    data: bytes,
+    storage: DocumentStorageService | None = None,
+) -> UploadedDocument:
+    report = get_owned_donor_report(
+        db, donor_report_id=donor_report_id, user_id=user_id
+    )
+
+    if not filename.strip():
+        raise DomainError(
+            error_code="VALIDATION_ERROR",
+            message="filename is required",
+            status_code=422,
+        )
+    if not data:
+        raise DomainError(
+            error_code="VALIDATION_ERROR",
+            message="file is empty",
+            status_code=422,
+        )
+    if len(data) > _MAX_UPLOAD_BYTES:
+        raise DomainError(
+            error_code="FILE_TOO_LARGE",
+            message=f"Upload exceeds {_MAX_UPLOAD_BYTES} bytes",
+            status_code=413,
+        )
+
+    store = storage or DocumentStorageService()
+    storage_ref = DocumentStorageService.build_storage_ref(
+        user_id, report.id, filename
+    )
+    store.upload_bytes(storage_ref, data, mime_type)
+
+    document = UploadedDocument(
+        id=uuid.uuid4(),
+        donor_report_id=report.id,
+        user_id=user_id,
+        storage_ref=storage_ref,
+        original_filename=filename,
+        mime_type=mime_type,
+        size_bytes=len(data),
+        classification=None,
+        extracted_json={},
+        extraction_status=ExtractionStatus.PENDING.value,
+        created_at=datetime.now(timezone.utc),
+    )
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+    logger.info(
+        "document_uploaded donor_report_id=%s document_id=%s bytes=%d",
+        report.id,
+        document.id,
+        len(data),
+    )
+    return document
+
+
+def enqueue_report_job(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> ReportJob:
+    get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+
+    active = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status.in_(_ACTIVE_JOB_STATUSES),
+        )
+        .first()
+    )
+    if active is not None:
+        raise ConflictError(
+            error_code="ACTIVE_JOB_EXISTS",
+            message="An active report job already exists for this donor report",
+            status_code=409,
+            details={"job_id": str(active.id), "status": active.status},
+        )
+
+    job = ReportJob(
+        id=uuid.uuid4(),
+        donor_report_id=donor_report_id,
+        stage=ReportJobStage.CLASSIFY.value,
+        status=ReportJobStatus.QUEUED.value,
+        agent_trace_json={},
+    )
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+    logger.info(
+        "report_job_enqueued donor_report_id=%s job_id=%s",
+        donor_report_id,
+        job.id,
+    )
+    return job
+
+
+def get_report_job_status(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    user_id: uuid.UUID,
+    job_id: uuid.UUID | None = None,
+) -> ReportJob:
+    get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+
+    query = db.query(ReportJob).filter(ReportJob.donor_report_id == donor_report_id)
+    if job_id is not None:
+        job = query.filter(ReportJob.id == job_id).first()
+    else:
+        job = (
+            query.filter(ReportJob.status.in_(_ACTIVE_JOB_STATUSES))
+            .order_by(ReportJob.started_at.desc().nullslast())
+            .first()
+        )
+        if job is None:
+            job = query.order_by(ReportJob.started_at.desc().nullslast()).first()
+
+    if job is None:
+        raise NotFoundError(
+            error_code="JOB_NOT_FOUND",
+            message="No report job found for this donor report",
+            status_code=404,
+        )
+    return job
+
+
+def get_knowledge_bank(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> dict[str, Any]:
+    report = get_owned_donor_report(
+        db, donor_report_id=donor_report_id, user_id=user_id
+    )
+    kb = dict(report.knowledge_bank_json or {})
+    reconciled = bool(kb.get("reconciler_agent") or kb.get("reconciliation_outcome"))
+    ready = reconciled and not kb.get("gate1_confirmed_at")
+    return {
+        "donor_report_id": report.id,
+        "facts": kb.get("facts") or {},
+        "conflicts": kb.get("conflicts") or [],
+        "unreadable_sources": kb.get("unreadable_sources") or [],
+        "reconciliation_outcome": kb.get("reconciliation_outcome"),
+        "gate1_confirmed_at": kb.get("gate1_confirmed_at"),
+        "ready_for_gate1": ready,
+        "knowledge_bank_json": kb,
+    }

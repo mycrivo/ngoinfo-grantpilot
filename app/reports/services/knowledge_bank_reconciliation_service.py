@@ -35,6 +35,7 @@ async def reconcile_and_persist(
     donor_report_id: uuid.UUID,
     *,
     query_fn: QueryFn | None = None,
+    per_attempt_timeout_seconds: float | None = None,
 ) -> KnowledgeBankReconcilerResult:
     """Run E1 reconciler and persist to donor_reports.knowledge_bank_json.
 
@@ -57,7 +58,11 @@ async def reconcile_and_persist(
     )
 
     try:
-        result = await reconcile_documents(documents, query_fn=query_fn)
+        result = await reconcile_documents(
+            documents,
+            query_fn=query_fn,
+            per_attempt_timeout_seconds=per_attempt_timeout_seconds,
+        )
     except KnowledgeBankReconcilerError as exc:
         report.knowledge_bank_json = {
             "reconciler_agent": AGENT_NAME,

@@ -10,11 +10,41 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError, ForbiddenError, NotFoundError
+from app.reports.models.enums import ReportJobStage, ReportJobStatus
+from app.reports.models.report_job import ReportJob
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     validate_gate1_confirm_payload,
 )
 
 logger = logging.getLogger("reports.services.gate1_confirmation")
+
+
+def re_enqueue_gate1_job(db: Session, *, donor_report_id: uuid.UUID) -> ReportJob | None:
+    """Re-queue the awaiting Gate 1 job after human confirmation (deterministic pick)."""
+    candidates = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status == ReportJobStatus.AWAITING_HUMAN.value,
+            ReportJob.stage == ReportJobStage.GAP.value,
+        )
+        .order_by(
+            ReportJob.started_at.desc().nullslast(),
+            ReportJob.id.desc(),
+        )
+        .all()
+    )
+    if not candidates:
+        return None
+    job = candidates[0]
+    job.status = ReportJobStatus.QUEUED.value
+    db.add(job)
+    logger.info(
+        "gate1_re_enqueue donor_report_id=%s job_id=%s",
+        donor_report_id,
+        job.id,
+    )
+    return job
 
 
 def confirm_gate1(
@@ -57,6 +87,7 @@ def confirm_gate1(
     payload["gate1_confirmed_at"] = confirmed_at.isoformat()
     report.knowledge_bank_json = payload
     db.add(report)
+    re_enqueue_gate1_job(db, donor_report_id=donor_report_id)
     db.commit()
     db.refresh(report)
 
