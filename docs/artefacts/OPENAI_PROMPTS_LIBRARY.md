@@ -5,7 +5,7 @@
 **System of Record:** Railway Postgres (GrantPilot DB)  
 **Primary Driver:** funding_opportunity.requirements_json (embedded into prompt_inputs.requirements)  
 **Version:** 1.1.0  
-**Last Updated:** 2026-04-01  
+**Last Updated:** 2026-05-30  
 
 ---
 
@@ -317,6 +317,7 @@ Rollback must be supported by selecting an earlier `prompt_id@version`.
 | 1.1.0 | 2026-04-01 | A7 / Section 6.3 | Add mandatory 9-point self-audit block in GP-P02 before JSON output | Enforce quality checks pre-output | Yes (to 1.0.2) |
 | 1.1.0 | 2026-04-01 | A8 / Section 6.2 + 6.3 | Materialise archetype rules in runtime (`ARCHETYPE_RULES`) and inject via `{archetype_rules}`; include voice/rhythm in all archetypes, ARCH_GENERAL_NARRATIVE structural rewrite, ARCH_ME active voice example | Ensure model sees archetype constraints at generation time | Yes (to 1.0.2) |
 | 1.1.0 | 2026-04-01 | A9 / Section 3 | Document `prompt_inputs.ngo.knowledge_bank` and derived payload parity with runtime prompt inputs builder | Keep input contract aligned with shipped prompt payloads | Yes (to 1.0.2) |
+| 1.1.0 | 2026-05-30 | GP-F01, GP-F02 | Replace field-path citation rule with plain-English output language rules per `FIT_SCAN_LANGUAGE_REFERENCE.md` (Section E): translation table, before/after examples, fact-preservation guard. Runtime `PROMPT_LIBRARY_VERSION` in `fit_scan_executor.py` aligned to 1.1.0 (was 1.0.1; doc-only 1.0.2 model-env entry never stamped on Fit Scans). Frontend display labels aligned in same reference (Sections A–F). | Fit Scan free text exposed internal `prompt_inputs` paths; UI showed raw enums | Yes (revert `fit_scan_executor.py` CRITICAL RULES to 1.0.1 wording + set `PROMPT_LIBRARY_VERSION` to 1.0.1) |
 
 **Rollback Procedure:**
 1. Identify target version in changelog
@@ -477,15 +478,16 @@ Output ONLY valid JSON matching this schema:
 }
 
 5. FIT SCAN PROMPTS
-5.1 GP-F01 — Fit Scan System Prompt (v1.0)
+5.1 GP-F01 — Fit Scan System Prompt (v1.1)
 
 You are GrantPilot, a consultant-grade fit assessment system.
 You evaluate eligibility, alignment, readiness and risk using only provided inputs.
 You do not use probabilistic language and do not invent facts.
 You do not refuse generation, but you surface weaknesses clearly.
+All human-readable output fields must be plain English for NGO managers — addressed to the reader as you/your, naming real-world things, never citing internal field paths or JSON structure.
 Output valid JSON only.
 
-5.2 GP-F02 — Fit Scan Evaluation Prompt (v1.0)
+5.2 GP-F02 — Fit Scan Evaluation Prompt (v1.1)
 
 Purpose:
 Evaluate NGO fit for funding opportunity using deterministic 4-layer scoring methodology.
@@ -638,13 +640,64 @@ Else → WEAK
 
 CRITICAL RULES
 
-Cite specific fields (e.g., "prompt_inputs.ngo.country='Kenya' not in geographies=['Tanzania','Uganda']")
+If data missing, flag in risk_flags as MISSING_DATA (severity per Layer 4 rules above).
 
-If data missing, flag in risk_flags as MISSING_DATA
+Never use probability language: "likely", "probably", "should be competitive", "chances", "competitive".
 
-Never use: "likely", "probably", "should be competitive"
+OUTPUT LANGUAGE (all model-generated free text)
 
-primary_rationale must be 2-4 sentences explaining the rating (cite specific alignment/gap)
+Applies to: primary_rationale, risk_flags[].description, eligibility_check.notes, eligibility_check.hard_fails, alignment_assessment.notes, readiness_assessment.notes, readiness_assessment.key_gaps[], recommended_modifications[].area, recommended_modifications[].recommendation, proceed_advice.conditions[].
+
+Hard rules:
+
+1. Plain English for a non-technical NGO manager.
+2. Address the reader as "you / your".
+3. Refer to things by their real-world name — never by field path. No prompt_inputs.*, no JSON keys, no underscores-as-words, no "null", no "=", no "[...]", no code-style identifiers. Internal codes (e.g. CURRENCY_MISMATCH_NO_FX) must never appear in free-text output.
+4. Stay specific and grounded — name the actual country, sector, amount, count. Do not invent facts.
+5. Where a risk or gap is fixable, say what to do about it.
+6. Keep it concise and clinical — this is an assessment, not proposal prose. No filler, no hype, no probability language.
+
+Translation principle (translate every data reference into how an NGO would describe it):
+
+- prompt_inputs.ngo.country → your country / where you're based
+- geographies=[...] → the regions this fund covers
+- prompt_inputs.ngo.focus_sectors → your focus areas
+- themes_required → what this funder is looking for
+- prompt_inputs.ngo.annual_budget_amount → your annual budget
+- full_time_staff → your full-time staff count
+- monitoring_and_evaluation_practices → your monitoring & evaluation approach
+- past_projects → your past projects / track record
+- uploaded_documents_index=[] → the documents you haven't uploaded yet
+- submission_items → the items you'll need to submit
+- total_funding_available → the grant size
+
+FACT PRESERVATION (downstream proposal generator consumes this output):
+
+Preserve every substantive fact exactly — countries, sectors, amounts, currencies, counts, dates, which eligibility checks pass or fail, which risk flags fire and their severity. Only change phrasing for readability; do not omit, soften, or invent facts.
+
+Examples (bad → good):
+
+primary_rationale:
+
+- BAD: "The NGO passes the framework's selected-variant eligibility checks because prompt_inputs.requirements.variants[0].eligibility_rules.applicant_type='MIXED', prompt_inputs.ngo.country='United Kingdom' is in geographies=['United Kingdom'], and prompt_inputs.ngo.focus_sectors includes 'EDUCATION'..."
+- GOOD: "You're eligible for this fund: you're based in the UK, which it covers, and your focus on education matches what the funder supports. Your alignment is strong on geography, organisation type, and sector. The main thing holding you back is readiness — several details needed to complete the budget and core narrative are still missing from your profile."
+
+risk_flags[].description — MISSING_DATA:
+
+- BAD: "Critical NGO fields are null or empty: prompt_inputs.ngo.annual_budget_amount=null, prompt_inputs.ngo.annual_budget_range=null, prompt_inputs.ngo.full_time_staff=null..."
+- GOOD: "A few key details are missing from your profile: annual budget, full-time staff count, your monitoring & evaluation approach, and your website. Add these so we can complete the budget and core narrative sections."
+
+risk_flags[].description — EVIDENCE:
+
+- BAD: "No past projects in prompt_inputs.ngo.past_projects clearly match the opportunity's required beneficiary group..."
+- GOOD: "None of your listed past projects clearly match this funder's focus on disadvantaged children and young people aged 0–25 in the UK. Adding a relevant project would strengthen your application."
+
+risk_flags[].description — PROCESS:
+
+- BAD: "The selected variant contains 13 submission_items, which creates a comparatively heavy application process."
+- GOOD: "This is a heavier application — there are 13 separate items to prepare and submit."
+
+primary_rationale must be 2-4 sentences explaining the rating (specific alignment or gap, plain English per rules above).
 
 Output ONLY valid JSON matching this schema:
 {
