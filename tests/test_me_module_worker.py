@@ -1,3 +1,6 @@
+import subprocess
+import sys
+import textwrap
 import threading
 import uuid
 from pathlib import Path
@@ -225,3 +228,88 @@ def test_outcome_5_poll_cycle_error_does_not_exit_worker(worker_db, monkeypatch)
         job_runner_module.run_forever()
 
     assert calls["count"] == 1
+
+
+def test_worker_startup_path_registers_mappers_before_claim():
+    """Fresh worker import path must register User before claim_next_job runs.
+
+    Reproduces production failure: job_runner imports only ReportJob, so the first
+    claim query triggers DonorReport mapper configuration without User registered.
+    """
+    repo_root = Path(__file__).resolve().parents[1]
+
+    without_bootstrap = textwrap.dedent(
+        """
+        import sys
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy.pool import StaticPool
+
+        engine = create_engine(
+            "sqlite://",
+            connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
+        )
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        from app.reports.worker.job_runner import claim_next_job
+
+        try:
+            claim_next_job(session)
+        except Exception as exc:
+            msg = str(exc)
+            if "failed to locate a name" in msg and "User" in msg:
+                sys.exit(0)
+            raise
+        finally:
+            session.close()
+        sys.exit("expected mapper failure without ORM bootstrap")
+        """
+    )
+
+    with_bootstrap = textwrap.dedent(
+        """
+        import sys
+        from app.reports.worker.orm_bootstrap import ensure_orm_models_registered
+
+        ensure_orm_models_registered()
+
+        from app.reports.worker.job_runner import claim_next_job
+        from tests.worker_validation_seed import (
+            create_worker_validation_sessionmaker,
+            seed_queued_report_job,
+        )
+
+        session_factory = create_worker_validation_sessionmaker()
+        session = session_factory()
+        seeded = seed_queued_report_job(session)
+        expected_id = seeded.id
+        session.close()
+
+        session = session_factory()
+        claimed = claim_next_job(session)
+        session.close()
+
+        if claimed is None or claimed.id != expected_id:
+            sys.exit("claim_next_job failed after ORM bootstrap")
+        print("OK")
+        """
+    )
+
+    fail_result = subprocess.run(
+        [sys.executable, "-c", without_bootstrap],
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+    )
+    assert fail_result.returncode == 0, fail_result.stdout + fail_result.stderr
+
+    ok_result = subprocess.run(
+        [sys.executable, "-c", with_bootstrap],
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+    )
+    assert ok_result.returncode == 0, ok_result.stdout + ok_result.stderr
+    assert "OK" in ok_result.stdout
