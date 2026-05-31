@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 from typing import Any
 
 from claude_agent_sdk import ResultMessage
@@ -39,6 +40,135 @@ def routing_classifier_query_fn():
         )
 
     return _query
+
+
+def mixed_indicator_extract_classifier_query_fn():
+    """Route proposal, grant letter, and indicator_data for mixed-intake walks."""
+
+    async def _query(*, prompt: str, options=None):
+        _ = options
+        if "proposal.docx" in prompt:
+            label = "proposal"
+        elif "award_letter" in prompt:
+            label = "grant_letter"
+        elif "logframe" in prompt or "indicator_data.xlsx" in prompt:
+            label = "indicator_data"
+        else:
+            label = "other"
+        yield _result_message(
+            {
+                "classification": label,
+                "confidence": 0.95,
+                "justification": f"Test routing to {label}.",
+            }
+        )
+
+    return _query
+
+
+def minimal_indicator_data_query_fn():
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield _result_message(
+            {
+                "confidence": 0.9,
+                "indicators": [
+                    {
+                        "row_id": "row_1",
+                        "indicator_ref": {
+                            "absent": False,
+                            "raw": "OP1.1",
+                            "normalized": "OP1.1",
+                            "cell_state": "stated",
+                            "normalization_ambiguous": False,
+                            "source_locator": {
+                                "sheet": "Indicators",
+                                "cell_range": "B2",
+                            },
+                            "multi_value": False,
+                            "stated_values": [],
+                        },
+                        "indicator_name": {
+                            "absent": False,
+                            "raw": "Test indicator",
+                            "normalized": "Test indicator",
+                            "cell_state": "stated",
+                            "normalization_ambiguous": False,
+                            "source_locator": {
+                                "sheet": "Indicators",
+                                "cell_range": "C2",
+                            },
+                            "multi_value": False,
+                            "stated_values": [],
+                        },
+                        "target": {
+                            "absent": False,
+                            "raw": "100",
+                            "normalized": "100",
+                            "cell_state": "stated",
+                            "normalization_ambiguous": False,
+                            "source_locator": {
+                                "sheet": "Indicators",
+                                "cell_range": "D2",
+                            },
+                            "multi_value": False,
+                            "stated_values": [],
+                        },
+                        "actual": {
+                            "absent": False,
+                            "raw": "50",
+                            "normalized": "50",
+                            "cell_state": "stated",
+                            "normalization_ambiguous": False,
+                            "source_locator": {
+                                "sheet": "Indicators",
+                                "cell_range": "E2",
+                            },
+                            "multi_value": False,
+                            "stated_values": [],
+                        },
+                        "unit": None,
+                        "disaggregation": [],
+                        "source_locator": {
+                            "sheet": "Indicators",
+                            "cell_range": "A2",
+                        },
+                        "multi_value": False,
+                    }
+                ],
+                "financials": None,
+            }
+        )
+
+    return _query
+
+
+def mixed_indicator_spreadsheet_loader():
+    """Simulate prod: .docx indicator_data fails intake; .xlsx loads fixture workbook."""
+
+    from app.reports.extraction.spreadsheet_input import (
+        compute_spreadsheet_hash,
+        parse_xlsx_workbook,
+        spreadsheet_to_json_text,
+    )
+    from app.reports.models.uploaded_document import UploadedDocument
+
+    fixture_xlsx = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "indicator_extractor"
+        / "fcdo_bridgelight_indicator_data.xlsx"
+    )
+
+    def _loader(document: UploadedDocument) -> tuple[str, str | None]:
+        if document.original_filename.lower().endswith(".docx"):
+            raise ValueError("Unsupported spreadsheet format: .docx")
+        parsed = parse_xlsx_workbook(fixture_xlsx)
+        text, _truncated = spreadsheet_to_json_text(parsed)
+        return text, compute_spreadsheet_hash(parsed)
+
+    return _loader
 
 
 def minimal_proposal_query_fn():

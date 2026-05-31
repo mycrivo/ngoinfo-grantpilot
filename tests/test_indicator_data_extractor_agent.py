@@ -12,9 +12,11 @@ import pytest
 from app.reports.agents.indicator_data_extractor import (
     AGENT_NAME,
     DEGRADED_EXTRACTION_TIMEOUT,
+    DEGRADED_EXTRACTION_UNPARSEABLE,
     MAX_EXTRACTION_ATTEMPTS,
     MAX_TURNS,
     IndicatorDataExtractorError,
+    build_degraded_unparseable_result,
     extract_indicator_data_from_path,
     extract_indicator_data_text,
 )
@@ -27,6 +29,7 @@ from app.reports.schemas.indicator_data_extraction_v1 import IndicatorDataExtrac
 from app.reports.services.indicator_data_extraction_service import (
     IndicatorDataExtractionServiceError,
     extract_and_persist_indicator_data,
+    persist_degraded_indicator_unparseable,
 )
 from claude_agent_sdk import ResultMessage
 from tests.indicator_data_grading import (
@@ -349,6 +352,52 @@ async def test_cell_state_fidelity(spreadsheet_json: str):
         query_fn=_mock_query_factory(_fcdo_mock_llm_response()),
     )
     assert_cell_state_fidelity(result.envelope.structured, key)
+
+
+@pytest.mark.asyncio
+async def test_unparseable_docx_from_path_returns_degraded_no_raise(tmp_path):
+    path = tmp_path / "logframe_data.docx"
+    path.write_bytes(b"not a real spreadsheet")
+    result = await extract_indicator_data_from_path(path)
+    assert result.envelope.structured.extraction_outcome == "degraded"
+    assert result.envelope.error == DEGRADED_EXTRACTION_UNPARSEABLE
+    assert result.envelope.agent_trace is not None
+    assert result.envelope.agent_trace.degraded_code == DEGRADED_EXTRACTION_UNPARSEABLE
+    assert result.envelope.agent_trace.attempt_count is None
+
+
+def test_build_degraded_unparseable_matches_timeout_envelope_shape():
+    unparseable = build_degraded_unparseable_result(
+        content_hash="hash-unparseable",
+        filename="logframe.docx",
+    )
+    assert unparseable.envelope.structured.extraction_outcome == "degraded"
+    assert unparseable.envelope.error == DEGRADED_EXTRACTION_UNPARSEABLE
+    assert unparseable.envelope.structured.indicators == []
+    assert unparseable.envelope.agent_trace.degraded_code == DEGRADED_EXTRACTION_UNPARSEABLE
+
+
+@pytest.mark.asyncio
+async def test_service_persists_unparseable_without_raise():
+    db = MagicMock()
+    doc_id = uuid.uuid4()
+
+    class Doc:
+        def __init__(self) -> None:
+            self.id = doc_id
+            self.classification = "indicator_data"
+            self.original_filename = "logframe_data.docx"
+            self.extracted_json: dict = {}
+            self.extraction_status = ExtractionStatus.PENDING.value
+
+    doc = Doc()
+    db.get.return_value = doc
+
+    result = await persist_degraded_indicator_unparseable(db, doc_id)
+    assert doc.extraction_status == ExtractionStatus.FAILED.value
+    assert doc.extracted_json["structured"]["extraction_outcome"] == "degraded"
+    assert doc.extracted_json["error"] == DEGRADED_EXTRACTION_UNPARSEABLE
+    assert result.envelope.structured.extraction_outcome == "degraded"
 
 
 @pytest.mark.asyncio

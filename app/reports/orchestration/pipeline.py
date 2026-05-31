@@ -31,6 +31,7 @@ from app.reports.services.grant_terms_extraction_service import (
 from app.reports.services.indicator_data_extraction_service import (
     IndicatorDataExtractionServiceError,
     extract_and_persist_indicator_data,
+    persist_degraded_indicator_unparseable,
 )
 from app.reports.services.knowledge_bank_reconciliation_service import (
     KnowledgeBankReconciliationServiceError,
@@ -337,24 +338,37 @@ async def _run_extract_stage(
                 degraded_documents.append(str(document.id))
 
         elif classification == DocumentClassification.INDICATOR_DATA.value:
-            spreadsheet_json, content_hash = load_spreadsheet_json(
-                document,
-                loader_override=ctx.spreadsheet_loader,
-            )
             try:
-                outcome = await dispatch_stage(
-                    extract_and_persist_indicator_data(
-                        session,
-                        document.id,
-                        spreadsheet_json,
-                        content_hash=content_hash,
-                        query_fn=ctx.query_fn_indicator_data,
-                        per_attempt_timeout_seconds=ctx.indicator_timeout_seconds,
-                    ),
-                    stage=stage,
+                spreadsheet_json, content_hash = load_spreadsheet_json(
+                    document,
+                    loader_override=ctx.spreadsheet_loader,
                 )
-            except IndicatorDataExtractionServiceError as exc:
-                raise StageFailure(stage, exc.message) from exc
+            except ValueError:
+                try:
+                    outcome = await dispatch_stage(
+                        persist_degraded_indicator_unparseable(
+                            session,
+                            document.id,
+                        ),
+                        stage=stage,
+                    )
+                except IndicatorDataExtractionServiceError as exc:
+                    raise StageFailure(stage, exc.message) from exc
+            else:
+                try:
+                    outcome = await dispatch_stage(
+                        extract_and_persist_indicator_data(
+                            session,
+                            document.id,
+                            spreadsheet_json,
+                            content_hash=content_hash,
+                            query_fn=ctx.query_fn_indicator_data,
+                            per_attempt_timeout_seconds=ctx.indicator_timeout_seconds,
+                        ),
+                        stage=stage,
+                    )
+                except IndicatorDataExtractionServiceError as exc:
+                    raise StageFailure(stage, exc.message) from exc
             if outcome.degraded:
                 degraded_documents.append(str(document.id))
 

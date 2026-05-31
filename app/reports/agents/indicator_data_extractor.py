@@ -48,6 +48,7 @@ MAX_TURNS = 3
 TIMEOUT_SECONDS = int(os.getenv("ME_CLASSIFIER_TIMEOUT_SECONDS", "90"))
 MAX_EXTRACTION_ATTEMPTS = 2
 DEGRADED_EXTRACTION_TIMEOUT = "DEGRADED_EXTRACTION_TIMEOUT"
+DEGRADED_EXTRACTION_UNPARSEABLE = "DEGRADED_EXTRACTION_UNPARSEABLE"
 MAX_INPUT_CHARS = 120_000
 
 DISALLOWED_TOOLS = [
@@ -337,11 +338,12 @@ def _absent_tabular_cell() -> TabularCellField:
     )
 
 
-def _build_degraded_timeout_result(
+def _build_degraded_result(
     *,
     content_hash: str,
-    truncated: bool,
-    attempt_count: int,
+    degraded_code: str,
+    truncated: bool = False,
+    attempt_count: int | None = None,
     model: str | None = None,
 ) -> IndicatorDataExtractorResult:
     structured = IndicatorDataExtractionOutput(
@@ -354,26 +356,59 @@ def _build_degraded_timeout_result(
     now = datetime.now(timezone.utc)
     resolved_model = model or DEFAULT_MODEL
     trace = IndicatorDataAgentTrace(
-        model_used=resolved_model,
-        max_turns=MAX_TURNS,
+        model_used=resolved_model if attempt_count is not None else None,
+        max_turns=MAX_TURNS if attempt_count is not None else None,
         content_hash=content_hash,
         attempt_count=attempt_count,
-        degraded_code=DEGRADED_EXTRACTION_TIMEOUT,
+        degraded_code=degraded_code,
     )
     envelope = IndicatorDataExtractedEnvelope(
         extractor_agent=AGENT_NAME,
         extracted_at=now,
         structured=structured,
         confidence=None,
-        error=DEGRADED_EXTRACTION_TIMEOUT,
+        error=degraded_code,
         agent_trace=trace,
     )
     return IndicatorDataExtractorResult(
         envelope=envelope,
-        model_used=resolved_model,
+        model_used=resolved_model if attempt_count is not None else None,
         timestamp=now,
         truncated=truncated,
         content_hash=content_hash,
+    )
+
+
+def build_degraded_unparseable_result(
+    *,
+    content_hash: str,
+    filename: str | None = None,
+) -> IndicatorDataExtractorResult:
+    """Typed terminal outcome when spreadsheet intake fails — never calls the LLM."""
+    logger.warning(
+        "indicator_data_extractor unparseable filename=%s",
+        filename,
+    )
+    return _build_degraded_result(
+        content_hash=content_hash,
+        degraded_code=DEGRADED_EXTRACTION_UNPARSEABLE,
+    )
+
+
+def _build_degraded_timeout_result(
+    *,
+    content_hash: str,
+    truncated: bool,
+    attempt_count: int,
+    model: str | None = None,
+) -> IndicatorDataExtractorResult:
+    """Typed terminal outcome after bounded timeout retries — never raises."""
+    return _build_degraded_result(
+        content_hash=content_hash,
+        degraded_code=DEGRADED_EXTRACTION_TIMEOUT,
+        truncated=truncated,
+        attempt_count=attempt_count,
+        model=model,
     )
 
 
@@ -567,7 +602,13 @@ async def extract_indicator_data_from_path(
     query_fn: QueryFn | None = None,
     model: str | None = None,
 ) -> IndicatorDataExtractorResult:
-    data = parse_spreadsheet_from_path(path)
+    try:
+        data = parse_spreadsheet_from_path(path)
+    except ValueError:
+        return build_degraded_unparseable_result(
+            content_hash=compute_content_hash(f"unparseable:{path.name}"),
+            filename=path.name,
+        )
     text, truncated_extra = spreadsheet_to_json_text(data, max_chars=MAX_INPUT_CHARS)
     content_hash = compute_spreadsheet_hash(data)
     result = await extract_indicator_data_text(

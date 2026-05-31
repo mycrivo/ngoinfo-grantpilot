@@ -31,7 +31,10 @@ from tests.orchestrator_mocks import (
     fcdo_incomplete_gap_query_fn,
     gap_stop_error_query_fn,
     minimal_grant_terms_query_fn,
+    minimal_indicator_data_query_fn,
     minimal_proposal_query_fn,
+    mixed_indicator_extract_classifier_query_fn,
+    mixed_indicator_spreadsheet_loader,
     reconciler_query_fn,
     routing_classifier_query_fn,
     slow_grant_terms_query_fn,
@@ -246,6 +249,71 @@ def test_outcome_uniform_degraded_proposal_extract_continues_to_gate1(orchestrat
     assert proposal_doc is not None
     assert proposal_doc.extracted_json.get("structured", {}).get("extraction_outcome") == "degraded"
     assert proposal_doc.extracted_json.get("error") == "DEGRADED_EXTRACTION_TIMEOUT"
+
+
+def test_outcome_uniform_degraded_indicator_unparseable_mixed_stage_reaches_gate1(
+    orchestrator_db,
+):
+    session = orchestrator_db()
+    fixture = seed_orchestrator_fixture(
+        session,
+        documents=[
+            (
+                "proposal.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+            ("award_letter.pdf", "application/pdf"),
+            (
+                "logframe_data.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ),
+            (
+                "indicator_data.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ),
+        ],
+    )
+    job_id = fixture["job"].id
+    grant_doc_id = str(fixture["documents"][1].id)
+    logframe_doc_id = fixture["documents"][2].id
+    spreadsheet_doc_id = fixture["documents"][3].id
+    session.close()
+
+    ctx = OrchestrationContext(
+        query_fn_classifier=mixed_indicator_extract_classifier_query_fn(),
+        query_fn_proposal=minimal_proposal_query_fn(),
+        query_fn_grant_terms=minimal_grant_terms_query_fn(),
+        query_fn_indicator_data=minimal_indicator_data_query_fn(),
+        query_fn_reconciler=reconciler_query_fn(source_document_id=grant_doc_id),
+        text_loader=_text_loader,
+        spreadsheet_loader=mixed_indicator_spreadsheet_loader(),
+    )
+
+    run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
+
+    verify = orchestrator_db()
+    job = verify.get(ReportJob, job_id)
+    logframe_doc = verify.get(UploadedDocument, logframe_doc_id)
+    spreadsheet_doc = verify.get(UploadedDocument, spreadsheet_doc_id)
+    verify.close()
+
+    assert job is not None
+    assert job.status == ReportJobStatus.AWAITING_HUMAN.value
+    assert job.stage == ReportJobStage.GAP.value
+    assert job.error is None
+    extract_trace = job.agent_trace_json.get("stages", {}).get("extract", {})
+    assert str(logframe_doc_id) in extract_trace.get("degraded_documents", [])
+    assert logframe_doc is not None
+    assert (
+        logframe_doc.extracted_json.get("structured", {}).get("extraction_outcome")
+        == "degraded"
+    )
+    assert logframe_doc.extracted_json.get("error") == "DEGRADED_EXTRACTION_UNPARSEABLE"
+    assert spreadsheet_doc is not None
+    assert (
+        spreadsheet_doc.extracted_json.get("structured", {}).get("extraction_outcome")
+        == "complete"
+    )
 
 
 def test_outcome_uniform_degraded_reconcile_halts_not_failed(orchestrator_db):
