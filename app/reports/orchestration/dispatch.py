@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, TypeVar
 
 from app.reports.agents.classifier import ClassifierError
+from app.reports.agents.gap_compliance_agent import GapComplianceAgentError
 from app.reports.agents.grant_terms_extractor import GrantTermsExtractorError
 from app.reports.agents.indicator_data_extractor import IndicatorDataExtractorError
 from app.reports.agents.knowledge_bank_reconciler import KnowledgeBankReconcilerError
@@ -19,6 +20,7 @@ T = TypeVar("T")
 
 _STOP_ERRORS = (
     ClassifierError,
+    GapComplianceAgentError,
     ProposalExtractorError,
     GrantTermsExtractorError,
     IndicatorDataExtractorError,

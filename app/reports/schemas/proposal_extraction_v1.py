@@ -15,7 +15,7 @@ PROPOSAL_EXTRACTION_SCHEMA_VERSION = "1.0.0"
 
 LogframeLevel = Literal["impact", "outcome", "output"]
 ExtractionItemStatus = Literal["extracted", "failed", "skipped"]
-ExtractionOutcome = Literal["complete", "partial", "failed", "unreadable"]
+ExtractionOutcome = Literal["complete", "partial", "failed", "degraded", "unreadable"]
 
 
 class SourceProvenance(BaseModel):
@@ -98,6 +98,8 @@ class ProposalAgentTrace(BaseModel):
     output_tokens: int | None = None
     max_turns: int | None = None
     content_hash: str | None = None
+    attempt_count: int | None = None
+    degraded_code: str | None = None
     unreadable_code: str | None = None
 
 

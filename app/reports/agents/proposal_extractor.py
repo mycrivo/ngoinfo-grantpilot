@@ -38,7 +38,9 @@ AGENT_NAME = "proposal_extractor"
 MODEL_CLASS = "cheap_mid"
 DEFAULT_MODEL = os.getenv("ME_CLASSIFIER_MODEL", "haiku")
 MAX_TURNS = 3
+MAX_EXTRACTION_ATTEMPTS = 2
 TIMEOUT_SECONDS = int(os.getenv("ME_CLASSIFIER_TIMEOUT_SECONDS", "90"))
+DEGRADED_EXTRACTION_TIMEOUT = "DEGRADED_EXTRACTION_TIMEOUT"
 MAX_INPUT_CHARS = 120_000
 
 DISALLOWED_TOOLS = [
@@ -390,12 +392,55 @@ def _build_unreadable_result(*, content_hash: str) -> ProposalExtractorResult:
     )
 
 
+def _build_degraded_timeout_result(
+    *,
+    content_hash: str,
+    truncated: bool,
+    attempt_count: int,
+    model: str | None = None,
+) -> ProposalExtractorResult:
+    """Typed terminal outcome after bounded timeout retries — never raises."""
+    structured = ProposalExtractionOutput(
+        schema_version=PROPOSAL_EXTRACTION_SCHEMA_VERSION,
+        objectives=[],
+        activities=[],
+        indicators=[],
+        extraction_outcome="degraded",
+        summary=ProposalExtractionSummary(),
+    )
+    now = datetime.now(timezone.utc)
+    resolved_model = model or DEFAULT_MODEL
+    trace = ProposalAgentTrace(
+        model_used=resolved_model,
+        max_turns=MAX_TURNS,
+        content_hash=content_hash,
+        attempt_count=attempt_count,
+        degraded_code=DEGRADED_EXTRACTION_TIMEOUT,
+    )
+    envelope = ProposalExtractedEnvelope(
+        extractor_agent=AGENT_NAME,
+        extracted_at=now,
+        structured=structured,
+        confidence=None,
+        error=DEGRADED_EXTRACTION_TIMEOUT,
+        agent_trace=trace,
+    )
+    return ProposalExtractorResult(
+        envelope=envelope,
+        model_used=resolved_model,
+        timestamp=now,
+        truncated=truncated,
+        content_hash=content_hash,
+    )
+
+
 async def extract_proposal_text(
     text: str,
     *,
     filename: str | None = None,
     model: str | None = None,
     query_fn: QueryFn | None = None,
+    per_attempt_timeout_seconds: float | None = None,
 ) -> ProposalExtractorResult:
     """Extract structured proposal content from Docling-cleaned text."""
     if query_fn is None:
@@ -409,6 +454,11 @@ async def extract_proposal_text(
 
     content_hash = compute_content_hash(prepared)
     prompt = build_extraction_prompt(prepared, filename=filename)
+    attempt_timeout = (
+        per_attempt_timeout_seconds
+        if per_attempt_timeout_seconds is not None
+        else float(TIMEOUT_SECONDS)
+    )
 
     logger.info(
         "proposal_extractor start filename=%s chars=%d truncated=%s",
@@ -417,22 +467,39 @@ async def extract_proposal_text(
         truncated,
     )
 
-    try:
-        return await asyncio.wait_for(
-            _run_extractor_query(
-                prompt,
-                query_fn=query_fn,
-                model=model,
-                content_hash=content_hash,
-                truncated=truncated,
-            ),
-            timeout=TIMEOUT_SECONDS,
-        )
-    except asyncio.TimeoutError as exc:
-        raise ProposalExtractorError(
-            "STOP_TIMEOUT",
-            f"Proposal extractor exceeded {TIMEOUT_SECONDS}s timeout",
-        ) from exc
+    for attempt in range(1, MAX_EXTRACTION_ATTEMPTS + 1):
+        try:
+            return await asyncio.wait_for(
+                _run_extractor_query(
+                    prompt,
+                    query_fn=query_fn,
+                    model=model,
+                    content_hash=content_hash,
+                    truncated=truncated,
+                ),
+                timeout=attempt_timeout,
+            )
+        except asyncio.TimeoutError:
+            logger.warning(
+                "proposal_extractor timeout attempt=%d/%d ceiling=%ss",
+                attempt,
+                MAX_EXTRACTION_ATTEMPTS,
+                attempt_timeout,
+            )
+            if attempt >= MAX_EXTRACTION_ATTEMPTS:
+                return _build_degraded_timeout_result(
+                    content_hash=content_hash,
+                    truncated=truncated,
+                    attempt_count=attempt,
+                    model=model,
+                )
+
+    return _build_degraded_timeout_result(
+        content_hash=content_hash,
+        truncated=truncated,
+        attempt_count=MAX_EXTRACTION_ATTEMPTS,
+        model=model,
+    )
 
 
 def extract_proposal_text_sync(
@@ -441,6 +508,7 @@ def extract_proposal_text_sync(
     filename: str | None = None,
     model: str | None = None,
     query_fn: QueryFn | None = None,
+    per_attempt_timeout_seconds: float | None = None,
 ) -> ProposalExtractorResult:
     return asyncio.run(
         extract_proposal_text(
@@ -448,6 +516,7 @@ def extract_proposal_text_sync(
             filename=filename,
             model=model,
             query_fn=query_fn,
+            per_attempt_timeout_seconds=per_attempt_timeout_seconds,
         )
     )
 

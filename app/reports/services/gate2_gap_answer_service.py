@@ -25,6 +25,37 @@ from app.reports.services.gate_preconditions import (
 logger = logging.getLogger("reports.services.gate2_gap_answers")
 
 
+def re_enqueue_gate2_job(db: Session, *, donor_report_id: uuid.UUID) -> ReportJob | None:
+    """Re-queue the awaiting Gate 2 job after full gap-answer confirmation."""
+    from app.reports.models.enums import ReportJobStage, ReportJobStatus
+    from app.reports.models.report_job import ReportJob
+
+    candidates = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status == ReportJobStatus.AWAITING_HUMAN.value,
+            ReportJob.stage == ReportJobStage.SYNTHESISE.value,
+        )
+        .order_by(
+            ReportJob.started_at.desc().nullslast(),
+            ReportJob.id.desc(),
+        )
+        .all()
+    )
+    if not candidates:
+        return None
+    job = candidates[0]
+    job.status = ReportJobStatus.QUEUED.value
+    db.add(job)
+    logger.info(
+        "gate2_re_enqueue donor_report_id=%s job_id=%s",
+        donor_report_id,
+        job.id,
+    )
+    return job
+
+
 def _persisted_answer(
     response: Gate2GapResponseInput,
     *,
@@ -127,6 +158,8 @@ def submit_gate2_gap_responses(
 
     report.knowledge_bank_json = kb
     db.add(report)
+    if gate2_unlocked:
+        re_enqueue_gate2_job(db, donor_report_id=donor_report_id)
     db.commit()
     db.refresh(report)
 

@@ -50,6 +50,7 @@ async def extract_and_persist_proposal(
     text: str,
     *,
     query_fn: QueryFn | None = None,
+    per_attempt_timeout_seconds: float | None = None,
 ) -> ProposalExtractorResult:
     """Run D2 extraction and persist to uploaded_documents.extracted_json."""
     document = db.get(UploadedDocument, document_id)
@@ -73,6 +74,7 @@ async def extract_and_persist_proposal(
             text,
             filename=document.original_filename,
             query_fn=query_fn,
+            per_attempt_timeout_seconds=per_attempt_timeout_seconds,
         )
     except ProposalExtractorError as exc:
         document.extraction_status = ExtractionStatus.FAILED.value
@@ -100,7 +102,7 @@ async def extract_and_persist_proposal(
 
     envelope = result.envelope
     structured = envelope.structured
-    if structured.extraction_outcome == "unreadable":
+    if structured.extraction_outcome in ("degraded", "unreadable"):
         document.extraction_status = ExtractionStatus.FAILED.value
         document.extracted_json = _envelope_to_json(envelope)
     elif structured.extraction_outcome == "failed":

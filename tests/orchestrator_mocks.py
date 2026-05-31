@@ -156,11 +156,114 @@ def slow_grant_terms_query_fn(*, delay_seconds: float = 2.0):
     return _query
 
 
+def slow_proposal_query_fn(*, delay_seconds: float = 2.0):
+    payload_fn = minimal_proposal_query_fn()
+
+    async def _query(*, prompt: str, options=None):
+        await asyncio.sleep(delay_seconds)
+        async for message in payload_fn(prompt=prompt, options=options):
+            yield message
+
+    return _query
+
+
 def slow_reconciler_query_fn(*, delay_seconds: float = 2.0):
     async def _query(*, prompt: str, options=None):
         _ = prompt
         _ = options
         await asyncio.sleep(delay_seconds)
         yield _result_message({"facts": [], "conflicts": []})
+
+    return _query
+
+
+def _mock_gap_payload_from_key(answer_key: dict, template: dict) -> dict:
+    from app.reports.gap.template_requirements import enumerate_template_requirements
+
+    report_context = answer_key.get("report_context", {"report_type": "annual"})
+    requirements = enumerate_template_requirements(
+        template["report_sections_json"], report_context=report_context
+    )
+    by_identity = {req.identity: req for req in requirements}
+    gaps = []
+    for item in answer_key.get("expected_missing") or []:
+        identity = (
+            item["section_key"],
+            item["required_item_type"],
+            item["required_item_ref"],
+        )
+        req = by_identity.get(identity)
+        if req is None:
+            continue
+        gaps.append(
+            {
+                "item_key": req.item_key,
+                "section_key": req.section_key,
+                "section_label": req.section_label,
+                "required_item_type": req.required_item_type,
+                "required_item_ref": req.required_item_ref,
+                "severity": "required",
+                "question": (
+                    f"Please provide {req.required_item_ref} for the "
+                    f"\"{req.section_label}\" section."
+                ),
+                "rationale": "Not found in confirmed knowledge bank from allowed sources.",
+            }
+        )
+    expected_count = len(answer_key.get("expected_missing") or [])
+    total_checks = len([r for r in requirements if r.required_item_type != "section"])
+    satisfied = total_checks - expected_count
+    readiness = (
+        100
+        if expected_count == 0
+        else max(0, int(round(100 * satisfied / max(total_checks, 1))))
+    )
+    return {"readiness_score": readiness, "gaps": gaps}
+
+
+def fcdo_incomplete_gap_query_fn():
+    """Deterministic E3 mock using on-disk FCDO template + incomplete answer key."""
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    template = json.loads(
+        (root / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_FCDO.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    answer_key = json.loads(
+        (
+            Path(__file__).resolve().parent
+            / "fixtures"
+            / "gap"
+            / "keys"
+            / "fcdo_incomplete_answer_key.json"
+        ).read_text(encoding="utf-8")
+    )
+    payload = _mock_gap_payload_from_key(answer_key, template)
+
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield _result_message(payload)
+
+    return _query
+
+
+def gap_stop_error_query_fn():
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield ResultMessage(
+            subtype="error",
+            duration_ms=1,
+            duration_api_ms=1,
+            is_error=True,
+            num_turns=1,
+            session_id="orch-gap-fail",
+            structured_output=None,
+            usage={"input_tokens": 1, "output_tokens": 0},
+        )
 
     return _query

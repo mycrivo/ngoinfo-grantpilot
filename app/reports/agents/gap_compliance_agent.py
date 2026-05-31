@@ -325,12 +325,18 @@ async def run_gap_compliance(
         model or DEFAULT_MODEL,
     )
 
-    structured_output, resolved_model, latency_ms, input_tokens, output_tokens = (
-        await asyncio.wait_for(
-            _run_gap_query(prompt, query_fn=query_fn, model=model),
-            timeout=TIMEOUT_SECONDS,
+    try:
+        structured_output, resolved_model, latency_ms, input_tokens, output_tokens = (
+            await asyncio.wait_for(
+                _run_gap_query(prompt, query_fn=query_fn, model=model),
+                timeout=TIMEOUT_SECONDS,
+            )
         )
-    )
+    except asyncio.TimeoutError as exc:
+        raise GapComplianceAgentError(
+            "STOP_TIMEOUT",
+            f"Gap compliance exceeded {TIMEOUT_SECONDS}s timeout",
+        ) from exc
 
     structured = _validate_llm_output(
         structured_output, allowed_item_keys=allowed_item_keys

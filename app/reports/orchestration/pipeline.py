@@ -1,4 +1,4 @@
-"""Orchestrated walk: classify -> extract -> reconcile -> Gate 1 halt (+ gap resume boundary)."""
+"""Orchestrated walk: classify -> extract -> reconcile -> Gate 1 halt -> gap (E3) -> Gate 2 halt."""
 
 from __future__ import annotations
 
@@ -10,9 +10,12 @@ from typing import Any, Callable
 
 from sqlalchemy.orm import Session
 
+from app.core.errors import DomainError
 from app.reports.agents.classifier import classify_document_text
+from app.reports.agents.gap_compliance_agent import run_gap_compliance
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DocumentClassification, ReportJobStage, ReportJobStatus
+from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.orchestration.dispatch import DispatchOutcome, StageFailure, dispatch_stage
@@ -37,6 +40,8 @@ from app.reports.services.proposal_extraction_service import (
     ProposalExtractionServiceError,
     extract_and_persist_proposal,
 )
+from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
+from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
 
 logger = logging.getLogger("reports.orchestration.pipeline")
 
@@ -58,11 +63,13 @@ class OrchestrationContext:
     query_fn_grant_terms: Any | None = None
     query_fn_indicator_data: Any | None = None
     query_fn_reconciler: Any | None = None
+    query_fn_gap: Any | None = None
     text_loader: Callable[[UploadedDocument], str] | None = None
     spreadsheet_loader: Callable[[UploadedDocument], tuple[str, str | None]] | None = None
     reconciler_timeout_seconds: float | None = None
     grant_terms_timeout_seconds: float | None = None
     indicator_timeout_seconds: float | None = None
+    proposal_timeout_seconds: float | None = None
     stage_hooks: dict[str, Callable[..., None]] = field(default_factory=dict)
 
 
@@ -115,32 +122,101 @@ def _halt_gate1(session: Session, job: ReportJob, *, reconcile_trace: dict[str, 
     )
 
 
-def _park_gap_boundary(session: Session, job: ReportJob) -> None:
-    """Resume boundary — Gate 1 confirmed; gap/E3 out of scope for this prompt."""
-    report = session.get(DonorReport, job.donor_report_id)
-    if report is None:
-        raise StageFailure(ReportJobStage.GAP.value, "Donor report not found")
-    if not (report.knowledge_bank_json or {}).get("gate1_confirmed_at"):
-        raise StageFailure(
-            ReportJobStage.GAP.value,
-            "Gate 1 confirmation required before gap stage resume",
-        )
-
-    _append_stage_trace(
-        job,
-        ReportJobStage.GAP.value,
-        {
-            "completed_at": datetime.now(timezone.utc).isoformat(),
-            "action": "parked_at_gap_boundary",
-            "gate1_confirmed_at": report.knowledge_bank_json.get("gate1_confirmed_at"),
-        },
-    )
+def _halt_gate2(session: Session, job: ReportJob, report: DonorReport, *, gap_trace: dict[str, Any]) -> None:
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    _append_stage_trace(job, ReportJobStage.GAP.value, gap_trace)
+    job.stage = ReportJobStage.SYNTHESISE.value
     job.status = ReportJobStatus.AWAITING_HUMAN.value
-    job.stage = ReportJobStage.GAP.value
+    session.add(report)
     session.add(job)
     session.commit()
     logger.info(
-        "gap_boundary_parked job_id=%s donor_report_id=%s awaiting_human",
+        "gate2_halt job_id=%s donor_report_id=%s stage=synthesise status=awaiting_human",
+        job.id,
+        job.donor_report_id,
+    )
+
+
+async def _run_gap_stage(
+    session: Session,
+    job: ReportJob,
+    ctx: OrchestrationContext,
+) -> None:
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    stage = ReportJobStage.GAP.value
+    hook = ctx.stage_hooks.get(stage)
+    if hook is not None:
+        hook(session=session, job=job)
+
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is None:
+        raise StageFailure(stage, "Donor report not found")
+
+    try:
+        require_gate1_confirmed(report.knowledge_bank_json)
+    except DomainError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    template = session.get(FunderReportTemplate, report.funder_report_template_id)
+    if template is None:
+        raise StageFailure(stage, "Funder template not found")
+
+    template_payload = {
+        "funder_name": template.funder_name,
+        "template_name": template.template_name,
+        "report_sections_json": template.report_sections_json,
+        "format_rules_json": template.format_rules_json,
+        "terminology_map_json": template.terminology_map_json,
+    }
+
+    outcome = await dispatch_stage(
+        run_gap_compliance(
+            knowledge_bank_json=report.knowledge_bank_json,
+            template_payload=template_payload,
+            query_fn=ctx.query_fn_gap,
+        ),
+        stage=stage,
+    )
+    result = outcome.result
+    report.gap_analysis_json = envelope_to_gap_analysis_json(result.envelope)
+    gap_trace = {
+        "completed_at": datetime.now(timezone.utc).isoformat(),
+        "readiness_score": result.envelope.structured.readiness_score,
+        "gap_count": len(result.envelope.structured.gaps),
+        "degraded": outcome.degraded,
+    }
+    _halt_gate2(session, job, report, gap_trace=gap_trace)
+
+
+def _park_synthesise_boundary(session: Session, job: ReportJob) -> None:
+    """Resume boundary — Gate 2 confirmed; synthesis out of scope for this slice."""
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is None:
+        raise StageFailure(ReportJobStage.SYNTHESISE.value, "Donor report not found")
+    try:
+        require_gate2_confirmed(report.knowledge_bank_json)
+    except DomainError as exc:
+        raise StageFailure(ReportJobStage.SYNTHESISE.value, exc.message) from exc
+
+    _append_stage_trace(
+        job,
+        ReportJobStage.SYNTHESISE.value,
+        {
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "action": "parked_at_synthesise_boundary",
+            "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
+        },
+    )
+    job.status = ReportJobStatus.AWAITING_HUMAN.value
+    job.stage = ReportJobStage.SYNTHESISE.value
+    session.add(job)
+    session.commit()
+    logger.info(
+        "synthesise_boundary_parked job_id=%s donor_report_id=%s awaiting_human",
         job.id,
         job.donor_report_id,
     )
@@ -230,6 +306,7 @@ async def _run_extract_stage(
                         document.id,
                         text,
                         query_fn=ctx.query_fn_proposal,
+                        per_attempt_timeout_seconds=ctx.proposal_timeout_seconds,
                     ),
                     stage=stage,
                 )
@@ -350,7 +427,11 @@ async def run_orchestrated_walk(
     stage = job.stage
 
     if stage == ReportJobStage.GAP.value:
-        _park_gap_boundary(session, job)
+        await _run_gap_stage(session, job, context)
+        return
+
+    if stage == ReportJobStage.SYNTHESISE.value:
+        _park_synthesise_boundary(session, job)
         return
 
     if stage == ReportJobStage.CLASSIFY.value:

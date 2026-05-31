@@ -10,6 +10,8 @@ import pytest
 
 from app.reports.agents.proposal_extractor import (
     AGENT_NAME,
+    DEGRADED_EXTRACTION_TIMEOUT,
+    MAX_EXTRACTION_ATTEMPTS,
     MAX_TURNS,
     ProposalExtractorError,
     _build_unreadable_result,
@@ -145,6 +147,66 @@ async def test_extract_empty_text_raises_stop():
     with pytest.raises(ProposalExtractorError) as exc:
         await extract_proposal_text("  ", query_fn=_mock_query_factory({}))
     assert exc.value.code == "STOP_EMPTY_INPUT"
+
+
+@pytest.mark.asyncio
+async def test_timeout_one_retry_then_degraded_no_raise():
+    call_count = 0
+
+    async def _slow_query(*, prompt: str, options=None):
+        nonlocal call_count
+        _ = prompt
+        _ = options
+        call_count += 1
+        await __import__("asyncio").sleep(5)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_slow_query,
+        per_attempt_timeout_seconds=0.01,
+    )
+    assert call_count == MAX_EXTRACTION_ATTEMPTS
+    assert result.envelope.structured.extraction_outcome == "degraded"
+    assert result.envelope.error == DEGRADED_EXTRACTION_TIMEOUT
+    assert result.envelope.agent_trace is not None
+    assert result.envelope.agent_trace.attempt_count == MAX_EXTRACTION_ATTEMPTS
+    assert result.envelope.agent_trace.degraded_code == DEGRADED_EXTRACTION_TIMEOUT
+
+
+@pytest.mark.asyncio
+async def test_service_persists_degraded_without_raise():
+    db = MagicMock()
+    doc_id = uuid.uuid4()
+
+    class Doc:
+        def __init__(self) -> None:
+            self.id = doc_id
+            self.classification = "proposal"
+            self.original_filename = "proposal.docx"
+            self.extracted_json: dict = {}
+            self.extraction_status = ExtractionStatus.PENDING.value
+
+    doc = Doc()
+    db.get.return_value = doc
+
+    async def _slow_query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        await __import__("asyncio").sleep(5)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    result = await extract_and_persist_proposal(
+        db,
+        doc_id,
+        "sample text",
+        query_fn=_slow_query,
+        per_attempt_timeout_seconds=0.01,
+    )
+    assert doc.extraction_status == ExtractionStatus.FAILED.value
+    assert doc.extracted_json["structured"]["extraction_outcome"] == "degraded"
+    assert doc.extracted_json["error"] == DEGRADED_EXTRACTION_TIMEOUT
+    assert result.envelope.structured.extraction_outcome == "degraded"
 
 
 @pytest.mark.asyncio

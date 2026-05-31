@@ -24,6 +24,7 @@ from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
 )
 from app.reports.services.gap_compliance_service import run_gap_compliance_and_persist
 from app.reports.services.gate_preconditions import require_gate1_confirmed
+from app.reports.orchestration.dispatch import StageFailure
 from tests.gap_grading import grade_gap_compliance
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -345,3 +346,91 @@ async def test_service_persists_gap_analysis(monkeypatch):
     assert report.gap_analysis_json.get("readiness_score") is not None
     assert isinstance(report.gap_analysis_json.get("gaps"), list)
     db.commit.assert_called_once()
+
+
+def _dispatch_minimal_e3_inputs() -> tuple[dict, dict]:
+    kb = {
+        "schema_version": KNOWLEDGE_BANK_RECONCILIATION_VERSION,
+        "facts": {},
+        "conflicts": [],
+        "unreadable_sources": [],
+        "gap_answers": {},
+        "gate1_confirmed_at": "2026-05-24T12:00:00+00:00",
+    }
+    template_payload = {
+        "funder_name": "Test Funder",
+        "template_name": "Dispatch Test Template",
+        "report_sections_json": [],
+        "format_rules_json": {},
+        "terminology_map_json": {},
+    }
+    return kb, template_payload
+
+
+def _record_stage_failure_trace(job: SimpleNamespace, exc: StageFailure) -> None:
+    """Mirror run_pipeline StageFailure trace persistence."""
+    trace = dict(job.agent_trace_json or {})
+    trace["failed_stage"] = exc.stage
+    job.agent_trace_json = trace
+
+
+def test_e3_dispatch_resolves_stop_and_timeout_to_stage_failure(monkeypatch):
+    """E3 failures through dispatch_stage must become clean stage failures with trace."""
+    import asyncio
+
+    from app.reports.orchestration.dispatch import dispatch_stage
+
+    kb, template_payload = _dispatch_minimal_e3_inputs()
+
+    async def _error_query(*, prompt, options=None):
+        _ = prompt
+        _ = options
+        yield SimpleNamespace(is_error=True, stop_reason="injected_stop")
+
+    job = SimpleNamespace(agent_trace_json={})
+
+    async def _run_stop_error():
+        await dispatch_stage(
+            run_gap_compliance(
+                knowledge_bank_json=kb,
+                template_payload=template_payload,
+                query_fn=_error_query,
+            ),
+            stage="gap",
+        )
+
+    with pytest.raises(StageFailure) as stop_exc:
+        asyncio.run(_run_stop_error())
+    assert stop_exc.value.stage == "gap"
+    assert "injected_stop" in stop_exc.value.message
+    _record_stage_failure_trace(job, stop_exc.value)
+    assert job.agent_trace_json["failed_stage"] == "gap"
+
+    async def _slow_query(*, prompt, options=None):
+        _ = prompt
+        _ = options
+        await asyncio.sleep(5)
+        yield SimpleNamespace(is_error=False, structured_output={})
+
+    monkeypatch.setattr(
+        "app.reports.agents.gap_compliance_agent.TIMEOUT_SECONDS",
+        0.05,
+    )
+    job_timeout = SimpleNamespace(agent_trace_json={})
+
+    async def _run_timeout():
+        await dispatch_stage(
+            run_gap_compliance(
+                knowledge_bank_json=kb,
+                template_payload=template_payload,
+                query_fn=_slow_query,
+            ),
+            stage="gap",
+        )
+
+    with pytest.raises(StageFailure) as timeout_exc:
+        asyncio.run(_run_timeout())
+    assert timeout_exc.value.stage == "gap"
+    assert "timeout" in timeout_exc.value.message.lower()
+    _record_stage_failure_trace(job_timeout, timeout_exc.value)
+    assert job_timeout.agent_trace_json["failed_stage"] == "gap"
