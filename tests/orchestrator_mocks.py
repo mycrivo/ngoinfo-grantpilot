@@ -275,6 +275,26 @@ def reconciler_query_fn(*, source_document_id: str):
     return _query
 
 
+def parse_failing_reconciler_query_fn(*, output_tokens: int = 15000):
+    """Force reconciler parse/validation failure — for degrade pass-through tests."""
+
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=100,
+            duration_api_ms=80,
+            is_error=False,
+            num_turns=1,
+            session_id="orch-test-parse-fail",
+            structured_output={"facts": "not-a-list"},
+            usage={"input_tokens": 5000, "output_tokens": output_tokens},
+        )
+
+    return _query
+
+
 def slow_grant_terms_query_fn(*, delay_seconds: float = 2.0):
     payload_fn = minimal_grant_terms_query_fn()
 

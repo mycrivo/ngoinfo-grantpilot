@@ -35,6 +35,7 @@ from tests.orchestrator_mocks import (
     minimal_proposal_query_fn,
     mixed_indicator_extract_classifier_query_fn,
     mixed_indicator_spreadsheet_loader,
+    parse_failing_reconciler_query_fn,
     reconciler_query_fn,
     routing_classifier_query_fn,
     slow_grant_terms_query_fn,
@@ -342,6 +343,52 @@ def test_outcome_uniform_degraded_reconcile_halts_not_failed(orchestrator_db):
     assert job.stage == ReportJobStage.GAP.value
     reconcile_trace = job.agent_trace_json.get("stages", {}).get("reconcile", {})
     assert reconcile_trace.get("degraded") is True
+
+
+def test_outcome_degraded_reconcile_parse_failure_pass_through_reaches_gate1(
+    orchestrator_db,
+):
+    session = orchestrator_db()
+    fixture = seed_orchestrator_fixture(session)
+    job_id = fixture["job"].id
+    report_id = fixture["report"].id
+    grant_doc_id = str(fixture["documents"][1].id)
+    session.close()
+
+    ctx = OrchestrationContext(
+        query_fn_classifier=routing_classifier_query_fn(),
+        query_fn_proposal=minimal_proposal_query_fn(),
+        query_fn_grant_terms=minimal_grant_terms_query_fn(),
+        query_fn_reconciler=parse_failing_reconciler_query_fn(),
+        text_loader=_text_loader,
+    )
+
+    run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
+
+    verify = orchestrator_db()
+    job = verify.get(ReportJob, job_id)
+    report = verify.get(DonorReport, report_id)
+    verify.close()
+
+    assert job is not None
+    assert job.status == ReportJobStatus.AWAITING_HUMAN.value
+    assert job.stage == ReportJobStage.GAP.value
+    assert job.error is None
+    reconcile_trace = job.agent_trace_json.get("stages", {}).get("reconcile", {})
+    assert reconcile_trace.get("degraded") is True
+
+    kb = report.knowledge_bank_json if report else {}
+    assert kb.get("reconciliation_outcome") == "degraded"
+    facts = kb.get("facts") or {}
+    assert len(facts) > 0
+    assert all(f.get("confirmed") is False for f in facts.values())
+    assert all(
+        f.get("interpretation_note", "").startswith("Degraded reconciliation pass-through")
+        for f in facts.values()
+    )
+    trace = kb.get("agent_trace") or {}
+    assert trace.get("output_tokens") == 15000
+    assert trace.get("parse_failure_response_head")
 
 
 def test_outcome_h_timeout_backstop_with_real_stages(orchestrator_db, monkeypatch):

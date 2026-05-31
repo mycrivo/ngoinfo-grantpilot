@@ -34,14 +34,16 @@ from pydantic import BaseModel, ValidationError
 
 
 
+from app.reports.reconciliation.degrade_resilience import (
+    ReconcilerFailureContext,
+    apply_failure_observability_to_trace,
+    build_degraded_structured_output,
+    log_degraded_reconcile,
+)
 from app.reports.reconciliation.input_builder import (
-
     ReconciliationInputBundle,
-
     build_reconciliation_bundle,
-
     build_reconciliation_bundle_from_fixture,
-
 )
 
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
@@ -239,13 +241,21 @@ SYSTEM_PROMPT = _build_system_prompt()
 
 class KnowledgeBankReconcilerError(Exception):
 
-    def __init__(self, code: str, message: str) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        failure_context: ReconcilerFailureContext | None = None,
+    ) -> None:
 
         super().__init__(message)
 
         self.code = code
 
         self.message = message
+
+        self.failure_context = failure_context
 
 
 
@@ -601,17 +611,17 @@ def _build_degraded_result(
 
     last_error: BaseException | None = None,
 
+    bundle: ReconciliationInputBundle | None = None,
+
+    failure_context: ReconcilerFailureContext | None = None,
+
 ) -> KnowledgeBankReconcilerResult:
 
     now = datetime.now(timezone.utc)
 
     resolved_model = model or DEFAULT_MODEL
 
-    structured = KnowledgeBankReconciliationOutput(
-
-        reconciliation_outcome="degraded",
-
-    )
+    structured = build_degraded_structured_output(bundle)
 
     if isinstance(last_error, KnowledgeBankReconcilerError):
 
@@ -619,27 +629,39 @@ def _build_degraded_result(
 
         envelope_error = f"{last_error.code}: {last_error.message}"
 
+        if failure_context is None:
+
+            failure_context = last_error.failure_context
+
     else:
 
         degraded_code = DEGRADED_RECONCILIATION_TIMEOUT
 
         envelope_error = DEGRADED_RECONCILIATION_TIMEOUT
 
-    trace = ReconciliationAgentTrace(
+    trace = apply_failure_observability_to_trace(
 
-        model_used=resolved_model,
+        ReconciliationAgentTrace(
 
-        max_turns=None,
+            model_used=resolved_model,
 
-        num_turns=None,
+            max_turns=None,
 
-        attempt_count=attempt_count,
+            num_turns=None,
 
-        degraded_code=degraded_code,
+            attempt_count=attempt_count,
 
-        conflicts_surfaced_count=0,
+            degraded_code=degraded_code,
+
+            conflicts_surfaced_count=0,
+
+        ),
+
+        failure_context,
 
     )
+
+    log_degraded_reconcile(bundle=bundle, fact_count=len(structured.facts))
 
     envelope = KnowledgeBankReconciledEnvelope(
 
@@ -761,6 +783,8 @@ async def _run_reconciler_query(
 
     structured_output: dict[str, Any] | None = None
 
+    raw_response_text: str | None = None
+
     latency_ms: int | None = None
 
     input_tokens: int | None = None
@@ -807,6 +831,8 @@ async def _run_reconciler_query(
 
                 structured_output = so
 
+                raw_response_text = json.dumps(so, ensure_ascii=False)
+
                 break
 
         if is_error:
@@ -829,7 +855,33 @@ async def _run_reconciler_query(
 
         )
 
-        structured_output = _parse_json_from_text(text)
+        raw_response_text = text
+
+        try:
+
+            structured_output = _parse_json_from_text(text)
+
+        except KnowledgeBankReconcilerError as exc:
+
+            raise KnowledgeBankReconcilerError(
+
+                exc.code,
+
+                exc.message,
+
+                failure_context=ReconcilerFailureContext(
+
+                    input_tokens=input_tokens,
+
+                    output_tokens=output_tokens,
+
+                    raw_response_text=text,
+
+                    latency_ms=latency_ms,
+
+                ),
+
+            ) from exc
 
 
 
@@ -845,7 +897,37 @@ async def _run_reconciler_query(
 
 
 
-    structured = _validate_llm_output(structured_output, bundle)
+    if raw_response_text is None:
+
+        raw_response_text = json.dumps(structured_output, ensure_ascii=False)
+
+
+
+    try:
+
+        structured = _validate_llm_output(structured_output, bundle)
+
+    except KnowledgeBankReconcilerError as exc:
+
+        raise KnowledgeBankReconcilerError(
+
+            exc.code,
+
+            exc.message,
+
+            failure_context=ReconcilerFailureContext(
+
+                input_tokens=input_tokens,
+
+                output_tokens=output_tokens,
+
+                raw_response_text=raw_response_text,
+
+                latency_ms=latency_ms,
+
+            ),
+
+        ) from exc
 
 
 
@@ -951,6 +1033,8 @@ async def reconcile_bundle(
 
 
 
+    last_failure_context: ReconcilerFailureContext | None = None
+
     for attempt in range(1, MAX_RECONCILIATION_ATTEMPTS + 1):
 
         try:
@@ -995,6 +1079,10 @@ async def reconcile_bundle(
 
             )
 
+            if isinstance(exc, KnowledgeBankReconcilerError) and exc.failure_context:
+
+                last_failure_context = exc.failure_context
+
             if attempt >= MAX_RECONCILIATION_ATTEMPTS:
 
                 return _build_degraded_result(
@@ -1007,6 +1095,10 @@ async def reconcile_bundle(
 
                     last_error=exc,
 
+                    bundle=bundle,
+
+                    failure_context=last_failure_context,
+
                 )
 
 
@@ -1018,6 +1110,10 @@ async def reconcile_bundle(
         attempt_count=MAX_RECONCILIATION_ATTEMPTS,
 
         model=model,
+
+        bundle=bundle,
+
+        failure_context=last_failure_context,
 
     )
 

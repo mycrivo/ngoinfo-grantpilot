@@ -11,8 +11,11 @@ from app.reports.agents.knowledge_bank_reconciler import (
     AGENT_NAME,
     DEGRADED_RECONCILIATION_TIMEOUT,
     envelope_to_knowledge_bank_json,
+    reconcile_bundle,
     reconcile_from_fixture,
 )
+from app.reports.reconciliation.degrade_resilience import DEGRADED_PASS_THROUGH_NOTE
+from app.reports.reconciliation.input_builder import ReconciliationInputBundle
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     ConflictValueEntry,
     KnowledgeBankConflict,
@@ -373,6 +376,73 @@ async def test_timeout_degraded_no_raise():
     )
     assert result.envelope.structured.reconciliation_outcome == "degraded"
     assert result.envelope.error == DEGRADED_RECONCILIATION_TIMEOUT
+    assert len(result.envelope.structured.facts) > 0
+    assert all(not fact.confirmed for fact in result.envelope.structured.facts.values())
+
+
+def _parse_failing_query_fn(*, output_tokens: int = 15000):
+    from claude_agent_sdk import ResultMessage
+
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=100,
+            duration_api_ms=80,
+            is_error=False,
+            num_turns=1,
+            session_id="reconciler-parse-fail-test",
+            structured_output={"facts": "not-a-list"},
+            usage={"input_tokens": 5000, "output_tokens": output_tokens},
+        )
+
+    return _query
+
+
+@pytest.mark.asyncio
+async def test_parse_failure_pass_through_facts_non_empty_bundle():
+    from app.reports.reconciliation.input_builder import (
+        build_reconciliation_bundle_from_fixture,
+    )
+
+    bundle = build_reconciliation_bundle_from_fixture(MANIFEST)
+    assert len(bundle.fact_candidates) > 0
+    result = await reconcile_bundle(bundle, query_fn=_parse_failing_query_fn())
+    structured = result.envelope.structured
+    assert structured.reconciliation_outcome == "degraded"
+    assert len(structured.facts) == len(bundle.fact_candidates)
+    sample = next(iter(structured.facts.values()))
+    assert sample.confirmed is False
+    assert sample.interpretation_note == DEGRADED_PASS_THROUGH_NOTE
+    assert all(key.startswith("degraded_pass_through:") for key in structured.facts)
+
+
+@pytest.mark.asyncio
+async def test_parse_failure_empty_bundle_stays_empty():
+    bundle = ReconciliationInputBundle()
+    result = await reconcile_bundle(bundle, query_fn=_parse_failing_query_fn())
+    assert result.envelope.structured.reconciliation_outcome == "degraded"
+    assert result.envelope.structured.facts == {}
+
+
+@pytest.mark.asyncio
+async def test_parse_failure_observability_in_trace():
+    from app.reports.reconciliation.input_builder import (
+        build_reconciliation_bundle_from_fixture,
+    )
+
+    bundle = build_reconciliation_bundle_from_fixture(MANIFEST)
+    result = await reconcile_bundle(
+        bundle,
+        query_fn=_parse_failing_query_fn(output_tokens=15000),
+    )
+    trace = result.envelope.agent_trace
+    assert trace is not None
+    assert trace.input_tokens == 5000
+    assert trace.output_tokens == 15000
+    assert trace.parse_failure_response_head is not None
+    assert trace.degraded_code == "STOP_PARSE_FAILED"
 
 
 @pytest.mark.asyncio

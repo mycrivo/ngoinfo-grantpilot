@@ -72,6 +72,9 @@ class ReconciliationAgentTrace(BaseModel):
     num_turns: int | None = None
     degraded_code: str | None = None
     conflicts_surfaced_count: int | None = None
+    parse_failure_response_length: int | None = None
+    parse_failure_response_head: str | None = None
+    parse_failure_response_tail: str | None = None
 
 
 class KnowledgeBankReconciliationOutput(BaseModel):
