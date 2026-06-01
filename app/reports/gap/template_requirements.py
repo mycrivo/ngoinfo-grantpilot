@@ -92,3 +92,18 @@ def enumerate_template_requirements(
                 )
             )
     return requirements
+
+
+def merge_template_requirements(
+    base: list[TemplateRequirement],
+    extra: list[TemplateRequirement],
+) -> list[TemplateRequirement]:
+    """Append derived requirements (e.g. logframe rows) without duplicating item_key."""
+    seen = {req.item_key for req in base}
+    merged = list(base)
+    for req in extra:
+        if req.item_key in seen:
+            continue
+        merged.append(req)
+        seen.add(req.item_key)
+    return merged

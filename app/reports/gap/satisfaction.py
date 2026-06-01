@@ -6,6 +6,12 @@ import re
 from typing import Any
 
 from app.reports.gap.gap_answer import is_gap_answer_resolved
+from app.reports.gap.logframe_completeness import (
+    has_indicator_data_actual_for_id,
+    is_logframe_row_ref,
+    is_proposal_target_fact,
+    logframe_indicator_id_from_ref,
+)
 from app.reports.gap.template_requirements import TemplateRequirement
 
 
@@ -27,11 +33,18 @@ def _indicator_satisfied(
     if requirement.item_key in gap_answers:
         if is_gap_answer_resolved(gap_answers[requirement.item_key]):
             return True
+    if is_logframe_row_ref(requirement.required_item_ref):
+        indicator_id = logframe_indicator_id_from_ref(requirement.required_item_ref)
+        if indicator_id is None:
+            return False
+        return has_indicator_data_actual_for_id(facts, indicator_id)
     indicator_token = _normalize_token(requirement.required_item_ref)
     for fact_key, fact in facts.items():
         if not isinstance(fact, dict):
             continue
         if not _fact_from_uploaded_documents(fact):
+            continue
+        if is_proposal_target_fact(str(fact_key), fact):
             continue
         key_token = _normalize_token(str(fact_key))
         label_token = _normalize_token(str(fact.get("semantic_label") or ""))

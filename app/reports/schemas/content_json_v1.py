@@ -16,6 +16,8 @@ def build_generated_section(
     word_limit: int,
     word_limit_respected: bool,
     dropped_citations: list[str] | None = None,
+    remapped_citations: list[dict[str, str]] | None = None,
+    auto_citations: list[str] | None = None,
 ) -> dict[str, Any]:
     content: dict[str, Any] = {
         "text": text,
@@ -24,6 +26,10 @@ def build_generated_section(
     }
     if dropped_citations:
         content["dropped_citations"] = dropped_citations
+    if remapped_citations:
+        content["remapped_citations"] = remapped_citations
+    if auto_citations:
+        content["auto_citations"] = auto_citations
     return {
         "section_key": section_key,
         "label": label,

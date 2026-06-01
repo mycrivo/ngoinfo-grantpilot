@@ -15,8 +15,16 @@ from app.reports.agents.gap_compliance_agent import (
     build_gap_compliance_prompt,
     run_gap_compliance,
 )
+from app.reports.gap.logframe_completeness import (
+    derive_missing_logframe_actuals,
+    is_logframe_row_ref,
+    missing_to_template_requirements,
+)
 from app.reports.gap.satisfaction import unsatisfied_requirements
-from app.reports.gap.template_requirements import enumerate_template_requirements
+from app.reports.gap.template_requirements import (
+    enumerate_template_requirements,
+    merge_template_requirements,
+)
 from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     KNOWLEDGE_BANK_RECONCILIATION_VERSION,
@@ -42,6 +50,7 @@ FCDO_KB_RECORDED = (
 
 REPORT_CONTEXT = {"report_type": "annual"}
 DOC_ID = "a1111111-1111-4111-8111-111111111101"
+DOC_XLSX_ID = "a1111111-1111-4111-8111-111111111103"
 
 
 def _load_json(path: Path) -> dict:
@@ -132,19 +141,64 @@ def _build_incomplete_fcdo_kb() -> dict:
     )
 
 
+def _xlsx_fact(fact_key: str, label: str, excerpt: str) -> dict:
+    return {
+        "value": excerpt[:80],
+        "unit": None,
+        "semantic_label": label,
+        "coverage": "single_source",
+        "source_document_id": DOC_XLSX_ID,
+        "source_label": "fcdo_bridgelight_indicator_data.xlsx",
+        "provenance": {"excerpt": excerpt, "cell_ref": "Indicators!E99"},
+        "interpretation_note": None,
+        "confirmed": True,
+        "confirmed_at": None,
+        "confirmed_by_user": True,
+    }
+
+
 def _build_complete_fcdo_kb(template: dict) -> dict:
     recorded = _load_json(FCDO_KB_RECORDED)
     recorded["gate1_confirmed_at"] = "2026-05-24T12:00:00+00:00"
-    requirements = enumerate_template_requirements(
-        template["report_sections_json"], report_context=REPORT_CONTEXT
+    facts = dict(recorded.get("facts") or {})
+    sections = template["report_sections_json"]
+    format_rules = template.get("format_rules_json")
+
+    for entry in derive_missing_logframe_actuals(
+        {"facts": facts},
+        format_rules_json=format_rules,
+        report_sections_json=sections,
+    ):
+        fact_key = f"indicators.{entry.indicator_id}_complete.actual"
+        facts[fact_key] = _xlsx_fact(
+            fact_key,
+            f"{entry.indicator_id.upper()} actual",
+            entry.proposal_target_value or "0",
+        )
+
+    requirements = merge_template_requirements(
+        enumerate_template_requirements(sections, report_context=REPORT_CONTEXT),
+        missing_to_template_requirements(
+            derive_missing_logframe_actuals(
+                {"facts": facts},
+                format_rules_json=format_rules,
+                report_sections_json=sections,
+            )
+        ),
     )
-    still_missing = unsatisfied_requirements(requirements, recorded)
+    still_missing = unsatisfied_requirements(
+        requirements,
+        {"facts": facts, "gap_answers": {}},
+    )
     for req in still_missing:
-        recorded.setdefault("facts", {})[req.required_item_ref] = _fact(
+        if is_logframe_row_ref(req.required_item_ref):
+            continue
+        facts[req.required_item_ref] = _fact(
             req.required_item_ref,
             req.required_item_ref.replace("_", " "),
             f"Supplemental evidence for {req.required_item_ref}.",
         )
+    recorded["facts"] = facts
     return recorded
 
 
@@ -240,6 +294,7 @@ async def test_gap_compliance_grades_t2_fixtures(template_path, kb_builder, key_
         knowledge_bank_json=kb,
         answer_key=key,
         report_context=REPORT_CONTEXT,
+        format_rules_json=template.get("format_rules_json"),
     )
     assert errors == [], f"grading errors: {errors}"
 

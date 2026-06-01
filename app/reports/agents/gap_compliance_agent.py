@@ -16,9 +16,15 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from app.reports.gap.logframe_completeness import (
+    derive_missing_logframe_actuals,
+    missing_to_gap_items,
+    missing_to_template_requirements,
+)
 from app.reports.gap.template_requirements import (
     TemplateRequirement,
     enumerate_template_requirements,
+    merge_template_requirements,
 )
 from app.reports.schemas.gap_compliance_v1 import (
     GAP_AGENT_NAME,
@@ -63,6 +69,9 @@ CARDINAL RULES:
    the template JSON — do not use generic wording when the template supplies labels).
 6. Use the exact item_key, section_key, required_item_type, and required_item_ref from
    the checklist for every gap. Do not invent alternate keys.
+7. When derived.logframe_missing_actuals is non-empty, each listed indicator MUST appear
+   as a gap using the supplied item_key and required_item_ref (logframe_row:opN_N). Name
+   the OP indicator id (e.g. OP2.3) in the question and rationale.
 
 OUTPUT FORMAT:
 - Return a single JSON object only — no markdown fences, no prose, no tools.
@@ -162,6 +171,7 @@ def build_gap_compliance_prompt(
     template_payload: dict[str, Any],
     requirements: list[TemplateRequirement],
     report_context: dict[str, Any],
+    logframe_missing_actuals: list[dict[str, Any]] | None = None,
 ) -> str:
     checklist = _requirements_for_prompt(requirements)
     payload = {
@@ -174,6 +184,9 @@ def build_gap_compliance_prompt(
             "terminology_map_json": template_payload.get("terminology_map_json"),
         },
         "checklist": checklist,
+        "derived": {
+            "logframe_missing_actuals": logframe_missing_actuals or [],
+        },
         "knowledge_bank": {
             "schema_version": knowledge_bank_json.get("schema_version"),
             "facts": knowledge_bank_json.get("facts"),
@@ -220,6 +233,54 @@ def _validate_llm_output(
             "; ".join(errors),
         )
     return structured
+
+
+def _logframe_missing_payload(
+    missing: list[Any],
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "indicator_id": entry.indicator_id,
+            "indicator_label": entry.indicator_label,
+            "proposal_target_value": entry.proposal_target_value,
+            "missing_facet": entry.missing_facet,
+            "item_key": entry.item_key,
+            "section_key": entry.section_key,
+            "section_label": entry.section_label,
+            "required_item_ref": entry.required_item_ref,
+        }
+        for entry in missing
+    ]
+
+
+def _merge_deterministic_logframe_gaps(
+    structured: GapComplianceOutput,
+    deterministic_gaps: list[GapComplianceGapItem],
+    *,
+    checklist_non_section_count: int,
+) -> GapComplianceOutput:
+    by_key = {gap.item_key: gap for gap in structured.gaps}
+    for gap in deterministic_gaps:
+        if gap.item_key not in by_key:
+            by_key[gap.item_key] = gap
+    merged = list(by_key.values())
+    readiness = structured.readiness_score
+    ready = structured.ready_for_gate2
+    if merged:
+        ready = False
+        if readiness == 100:
+            satisfied = max(0, checklist_non_section_count - len(merged))
+            readiness = max(
+                0,
+                int(round(100 * satisfied / max(checklist_non_section_count, 1))),
+            )
+    elif readiness == 100:
+        ready = True
+    return GapComplianceOutput(
+        readiness_score=readiness,
+        ready_for_gate2=ready,
+        gaps=merged,
+    )
 
 
 async def _call_anthropic_messages(prompt: str, *, model: str) -> tuple[str, int, int | None, int | None]:
@@ -310,18 +371,30 @@ async def run_gap_compliance(
     """Run E3 gap/compliance against confirmed KB + funder template."""
     ctx = report_context or {"report_type": "annual"}
     sections = template_payload.get("report_sections_json") or []
-    requirements = enumerate_template_requirements(sections, report_context=ctx)
+    format_rules = template_payload.get("format_rules_json") or {}
+    base_requirements = enumerate_template_requirements(sections, report_context=ctx)
+    logframe_missing = derive_missing_logframe_actuals(
+        knowledge_bank_json,
+        format_rules_json=format_rules,
+        report_sections_json=sections,
+    )
+    logframe_requirements = missing_to_template_requirements(logframe_missing)
+    requirements = merge_template_requirements(base_requirements, logframe_requirements)
     allowed_item_keys = {req.item_key for req in requirements}
+    checklist_non_section = len([r for r in requirements if r.required_item_type != "section"])
+    deterministic_gaps = missing_to_gap_items(logframe_missing)
     prompt = build_gap_compliance_prompt(
         knowledge_bank_json=knowledge_bank_json,
         template_payload=template_payload,
         requirements=requirements,
         report_context=ctx,
+        logframe_missing_actuals=_logframe_missing_payload(logframe_missing),
     )
 
     logger.info(
-        "gap_compliance_agent start checklist=%d model=%s",
-        len([r for r in requirements if r.required_item_type != "section"]),
+        "gap_compliance_agent start checklist=%d logframe_missing=%d model=%s",
+        checklist_non_section,
+        len(logframe_missing),
         model or DEFAULT_MODEL,
     )
 
@@ -341,6 +414,19 @@ async def run_gap_compliance(
     structured = _validate_llm_output(
         structured_output, allowed_item_keys=allowed_item_keys
     )
+    structured = _merge_deterministic_logframe_gaps(
+        structured,
+        deterministic_gaps,
+        checklist_non_section_count=checklist_non_section,
+    )
+    merge_errors = validate_gap_compliance_output(
+        structured, allowed_item_keys=allowed_item_keys
+    )
+    if merge_errors:
+        raise GapComplianceAgentError(
+            "STOP_VALIDATION_FAILED",
+            "; ".join(merge_errors),
+        )
     now = datetime.now(timezone.utc)
     trace = GapComplianceAgentTrace(
         model_used=resolved_model,

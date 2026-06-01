@@ -182,6 +182,18 @@ def _generate_one_section(
             section_key,
             len(cleaned.dropped_citations),
         )
+    if cleaned.remapped_citations:
+        logger.info(
+            "report_synthesis section=%s remapped_citations=%d",
+            section_key,
+            len(cleaned.remapped_citations),
+        )
+    if cleaned.auto_citations:
+        logger.info(
+            "report_synthesis section=%s auto_citations=%d",
+            section_key,
+            len(cleaned.auto_citations),
+        )
     return build_generated_section(
         section_key=section_key,
         label=label,
@@ -190,6 +202,8 @@ def _generate_one_section(
         assumptions=list(generated.get("assumptions") or []),
         evidence_used=cleaned.evidence_used,
         dropped_citations=cleaned.dropped_citations,
+        remapped_citations=cleaned.remapped_citations,
+        auto_citations=cleaned.auto_citations,
         word_limit=word_limit,
         word_limit_respected=bool(constraints.get("word_limit_respected", True)),
     )

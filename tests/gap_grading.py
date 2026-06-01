@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.reports.gap.logframe_completeness import (
+    derive_missing_logframe_actuals,
+    logframe_missing_identities,
+)
 from app.reports.gap.satisfaction import unsatisfied_requirements
 from app.reports.gap.template_requirements import enumerate_template_requirements
 
@@ -23,6 +27,7 @@ def grade_gap_compliance(
     knowledge_bank_json: dict[str, Any],
     answer_key: dict[str, Any],
     report_context: dict[str, Any] | None = None,
+    format_rules_json: dict[str, Any] | None = None,
 ) -> list[str]:
     errors: list[str] = []
     ctx = report_context or answer_key.get("report_context") or {"report_type": "annual"}
@@ -72,6 +77,12 @@ def grade_gap_compliance(
 
     derived_missing = unsatisfied_requirements(requirements, knowledge_bank_json)
     derived_identities = {req.identity for req in derived_missing}
+    logframe_missing = derive_missing_logframe_actuals(
+        knowledge_bank_json,
+        format_rules_json=format_rules_json,
+        report_sections_json=template_sections,
+    )
+    derived_identities |= logframe_missing_identities(logframe_missing)
     for gap in gaps:
         if not isinstance(gap, dict):
             errors.append("gap entry must be object")
