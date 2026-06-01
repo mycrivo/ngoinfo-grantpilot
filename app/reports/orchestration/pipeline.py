@@ -42,7 +42,15 @@ from app.reports.services.proposal_extraction_service import (
     extract_and_persist_proposal,
 )
 from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
-from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
+from app.reports.services.gate_preconditions import (
+    require_gate1_confirmed,
+    require_gate2_confirmed,
+    require_gate3_confirmed,
+)
+from app.reports.services.report_fact_safety_service import (
+    ReportFactSafetyServiceError,
+    critique_and_persist,
+)
 from app.reports.services.report_synthesis_service import (
     ReportSynthesisServiceError,
     synthesise_and_persist,
@@ -70,6 +78,7 @@ class OrchestrationContext:
     query_fn_reconciler: Any | None = None
     query_fn_gap: Any | None = None
     query_fn_synthesis: Any | None = None
+    query_fn_critic: Any | None = None
     text_loader: Callable[[UploadedDocument], str] | None = None
     spreadsheet_loader: Callable[[UploadedDocument], tuple[str, str | None]] | None = None
     reconciler_timeout_seconds: float | None = None
@@ -199,7 +208,7 @@ async def _run_gap_stage(
 
 
 def _park_critique_boundary(session: Session, job: ReportJob) -> None:
-    """Resume boundary after synthesis — critic (F2) not built yet."""
+    """Resume boundary after synthesis — critic runs on worker re-claim at critique."""
     report = session.get(DonorReport, job.donor_report_id)
     if report is None:
         raise StageFailure(ReportJobStage.CRITIQUE.value, "Donor report not found")
@@ -223,6 +232,110 @@ def _park_critique_boundary(session: Session, job: ReportJob) -> None:
     session.commit()
     logger.info(
         "critique_boundary_parked job_id=%s donor_report_id=%s awaiting_human",
+        job.id,
+        job.donor_report_id,
+    )
+
+
+def _halt_gate3(session: Session, job: ReportJob, *, critique_trace: dict[str, Any]) -> None:
+    """Gate 3 halt — human review before export (Stage H not built)."""
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    _append_stage_trace(job, ReportJobStage.CRITIQUE.value, critique_trace)
+    job.stage = ReportJobStage.EXPORT.value
+    job.status = ReportJobStatus.AWAITING_HUMAN.value
+    session.add(job)
+    session.commit()
+    logger.info(
+        "gate3_halt job_id=%s donor_report_id=%s stage=export status=awaiting_human",
+        job.id,
+        job.donor_report_id,
+    )
+
+
+async def _run_critique_stage(
+    session: Session,
+    job: ReportJob,
+    ctx: OrchestrationContext,
+) -> None:
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    stage = ReportJobStage.CRITIQUE.value
+    hook = ctx.stage_hooks.get(stage)
+    if hook is not None:
+        hook(session=session, job=job)
+
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is None:
+        raise StageFailure(stage, "Donor report not found")
+
+    try:
+        require_gate2_confirmed(report.knowledge_bank_json)
+    except DomainError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    try:
+        result = await critique_and_persist(
+            session,
+            job.donor_report_id,
+            query_fn_critic=ctx.query_fn_critic,
+        )
+    except ReportFactSafetyServiceError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    critique_trace = {
+        "completed_at": datetime.now(timezone.utc).isoformat(),
+        "action": "critique_completed",
+        "section_count": result.section_count,
+        "verified": result.verified,
+        "flagged": result.flagged,
+        "unverified": result.unverified,
+        "skipped": result.skipped,
+        "critic_blocks": result.critic_blocks,
+        "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
+    }
+    _halt_gate3(session, job, critique_trace=critique_trace)
+
+
+async def _run_export_stage(
+    session: Session,
+    job: ReportJob,
+    ctx: OrchestrationContext,
+) -> None:
+    """Export stage stub — Stage H not built; advances past Gate 3 without re-running critic."""
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    stage = ReportJobStage.EXPORT.value
+    hook = ctx.stage_hooks.get(stage)
+    if hook is not None:
+        hook(session=session, job=job)
+
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is None:
+        raise StageFailure(stage, "Donor report not found")
+
+    try:
+        require_gate3_confirmed(report.knowledge_bank_json)
+    except DomainError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    _append_stage_trace(
+        job,
+        stage,
+        {
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "action": "export_boundary_not_implemented",
+            "gate3_confirmed_at": report.knowledge_bank_json.get("gate3_confirmed_at"),
+        },
+    )
+    job.status = ReportJobStatus.DONE.value
+    session.add(job)
+    session.commit()
+    logger.info(
+        "export_boundary_stub job_id=%s donor_report_id=%s status=done",
         job.id,
         job.donor_report_id,
     )
@@ -504,7 +617,11 @@ async def run_orchestrated_walk(
         return
 
     if stage == ReportJobStage.CRITIQUE.value:
-        _park_critique_boundary(session, job)
+        await _run_critique_stage(session, job, context)
+        return
+
+    if stage == ReportJobStage.EXPORT.value:
+        await _run_export_stage(session, job, context)
         return
 
     if stage == ReportJobStage.CLASSIFY.value:

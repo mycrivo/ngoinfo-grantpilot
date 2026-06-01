@@ -17,7 +17,7 @@ from app.reports.schemas.gate2_gap_answers import Gate2GapResponseInput
 from app.reports.services.gate1_confirmation_service import confirm_gate1
 from app.reports.services.gate2_gap_answer_service import submit_gate2_gap_responses
 from app.reports.worker import run_pipeline as run_pipeline_module
-from tests.orchestrator_mocks import fcdo_incomplete_gap_query_fn, fcdo_synthesis_query_fn
+from tests.orchestrator_mocks import fcdo_critic_query_fn, fcdo_incomplete_gap_query_fn, fcdo_synthesis_query_fn
 from tests.test_gap_compliance_agent import _build_incomplete_fcdo_kb
 from tests.test_orchestrator_gate1 import (
     FCDO_TEMPLATE_PATH,
@@ -139,7 +139,10 @@ def test_critique_resume_does_not_re_synthesise(orchestrator_db):
         responses=responses,
     )
 
-    ctx = OrchestrationContext(query_fn_synthesis=fcdo_synthesis_query_fn())
+    ctx = OrchestrationContext(
+        query_fn_synthesis=fcdo_synthesis_query_fn(),
+        query_fn_critic=fcdo_critic_query_fn(),
+    )
     run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
 
     after_first = orchestrator_db()
@@ -165,8 +168,10 @@ def test_critique_resume_does_not_re_synthesise(orchestrator_db):
     report2 = after_second.get(DonorReport, report_id)
     after_second.close()
 
-    assert job2.stage == ReportJobStage.CRITIQUE.value
+    assert job2.stage == ReportJobStage.EXPORT.value
     synth_trace_second = job2.agent_trace_json.get("stages", {}).get("synthesise", {})
     assert synth_trace_second.get("completed_at") == synth_trace_first.get("completed_at")
     assert len(report2.content_json.get("sections") or []) == section_count_first
-    assert report2.content_json.get("generation_summary") == first_summary
+    assert report2.content_json.get("generation_summary", {}).get("generated") == (
+        first_summary.get("generated")
+    )

@@ -58,3 +58,14 @@ def require_gate2_confirmed(knowledge_bank_json: dict | None) -> None:
             message="Gate 2 gap-answer confirmation is required before synthesis",
             status_code=409,
         )
+
+
+def require_gate3_confirmed(knowledge_bank_json: dict | None) -> None:
+    """Stage H export must not run until Gate 3 human review is complete."""
+    kb = knowledge_bank_json or {}
+    if not kb.get("gate3_confirmed_at"):
+        raise DomainError(
+            error_code="GATE3_NOT_CONFIRMED",
+            message="Gate 3 human confirmation is required before export",
+            status_code=409,
+        )

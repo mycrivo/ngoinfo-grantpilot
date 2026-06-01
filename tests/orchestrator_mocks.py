@@ -419,6 +419,56 @@ def gap_stop_error_query_fn():
     return _query
 
 
+def fcdo_critic_query_fn(
+    *,
+    plant_unsupported: str | None = None,
+    fail_section_key: str | None = None,
+    fail_all: bool = False,
+):
+    """Deterministic F2 critic mock for orchestrator tests."""
+
+    async def _query(*, prompt: str, options=None):
+        _ = options
+        if fail_all or (
+            fail_section_key is not None and fail_section_key in prompt
+        ):
+            yield ResultMessage(
+                subtype="error",
+                duration_ms=1,
+                duration_api_ms=1,
+                is_error=True,
+                num_turns=1,
+                session_id="orch-critic-fail",
+                structured_output=None,
+                usage={"input_tokens": 1, "output_tokens": 0},
+            )
+            return
+        if plant_unsupported is not None and plant_unsupported in prompt:
+            yield _result_message(
+                {
+                    "specifics": [
+                        {
+                            "text": "99999",
+                            "status": "FLAGGED",
+                            "source_ref": None,
+                            "severity": "BLOCK",
+                            "reason": "Value not present in cited knowledge-bank sources",
+                        }
+                    ],
+                    "fact_safety_status": "FLAGGED",
+                }
+            )
+            return
+        yield _result_message(
+            {
+                "specifics": [],
+                "fact_safety_status": "VERIFIED",
+            }
+        )
+
+    return _query
+
+
 def fcdo_synthesis_query_fn(*, fail_section_key: str | None = None):
     """Deterministic OpenAI bypass for F1 synthesise stage tests."""
 
