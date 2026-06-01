@@ -43,6 +43,10 @@ from app.reports.services.proposal_extraction_service import (
 )
 from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
 from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
+from app.reports.services.report_synthesis_service import (
+    ReportSynthesisServiceError,
+    synthesise_and_persist,
+)
 
 logger = logging.getLogger("reports.orchestration.pipeline")
 
@@ -65,6 +69,7 @@ class OrchestrationContext:
     query_fn_indicator_data: Any | None = None
     query_fn_reconciler: Any | None = None
     query_fn_gap: Any | None = None
+    query_fn_synthesis: Any | None = None
     text_loader: Callable[[UploadedDocument], str] | None = None
     spreadsheet_loader: Callable[[UploadedDocument], tuple[str, str | None]] | None = None
     reconciler_timeout_seconds: float | None = None
@@ -193,34 +198,84 @@ async def _run_gap_stage(
     _halt_gate2(session, job, report, gap_trace=gap_trace)
 
 
-def _park_synthesise_boundary(session: Session, job: ReportJob) -> None:
-    """Resume boundary — Gate 2 confirmed; synthesis out of scope for this slice."""
+def _park_critique_boundary(session: Session, job: ReportJob) -> None:
+    """Resume boundary after synthesis — critic (F2) not built yet."""
     report = session.get(DonorReport, job.donor_report_id)
     if report is None:
-        raise StageFailure(ReportJobStage.SYNTHESISE.value, "Donor report not found")
+        raise StageFailure(ReportJobStage.CRITIQUE.value, "Donor report not found")
     try:
         require_gate2_confirmed(report.knowledge_bank_json)
     except DomainError as exc:
-        raise StageFailure(ReportJobStage.SYNTHESISE.value, exc.message) from exc
+        raise StageFailure(ReportJobStage.CRITIQUE.value, exc.message) from exc
 
     _append_stage_trace(
         job,
-        ReportJobStage.SYNTHESISE.value,
+        ReportJobStage.CRITIQUE.value,
         {
             "completed_at": datetime.now(timezone.utc).isoformat(),
-            "action": "parked_at_synthesise_boundary",
+            "action": "parked_at_critique_boundary",
             "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
         },
     )
     job.status = ReportJobStatus.AWAITING_HUMAN.value
-    job.stage = ReportJobStage.SYNTHESISE.value
+    job.stage = ReportJobStage.CRITIQUE.value
     session.add(job)
     session.commit()
     logger.info(
-        "synthesise_boundary_parked job_id=%s donor_report_id=%s awaiting_human",
+        "critique_boundary_parked job_id=%s donor_report_id=%s awaiting_human",
         job.id,
         job.donor_report_id,
     )
+
+
+async def _run_synthesise_stage(
+    session: Session,
+    job: ReportJob,
+    ctx: OrchestrationContext,
+) -> None:
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    stage = ReportJobStage.SYNTHESISE.value
+    hook = ctx.stage_hooks.get(stage)
+    if hook is not None:
+        hook(session=session, job=job)
+
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is None:
+        raise StageFailure(stage, "Donor report not found")
+
+    try:
+        require_gate2_confirmed(report.knowledge_bank_json)
+    except DomainError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    try:
+        outcome = await dispatch_stage(
+            synthesise_and_persist(
+                session,
+                job.donor_report_id,
+                query_fn_synthesis=ctx.query_fn_synthesis,
+            ),
+            stage=stage,
+        )
+    except ReportSynthesisServiceError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    result = outcome.result
+    synthesise_trace = {
+        "completed_at": datetime.now(timezone.utc).isoformat(),
+        "action": "synthesise_completed",
+        "section_count": result.section_count,
+        "generated": result.generated,
+        "failed": result.failed,
+        "degraded": result.degraded,
+        "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
+    }
+    _append_stage_trace(job, stage, synthesise_trace)
+    session.add(job)
+    session.commit()
+    _park_critique_boundary(session, job)
 
 
 async def _run_classify_stage(
@@ -445,7 +500,11 @@ async def run_orchestrated_walk(
         return
 
     if stage == ReportJobStage.SYNTHESISE.value:
-        _park_synthesise_boundary(session, job)
+        await _run_synthesise_stage(session, job, context)
+        return
+
+    if stage == ReportJobStage.CRITIQUE.value:
+        _park_critique_boundary(session, job)
         return
 
     if stage == ReportJobStage.CLASSIFY.value:

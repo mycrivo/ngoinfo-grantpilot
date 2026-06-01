@@ -417,3 +417,33 @@ def gap_stop_error_query_fn():
         )
 
     return _query
+
+
+def fcdo_synthesis_query_fn(*, fail_section_key: str | None = None):
+    """Deterministic OpenAI bypass for F1 synthesise stage tests."""
+
+    def _query(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        _ = system_prompt
+        _ = user_prompt
+        if fail_section_key is not None and section_key == fail_section_key:
+            raise RuntimeError(f"simulated synthesis failure for {section_key}")
+        return {
+            "section_key": section_key,
+            "generation_status": "GENERATED",
+            "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+            "generated_content": {
+                "text": (
+                    f"During the reporting period the programme reported delivery outcomes "
+                    f"for section {section_key}, consistent with confirmed funder records."
+                ),
+                "assumptions": [],
+                "evidence_used": ["fact:fcdo.summary.overall_progress"],
+            },
+            "constraints_applied": {
+                "word_limit": 900,
+                "word_limit_respected": True,
+            },
+            "warnings": [],
+        }
+
+    return _query

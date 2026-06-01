@@ -401,7 +401,7 @@ async def test_service_persists_unparseable_without_raise():
 
 
 @pytest.mark.asyncio
-async def test_timeout_one_retry_then_degraded_no_raise():
+async def test_timeout_single_attempt_degrades_no_raise():
     call_count = 0
 
     async def _slow_query(*, prompt: str, options=None):
@@ -418,6 +418,7 @@ async def test_timeout_one_retry_then_degraded_no_raise():
         per_attempt_timeout_seconds=0.01,
     )
     assert call_count == MAX_EXTRACTION_ATTEMPTS
+    assert call_count == 1
     assert result.envelope.structured.extraction_outcome == "degraded"
     assert result.envelope.error == DEGRADED_EXTRACTION_TIMEOUT
     assert result.envelope.agent_trace is not None
@@ -490,10 +491,16 @@ async def test_service_wrong_classification_raises():
 
 
 def test_build_agent_options_bounded():
-    from app.reports.agents.indicator_data_extractor import build_agent_options
+    from app.reports.agents.indicator_data_extractor import (
+        TIMEOUT_SECONDS,
+        build_agent_options,
+    )
 
     options = build_agent_options()
     assert options.max_turns == MAX_TURNS
+    assert MAX_EXTRACTION_ATTEMPTS == 1
+    assert TIMEOUT_SECONDS == 180
+    assert options.env["API_TIMEOUT_MS"] == str(TIMEOUT_SECONDS * 1000)
 
 
 def test_recorded_fcdo_live_extraction_matches_answer_key_contract():

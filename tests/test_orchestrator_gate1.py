@@ -29,6 +29,7 @@ from app.reports.worker.job_failure import FAILURE_EVENT_EXCEPTION, FAILURE_EVEN
 from app.reports.worker.job_runner import poll_once
 from tests.orchestrator_mocks import (
     fcdo_incomplete_gap_query_fn,
+    fcdo_synthesis_query_fn,
     gap_stop_error_query_fn,
     minimal_grant_terms_query_fn,
     minimal_indicator_data_query_fn,
@@ -613,18 +614,31 @@ def test_outcome_g_h_resume_after_gate2_full_confirm(orchestrator_db):
     assert job.status == ReportJobStatus.QUEUED.value
     assert job.stage == ReportJobStage.SYNTHESISE.value
 
-    run_pipeline_module.run_pipeline(job_id)
+    run_pipeline_module.run_pipeline(
+        job_id,
+        orchestration_ctx=OrchestrationContext(
+            query_fn_synthesis=fcdo_synthesis_query_fn(),
+        ),
+    )
 
     final = orchestrator_db()
     parked = final.get(ReportJob, job_id)
+    report = final.get(DonorReport, report_id)
     final.close()
 
     assert parked is not None
     assert parked.status == ReportJobStatus.AWAITING_HUMAN.value
-    assert parked.stage == ReportJobStage.SYNTHESISE.value
+    assert parked.stage == ReportJobStage.CRITIQUE.value
     synth_trace = parked.agent_trace_json.get("stages", {}).get("synthesise", {})
-    assert synth_trace.get("action") == "parked_at_synthesise_boundary"
+    assert synth_trace.get("action") == "synthesise_completed"
     assert synth_trace.get("gate2_confirmed_at")
+    assert synth_trace.get("section_count") == 8
+
+    critique_trace = parked.agent_trace_json.get("stages", {}).get("critique", {})
+    assert critique_trace.get("action") == "parked_at_critique_boundary"
+
+    sections = report.content_json.get("sections") or []
+    assert len(sections) == 8
 
     assert poll_once(job_timeout_seconds=2) == 0
 
