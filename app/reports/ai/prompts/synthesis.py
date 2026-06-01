@@ -38,6 +38,8 @@ REPORT_SYNTHESIS_SYSTEM_PROMPT = (
     "EVIDENCE RULES:\n"
     "List every fact_key or gap_answer item_key used in evidence_used[] "
     "(prefix fact keys with 'fact:', gap keys with 'gap:').\n"
+    "Copy fact and gap keys verbatim from report_inputs — never re-type or "
+    "paraphrase key paths from memory.\n"
     "Weave evidence into narrative; do not paste raw JSON.\n"
     "\n"
     "ARCHETYPE AWARENESS:\n"

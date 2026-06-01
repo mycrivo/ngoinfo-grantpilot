@@ -15,17 +15,21 @@ def build_generated_section(
     evidence_used: list[str],
     word_limit: int,
     word_limit_respected: bool,
+    dropped_citations: list[str] | None = None,
 ) -> dict[str, Any]:
+    content: dict[str, Any] = {
+        "text": text,
+        "assumptions": assumptions,
+        "evidence_used": evidence_used,
+    }
+    if dropped_citations:
+        content["dropped_citations"] = dropped_citations
     return {
         "section_key": section_key,
         "label": label,
         "generation_status": "GENERATED",
         "archetype": archetype,
-        "content": {
-            "text": text,
-            "assumptions": assumptions,
-            "evidence_used": evidence_used,
-        },
+        "content": content,
         "critic_flags": [],
         "failure_reason": None,
         "constraints_applied": {

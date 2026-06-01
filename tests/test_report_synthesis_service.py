@@ -19,7 +19,7 @@ from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     RECONCILER_AGENT_NAME,
 )
 from tests.orchestrator_mocks import fcdo_synthesis_query_fn
-from tests.test_gap_compliance_agent import _build_incomplete_fcdo_kb
+from tests.test_gap_compliance_agent import _build_incomplete_fcdo_kb, _fact
 from tests.worker_validation_seed import create_worker_validation_sessionmaker
 
 FCDO_TEMPLATE_PATH = (
@@ -198,3 +198,65 @@ def test_idempotent_overwrite(synthesis_db):
     updated = sections_by_key(sections)["summary_and_overview"]["content"]["text"]
     assert updated.startswith("UPDATED ")
     assert updated != first_text
+
+
+def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(synthesis_db):
+    from sqlalchemy.orm.attributes import flag_modified
+
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    report = session.get(DonorReport, report_id)
+    kb = dict(report.knowledge_bank_json or {})
+    facts = dict(kb.get("facts") or {})
+    facts["indicators.op2_1.ar1_target"] = _fact(
+        "indicators.op2_1.ar1_target", "latrine target", "24"
+    )
+    kb["facts"] = facts
+    report.knowledge_bank_json = kb
+    flag_modified(report, "knowledge_bank_json")
+    session.add(report)
+    session.commit()
+    session.close()
+
+    def _dirty_mock(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        _ = system_prompt
+        _ = user_prompt
+        return {
+            "section_key": section_key,
+            "generation_status": "GENERATED",
+            "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+            "generated_content": {
+                "text": "Year\u0010 milestone delivery for section.",
+                "assumptions": [],
+                "evidence_used": [
+                    "fact:indicators.op2_\u09e7.ar\u0967_target",
+                    "fact:indicators.op4_0?ar?_target",
+                    "fact:fcdo.summary.overall_progress",
+                ],
+            },
+            "constraints_applied": {
+                "word_limit": 900,
+                "word_limit_respected": True,
+            },
+            "warnings": [],
+        }
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=_dirty_mock,
+        )
+    )
+    report = session.get(DonorReport, report_id)
+    session.close()
+
+    section = sections_by_key(report.content_json["sections"])["summary_and_overview"]
+    content = section["content"]
+    assert "\u0010" not in content["text"]
+    assert content["text"] == "Year milestone delivery for section."
+    assert "fact:indicators.op2_1.ar1_target" in content["evidence_used"]
+    assert "fact:fcdo.summary.overall_progress" in content["evidence_used"]
+    assert "fact:indicators.op4_0?ar?_target" not in content["evidence_used"]
+    assert content["dropped_citations"] == ["fact:indicators.op4_0?ar?_target"]

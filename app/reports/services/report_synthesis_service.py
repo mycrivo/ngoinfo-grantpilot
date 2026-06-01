@@ -27,6 +27,7 @@ from app.reports.schemas.content_json_v1 import (
 )
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
+from app.reports.services.synthesis_output_hygiene import sanitize_generated_content
 
 logger = logging.getLogger("reports.services.report_synthesis")
 
@@ -168,13 +169,27 @@ def _generate_one_section(
 
     generated = raw.get("generated_content") or {}
     constraints = raw.get("constraints_applied") or {}
+    kb = report_inputs.get("knowledge_bank") or {}
+    cleaned = sanitize_generated_content(
+        text=str(generated.get("text") or ""),
+        evidence_used=list(generated.get("evidence_used") or []),
+        kb_fact_keys=dict(kb.get("facts") or {}),
+        kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
+    )
+    if cleaned.dropped_citations:
+        logger.info(
+            "report_synthesis section=%s dropped_citations=%d",
+            section_key,
+            len(cleaned.dropped_citations),
+        )
     return build_generated_section(
         section_key=section_key,
         label=label,
         archetype=raw.get("archetype") or section.get("archetype"),
-        text=str(generated.get("text") or ""),
+        text=cleaned.text,
         assumptions=list(generated.get("assumptions") or []),
-        evidence_used=list(generated.get("evidence_used") or []),
+        evidence_used=cleaned.evidence_used,
+        dropped_citations=cleaned.dropped_citations,
         word_limit=word_limit,
         word_limit_respected=bool(constraints.get("word_limit_respected", True)),
     )
