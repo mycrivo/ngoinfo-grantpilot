@@ -27,6 +27,7 @@ from app.reports.schemas.content_json_v1 import (
 )
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
+from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
 from app.reports.services.synthesis_output_hygiene import sanitize_generated_content
 
 logger = logging.getLogger("reports.services.report_synthesis")
@@ -170,9 +171,16 @@ def _generate_one_section(
     generated = raw.get("generated_content") or {}
     constraints = raw.get("constraints_applied") or {}
     kb = report_inputs.get("knowledge_bank") or {}
-    cleaned = sanitize_generated_content(
+    emitted_evidence = emit_claim_granular_evidence(
         text=str(generated.get("text") or ""),
         evidence_used=list(generated.get("evidence_used") or []),
+        kb_fact_keys=dict(kb.get("facts") or {}),
+        kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
+        section_key=section_key,
+    )
+    cleaned = sanitize_generated_content(
+        text=str(generated.get("text") or ""),
+        evidence_used=emitted_evidence,
         kb_fact_keys=dict(kb.get("facts") or {}),
         kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
     )
