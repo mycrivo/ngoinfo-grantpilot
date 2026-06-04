@@ -316,7 +316,7 @@ Funder templates are **assembled**, not possessed. Sourcing ladder: (1) public f
 `id, created_at, updated_at, funder_name, template_name, region, reporting_frequency (end_of_grant|annual|quarterly|interim|final), report_sections JSONB, format_rules JSONB, terminology_map JSONB, docx_template_ref, is_active, version`
 
 **`donor_reports`** — post-award equivalent of `proposals`
-`id, user_id, created_at, updated_at, funder_report_template_id FK, linked_proposal_id FK (nullable — set if won via GrantPilot), reporting_period_start, reporting_period_end, status (DRAFT|EXTRACTING|AWAITING_REVIEW|GENERATING|DEGRADED|COMPLETE), knowledge_bank_json JSONB, indicator_actuals_json JSONB, content_json JSONB, version`
+`id, user_id, created_at, updated_at, funder_report_template_id FK, linked_proposal_id FK (nullable — set if won via GrantPilot), reporting_period_start, reporting_period_end, status (DRAFT|EXTRACTING|AWAITING_REVIEW|GENERATING|DEGRADED|COMPLETE), knowledge_bank_json JSONB, gap_analysis_json JSONB, indicator_actuals_json JSONB, content_json JSONB, version`
 
 **`uploaded_documents`** — the ingestion surface
 `id, donor_report_id FK, user_id, storage_ref, original_filename, mime_type, size_bytes, classification (proposal|grant_letter|mou|indicator_data|photo|deck|other), extracted_json JSONB, extraction_status, created_at`

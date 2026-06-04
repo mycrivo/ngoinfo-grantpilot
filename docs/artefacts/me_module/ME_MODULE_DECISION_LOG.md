@@ -94,9 +94,26 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 
 | Requirement | Status |
 |-------------|--------|
-| Four M&E tables + migration 0014 | **Complete** |
+| Four M&E tables + migrations 0014 + 0015 | **Complete** |
 | Models match contracts (parity hook) | **Complete** |
 | `ME_MODULE_ENABLED` mount/unmount | **Complete** |
 | Worker separate process (Procfile) | **Complete** |
 | Reversible downgrade (kill switch 3) | **Complete** — `0014_me_module_tables.downgrade()` |
 | Isolation veto + migration parity hooks | **Complete** |
+
+---
+DECISION (2026-06-04) — Funder-template schema: closed-enum policy, funder-addition process, deferred items.
+Context: ME_DB_FUTUREPROOF_AUDIT_2026-06-04.md.
+
+1. Catalog model confirmed. Funder-specific layout is data in JSONB on funder_report_templates. Adding a funder whose cadence fits {end_of_grant, annual, quarterly, interim, final}, whose uploads fit {proposal, grant_letter, mou, indicator_data, photo, deck, other}, and whose form fits report_sections_json / format_rules_json / terminology_map_json is a DATA-ONLY insert: zero schema, zero code.
+
+2. Closed enums stay closed. The CHECK enums on reporting_frequency, uploaded_documents.classification, report_jobs.stage, report_jobs.status, and donor_reports.status are product-internal canonical vocabularies, not funder surface labels. A new cadence, document class, pipeline stage, or lifecycle status changes pipeline behaviour and therefore requires a deliberate, contracted migration carrying the REAL value. Speculative enum widening (e.g. adding milestone / six_monthly / ad_hoc before a profiled funder needs them) is prohibited — it is the imagined-data failure mode.
+
+3. Precondition for any M&E migration: the scratch-Postgres migration harness (pgcrypto / gen_random_uuid) must run clean first. Executable guard before invisible setting.
+
+4. Deferred (intent locked, build when exercised, not now):
+   (a) report_type ('annual' | 'final' | ...) to be persisted as a canonical field on donor_reports (default 'annual'), set at report-create, with the conditional-section evaluator generalised beyond report_type == 'final'. Build with report-creation wiring, after the pgcrypto harness fix. Until then, NLCF final-only sections rely on the code default.
+   (b) Per-report template snapshot: donor_reports to pin template version or template-JSON hash at create time, so later template edits do not change the semantics of existing reports. Build with report-creation wiring. Low urgency pre-launch (no live customer reports exist yet).
+
+5. echo_blocks / header_fields / section guidance / table max_rows remain unexercised by NLCF/FCDO. Validate against a real EU/ECHO funder profile before claiming support. No action now.
+---

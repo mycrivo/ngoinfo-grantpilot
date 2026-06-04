@@ -4,7 +4,7 @@
 **Applies to:** M&E Module — async pipeline execution state  
 **System of Record:** Railway PostgreSQL — GrantPilot Backend  
 **Owner:** M&E Module / Backend  
-**Migration:** `alembic/versions/0014_me_module_*.py` (Stage C — not yet applied)
+**Migration:** Migrations `0014_me_module_tables` + `0015_donor_reports_gap_analysis_json` applied; alembic head = `0015_gap_analysis_json`; deployed to production.
 
 ---
 
@@ -60,11 +60,11 @@ The worker process (`app/reports/worker/`) reads/writes this table behind `run_p
 
 **Gate mapping (informative):**
 
-| Gate | Typical `stage` when `awaiting_human` |
-|------|---------------------------------------|
-| Gate 1 | `reconcile` |
-| Gate 2 | `gap` |
-| Gate 3 | `critique` |
+| Gate | `stage` when `awaiting_human` | Notes |
+|------|-------------------------------|-------|
+| Gate 1 | `gap` | After reconcile completes (`stages.reconcile` trace written); human confirms knowledge bank |
+| Gate 2 | `synthesise` | After gap agent completes (`stages.gap` trace written); human answers gaps |
+| Gate 3 | `export` | After critic completes (`stages.critique` trace written); human accepts sections |
 
 ---
 
@@ -77,26 +77,71 @@ The worker process (`app/reports/worker/`) reads/writes this table behind `run_p
 
 ---
 
-### 2.4 `agent_trace_json` shape (contract summary)
+### 2.4 `agent_trace_json` shape (runtime — from orchestrator + worker)
+
+The orchestrator appends per-stage entries via `_append_stage_trace` (`app/reports/orchestration/pipeline.py`): a **`stages` object** keyed by pipeline stage name. The worker may add top-level **`failed_stage`** (on `StageFailure`) and **`failure`** (on terminal failure — `app/reports/worker/job_failure.py`).
 
 ```json
 {
-  "runs": [
-    {
-      "agent_name": "string",
-      "model_class": "cheap | mid | strong | vision | gpt-5.4",
-      "started_at": "ISO-8601",
-      "finished_at": "ISO-8601 or null",
-      "input_tokens": 0,
-      "output_tokens": 0,
-      "estimated_cost_usd": 0.0,
-      "status": "success | failed | skipped",
-      "summary": "string or null"
+  "stages": {
+    "classify": {
+      "completed_at": "ISO-8601",
+      "document_count": 0,
+      "degraded_notes": []
+    },
+    "extract": {
+      "completed_at": "ISO-8601",
+      "degraded_documents": ["uuid"]
+    },
+    "reconcile": {
+      "completed_at": "ISO-8601",
+      "degraded": false
+    },
+    "gap": {
+      "completed_at": "ISO-8601",
+      "readiness_score": 0,
+      "gap_count": 0,
+      "degraded": false
+    },
+    "synthesise": {
+      "completed_at": "ISO-8601",
+      "action": "synthesise_completed",
+      "section_count": 0,
+      "generated": 0,
+      "failed": 0,
+      "degraded": false,
+      "gate2_confirmed_at": "ISO-8601 or null"
+    },
+    "critique": {
+      "completed_at": "ISO-8601",
+      "action": "parked_at_critique_boundary | critique_completed",
+      "section_count": 0,
+      "verified": 0,
+      "flagged": 0,
+      "unverified": 0,
+      "skipped": 0,
+      "critic_blocks": 0,
+      "gate2_confirmed_at": "ISO-8601 or null"
+    },
+    "export": {
+      "completed_at": "ISO-8601",
+      "action": "export_boundary_not_implemented",
+      "gate3_confirmed_at": "ISO-8601 or null"
     }
-  ],
-  "total_estimated_cost_usd": 0.0
+  },
+  "failed_stage": "string (optional — worker, on StageFailure)",
+  "failure": {
+    "event": "pipeline_exception | pipeline_timeout",
+    "message": "string",
+    "at": "ISO-8601"
+  }
 }
 ```
+
+**Rules**
+- Only stages that have completed (or been parked/failed at a boundary) appear under `stages`; keys are stage names from ENUM_REGISTRY §5.6.
+- Each stage value is the trace `entry` dict written by the orchestrator for that stage — field sets vary by stage (see code paths above).
+- `failure` is set only when the worker marks the job `failed`.
 
 ---
 

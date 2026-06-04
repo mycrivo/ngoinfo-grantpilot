@@ -1465,13 +1465,37 @@ Response 200 (top-level ReportDetailResponse):
     }
   },
   "knowledge_bank_json": {},
+  "gap_analysis_json": {
+    "schema_version": "1.0.0",
+    "readiness_score": 0,
+    "ready_for_gate2": false,
+    "gaps": [
+      {
+        "item_key": "string",
+        "section_key": "string",
+        "section_label": "string",
+        "required_item_type": "indicator | table | section",
+        "required_item_ref": "string",
+        "severity": "required | recommended",
+        "question": "string",
+        "rationale": "string"
+      }
+    ],
+    "gap_agent": "gap_compliance_agent",
+    "analyzed_at": "ISO-8601 or null",
+    "report_context": {
+      "report_type": "annual"
+    },
+    "agent_trace": {},
+    "error": "string or null"
+  },
   "indicator_actuals_json": {},
   "current_gate": "none | gate1 | gate2 | gate3",
   "gate3_confirmed_at": "ISO-8601 or null"
 }
 ```
 
-**Note:** Full JSONB payloads included on detail endpoint only — not on list (§12.10).
+**Note:** Full JSONB payloads included on detail endpoint only — not on list (§12.10). `gap_analysis_json` shape matches `DB_FIELD_CONTRACT_DONOR_REPORTS.md` §2.9 (flattened E3 persist from `envelope_to_gap_analysis_json`).
 
 Errors: 401 · 403 · 404 · 500
 

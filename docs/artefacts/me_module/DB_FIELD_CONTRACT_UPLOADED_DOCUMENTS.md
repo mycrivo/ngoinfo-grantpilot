@@ -4,7 +4,7 @@
 **Applies to:** M&E Module — document intake  
 **System of Record:** Railway PostgreSQL + Railway Buckets (object storage)  
 **Owner:** M&E Module / Backend  
-**Migration:** `alembic/versions/0014_me_module_*.py` (Stage C — not yet applied)
+**Migration:** Migrations `0014_me_module_tables` + `0015_donor_reports_gap_analysis_json` applied; alembic head = `0015_gap_analysis_json`; deployed to production.
 
 ---
 

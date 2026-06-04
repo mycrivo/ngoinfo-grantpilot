@@ -4,7 +4,8 @@
 **Applies to:** M&E Module — Donor Report Writer  
 **System of Record:** Railway PostgreSQL — GrantPilot Backend  
 **Owner:** M&E Module / Backend  
-**Migration:** `alembic/versions/0014_me_module_*.py` (Stage C — not yet applied)
+**Migration:** Migrations `0014_me_module_tables` + `0015_donor_reports_gap_analysis_json` applied; alembic head = `0015_gap_analysis_json`; deployed to production.  
+**Note:** Revision `0015_gap_analysis_json` filename differs from revision id (cosmetic; chain works). On a fresh DB, 0015 is a no-op because 0014 already creates `gap_analysis_json`.
 
 ---
 
@@ -86,6 +87,7 @@ No other table may store generated report content or knowledge-bank state.
 | DB column | Python attribute | Type | Null | Default | Constraints |
 |-----------|------------------|------|------|---------|-------------|
 | `knowledge_bank_json` | `knowledge_bank_json` | JSONB | NO | `'{}'::jsonb` | Shape: §2.6 |
+| `gap_analysis_json` | `gap_analysis_json` | JSONB | NO | `'{}'::jsonb` | Shape: §2.9; column created in 0014; 0015 idempotent re-add |
 | `indicator_actuals_json` | `indicator_actuals_json` | JSONB | NO | `'{}'::jsonb` | Shape: §2.7 |
 | `content_json` | `content_json` | JSONB | NO | `'{}'::jsonb` | Shape: §2.8 |
 
@@ -213,7 +215,51 @@ Mirrors proposal `content_json` section pattern with critic extensions:
 
 ---
 
-### 2.9 Versioning & Timestamps
+### 2.9 `gap_analysis_json` shape (persisted — from `envelope_to_gap_analysis_json`)
+
+Written by E3 gap/compliance (`app/reports/schemas/gap_compliance_v1.py`). The persist path **flattens** `GapComplianceOutput` fields to the top level (no nested `structured` wrapper).
+
+```json
+{
+  "schema_version": "1.0.0",
+  "readiness_score": 0,
+  "ready_for_gate2": false,
+  "gaps": [
+    {
+      "item_key": "string",
+      "section_key": "string",
+      "section_label": "string",
+      "required_item_type": "indicator | table | section",
+      "required_item_ref": "string",
+      "severity": "required | recommended",
+      "question": "string",
+      "rationale": "string"
+    }
+  ],
+  "gap_agent": "gap_compliance_agent",
+  "analyzed_at": "ISO-8601 or null",
+  "report_context": {
+    "report_type": "annual"
+  },
+  "agent_trace": {
+    "model_used": "string or null",
+    "latency_ms": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "attempt_count": 0
+  },
+  "error": "string or null"
+}
+```
+
+**Rules**
+- `agent_trace` and `error` are omitted when null/absent at persist time.
+- `report_context` defaults to `{"report_type": "annual"}` when not supplied.
+- Empty pre-gap state: `'{}'::jsonb`.
+
+---
+
+### 2.10 Versioning & Timestamps
 
 | DB column | Python attribute | Type | Null | Default | Constraints |
 |-----------|------------------|------|------|---------|-------------|
