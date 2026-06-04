@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     TEST_MODE_SECRET: str | None = None
 
     ME_MODULE_ENABLED: bool = False
+    ME_SYNTHESIS_MAX_CONCURRENCY: int = 2
     ME_DOCUMENTS_S3_ENDPOINT: str = ""
     ME_DOCUMENTS_S3_ACCESS_KEY: str = ""
     ME_DOCUMENTS_S3_SECRET: str = ""

@@ -4,16 +4,26 @@ from __future__ import annotations
 
 import asyncio
 import json
+import threading
+import time
 import uuid
 from datetime import date, datetime, timezone
 from pathlib import Path
+from typing import Any
+from unittest.mock import MagicMock, patch
 
 import pytest
 
+from app.core.config import get_settings
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.schemas.content_json_v1 import sections_by_key
-from app.reports.services.report_synthesis_service import synthesise_and_persist
+from app.reports.services.report_synthesis_service import (
+    DEFAULT_SYNTHESIS_MAX_CONCURRENCY,
+    _generate_all_sections,
+    get_synthesis_max_concurrency,
+    synthesise_and_persist,
+)
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     KNOWLEDGE_BANK_RECONCILIATION_VERSION,
     RECONCILER_AGENT_NAME,
@@ -260,3 +270,100 @@ def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(synthesis_db)
     assert "fact:fcdo.summary.overall_progress" in content["evidence_used"]
     assert "fact:indicators.op4_0?ar?_target" not in content["evidence_used"]
     assert content["dropped_citations"] == ["fact:indicators.op4_0?ar?_target"]
+
+
+def _synthesis_generated_payload(section_key: str) -> dict:
+    return {
+        "section_key": section_key,
+        "generation_status": "GENERATED",
+        "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+        "generated_content": {
+            "text": f"Generated text for {section_key}.",
+            "assumptions": [],
+            "evidence_used": [],
+        },
+        "constraints_applied": {"word_limit": 100, "word_limit_respected": True},
+        "warnings": [],
+    }
+
+
+def _eight_test_sections() -> list[dict]:
+    return [
+        {
+            "section_key": f"section_{index}",
+            "label": f"Section {index}",
+            "word_limit": 100,
+            "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+        }
+        for index in range(8)
+    ]
+
+
+def _run_generate_all_with_tracking(
+    *,
+    cap: int,
+    section_count: int = 8,
+) -> tuple[list[dict[str, Any]], int]:
+    active = 0
+    peak = 0
+    lock = threading.Lock()
+
+    def tracking_query(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        nonlocal active, peak
+        _ = system_prompt
+        _ = user_prompt
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        time.sleep(0.08)
+        with lock:
+            active -= 1
+        return _synthesis_generated_payload(section_key)
+
+    sections = _eight_test_sections()[:section_count]
+    report = MagicMock(user_id=uuid.uuid4())
+    template = MagicMock()
+    db = MagicMock()
+    kb_inputs = {"knowledge_bank": {"facts": {}, "gap_answers": {}}}
+
+    with patch(
+        "app.reports.services.report_synthesis_service.build_report_inputs_for_section",
+        return_value=kb_inputs,
+    ), patch(
+        "app.reports.services.report_synthesis_service.get_synthesis_max_concurrency",
+        return_value=cap,
+    ):
+        ordered, _ = _generate_all_sections(
+            sections=sections,
+            report=report,
+            template=template,
+            db=db,
+            query_fn_synthesis=tracking_query,
+        )
+    return ordered, peak
+
+
+def test_synthesis_max_concurrency_default_when_unset(monkeypatch):
+    monkeypatch.delenv("ME_SYNTHESIS_MAX_CONCURRENCY", raising=False)
+    get_settings.cache_clear()
+    assert get_synthesis_max_concurrency() == DEFAULT_SYNTHESIS_MAX_CONCURRENCY
+    assert DEFAULT_SYNTHESIS_MAX_CONCURRENCY == 2
+
+
+def test_synthesis_max_concurrency_env_override(monkeypatch):
+    monkeypatch.setenv("ME_SYNTHESIS_MAX_CONCURRENCY", "3")
+    get_settings.cache_clear()
+    assert get_synthesis_max_concurrency() == 3
+
+
+def test_synthesis_concurrency_peak_never_exceeds_cap():
+    ordered, peak = _run_generate_all_with_tracking(cap=2, section_count=8)
+    assert len(ordered) == 8
+    assert peak <= 2
+
+
+def test_synthesis_all_sections_attempted_under_lower_concurrency():
+    ordered, _ = _run_generate_all_with_tracking(cap=2, section_count=8)
+    keys = [section["section_key"] for section in ordered]
+    assert keys == [f"section_{index}" for index in range(8)]
+    assert all(section.get("generation_status") == "GENERATED" for section in ordered)

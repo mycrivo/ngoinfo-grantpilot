@@ -6,4 +6,6 @@
 
 **Timeout retry:** `openai_client` marks `category="timeout"` as `retryable=True` only when `feature="report_synthesis"`; existing `_MAX_RETRIES=1` yields exactly one retry (two attempts total). Non-synthesis timeouts stay non-retryable.
 
-**Unchanged:** httpx client `timeout=90.0`; `MAX_CONCURRENT_SECTIONS=5`. If C/D still fail after trim, concurrency throttle is the next lever — not implemented here.
+**Concurrency (2026-06-04 follow-up):** F1 section parallelism reduced **5 → 2** (`ME_SYNTHESIS_MAX_CONCURRENCY`, default `2`). Tunable without redeploy via env; expect longer wall time (~4 batches vs ~2 for 8 sections) but fewer parallel OpenAI calls crossing the 90s wall.
+
+**Unchanged:** httpx client `timeout=90.0`; synthesis timeout retry (`_MAX_RETRIES=1`); per-section payload trim; F1 output schema.

@@ -32,13 +32,19 @@ from app.reports.services.synthesis_output_hygiene import sanitize_generated_con
 
 logger = logging.getLogger("reports.services.report_synthesis")
 
-MAX_CONCURRENT_SECTIONS = 5
+DEFAULT_SYNTHESIS_MAX_CONCURRENCY = 2
 DEFAULT_MAX_TOKENS = 2500
 MIN_MAX_TOKENS = 800
 SYNTHESIS_TEMPERATURE = 0.65
 SYNTHESIS_FREQUENCY_PENALTY = 0.4
 
 QueryFnSynthesis = Callable[[str, str, str], dict[str, Any]]
+
+
+def get_synthesis_max_concurrency() -> int:
+    """Max F1 sections in flight. Env: ME_SYNTHESIS_MAX_CONCURRENCY (default 2)."""
+    configured = get_settings().ME_SYNTHESIS_MAX_CONCURRENCY
+    return max(1, int(configured))
 
 
 class ReportSynthesisServiceError(Exception):
@@ -251,7 +257,7 @@ def _generate_all_sections(
 
     results_by_key: dict[str, dict[str, Any]] = {}
     user_id = str(report.user_id)
-    max_workers = min(len(sections), MAX_CONCURRENT_SECTIONS)
+    max_workers = min(len(sections), get_synthesis_max_concurrency())
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_map = {
