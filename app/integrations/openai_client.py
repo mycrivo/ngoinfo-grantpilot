@@ -185,7 +185,7 @@ class OpenAIClient:
                 except httpx.TimeoutException:
                     last_error = OpenAIServiceError(
                         category="timeout",
-                        retryable=False,
+                        retryable=feature == "report_synthesis",
                         retry_attempted=attempt,
                     )
                 except httpx.RequestError as exc:
