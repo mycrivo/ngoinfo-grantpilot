@@ -47,6 +47,10 @@ from app.reports.services.gate_preconditions import (
     require_gate2_confirmed,
     require_gate3_confirmed,
 )
+from app.reports.services.report_export_service import (
+    ReportExportServiceError,
+    export_and_persist,
+)
 from app.reports.services.report_fact_safety_service import (
     ReportFactSafetyServiceError,
     critique_and_persist,
@@ -79,6 +83,7 @@ class OrchestrationContext:
     query_fn_gap: Any | None = None
     query_fn_synthesis: Any | None = None
     query_fn_critic: Any | None = None
+    storage: Any | None = None
     text_loader: Callable[[UploadedDocument], str] | None = None
     spreadsheet_loader: Callable[[UploadedDocument], tuple[str, str | None]] | None = None
     reconciler_timeout_seconds: float | None = None
@@ -304,7 +309,7 @@ async def _run_export_stage(
     job: ReportJob,
     ctx: OrchestrationContext,
 ) -> None:
-    """Export stage stub — Stage H not built; advances past Gate 3 without re-running critic."""
+    """Stage H — render docx, persist to object storage, mark report COMPLETE."""
     session.refresh(job)
     if _job_is_terminal(job):
         return
@@ -322,22 +327,41 @@ async def _run_export_stage(
     except DomainError as exc:
         raise StageFailure(stage, exc.message) from exc
 
+    try:
+        result = await asyncio.to_thread(
+            export_and_persist,
+            session,
+            job.donor_report_id,
+            storage=ctx.storage,
+        )
+    except ReportExportServiceError as exc:
+        raise StageFailure(stage, exc.message) from exc
+
+    session.refresh(job)
+    session.refresh(report)
     _append_stage_trace(
         job,
         stage,
         {
             "completed_at": datetime.now(timezone.utc).isoformat(),
-            "action": "export_boundary_not_implemented",
+            "action": "export_completed",
             "gate3_confirmed_at": report.knowledge_bank_json.get("gate3_confirmed_at"),
+            "storage_ref": result.storage_ref,
+            "filename": result.filename,
+            "render_mode": result.render_mode,
+            "template_version": result.template_version,
+            "bytes_written": result.bytes_written,
         },
     )
     job.status = ReportJobStatus.DONE.value
+    job.finished_at = datetime.now(timezone.utc)
     session.add(job)
     session.commit()
     logger.info(
-        "export_boundary_stub job_id=%s donor_report_id=%s status=done",
+        "export_completed job_id=%s donor_report_id=%s status=done report_status=%s",
         job.id,
         job.donor_report_id,
+        report.status,
     )
 
 

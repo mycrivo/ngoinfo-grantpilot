@@ -23,6 +23,7 @@ from tests.orchestrator_mocks import (
 from tests.test_gap_compliance_agent import _build_incomplete_fcdo_kb
 from tests.test_orchestrator_gate1 import _apply_fcdo_template_to_report
 from tests.test_orchestrator_synthesis import _run_fixture_through_gate2_halt
+from tests.test_report_export_service import MemoryDocumentStorage
 from tests.worker_validation_seed import create_worker_validation_sessionmaker
 
 
@@ -79,6 +80,7 @@ def test_critique_resume_runs_critic_and_parks_gate3(orchestrator_db):
     ctx = OrchestrationContext(
         query_fn_synthesis=fcdo_synthesis_query_fn(),
         query_fn_critic=fcdo_critic_query_fn(),
+        storage=MemoryDocumentStorage(),
     )
     run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
 
@@ -137,6 +139,7 @@ def test_gate3_resume_does_not_re_run_critic(orchestrator_db):
     ctx = OrchestrationContext(
         query_fn_synthesis=fcdo_synthesis_query_fn(),
         query_fn_critic=fcdo_critic_query_fn(),
+        storage=MemoryDocumentStorage(),
     )
     run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
 
@@ -181,8 +184,11 @@ def test_gate3_resume_does_not_re_run_critic(orchestrator_db):
     ]
     assert flags_second == flags_first
     assert job2.stage == ReportJobStage.EXPORT.value
+    assert job2.status == ReportJobStatus.DONE.value
     export_trace = job2.agent_trace_json.get("stages", {}).get("export", {})
-    assert export_trace.get("action") == "export_boundary_not_implemented"
+    assert export_trace.get("action") == "export_completed"
+    assert report2.content_json.get("export", {}).get("storage_ref")
+    assert report2.status == "COMPLETE"
 
 
 def test_re_enqueue_gate3_job_key_is_export_stage(orchestrator_db):

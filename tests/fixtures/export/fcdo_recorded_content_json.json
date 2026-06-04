@@ -1,0 +1,141 @@
+{
+  "sections": [
+    {
+      "section_key": "summary_and_overview",
+      "label": "A. Summary and Overview",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+      "content": {
+        "text": "The programme made steady progress during the Annual Review period from 15 October 2024 to 14 October 2025. Overall delivery remained on track against the agreed Outputs and Indicators.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 900, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "label": "B. Performance and Conclusions",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_PERFORMANCE_CONCLUSIONS",
+      "content": {
+        "text": "Outcome delivery was assessed against the results framework. Girls demonstrated improved retention and attendance against milestone targets.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 1200, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "label": "C. Detailed Output Scoring",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_OUTPUT_SCORING_TABLE",
+      "content": {
+        "text": "Output scoring against the logframe is summarised below.\n\n| Output | Indicator | Baseline | Milestone | Target | Actual | Score | Evidence |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| OP1.1 | Girls re-enrolled | 0 | 650 | 650 | 684 | A+ | School registers |\n| OP2.1 | Latrine stances functional | 0 | 24 | 24 | 31 | A++ | Site verification |\n| OP4.1 | District learning meetings | 0 | 3 | 3 | 3 | A | Meeting minutes |",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": null, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "label": "Evidence and Evaluation",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_EVIDENCE_AND_EVALUATION_REVIEW",
+      "content": {
+        "text": "Monitoring data were drawn from partner returns and spot checks. Limitations in late attendance registers were noted and managed.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 900, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "label": "Risk, Assumptions and Safeguarding",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS",
+      "content": {
+        "text": "Safeguarding controls remained active. Assumption on focal teacher availability was partially realised.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 900, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "value_for_money",
+      "label": "D. Value for Money",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_VALUE_FOR_MONEY_4E",
+      "content": {
+        "text": "Economy and efficiency were acceptable relative to forecast. Effectiveness was supported by output delivery evidence.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 1200, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "label": "F. Programme Management: Delivery, Commercial and Financial Performance",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW",
+      "content": {
+        "text": "Year 1 spend was GBP 920,420 against a budget of GBP 880,000 with variances explained by accelerated delivery.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": 1200, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "label": "Recommendations and Action Points",
+      "generation_status": "ACCEPTED",
+      "archetype": "ARCH_RECOMMENDATIONS_ACTION_PLAN",
+      "content": {
+        "text": "Complete menstrual health training in the three remaining schools before the next review period.",
+        "assumptions": [],
+        "evidence_used": []
+      },
+      "critic_flags": [],
+      "failure_reason": null,
+      "constraints_applied": {"word_limit": null, "word_limit_respected": true},
+      "human_edited": false,
+      "last_edited_at": null
+    }
+  ],
+  "generation_summary": {
+    "total_sections": 8,
+    "generated": 8,
+    "failed": 0,
+    "awaiting_review": 0,
+    "accepted": 8,
+    "critic_blocks": 0,
+    "warnings": []
+  }
+}
