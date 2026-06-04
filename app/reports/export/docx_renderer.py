@@ -14,9 +14,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 _TABLE_ROW_RE = re.compile(r"^\|.+\|$")
 _TABLE_SEP_RE = re.compile(r"^\|[\s:\-|]+\|$")
-_FACT_GAP_RE = re.compile(r"\b(?:fact|gap):[^\s,;]+", re.IGNORECASE)
+_CITATION_MARKER_RE = re.compile(r"\s*\[(?:fact|gap):[^\]]+\]\s*", re.IGNORECASE)
 _ARCHETYPE_RE = re.compile(r"\bARCH_[A-Z0-9_]+\b")
-_SECTION_KEY_RE = re.compile(r"\b[a-z]+(?:_[a-z0-9]+){2,}\b")
 
 
 def resolve_docx_template_path(docx_template_ref: str | None) -> Path | None:
@@ -50,18 +49,12 @@ def _terminology_substitutions(terminology_map: dict[str, Any]) -> list[tuple[re
     return subs
 
 
-def _strip_internal_tokens(
-    text: str,
-    *,
-    section_keys: set[str],
-    indicator_keys: set[str],
-) -> str:
-    cleaned = _FACT_GAP_RE.sub("", text)
+def _strip_internal_tokens(text: str) -> str:
+    """Remove inline citation markers and archetype tokens from prose; preserve narrative words."""
+    cleaned = _CITATION_MARKER_RE.sub(" ", text)
     cleaned = _ARCHETYPE_RE.sub("", cleaned)
-    for key in section_keys | indicator_keys:
-        if key and len(key) > 8:
-            cleaned = re.sub(rf"\b{re.escape(key)}\b", "", cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    cleaned = re.sub(r" +", " ", cleaned)
+    cleaned = re.sub(r" *\n *", "\n", cleaned)
     return cleaned.strip()
 
 
@@ -106,13 +99,8 @@ def _add_word_table(document: Document, header: list[str], rows: list[list[str]]
 def _render_section_body(
     document: Document,
     text: str,
-    *,
-    subs: list[tuple[re.Pattern[str], str]],
-    section_keys: set[str],
-    indicator_keys: set[str],
 ) -> None:
-    sanitized = _strip_internal_tokens(text, section_keys=section_keys, indicator_keys=indicator_keys)
-    sanitized = _apply_terminology(sanitized, subs)
+    sanitized = _strip_internal_tokens(text)
     if not sanitized:
         return
 
@@ -144,22 +132,6 @@ def _render_section_body(
         stripped = para.strip()
         if stripped:
             document.add_paragraph(stripped)
-
-
-def _indicator_keys_from_template(sections: list[Any]) -> set[str]:
-    keys: set[str] = set()
-    for section in sections:
-        if not isinstance(section, dict):
-            continue
-        for indicator in section.get("required_indicators") or []:
-            keys.add(str(indicator))
-        for table in section.get("required_tables") or []:
-            if isinstance(table, dict):
-                keys.add(str(table.get("table_key") or ""))
-                for col in table.get("columns") or []:
-                    if isinstance(col, dict):
-                        keys.add(str(col.get("column_key") or ""))
-    return {k for k in keys if k}
 
 
 def render_donor_report_docx(
@@ -202,12 +174,6 @@ def render_donor_report_docx(
         if isinstance(item, dict) and item.get("section_key"):
             sections_by_key[str(item["section_key"])] = item
 
-    template_section_keys = {
-        str(s.get("section_key"))
-        for s in template_sections
-        if isinstance(s, dict) and s.get("section_key")
-    }
-    indicator_keys = _indicator_keys_from_template(template_sections)
     subs = _terminology_substitutions(terminology_map_json)
 
     for template_section in template_sections:
@@ -222,7 +188,7 @@ def render_donor_report_docx(
                 continue
             table_label = str(table_def.get("label") or "")
             if table_label:
-                document.add_heading(table_label, level=2)
+                document.add_heading(_apply_terminology(table_label, subs), level=2)
 
         section = sections_by_key.get(section_key)
         if section is None:
@@ -234,13 +200,7 @@ def render_donor_report_docx(
         text = str(content.get("text") or "")
 
         if status in ("GENERATED", "AWAITING_REVIEW", "ACCEPTED") and text.strip():
-            _render_section_body(
-                document,
-                text,
-                subs=subs,
-                section_keys=template_section_keys,
-                indicator_keys=indicator_keys,
-            )
+            _render_section_body(document, text)
         elif status == "FAILED":
             reason = section.get("failure_reason") or "Generation failed"
             document.add_paragraph(f"[Not generated: {reason}]")
