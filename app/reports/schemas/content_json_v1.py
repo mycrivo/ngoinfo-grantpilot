@@ -93,6 +93,109 @@ def build_generation_summary(
     }
 
 
+def compute_generation_summary_from_sections(
+    sections: list[dict[str, Any]],
+    *,
+    warnings: list[str],
+) -> dict[str, Any]:
+    """Aggregate generation_summary from a merged section list (§2.8)."""
+    generated = failed = awaiting_review = accepted = critic_blocks = 0
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        status = section.get("generation_status")
+        if status == "GENERATED":
+            generated += 1
+        elif status == "FAILED":
+            failed += 1
+        elif status == "AWAITING_REVIEW":
+            awaiting_review += 1
+        elif status == "ACCEPTED":
+            accepted += 1
+        for flag in section.get("critic_flags") or []:
+            if (
+                isinstance(flag, dict)
+                and flag.get("severity") == "BLOCK"
+                and not flag.get("accepted")
+            ):
+                critic_blocks += 1
+    return {
+        "total_sections": len(sections),
+        "generated": generated,
+        "failed": failed,
+        "awaiting_review": awaiting_review,
+        "accepted": accepted,
+        "critic_blocks": critic_blocks,
+        "warnings": warnings,
+    }
+
+
+_SKIP_IF_NON_EMPTY_TEXT = frozenset({"GENERATED", "AWAITING_REVIEW", "ACCEPTED"})
+
+
+def section_needs_synthesis(existing: dict[str, Any] | None) -> bool:
+    """True when F1 should call OpenAI for this section (resume: skip completed work)."""
+    if existing is None:
+        return True
+    if existing.get("human_edited") is True:
+        return False
+    if existing.get("generation_status") == "ACCEPTED":
+        return False
+    text = str((existing.get("content") or {}).get("text") or "").strip()
+    status = existing.get("generation_status")
+    if status in _SKIP_IF_NON_EMPTY_TEXT and text:
+        return False
+    if status == "FAILED":
+        return True
+    if not text:
+        return True
+    return False
+
+
+def merge_synthesis_sections(
+    *,
+    template_sections: list[dict[str, Any]],
+    existing_by_key: dict[str, dict[str, Any]],
+    new_results_by_key: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Walk template order; apply fresh results or carry forward existing sections."""
+    merged: list[dict[str, Any]] = []
+    for template_section in template_sections:
+        key = str(template_section["section_key"])
+        if key in new_results_by_key:
+            merged.append(new_results_by_key[key])
+        elif key in existing_by_key:
+            merged.append(existing_by_key[key])
+        else:
+            label = str(template_section.get("label") or key)
+            word_limit = int(template_section.get("word_limit") or 0)
+            merged.append(
+                build_failed_section(
+                    section_key=key,
+                    label=label,
+                    word_limit=word_limit,
+                    failure_reason="NOT_GENERATED",
+                )
+            )
+    return merged
+
+
+def merge_content_json_after_synthesis(
+    existing_content_json: dict[str, Any],
+    merged_sections: list[dict[str, Any]],
+    *,
+    warnings: list[str],
+) -> dict[str, Any]:
+    """Merge synthesis output into prior content_json; preserve sibling top-level keys."""
+    out = dict(existing_content_json or {})
+    out["sections"] = merged_sections
+    out["generation_summary"] = compute_generation_summary_from_sections(
+        merged_sections,
+        warnings=warnings,
+    )
+    return out
+
+
 def sections_by_key(sections: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for section in sections:
@@ -107,14 +210,10 @@ def assemble_content_json(
     *,
     warnings: list[str],
 ) -> dict[str, Any]:
-    generated = sum(1 for s in sections if s.get("generation_status") == "GENERATED")
-    failed = sum(1 for s in sections if s.get("generation_status") == "FAILED")
     return {
         "sections": sections,
-        "generation_summary": build_generation_summary(
-            total_sections=len(sections),
-            generated=generated,
-            failed=failed,
+        "generation_summary": compute_generation_summary_from_sections(
+            sections,
             warnings=warnings,
         ),
     }

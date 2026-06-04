@@ -17,7 +17,11 @@ import pytest
 from app.core.config import get_settings
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
-from app.reports.schemas.content_json_v1 import sections_by_key
+from app.reports.schemas.content_json_v1 import (
+    merge_content_json_after_synthesis,
+    section_needs_synthesis,
+    sections_by_key,
+)
 from app.reports.services.report_synthesis_service import (
     DEFAULT_SYNTHESIS_MAX_CONCURRENCY,
     _generate_all_sections,
@@ -134,6 +138,7 @@ def test_synthesis_persists_all_fcdo_sections(synthesis_db):
     assert result.generated == 8
     assert result.failed == 0
     assert report is not None
+    assert report.status != "DEGRADED"
     sections = report.content_json.get("sections") or []
     assert len(sections) == 8
     by_key = sections_by_key(sections)
@@ -169,20 +174,38 @@ def test_single_section_failure_degrades_others_persist(synthesis_db):
     assert result.generated == 7
     assert result.failed == 1
     assert result.degraded is True
+    assert report.status == "DEGRADED"
     by_key = sections_by_key(report.content_json.get("sections") or [])
     assert by_key["performance_and_conclusions"]["generation_status"] == "FAILED"
     assert by_key["summary_and_overview"]["generation_status"] == "GENERATED"
 
 
-def test_idempotent_overwrite(synthesis_db):
+def _tracking_query_fn(base_fn, called_keys: list[str]):
+    def _query(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        called_keys.append(section_key)
+        return base_fn(section_key, system_prompt, user_prompt)
+
+    return _query
+
+
+def _fail_sections_query_fn(base_fn, fail_keys: set[str]):
+    def _query(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        if section_key in fail_keys:
+            raise RuntimeError(f"simulated failure for {section_key}")
+        return base_fn(section_key, system_prompt, user_prompt)
+
+    return _query
+
+
+def test_synthesis_resume_skips_already_generated(synthesis_db):
     session = synthesis_db()
     report_id = _seed_report_ready_for_synthesis(session)
     session.close()
 
-    mock = fcdo_synthesis_query_fn()
+    base = fcdo_synthesis_query_fn()
     session = synthesis_db()
     asyncio.run(
-        synthesise_and_persist(session, report_id, query_fn_synthesis=mock)
+        synthesise_and_persist(session, report_id, query_fn_synthesis=base)
     )
     first = session.get(DonorReport, report_id)
     first_text = sections_by_key(first.content_json["sections"])[
@@ -190,24 +213,243 @@ def test_idempotent_overwrite(synthesis_db):
     ]["content"]["text"]
     session.close()
 
-    def _second_mock(section_key: str, system_prompt: str, user_prompt: str) -> dict:
-        payload = mock(section_key, system_prompt, user_prompt)
+    called_keys: list[str] = []
+
+    def _would_update(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        called_keys.append(section_key)
+        payload = base(section_key, system_prompt, user_prompt)
         payload["generated_content"]["text"] = f"UPDATED {section_key}"
         return payload
 
     session = synthesis_db()
     asyncio.run(
-        synthesise_and_persist(session, report_id, query_fn_synthesis=_second_mock)
+        synthesise_and_persist(session, report_id, query_fn_synthesis=_would_update)
     )
     second = session.get(DonorReport, report_id)
     session.close()
 
-    sections = second.content_json.get("sections") or []
-    assert len(sections) == 8
-    assert len(sections_by_key(sections)) == 8
-    updated = sections_by_key(sections)["summary_and_overview"]["content"]["text"]
-    assert updated.startswith("UPDATED ")
-    assert updated != first_text
+    assert called_keys == []
+    unchanged = sections_by_key(second.content_json["sections"])[
+        "summary_and_overview"
+    ]["content"]["text"]
+    assert unchanged == first_text
+    assert not unchanged.startswith("UPDATED ")
+
+
+def test_synthesis_resume_regenerates_only_failed_sections(synthesis_db):
+    fail_keys = {"performance_and_conclusions", "value_for_money"}
+    base = fcdo_synthesis_query_fn()
+
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    session.close()
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=_fail_sections_query_fn(base, fail_keys),
+        )
+    )
+    after_first = session.get(DonorReport, report_id)
+    first_by_key = sections_by_key(after_first.content_json["sections"])
+    preserved_texts = {
+        key: first_by_key[key]["content"]["text"]
+        for key in first_by_key
+        if key not in fail_keys
+    }
+    assert after_first.status == "DEGRADED"
+    session.close()
+
+    called_keys: list[str] = []
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=_tracking_query_fn(base, called_keys),
+        )
+    )
+    after_second = session.get(DonorReport, report_id)
+    second_by_key = sections_by_key(after_second.content_json["sections"])
+    session.close()
+
+    assert set(called_keys) == fail_keys
+    assert len(second_by_key) == 8
+    for key, text in preserved_texts.items():
+        assert second_by_key[key]["content"]["text"] == text
+    for key in fail_keys:
+        assert second_by_key[key]["generation_status"] == "GENERATED"
+    assert after_second.status != "DEGRADED"
+
+
+def test_synthesis_never_regenerates_accepted_or_human_edited(synthesis_db):
+    base = fcdo_synthesis_query_fn()
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    asyncio.run(
+        synthesise_and_persist(session, report_id, query_fn_synthesis=base)
+    )
+    report = session.get(DonorReport, report_id)
+    sections = list(report.content_json["sections"])
+    by_key = sections_by_key(sections)
+    accepted = by_key["summary_and_overview"]
+    accepted["generation_status"] = "ACCEPTED"
+    accepted["content"]["text"] = "ACCEPTED LOCKED TEXT"
+    accepted["critic_flags"] = [{"severity": "BLOCK", "accepted": True}]
+    human = by_key["risk_and_safeguarding"]
+    human["human_edited"] = True
+    human["content"]["text"] = "HUMAN LOCKED TEXT"
+    report.content_json = {"sections": sections}
+    session.add(report)
+    session.commit()
+    session.close()
+
+    called_keys: list[str] = []
+
+    def _would_update(section_key: str, system_prompt: str, user_prompt: str) -> dict:
+        called_keys.append(section_key)
+        payload = base(section_key, system_prompt, user_prompt)
+        payload["generated_content"]["text"] = f"UPDATED {section_key}"
+        return payload
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(session, report_id, query_fn_synthesis=_would_update)
+    )
+    report = session.get(DonorReport, report_id)
+    by_key = sections_by_key(report.content_json["sections"])
+    session.close()
+
+    assert "summary_and_overview" not in called_keys
+    assert "risk_and_safeguarding" not in called_keys
+    assert by_key["summary_and_overview"]["content"]["text"] == "ACCEPTED LOCKED TEXT"
+    assert by_key["summary_and_overview"]["generation_status"] == "ACCEPTED"
+    assert by_key["risk_and_safeguarding"]["content"]["text"] == "HUMAN LOCKED TEXT"
+    assert by_key["summary_and_overview"]["critic_flags"] == [
+        {"severity": "BLOCK", "accepted": True}
+    ]
+
+
+def test_synthesis_merge_preserves_export_and_gate_stamps(synthesis_db):
+    base = fcdo_synthesis_query_fn()
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=_fail_sections_query_fn(
+                base, {"detailed_output_scoring"}
+            ),
+        )
+    )
+    report = session.get(DonorReport, report_id)
+    report.content_json = {
+        **report.content_json,
+        "export": {"storage_ref": "users/x/reports/y/test.docx", "render_mode": "from_scratch"},
+        "gate3_confirmed_at": "2026-06-04T12:00:00+00:00",
+    }
+    session.add(report)
+    session.commit()
+    session.close()
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(session, report_id, query_fn_synthesis=base)
+    )
+    report = session.get(DonorReport, report_id)
+    session.close()
+
+    assert report.content_json["export"]["storage_ref"] == "users/x/reports/y/test.docx"
+    assert report.content_json["gate3_confirmed_at"] == "2026-06-04T12:00:00+00:00"
+
+
+def test_section_needs_synthesis_rules():
+    assert section_needs_synthesis(None) is True
+    assert (
+        section_needs_synthesis(
+            {
+                "generation_status": "GENERATED",
+                "content": {"text": "prose"},
+                "human_edited": False,
+            }
+        )
+        is False
+    )
+    assert (
+        section_needs_synthesis(
+            {
+                "generation_status": "FAILED",
+                "content": {"text": ""},
+                "human_edited": False,
+            }
+        )
+        is True
+    )
+    assert (
+        section_needs_synthesis(
+            {
+                "generation_status": "ACCEPTED",
+                "content": {"text": ""},
+                "human_edited": False,
+            }
+        )
+        is False
+    )
+    assert (
+        section_needs_synthesis(
+            {
+                "generation_status": "GENERATED",
+                "content": {"text": "x"},
+                "human_edited": True,
+            }
+        )
+        is False
+    )
+
+
+def test_merge_content_json_preserves_siblings():
+    merged = merge_content_json_after_synthesis(
+        {
+            "export": {"storage_ref": "keep-me"},
+            "sections": [],
+        },
+        [{"section_key": "a", "generation_status": "GENERATED", "content": {"text": "t"}}],
+        warnings=[],
+    )
+    assert merged["export"] == {"storage_ref": "keep-me"}
+    assert merged["generation_summary"]["generated"] == 1
+
+
+def test_degraded_status_cleared_on_full_completion(synthesis_db):
+    base = fcdo_synthesis_query_fn()
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    session.close()
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=_fail_sections_query_fn(base, {"value_for_money"}),
+        )
+    )
+    report = session.get(DonorReport, report_id)
+    assert report.status == "DEGRADED"
+    session.close()
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(session, report_id, query_fn_synthesis=base)
+    )
+    report = session.get(DonorReport, report_id)
+    session.close()
+
+    assert report.status == "DRAFT"
+    assert report.content_json["generation_summary"]["failed"] == 0
 
 
 def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(synthesis_db):

@@ -19,11 +19,15 @@ from app.reports.ai.prompts.synthesis import (
     build_synthesis_user_prompt,
 )
 from app.reports.models.donor_report import DonorReport
+from app.reports.models.enums import DonorReportStatus
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.schemas.content_json_v1 import (
-    assemble_content_json,
     build_failed_section,
     build_generated_section,
+    merge_content_json_after_synthesis,
+    merge_synthesis_sections,
+    section_needs_synthesis,
+    sections_by_key,
 )
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
@@ -310,7 +314,7 @@ async def synthesise_and_persist(
     *,
     query_fn_synthesis: QueryFnSynthesis | None = None,
 ) -> ReportSynthesisStageResult:
-    """Generate all template sections and overwrite donor_reports.content_json."""
+    """Generate missing/failed template sections and merge into donor_reports.content_json."""
     report = db.get(DonorReport, donor_report_id)
     if report is None:
         raise ReportSynthesisServiceError(
@@ -330,42 +334,74 @@ async def synthesise_and_persist(
             "Funder template not found",
         )
 
-    sections = _visible_sections(template.report_sections_json or [])
-    if not sections:
+    template_sections = _visible_sections(template.report_sections_json or [])
+    if not template_sections:
         raise ReportSynthesisServiceError(
             "STOP_NO_SECTIONS",
             "Template has no report sections",
         )
 
-    ordered, warnings = await asyncio.to_thread(
-        _generate_all_sections,
-        sections=sections,
-        report=report,
-        template=template,
-        db=db,
-        query_fn_synthesis=query_fn_synthesis,
-    )
+    existing_content = dict(report.content_json or {})
+    existing_by_key = sections_by_key(existing_content.get("sections") or [])
+    to_generate = [
+        section
+        for section in template_sections
+        if section_needs_synthesis(existing_by_key.get(str(section["section_key"])))
+    ]
 
-    content_json = assemble_content_json(ordered, warnings=warnings)
+    if to_generate:
+        ordered_new, warnings = await asyncio.to_thread(
+            _generate_all_sections,
+            sections=to_generate,
+            report=report,
+            template=template,
+            db=db,
+            query_fn_synthesis=query_fn_synthesis,
+        )
+        new_results_by_key = {
+            str(result["section_key"]): result for result in ordered_new
+        }
+    else:
+        warnings = []
+        new_results_by_key = {}
+
+    merged_sections = merge_synthesis_sections(
+        template_sections=template_sections,
+        existing_by_key=existing_by_key,
+        new_results_by_key=new_results_by_key,
+    )
+    content_json = merge_content_json_after_synthesis(
+        existing_content,
+        merged_sections,
+        warnings=warnings,
+    )
     report.content_json = content_json
+
+    summary = content_json.get("generation_summary") or {}
+    failed = int(summary.get("failed") or 0)
+    if failed > 0:
+        report.status = DonorReportStatus.DEGRADED.value
+    elif report.status == DonorReportStatus.DEGRADED.value:
+        report.status = DonorReportStatus.DRAFT.value
+
     db.add(report)
     db.commit()
     db.refresh(report)
 
-    summary = content_json.get("generation_summary") or {}
     generated = int(summary.get("generated") or 0)
-    failed = int(summary.get("failed") or 0)
 
     logger.info(
-        "report_synthesis complete donor_report_id=%s sections=%d generated=%d failed=%d",
+        "report_synthesis complete donor_report_id=%s sections=%d generated=%d failed=%d "
+        "regenerated=%d",
         donor_report_id,
-        len(ordered),
+        len(merged_sections),
         generated,
         failed,
+        len(to_generate),
     )
 
     return ReportSynthesisStageResult(
-        section_count=len(ordered),
+        section_count=len(merged_sections),
         generated=generated,
         failed=failed,
         degraded=failed > 0,
