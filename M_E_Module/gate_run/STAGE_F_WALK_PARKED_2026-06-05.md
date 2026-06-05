@@ -9,7 +9,7 @@ Handoff for a clean next-session start. **No further work on fixture `1c9f7ffa` 
 | Engine does not fabricate (critic BLOCK path) | Proven on prior walks |
 | Resumable synthesis (D-047 merge, not overwrite) | Shipped `a6b430c` |
 | Gate 1 end-to-end via real API/orchestrator | Proven on pristine fixture creation + confirm |
-| **E3 gap-agent JSON transport retry** | **Shipped — commit `1c6452a`** |
+| **E3 gap-agent JSON transport retry** | **Shipped — commit `332ef68`** |
 | **POST `/job` failed-gap reclaim** | **Shipped — same commit** |
 
 **Retry + reclaim (this commit):**
