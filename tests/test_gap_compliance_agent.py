@@ -12,6 +12,7 @@ from app.core.errors import DomainError
 from app.reports.agents.gap_compliance_agent import (
     AGENT_NAME,
     DEFAULT_MODEL,
+    GapComplianceAgentError,
     build_gap_compliance_prompt,
     run_gap_compliance,
 )
@@ -489,3 +490,75 @@ def test_e3_dispatch_resolves_stop_and_timeout_to_stage_failure(monkeypatch):
     assert "timeout" in timeout_exc.value.message.lower()
     _record_stage_failure_trace(job_timeout, timeout_exc.value)
     assert job_timeout.agent_trace_json["failed_stage"] == "gap"
+
+
+@pytest.mark.asyncio
+async def test_gap_compliance_retries_once_on_empty_structured_output():
+    kb, template_payload = _dispatch_minimal_e3_inputs()
+    call_count = 0
+
+    async def _flake_query(*, prompt, options=None):
+        nonlocal call_count
+        _ = prompt
+        _ = options
+        call_count += 1
+        if call_count == 1:
+            yield SimpleNamespace(is_error=False, structured_output=None)
+            return
+        yield SimpleNamespace(
+            is_error=False,
+            structured_output={"readiness_score": 100, "gaps": []},
+        )
+
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template_payload,
+        query_fn=_flake_query,
+    )
+    assert call_count == 2
+    assert result.envelope.agent_trace.attempt_count == 2
+    assert result.envelope.structured.readiness_score == 100
+
+
+@pytest.mark.asyncio
+async def test_gap_compliance_fails_loudly_after_two_unparseable_responses():
+    kb, template_payload = _dispatch_minimal_e3_inputs()
+
+    async def _always_empty(*, prompt, options=None):
+        _ = prompt
+        _ = options
+        yield SimpleNamespace(is_error=False, structured_output=None)
+
+    with pytest.raises(GapComplianceAgentError) as exc_info:
+        await run_gap_compliance(
+            knowledge_bank_json=kb,
+            template_payload=template_payload,
+            query_fn=_always_empty,
+        )
+    assert exc_info.value.code == "STOP_NO_RESULT"
+    assert "Gap compliance stage:" in exc_info.value.message
+    assert "after 2 attempts" in exc_info.value.message
+    assert "attempt_1_raw=" in exc_info.value.message
+    assert "attempt_2_raw=" in exc_info.value.message
+
+
+@pytest.mark.asyncio
+async def test_gap_compliance_does_not_retry_agent_errors():
+    kb, template_payload = _dispatch_minimal_e3_inputs()
+    call_count = 0
+
+    async def _error_query(*, prompt, options=None):
+        nonlocal call_count
+        call_count += 1
+        _ = prompt
+        _ = options
+        yield SimpleNamespace(is_error=True, stop_reason="injected_stop")
+
+    with pytest.raises(GapComplianceAgentError) as exc_info:
+        await run_gap_compliance(
+            knowledge_bank_json=kb,
+            template_payload=template_payload,
+            query_fn=_error_query,
+        )
+    assert call_count == 1
+    assert exc_info.value.code == "STOP_AGENT_ERROR"

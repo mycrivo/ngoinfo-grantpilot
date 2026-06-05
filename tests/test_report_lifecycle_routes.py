@@ -188,6 +188,89 @@ def test_enqueue_creates_one_queued_job_and_rejects_duplicate_active(lifecycle_a
     assert jobs[0].status == ReportJobStatus.QUEUED.value
 
 
+def test_enqueue_reclaims_failed_gap_job_at_failed_stage(lifecycle_api):
+    session = lifecycle_api.session_factory()
+    report = create_donor_report(
+        session,
+        user_id=lifecycle_api.user_id,
+        reporting_period_start=date(2025, 1, 1),
+        reporting_period_end=date(2025, 12, 31),
+    )
+    report.knowledge_bank_json = {
+        "facts": {},
+        "conflicts": [],
+        "gate1_confirmed_at": "2026-06-05T12:29:58+00:00",
+    }
+    session.add(report)
+    failed_job = ReportJob(
+        id=uuid.uuid4(),
+        donor_report_id=report.id,
+        stage=ReportJobStage.GAP.value,
+        status=ReportJobStatus.FAILED.value,
+        agent_trace_json={"failed_stage": "gap", "failure": {"message": "parse"}},
+        error="gap: Gap agent response is not valid JSON",
+        started_at=datetime.now(timezone.utc),
+        finished_at=datetime.now(timezone.utc),
+    )
+    session.add(failed_job)
+    session.commit()
+    report_id = report.id
+    failed_job_id = failed_job.id
+    session.close()
+
+    resp = lifecycle_api.client.post(
+        f"/api/reports/{report_id}/job",
+        headers=lifecycle_api.auth_header,
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["job_id"] == str(failed_job_id)
+    assert body["stage"] == ReportJobStage.GAP.value
+    assert body["status"] == ReportJobStatus.QUEUED.value
+
+    verify = lifecycle_api.session_factory()
+    jobs = verify.query(ReportJob).filter_by(donor_report_id=report_id).all()
+    job = verify.query(ReportJob).filter_by(id=failed_job_id).one()
+    verify.close()
+    assert len(jobs) == 1
+    assert job.error is None
+    assert job.finished_at is None
+    assert "failed_stage" not in (job.agent_trace_json or {})
+
+
+def test_enqueue_does_not_hijack_awaiting_human_job(lifecycle_api):
+    session = lifecycle_api.session_factory()
+    report = create_donor_report(
+        session,
+        user_id=lifecycle_api.user_id,
+        reporting_period_start=date(2025, 1, 1),
+        reporting_period_end=date(2025, 12, 31),
+    )
+    report.knowledge_bank_json = {
+        "facts": {},
+        "gate1_confirmed_at": "2026-06-05T12:29:58+00:00",
+    }
+    session.add(report)
+    awaiting_job = ReportJob(
+        id=uuid.uuid4(),
+        donor_report_id=report.id,
+        stage=ReportJobStage.GAP.value,
+        status=ReportJobStatus.AWAITING_HUMAN.value,
+        agent_trace_json={},
+    )
+    session.add(awaiting_job)
+    session.commit()
+    report_id = report.id
+    session.close()
+
+    resp = lifecycle_api.client.post(
+        f"/api/reports/{report_id}/job",
+        headers=lifecycle_api.auth_header,
+    )
+    assert resp.status_code == 409
+    assert resp.json()["error_code"] == "ACTIVE_JOB_EXISTS"
+
+
 def test_status_and_knowledge_bank_reads(lifecycle_api):
     session = lifecycle_api.session_factory()
     report = create_donor_report(

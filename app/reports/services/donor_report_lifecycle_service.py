@@ -21,6 +21,7 @@ from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.services.document_storage_service import DocumentStorageService
+from app.reports.services.gate_preconditions import require_gate1_confirmed
 from app.reports.services.report_access import get_owned_donor_report
 
 logger = logging.getLogger("reports.services.donor_report_lifecycle")
@@ -196,13 +197,63 @@ def upload_document(
     return document
 
 
+def _try_reclaim_failed_job(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    report: DonorReport,
+) -> ReportJob | None:
+    """Re-queue a failed job at its failed stage after Gate 1 confirm.
+
+    Never touches running or awaiting_human jobs — caller must reject those first.
+    """
+    try:
+        require_gate1_confirmed(report.knowledge_bank_json)
+    except DomainError:
+        return None
+
+    failed_job = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status == ReportJobStatus.FAILED.value,
+            ReportJob.stage == ReportJobStage.GAP.value,
+        )
+        .order_by(
+            ReportJob.started_at.desc().nullslast(),
+            ReportJob.id.desc(),
+        )
+        .first()
+    )
+    if failed_job is None:
+        return None
+
+    trace = dict(failed_job.agent_trace_json or {})
+    trace.pop("failed_stage", None)
+    trace.pop("failure", None)
+    failed_job.agent_trace_json = trace
+    failed_job.status = ReportJobStatus.QUEUED.value
+    failed_job.error = None
+    failed_job.finished_at = None
+    db.add(failed_job)
+    db.commit()
+    db.refresh(failed_job)
+    logger.info(
+        "report_job_reclaimed donor_report_id=%s job_id=%s stage=%s",
+        donor_report_id,
+        failed_job.id,
+        failed_job.stage,
+    )
+    return failed_job
+
+
 def enqueue_report_job(
     db: Session,
     *,
     donor_report_id: uuid.UUID,
     user_id: uuid.UUID,
 ) -> ReportJob:
-    get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+    report = get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
 
     active = (
         db.query(ReportJob)
@@ -219,6 +270,12 @@ def enqueue_report_job(
             status_code=409,
             details={"job_id": str(active.id), "status": active.status},
         )
+
+    reclaimed = _try_reclaim_failed_job(
+        db, donor_report_id=donor_report_id, report=report
+    )
+    if reclaimed is not None:
+        return reclaimed
 
     job = ReportJob(
         id=uuid.uuid4(),
