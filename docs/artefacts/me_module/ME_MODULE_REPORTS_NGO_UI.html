@@ -284,21 +284,42 @@ textarea.input{width:100%;border-radius:var(--btn-radius);padding:12px 14px;font
 .profile-card .pc-edit{font-size:13.5px;font-weight:600;color:var(--primary);background:none;border:none;cursor:pointer;flex-shrink:0;align-self:center;padding:6px 8px;border-radius:var(--radius-sm)}
 .profile-card .pc-edit:hover{background:var(--info-soft)}
 
-/* ─── FUNDER SELECT (Screen 3) ────────────────────────────────────────────── */
-.funder-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:620px){.funder-list{grid-template-columns:1fr}}
-.funder{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--border);
-  border-radius:var(--radius);padding:15px 16px;cursor:pointer;text-align:left;width:100%;font-family:inherit}
-.funder:hover{border-color:var(--info-line);background:var(--info-soft)}
-.funder[aria-pressed="true"]{border-color:var(--primary);box-shadow:var(--ring);background:#fff}
-.funder .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;position:relative}
-.funder[aria-pressed="true"] .radio{border-color:var(--primary)}
-.funder[aria-pressed="true"] .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--primary)}
-.funder .f-body{flex:1;min-width:0}
-.funder .f-name{font-size:14.5px;font-weight:700;color:var(--heading-2)}
-.funder .f-desc{font-size:12.5px;color:var(--text-2);margin-top:2px}
-.funder .f-badge{flex-shrink:0;font-size:11px;font-weight:600;color:var(--success);background:var(--success-soft);
-  border:1px solid var(--success-line);border-radius:var(--radius-pill);padding:3px 9px}
+/* ─── FUNDER PICKER (Screen 3) — searchable combobox, scales as list grows ── */
+.combo{position:relative}
+.combo-trigger{width:100%;display:flex;align-items:center;gap:12px;background:var(--card);
+  border:1.5px solid var(--border);border-radius:var(--btn-radius);padding:11px 14px;cursor:pointer;
+  font-family:inherit;text-align:left;min-height:54px}
+.combo-trigger:hover{border-color:var(--info-line)}
+.combo.open .combo-trigger,.combo-trigger:focus-visible{border-color:var(--primary);box-shadow:var(--ring);outline:none}
+.combo-trigger .ct-main{flex:1;min-width:0}
+.combo-trigger .ct-name{display:block;font-size:15px;font-weight:600;color:var(--heading-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.combo-trigger .ct-sub{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.combo-trigger.is-placeholder .ct-name{color:var(--text-2);font-weight:500}
+.combo-trigger .ct-caret{color:var(--text-2);flex-shrink:0;font-size:12px;transition:transform .15s ease}
+.combo.open .combo-trigger .ct-caret{transform:rotate(180deg)}
+
+.combo-pop{position:absolute;z-index:30;top:calc(100% + 6px);left:0;right:0;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden}
+.combo-pop[hidden]{display:none}
+.combo-search{display:flex;align-items:center;gap:9px;padding:11px 13px;border-bottom:1px solid var(--divider)}
+.combo-search .cs-ic{color:var(--text-2);font-size:15px;flex-shrink:0}
+.combo-search input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:14.5px;color:var(--text);padding:4px 0}
+.combo-listbox{list-style:none;max-height:300px;overflow-y:auto;padding:6px;margin:0}
+.combo-option{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--btn-radius);cursor:pointer}
+.combo-option:hover,.combo-option.active{background:var(--info-soft)}
+.combo-option .co-check{width:16px;flex-shrink:0;color:var(--primary);font-size:13px;font-weight:700;opacity:0;text-align:center}
+.combo-option[aria-selected="true"] .co-check{opacity:1}
+.combo-option .co-body{flex:1;min-width:0}
+.combo-option .co-name{display:block;font-size:14.5px;font-weight:600;color:var(--heading-2)}
+.combo-option .co-name .co-region{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:600;color:var(--neutral);
+  background:#F1F5F9;border:1px solid #E2E8F0;border-radius:var(--radius-pill);padding:1px 8px;vertical-align:middle}
+.combo-option .co-desc{display:block;font-size:12.5px;color:var(--text-2);margin-top:3px;line-height:1.4}
+.combo-option .co-badge{flex-shrink:0;font-size:11px;font-weight:600;color:var(--success);background:var(--success-soft);
+  border:1px solid var(--success-line);border-radius:var(--radius-pill);padding:3px 9px;white-space:nowrap}
+.combo-empty{padding:22px 16px;text-align:center;color:var(--text-2);font-size:13.5px}
+.combo-empty[hidden]{display:none}
+.combo-help{font-size:12.5px;color:var(--text-2);margin-top:8px}
+@media(max-width:560px){.combo-option .co-badge{display:none}}
 .select-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 @media(max-width:620px){.select-row{grid-template-columns:1fr}}
 .template-info{display:flex;gap:11px;background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius);padding:15px 16px;margin-top:16px}
@@ -720,42 +741,105 @@ textarea.input{width:100%;border-radius:var(--btn-radius);padding:12px 14px;font
       <h1 class="title">Who are you reporting to?</h1>
       <p class="subtitle">Choose the funder, grant, and reporting period so GrantPilot can structure the report correctly.</p>
 
-      <div class="funder-list" role="group" aria-label="Choose a funder">
-        <button class="funder" aria-pressed="true" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">FCDO</span><span class="f-desc">UK government — narrative progress, results &amp; value for money</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">National Lottery Community Fund</span><span class="f-desc">Learning-focused progress &amp; end-of-grant reports</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">Comic Relief</span><span class="f-desc">End-of-grant impact and difference made</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">USAID</span><span class="f-desc">Quarterly &amp; annual performance against indicators</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">ECHO</span><span class="f-desc">EU humanitarian Single Form — interim &amp; final</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">Generic institutional donor report</span><span class="f-desc">A structured report for any institutional funder</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
-        <button class="funder" aria-pressed="false" data-group="funder">
-          <span class="radio" aria-hidden="true"></span>
-          <span class="f-body"><span class="f-name">Generic CSR project report</span><span class="f-desc">For corporate / CSR-funded projects</span></span>
-          <span class="f-badge">Template ready</span>
-        </button>
+      <div class="field" style="margin-bottom:0">
+        <label id="funder-label" for="funder-trigger">Funder</label>
+        <div class="combo" data-combo>
+          <button type="button" class="combo-trigger" id="funder-trigger"
+                  aria-haspopup="listbox" aria-expanded="false" aria-labelledby="funder-label funder-trigger">
+            <span class="ct-main">
+              <span class="ct-name">FCDO</span>
+              <span class="ct-sub">United Kingdom · Template ready</span>
+            </span>
+            <span class="ct-caret" aria-hidden="true">▾</span>
+          </button>
+          <div class="combo-pop" role="dialog" aria-label="Choose a funder" hidden>
+            <div class="combo-search">
+              <span class="cs-ic" aria-hidden="true">⌕</span>
+              <input type="text" id="funder-search" placeholder="Search funders…" autocomplete="off" aria-label="Search funders">
+            </div>
+            <ul class="combo-listbox" role="listbox" aria-label="Funders" id="funder-listbox" tabindex="-1">
+              <li class="combo-option" role="option" aria-selected="true"
+                  data-name="FCDO" data-region="United Kingdom"
+                  data-info-title="FCDO Annual Review"
+                  data-info-body="Includes progress against outputs, results, value for money, risks, lessons, and recommendations.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">FCDO <span class="co-region">UK</span></span>
+                  <span class="co-desc">Narrative progress, results and value for money</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="National Lottery Community Fund" data-region="United Kingdom"
+                  data-info-title="Lottery progress &amp; end-of-grant report"
+                  data-info-body="Covers what you set out to do, what changed, what you learned, and the difference made.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">National Lottery Community Fund <span class="co-region">UK</span></span>
+                  <span class="co-desc">Learning-focused progress and end-of-grant reports</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="Comic Relief" data-region="United Kingdom"
+                  data-info-title="Comic Relief end-of-grant report"
+                  data-info-body="Covers the outcomes achieved, what you learned, and the difference your grant made.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">Comic Relief <span class="co-region">UK</span></span>
+                  <span class="co-desc">End-of-grant impact and the difference made</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="USAID" data-region="United States"
+                  data-info-title="USAID performance report"
+                  data-info-body="Covers performance against indicators and targets, activities, and results for the period.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">USAID <span class="co-region">US</span></span>
+                  <span class="co-desc">Quarterly and annual performance against indicators</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="ECHO" data-region="European Union"
+                  data-info-title="ECHO Single Form"
+                  data-info-body="Follows the EU humanitarian Single Form structure for interim and final reporting.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">ECHO <span class="co-region">EU</span></span>
+                  <span class="co-desc">Humanitarian Single Form — interim and final</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="Generic institutional donor report" data-region="Any region"
+                  data-info-title="Generic institutional donor report"
+                  data-info-body="A structured progress and results report suitable for most institutional funders.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">Generic institutional donor report <span class="co-region">Any</span></span>
+                  <span class="co-desc">A structured report for any institutional funder</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+              <li class="combo-option" role="option" aria-selected="false"
+                  data-name="Generic CSR project report" data-region="Any region"
+                  data-info-title="Generic CSR project report"
+                  data-info-body="A concise project report for corporate and CSR-funded work.">
+                <span class="co-check" aria-hidden="true">✓</span>
+                <span class="co-body">
+                  <span class="co-name">Generic CSR project report <span class="co-region">Any</span></span>
+                  <span class="co-desc">For corporate and CSR-funded projects</span>
+                </span>
+                <span class="co-badge">Template ready</span>
+              </li>
+            </ul>
+            <div class="combo-empty" hidden>No funders match your search.</div>
+          </div>
+        </div>
+        <p class="combo-help">Only funders we can format for appear here. More are added over time.</p>
       </div>
 
       <div class="select-row">
@@ -780,8 +864,8 @@ textarea.input{width:100%;border-radius:var(--btn-radius);padding:12px 14px;font
       <div class="template-info">
         <span class="ti-ic" aria-hidden="true">ⓘ</span>
         <div>
-          <div class="ti-t">FCDO Annual Review</div>
-          <div class="ti-b">Includes progress against outputs, results, value for money, risks, lessons, and recommendations.</div>
+          <div class="ti-t" id="tmpl-title">FCDO Annual Review</div>
+          <div class="ti-b" id="tmpl-body">Includes progress against outputs, results, value for money, risks, lessons, and recommendations.</div>
         </div>
       </div>
 
@@ -1225,6 +1309,79 @@ textarea.input{width:100%;border-radius:var(--btn-radius);padding:12px 14px;font
       var row = btn.closest('.doc-row');
       if (row) row.remove();
     });
+  });
+
+  // Funder picker (Screen 3) — searchable combobox; scales as the list grows.
+  // Presentational only: updates the field + template info card, no API calls.
+  document.querySelectorAll('[data-combo]').forEach(function (combo) {
+    var trigger = combo.querySelector('.combo-trigger');
+    var pop = combo.querySelector('.combo-pop');
+    var search = combo.querySelector('input');
+    var listbox = combo.querySelector('.combo-listbox');
+    var empty = combo.querySelector('.combo-empty');
+    if (!trigger || !pop || !listbox) return;
+    var options = Array.prototype.slice.call(listbox.querySelectorAll('.combo-option'));
+    var tmplTitle = document.getElementById('tmpl-title');
+    var tmplBody = document.getElementById('tmpl-body');
+
+    function isOpen() { return !pop.hasAttribute('hidden'); }
+    function visibleOptions() { return options.filter(function (o) { return o.style.display !== 'none'; }); }
+    function selectedOption() { return options.filter(function (o) { return o.getAttribute('aria-selected') === 'true'; })[0] || null; }
+    function setActive(opt) {
+      options.forEach(function (o) { o.classList.remove('active'); });
+      if (opt) { opt.classList.add('active'); if (opt.scrollIntoView) opt.scrollIntoView({ block: 'nearest' }); }
+    }
+    function filter(q) {
+      q = (q || '').trim().toLowerCase();
+      var any = false;
+      options.forEach(function (o) {
+        var hay = (o.getAttribute('data-name') + ' ' + o.getAttribute('data-region') + ' ' + o.textContent).toLowerCase();
+        var show = hay.indexOf(q) !== -1;
+        o.style.display = show ? '' : 'none';
+        if (show) any = true;
+      });
+      if (empty) { if (any) empty.setAttribute('hidden', ''); else empty.removeAttribute('hidden'); }
+      setActive(visibleOptions()[0] || null);
+    }
+    function open() {
+      combo.classList.add('open'); pop.removeAttribute('hidden'); trigger.setAttribute('aria-expanded', 'true');
+      if (search) { search.value = ''; filter(''); search.focus(); }
+      setActive(selectedOption() || visibleOptions()[0] || null);
+    }
+    function close() {
+      combo.classList.remove('open'); pop.setAttribute('hidden', ''); trigger.setAttribute('aria-expanded', 'false');
+    }
+    function choose(opt) {
+      if (!opt) return;
+      options.forEach(function (o) { o.setAttribute('aria-selected', 'false'); });
+      opt.setAttribute('aria-selected', 'true');
+      var nameEl = trigger.querySelector('.ct-name'), subEl = trigger.querySelector('.ct-sub');
+      if (nameEl) nameEl.textContent = opt.getAttribute('data-name');
+      if (subEl) subEl.textContent = opt.getAttribute('data-region') + ' · Template ready';
+      trigger.classList.remove('is-placeholder');
+      if (tmplTitle && opt.getAttribute('data-info-title')) tmplTitle.textContent = opt.getAttribute('data-info-title');
+      if (tmplBody && opt.getAttribute('data-info-body')) tmplBody.textContent = opt.getAttribute('data-info-body');
+      close(); trigger.focus();
+    }
+
+    trigger.addEventListener('click', function () { isOpen() ? close() : open(); });
+    trigger.addEventListener('keydown', function (e) {
+      if (!isOpen() && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(); }
+    });
+    options.forEach(function (o) { o.addEventListener('click', function () { choose(o); }); });
+    if (search) {
+      search.addEventListener('input', function () { filter(search.value); });
+      search.addEventListener('keydown', function (e) {
+        var vis = visibleOptions();
+        var active = vis.filter(function (o) { return o.classList.contains('active'); })[0];
+        var idx = vis.indexOf(active);
+        if (e.key === 'ArrowDown') { e.preventDefault(); setActive(vis[Math.min(idx + 1, vis.length - 1)] || vis[0] || null); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(vis[Math.max(idx - 1, 0)] || vis[0] || null); }
+        else if (e.key === 'Enter') { e.preventDefault(); choose(active || vis[0]); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(); trigger.focus(); }
+      });
+    }
+    document.addEventListener('click', function (e) { if (isOpen() && !combo.contains(e.target)) close(); });
   });
 })();
 </script>

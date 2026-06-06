@@ -92,6 +92,23 @@ Accessibility rule honoured: **every status carries text + a shape/icon, never c
 - No success/approval/probability claims; errors never blame the user; the person “stays
   the author”.
 
+### Screen 3 — funder picker is a searchable combobox (not a card grid)
+
+The original brief specced funder **cards**, but the funder catalogue grows (10 launch
+templates; “templates 11+ by demonstrated demand” post-launch across UK/EU/US/Generic), so
+a card grid becomes block-y and unscannable. Screen 3 instead uses a **searchable combobox**:
+
+- Collapsed, it is a single field — consistent with the Grant and Reporting-period selects
+  beside it — so it stays compact no matter how many funders exist.
+- Open, it shows a search box + a scrollable list; each row keeps the plain-language
+  description, a region tag, and the **“Template ready”** badge (the “only funders we can do
+  well” reassurance from the spec).
+- Selecting a funder updates the field and the template-info card. Keyboard accessible
+  (open/close, type-to-filter, arrow keys, Enter, Escape); selection shown by text + check,
+  never colour alone.
+- Backing data is still `GET /api/report-templates` (§12.1) — the picker just renders the
+  returned list; in production the rows are mapped from the response, search is client-side.
+
 ---
 
 ## 5. ⚠ Flagged gap — Screens 1–2 “Prepare my profile from a website URL”
