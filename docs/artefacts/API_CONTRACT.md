@@ -316,10 +316,28 @@ Response 200:
     },
     "proposal_regenerations": {
       "limit_per_proposal": 0
+    },
+    "reports": {
+      "limit": 0,
+      "used": 0,
+      "remaining": 0,
+      "period": "BILLING_CYCLE",
+      "reset_at": "ISO-8601 timestamp or null"
+    },
+    "report_exports": {
+      "limit": 0,
+      "used": 0,
+      "remaining": 0,
+      "period": "BILLING_CYCLE",
+      "reset_at": "ISO-8601 timestamp or null"
     }
   }
 }
 ```
+
+**M&E entitlement limits (Stage J):**
+- **FREE / GROWTH:** `reports.limit` = 0 (M&E not available; entry points return `403 UPGRADE_REQUIRED`).
+- **IMPACT:** `reports.limit` = 2 per billing cycle; `report_exports` idempotent per report version (mirrors proposal `DOCX_EXPORT` pattern).
 
 Errors:
 
@@ -1080,7 +1098,7 @@ When returned by any endpoint, `details.missing_fields[]` MUST be provided:
   "error_code": "QUOTA_EXCEEDED",
   "message": "Quota exceeded.",
   "details": {
-    "entitlement": "fit_scans | proposals | proposal_regenerations | docx_exports",
+    "entitlement": "fit_scans | proposals | proposal_regenerations | docx_exports | reports | report_exports",
     "limit": 0,
     "used": 0,
     "remaining": 0,
@@ -1089,6 +1107,23 @@ When returned by any endpoint, `details.missing_fields[]` MUST be provided:
   }
 }
 ```
+
+### 10.3 403 UPGRADE_REQUIRED (M&E — Free/Growth)
+
+Returned when a Free or Growth user hits any M&E entry point or `/api/reports*` endpoint (Stage J).
+
+```json
+{
+  "error_code": "UPGRADE_REQUIRED",
+  "message": "M&E reporting is available on the Impact plan.",
+  "details": {
+    "required_plan": "IMPACT",
+    "feature": "me_reports"
+  }
+}
+```
+
+**Distinct from** `429 QUOTA_EXCEEDED`, which Impact users receive when the bundled 2-reports/month quota is exhausted.
 
 ---
 
@@ -1107,8 +1142,10 @@ These requirements ensure OpenAPI spec stays in sync with this contract. They ar
 
 **Status:** Stage B structure lock · **Implementation:** Stage C onward  
 **Scope:** All `/api/reports*` and `/api/report-templates*` endpoints  
-**Entitlement:** `IMPACT_PRO` plan required for all endpoints in this section (Stage J enforcement)  
+**Entitlement:** `IMPACT` plan required for all endpoints in this section (Stage J enforcement). Free/Growth receive `403 UPGRADE_REQUIRED` (§10.3).  
 **Feature flag:** Backend `ME_MODULE_ENABLED`; frontend `NEXT_PUBLIC_ME_MODULE_ENABLED` (separate repo)
+
+**Canonical path prefix:** All M&E routes use `/api/reports/{id}/...` — no `donor-reports` path segment. (Code path alignment: A-03.)
 
 ### 12.0 M&E Response Envelope Conventions (LOCKED)
 
@@ -1125,10 +1162,9 @@ These rules apply **only** to §12 endpoints. Existing §1–§11 envelopes are 
 
 **Explicit non-wrapper decision:** `GET /api/reports/{id}` returns the report fields at the top level — same pattern as `ProposalDetailResponse`.
 
-**Future additive change (Stage J — does NOT alter §4 structure retroactively):**  
-`GET /api/me/entitlements` will gain a `reports` entitlement block and `plan` will include `IMPACT_PRO`. Documented here; §4 updated when billing ships.
+**Independence:** M&E report creation does **not** require `funding_opportunity_id`. `linked_proposal_id` is optional only.
 
-**Billing additive (Stage J):** `POST /api/billing/checkout` request `plan` will accept `"IMPACT_PRO"`.
+**Job model (canonical):** Pipeline execution uses `POST /api/reports/{id}/job` (enqueue) + `GET /api/reports/{id}/job` (poll). There is no synchronous `POST .../generate` endpoint.
 
 ---
 
@@ -1136,7 +1172,7 @@ These rules apply **only** to §12 endpoints. Existing §1–§11 envelopes are 
 
 Purpose: list active funder report templates for template picker.
 
-Auth: REQUIRED · Entitlement: IMPACT_PRO (Stage J)
+Auth: REQUIRED · Entitlement: IMPACT (Stage J)
 
 Query params: `region` (optional filter)
 
@@ -1165,7 +1201,7 @@ Errors: 401 `UNAUTHORIZED` · 403 `FORBIDDEN` · 500 `INTERNAL_SERVER_ERROR`
 
 Purpose: create a donor report in `DRAFT` status.
 
-Auth: REQUIRED · Entitlement: IMPACT_PRO + report quota (Stage J)
+Auth: REQUIRED · Entitlement: IMPACT + report quota (Stage J)
 
 Request:
 
@@ -1282,7 +1318,9 @@ Errors: 401 · 403 · 404 `REPORT_NOT_FOUND` · 500
 
 ### 12.5 PATCH /api/reports/{id}/knowledge-bank
 
-Purpose: Gate 1 — human confirmations, conflict resolutions.
+**PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
+
+Purpose: Gate 1 — human confirmations, conflict resolutions (alternate to POST §12.5a).
 
 Auth: REQUIRED · Owner only
 
@@ -1317,7 +1355,27 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
 ---
 
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
+
+---
+
+### 12.5a POST /api/reports/{id}/knowledge-bank/gate1/confirm (canonical — implemented)
+
+Purpose: Gate 1 — human confirmation of reconciled knowledge bank.
+
+Auth: REQUIRED · Owner only
+
+Request: knowledge bank payload with confirmed facts (shape per Gate 1 service contract).
+
+Response 200: includes `gate1_confirmed_at` when confirmed.
+
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
+
+---
+
 ### 12.6 GET /api/reports/{id}/gap-check
+
+**PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
 
 Purpose: Gate 2 — readiness score + funder-aware missing items.
 
@@ -1349,7 +1407,9 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` (Gate 1 not complete) · 5
 
 ### 12.7 PATCH /api/reports/{id}/gap-answers
 
-Purpose: Gate 2 — free-text answers for genuinely missing items.
+**PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
+
+Purpose: Gate 2 — free-text answers for genuinely missing items (alternate to POST §12.7a).
 
 Auth: REQUIRED · Owner only
 
@@ -1372,36 +1432,60 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
 ---
 
-### 12.8 POST /api/reports/{id}/generate
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
-Purpose: run synthesis + fact-safety critic (async job).
+---
 
-Auth: REQUIRED · Owner only · Report quota (Stage J)
+### 12.7a POST /api/reports/{id}/knowledge-bank/gate2/gap-responses (canonical — implemented)
 
-Request:
+Purpose: Gate 2 — submit gap answers (answer-or-skip); sets `gate2_confirmed_at` when complete.
+
+Auth: REQUIRED · Owner only
+
+Request: gap response payload per Gate 2 service contract.
+
+Response 200: remaining gaps + `gate2_confirmed_at` when confirmed.
+
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
+
+---
+
+### 12.8 POST /api/reports/{id}/job
+
+Purpose: enqueue async report pipeline (classify → extract → reconcile → gap → synthesise → critique → export stage).
+
+Auth: REQUIRED · Owner only · Report quota enforced on successful pipeline completion (Stage J)
+
+Response 200:
 
 ```json
 {
-  "regenerate": false
-}
-```
-
-Response 202 (accepted — job queued):
-
-```json
-{
+  "job_id": "uuid",
   "donor_report_id": "uuid",
-  "status": "GENERATING",
-  "job_id": "uuid"
+  "stage": "classify | extract | reconcile | gap | synthesise | critique | export",
+  "status": "queued | running | awaiting_human | failed | done"
 }
 ```
 
 **Rules:**
-- Requires Gate 2 complete (`gate2_confirmed_at` set).
-- Quota decremented on successful synthesis completion (not on 202).
-- Partial section failure → report `DEGRADED` (not 500).
+- Poll status via `GET /api/reports/{id}/job` (§12.12).
+- Requires prior gate preconditions per pipeline stage (Gate 1 before gap advance, etc.).
+- `REPORT_CREATE` quota decremented on successful report generation completion (exact trigger at implementation).
+- Reclaim of failed jobs at gate stages: implementation-defined (A-03).
 
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 429 `QUOTA_EXCEEDED` · 500
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `JOB_ALREADY_ACTIVE` · 429 `QUOTA_EXCEEDED` · 500
+
+---
+
+### 12.8a POST /api/reports/{id}/knowledge-bank/gate3/confirm (canonical — implemented)
+
+Purpose: Gate 3 — human confirmation after critic review; marks sections accepted for export.
+
+Auth: REQUIRED · Owner only
+
+Response 200: includes `gate3_confirmed_at` when confirmed.
+
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
 ---
 
@@ -1535,7 +1619,9 @@ Errors: 401 · 500
 
 ### 12.11 PATCH /api/reports/{id}/sections/{key}
 
-Purpose: Gate 3 — human edit or accept critic flags for one section.
+**PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
+
+Purpose: Gate 3 — human edit or accept critic flags for one section (alternate to POST §12.8a + detail GET).
 
 Auth: REQUIRED · Owner only
 
@@ -1634,6 +1720,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` 
 | `EXPORT_NOT_READY` | 409 | Gate 3 incomplete or critic blocks remain |
 | `FILE_TOO_LARGE` | 413 | Upload exceeds limit |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | MIME not allowed |
+| `UPGRADE_REQUIRED` | 403 | Free/Growth M&E entry (§10.3) |
 
 Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports` | `report_exports`.
 
@@ -1649,7 +1736,7 @@ Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports`
 1. **Section 12:** Full M&E API surface (13 endpoints) with locked envelope conventions.
 2. Explicit top-level response objects for single-resource endpoints (no `report` wrapper).
 3. Named list wrappers for collection endpoints.
-4. Stage J forward references for `IMPACT_PRO` entitlements and billing (§12.0).
+4. Stage J entitlements on **IMPACT** (2 reports/month bundled) and §4 `reports` / `report_exports` blocks (§12.0).
 
 **Governance:** Field contracts in `docs/artefacts/me_module/DB_FIELD_CONTRACT_*.md`; enums in `ENUM_REGISTRY.md` §5.
 

@@ -5,6 +5,8 @@ Fit Scan (eligibility + alignment + readiness + risk signals)
 
 Proposal drafting by section
 
+M&E Donor Report Writer (post-award donor reporting)
+
 
 Google OAuth + Email Magic Link (no passwords, no password reset, no email verification)
 
@@ -24,12 +26,13 @@ Plans, quotas, consultant-grade definition
 - Standard proposal quality
 - Manual profile setup (form-based)
 - Standard AI context limits
-- No document uploads
+- No document uploads (NGO **profile** uploads only — M&E report-source uploads are Impact-only; see `PRICING_AND_ENTITLEMENTS.md`)
 
 ### Impact – $79/month
 
-- 20 Fit Scans per month
+- 10 Fit Scans per month
 - 5 consultant-grade proposals per month
+- 2 M&E reports per month (Donor Report Writer)
 - Manual profile setup (form-based)
 - Consultant-grade proposal generation:
   - Stronger evidence grounding

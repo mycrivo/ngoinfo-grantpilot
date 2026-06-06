@@ -2,7 +2,7 @@
 
 > **Purpose of this file.** A single, self-contained source of truth for the GrantPilot M&E (Donor Report Writer) module. It exists so the project can be re-initiated in a fresh chat without losing context, and so it can be uploaded to Cursor/Claude Code as build context. If you are an AI reading this in a new session: this document supersedes any partial memory; treat it as authoritative. Everything below is **decided and locked** unless explicitly marked OPEN.
 >
-> **Last consolidated:** 2026-05 · **Module status:** pre-build (Stage A not yet drafted)
+> **Last consolidated:** 2026-06-04 · **Module status:** Stages A–E complete and proven in prod; F1/F2/Gate 3 built and orchestrator-wired; Stage H export built early; Stage F quality gate in progress on test report `6643d922`
 
 ---
 
@@ -52,32 +52,37 @@ A post-award reporting product. A charity that has won a grant — through Grant
 
 ## 4. STRATEGY & GO-TO-MARKET (decided)
 
-- **New paid tier**, not a feature bolt-on. Serves a customer whose immediate need is **not** proposal writing.
+- **New paid capability on Impact**, not a feature bolt-on to Growth. Serves customers whose immediate need may be **post-award reporting**, not proposal writing.
 - **Acquisition wedge:** the report is the cheaper, more urgent, more frequent entry product. NGOs who won *elsewhere* arrive in deadline pain, hand over their full org profile + funder relationship + indicators, and become natural pre-award (proposal) customers next cycle. The landing message: *"Won a grant — with us or anyone — and dreading the report? Upload what you've got."*
 - **GTM sequencing:**
   1. **UK + selected EU bilateral donors first** (Months 1–6). The US pre-award market is saturated (Instrumentl, Grantable, etc.); UK/EU post-award is underserved.
   2. **India second** (Months 4–8), leveraging the CSR-mandate compliance market (~$3.2B/yr deployed).
   3. **US last** (Months 8–12), entering as the *post-award specialist*, not another grant-writer.
 - **NGOInfo v2** launches **after** the M&E module — stronger complete-lifecycle narrative; v2 content targets post-award search intent (reporting guides, indicator frameworks) as a new organic channel.
-- **Why UK-first (CMO rationale):** US pre-award is a bloodbath; UK/EU buyers feel underserved by US-centric tools; UK's ~207K charities is a dominable market where content marketing on NGOInfo can cut through; $39–99/mo pricing is well-positioned vs UK incumbents.
+- **New paid capability on Impact**, not a separate third tier. M&E is bundled on **Impact ($79/mo)** with 2 reports/month.
+- **Why UK-first (CMO rationale):** US pre-award is a bloodbath; UK/EU buyers feel underserved by US-centric tools; UK's ~207K charities is a dominable market where content marketing on NGOInfo can cut through; **Growth $39 / Impact $79** pricing is well-positioned vs UK incumbents.
 
 ---
 
 ## 5. TIER & PRICING (LOCKED)
 
-- **New third tier: "Impact Pro" — $99/mo.** Everything in Impact **plus 2 M&E reports/month**.
-- **Long-run intent:** consolidate to two paid plans (retire or reprice the $79 Impact tier) a couple of months post-launch, based on market acceptance.
-- **Name rationale:** "Impact Pro" reads as the natural step above "Impact," implies "everything in Impact plus more," and collapses cleanly into a two-tier ladder later. Marketing positioning line carries the story ("win the grant, keep the funder").
-- **Cost ceiling:** per-report model cost must stay well inside per-report revenue (~$49.50 at 2 reports/mo) with margin. `agent_trace_json` provides per-run cost accounting.
-- **Dual-capability tier (architectural fact):** Impact Pro carries BOTH proposal credits (pre-award, inherited from Impact) AND 2 M&E reports/mo (post-award, the new module). Entitlements gate both from the same JWT plan claim. A user can enter purely for M&E ("Path C" — won a grant anywhere, never used NGOInfo or written a proposal) and still has proposal credits ready when they next need to bid. One tier serves whatever the NGO needs next; the two products coexist under it.
-- **Three entry paths:** (A) via NGOInfo.org WordPress discovery → proposal; (B) direct to GrantPilot for proposals; (C) **new** — direct to the M&E door in reporting-deadline pain, no NGOInfo/proposal history required. All three converge on the same shared core.
+**Two paid plans only:** FREE | **Growth ($39/mo)** | **Impact ($79/mo)**. Plan enum stays `FREE | GROWTH | IMPACT` — no third tier.
+
+| Plan | Pre-award | Post-award (M&E) |
+|------|-----------|------------------|
+| **Growth** | 10 Fit Scans/mo, 3 Proposals/mo, DOCX export, normal support | **No M&E** — upgrade-to-Impact gate at any M&E entry |
+| **Impact** | 10 Fit Scans/mo, 5 Proposals/mo, DOCX export, priority support | **2 M&E reports/mo** (bundled subscription quota) |
+
+- **Cost ceiling:** per-report model cost must stay inside bundled margin on Impact (2 reports/mo at $79). `agent_trace_json` provides per-run cost accounting. *(Founder: confirm margin vs prior ~$49.50/report assumption at $99 tier — see D-048.)*
+- **Impact carries both products:** proposal credits (pre-award) **and** 2 M&E reports/mo (post-award) under one `IMPACT` plan claim. A user can enter purely for M&E (**Path C** — won a grant anywhere, never used NGOInfo or written a proposal) and still has proposal credits when they next need to bid.
+- **Three entry paths:** (A) via NGOInfo.org WordPress discovery → proposal; (B) direct to GrantPilot for proposals; (C) **direct to the M&E door** in reporting-deadline pain, no NGOInfo/proposal history required. M&E does **not** require `funding_opportunity_id`; `linked_proposal_id` is optional only. All three converge on the same shared core.
 
 ---
 
 ## 6. SCOPE
 
 ### In scope (launch)
-Document upload + agentic extraction; knowledge-bank reconciliation with human confirmation; funder-aware gap check; narrative generation; fact-safety critic; funder-formatted DOCX export; **10 report templates** (8 funder-specific + 2 generic fallbacks); the Impact Pro billing tier.
+Document upload + agentic extraction; knowledge-bank reconciliation with human confirmation; funder-aware gap check; narrative generation; fact-safety critic; funder-formatted DOCX export; **10 report templates** (8 funder-specific + 2 generic fallbacks); **Impact plan M&E entitlement** (2 reports/mo).
 
 ### The 10 launch templates
 | # | Template | Region |
@@ -258,23 +263,24 @@ Knowledge-bank reconciler (surfaces conflicts) → Gate 1 (confirm facts, server
 
 ### Stage F — Generation + critic + THE QUALITY GATE
 Synthesis agents (reuse archetypes/humaniser, gpt-5.4) → fact-safety critic → Gate 3 (review/edit).
-**QUALITY GATE (the plan's hinge):** reports must be **funder-grade on hand-confirmed data** — graded vs humaniser rules, no hallucinated specifics, critic catches planted errors. **No UX polish, no orchestrator, no more templates until this passes.**
+**QUALITY GATE (the plan's hinge):** reports must be **funder-grade on hand-confirmed data** — graded vs humaniser rules, no hallucinated specifics, critic catches planted errors. Active focus (2026-06-04): close the gate on a real end-to-end `.docx` after resumable F1 converges to 8/8 — not citation-BLOCK count tuning.
 
 ### Stage G — Orchestrator
 Wire all agents into one coordinated pipeline with the 3 gate hooks + full `agent_trace` logging. Built only after every agent is individually proven.
+*(Note: orchestrator was wired early for E/F validation walks; see decision log and §18.)*
 
 ### Stage H — Export
-docxtpl render engine (idempotent from stored content) + the 10 funder `.docx` templates (NLCF + FCDO first). Hand-built, not via n8n.
+**Built ahead of plan order (2026-06):** `report_export_service` + `docx_renderer` (`render_mode: from_scratch` via python-docx) and `GET /api/reports/{id}/export` — constructed so the Stage F gate produces a real artefact at the end (a stubbed export would make the gate meaningless). Long-run intent unchanged: docxtpl + hand-built funder `.docx` templates when base templates are supplied (NLCF + FCDO first).
 
 ### Stage I — Frontend journey
 The 8 screens (dashboard → template → upload → watch → Gate 1 → Gate 2 → Gate 3 → export), behind the feature flag, calling the API only, no business logic. (See §13 for screen detail.)
 
 ### Stage J — Billing & entitlements
-Impact Pro tier ($99), 2 reports/mo quota, regeneration limits, idempotent Stripe webhooks, correct plan claims in JWT.
+**Impact** plan ($79): 2 M&E reports/mo bundled quota (`REPORT_CREATE` / `REPORT_EXPORT`), idempotent Stripe webhooks, correct plan claims in JWT. Free/Growth → `403 UPGRADE_REQUIRED` on M&E entry.
 
 ### Stage K — Testing & launch readiness
 Smoke tracks (health / authenticated report journey / auth boundaries); J1→J2 on 3 templates (NLCF, FCDO, one generic); lifecycle emails ("report ready", "report due") via existing `email_service`; production hardening + **live kill-switch rehearsal on the full module**.
-**Launch gate:** smoke green + J1→J2 passing on 3 templates + kill switches confirmed → flag on → Impact Pro live.
+**Launch gate:** smoke green + J1→J2 passing on 3 templates + kill switches confirmed → flag on → **Impact M&E live**.
 
 ### Stage L — Post-launch (validate-then-automate)
 n8n funder-template ingestion pipeline (Firecrawl → extract → human review → POST); extraction refinement against real customer documents; templates 11+ by demonstrated demand; NGOInfo v2 with the lifecycle story + post-award content.
@@ -382,6 +388,13 @@ Authenticated + entitlement-gated:
 - **Cursor/Claude Code prompt discipline:** outcome-driven only — specify *what*, never *how*; tight scope fences; explicit STOP conditions; single task per prompt; framework-based prompts (contract lock, scope fence, canonical spec, idempotency spec, non-goals, acceptance tests).
 - **Decision style:** strategic, decisive; quick binary calls when presented options; shipping over perfection.
 
+### Session learnings (2026-06-04 — Stage F gate + F1 reliability)
+- **When the failing element keeps rotating across attempts, the structure is wrong, not the element.** Stop turning knobs (timeout, concurrency, retry) and fix the architecture. Atomic all-or-nothing pipelines fail exponentially; resumability is the fix, not tuning.
+- **"Contracts from imagined data" recurs in disguise** — this session it was the renderer transforming prose it assumed it understood, and tests asserting against a fictional KB namespace. Cure: bind every transform/contract to the real artefact (the reconciler KB namespace captured from a prod report; `content_json` compared before/after render).
+- **Reading the actual rendered `.docx` against the knowledge bank is the only real gate for "funder-grade + zero hallucination."** The citation-BLOCK count was a red herring — the document proved the engine never had a hallucination problem.
+- **Validate at the layer you changed:** a renderer fix needs a re-render; a resume fix needs a convergence run — not a full pipeline walk, and not unit tests alone (which mock OpenAI and cannot prove live behaviour).
+- **Resume lowers token cost** (regenerate only failures, never re-roll good sections) while trading for more passes — counterintuitive but real.
+
 ### Existing GrantPilot tech context (for reference)
 Next.js frontend + FastAPI/Python backend on Railway (GitHub CI/CD); PostgreSQL; OpenAI Chat Completions (`gpt-5.4`, env `OPENAI_MODEL_PRIMARY`, `response_format: json_object`); ThreadPoolExecutor for concurrent section generation; Resend (`support@ngoinfo.org`) for email; Stripe (hosted checkout + portal); Google OAuth + magic link; GTM/GA4 cross-domain. Core engine production-ready (22/22 smoke checks green). Humaniser framework governs both GrantPilot generation and Pranab's Accenture writing.
 **Key existing spec docs:** `API_CONTRACT.md`, `OPENAI_PROMPTS_LIBRARY.md`, `FUNDING_OPPORTUNITY_GOLDEN_RULES.md`, `ENV_VARS_REFERENCE.md`, `GUARDRAILS_RUNTIME_AND_SECURITY.md`, `PROMPT_INPUTS_FIELD_MAPPING.md`, plus DB field contracts.
@@ -390,25 +403,57 @@ Next.js frontend + FastAPI/Python backend on Railway (GitHub CI/CD); PostgreSQL;
 
 ## 17. OPEN ITEMS (everything else is LOCKED)
 - **Synthesis model final call:** start on `gpt-5.4` (humaniser reuse); **re-evaluate switching to a cheaper class once built, before launch** — benchmark in Stage F.
-- **Vision API vendor:** "cheap multimodal API" locked as the approach; specific vendor to pick at Stage D.
-- **Object storage final:** Railway Buckets is the default; revisit Cloudflare R2 only if decoupling is wanted.
+- **Vision API vendor:** "cheap multimodal API" locked as the approach; specific vendor to pick at Stage D — **D5 deferred Phase 2**.
+- **Object storage final:** **RESOLVED** — Railway Buckets (`ME_DOCUMENTS_S3_*`) live in production.
 - **Privacy tier (OpenDataLoader):** post-launch consideration, not in the 10-template MVP.
+
+**Deferred (intent locked — see decision log 2026-06-04):** `report_type` persistence + generalised conditional evaluator; per-report template-version pin; pgcrypto scratch-Postgres harness (precondition before the **next** migration); D2–D4 substrate convergence (V2 brief). `FUNDER_REPORTING_ROLE_TAXONOMY.md` still grounds the R1 canonical schema.
+
+**Pre-launch (post–Stage F gate):** Gate 3 section-review PATCH API (currently confirm-only; tests use accept-all); E3 gap-agent JSON flake needs a retry path.
+
+**Launch list (unchanged):** WordPress CTAs; ~20 funding opportunities seeded; Stripe live mode; full J1→J2 smoke test; D4 `.docx` graceful-degradation fix.
 
 ---
 
 ## 18. CURRENT STATUS & NEXT ACTION
-- **Status:** all strategy, architecture, tooling, sequencing, and decisions **LOCKED**. No product code written. Stage A not yet drafted.
-- **Immediate next action:** draft **Stage A — governance scaffold**, in order: (1) soft layer — `.cursor/rules/` set + `CLAUDE.md`; (2) hard layer — `.cursor/hooks/` + `.claude/hooks/` (isolation veto, migration-parity, secret-scan, in Python); (3) `REPO_MAP_ME_MODULE.md` + `ME_MODULE_KILL_SWITCH.md`; (4) seeded `ME_MODULE_DECISION_LOG.md`.
-- **In parallel:** start Workstream T1 — outreach to friendly NGOs for a past funder report (longest lead time in the plan).
+
+### Platform & schema (2026-06-04)
+- **DB schema is LOCKED** and verified against production. Both launch funder templates are live in Railway Postgres: **FCDO** (`55f891ac`) and **NLCF** (manually inserted this session). Field contracts, API §12.9, and this memory were synced to deployed code — `gap_analysis_json` documented with its flattened shape (no nested `structured` wrapper); `agent_trace_json` is a `stages{}` map not `runs[]`; Alembic head **0015**, deployed.
+
+### Stages built
+- **Stages A–E:** complete and proven in production (unchanged from May 2026 walks).
+- **Stage F (F1 synthesis, F2 fact-safety critic, Gate 3):** built and orchestrator-wired through the Gate 3 halt. F1 uses per-section OpenAI synthesis + citation emission/hygiene; F2 critic persists flags into `content_json`; Gate 3 confirm path exists (section PATCH API still missing — see §17).
+- **Stage H (export):** built **ahead of plan order** — FCDO `.docx` via `from_scratch` python-docx render + `GET /api/reports/{id}/export` + R2 persist, so the Stage F quality gate is testable end-to-end.
+
+### Stage F quality-gate journey — test report `6643d922` (FCDO/BridgeLight, 72-fact confirmed KB, gates 1+2 confirmed)
+- First gate run produced a **real `.docx`** and proved the engine **does not fabricate** — every specific traced to the bank; the model showed strong restraint (declined to invent a programme title; refused to judge an indicator with no target).
+- Surfaced **two mechanical defects, not a hallucination problem:**
+  1. **Terminology corruption** — root-caused to the export **render** layer: `canonical_to_funder` applied as blind find-replace across body prose (e.g. `"risk"` → `"Risk rating / assumptions / controls"`) and template schema keys stripped from prose (deleting words like `"milestone"`). **Fixed:** terminology on labels only; schema-key prose-strip removed; whole-marker citation removal. F1/hygiene unchanged — stored prose was always clean. Confirmed by re-render of `6643d922`.
+  2. **Failed sections (C `detailed_output_scoring`, D `value_for_money`)** — root-caused to OpenAI **90s timeout** under parallel load with the **full 72-fact KB** in every section call. Deeper cause: synthesis was **atomic** — every run regenerated all 8 sections and overwrote `content_json`, so one transient failure (timeout or 502) sank the whole report; success required a lucky simultaneous 8/8 (probability ≈ p⁸). Across three runs the failing section **rotated** (C/D → E → A/B) — signature of a structural problem, not a section problem.
+
+### F1 reliability fixes shipped (2026-06-04 session; deploy `a6b430c` on Railway)
+1. **Per-section KB payload trim** — each section gets only the facts/gaps it needs plus shared programme/grant/reporting context.
+2. **Synthesis-only timeout retry** — one retry on transport timeout (`feature=report_synthesis` only).
+3. **Concurrency reduced 5→2** — `ME_SYNTHESIS_MAX_CONCURRENCY`, default 2.
+4. **Structural fix — resumable/idempotent synthesis** — generates only incomplete sections (missing / `FAILED` / empty text); **merges** into `content_json` preserving `GENERATED` / `ACCEPTED` / `human_edited` sections and sibling keys (`export`, gate stamps) byte-for-byte; sets `DEGRADED` on partial failure, clears to `DRAFT` on full completion. `test_idempotent_overwrite` inverted to assert resume. **90s timeout not raised.** Per-section incremental commit explicitly **not** taken (Session thread-safety cost not justified).
+- **Convergence proof (2026-06-04):** on `6643d922`, baseline 6/8 + 2 failed → **one pass** regenerated only A+B (~30k input tokens vs ~110k for a full 8-section pass); all assertions held (monotonic, preservation, selection).
+
+### To close Stage F
+1. ~~Confirm resumable synthesis converges to 8/8 on `6643d922`~~ — **done** (convergence run 2026-06-04).
+2. **Walk forward:** F2 critic → Gate 3 → render on `6643d922`.
+3. **Human read** of the eight-section report against the KB — that read closes Stage F.
+
+### Immediate next action
+Execute the Stage F walk-forward on `6643d922` (F2 → Gate 3 accept-all for validation → export → human KB-grade read). Do not treat citation-BLOCK count as the quality gate.
 
 ### Companion artefacts (also in the project)
 - `ME_MODULE_ARCHITECTURE_SPEC.md` — the full architecture spec (this file summarises it).
-- `ME_MODULE_INTERNAL_ARCHITECTURE.html` — **internal** build diagram: entry paths, dual-capability tier, shared core, agent pipeline, data model, kill switch. For build context, not customer-facing.
-- `ME_MODULE_WIREFRAMES_BRANDED.html` — **canonical** customer-facing wireframe (NGOInfo-branded, 8 screens; tier badge reads "Impact Pro"). Supersedes the earlier schematic `ME_MODULE_WIREFRAMES.html`.
+- `ME_MODULE_INTERNAL_ARCHITECTURE.html` — **internal** build diagram: entry paths, Impact bundled tier, shared core, agent pipeline, data model, kill switch. For build context, not customer-facing.
+- `ME_MODULE_WIREFRAMES_BRANDED.html` — **canonical** customer-facing wireframe (NGOInfo-branded, 8 screens; tier badge reads "Impact"). Supersedes the earlier schematic `ME_MODULE_WIREFRAMES.html`.
 - `ME_MODULE_PROJECT_PLAN.md` — the full sequenced plan (this file summarises it).
 - `ME_COMPLIANCE_MARKET_RESEARCH.md` — the market research backing the strategy.
 - `ME_AGENTIC_REUSE_MAP.md` — the detailed build-vs-reuse map.
 
 ---
 
-*End of master memory document. To resume: attach this file and say "continue the M&E build from the project memory file." The assistant resumes at §18.*
+*End of master memory document. To resume: attach this file and say "continue the M&E build from the project memory file." The assistant resumes at §18 — **Stage F quality gate: walk forward F2 → Gate 3 → export on `6643d922`, then human KB-grade read.**"

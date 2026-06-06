@@ -6,7 +6,8 @@
 - Proposals: 1 / lifetime (single full draft; **no regeneration**)
 - Profile setup: Manual form only
 - AI limits: Standard
-- Uploads: Not allowed
+- Uploads: Not allowed (NGO **profile** document uploads — see clarification below)
+- M&E reports: Not available (upgrade to Impact)
 - Once the Fit Scan and Proposal quota is exhausted, show Growth plan upgrade CTA with a user friendly message
 - Intended for evaluation only; not suitable for active grant pipelines
 
@@ -18,16 +19,21 @@
 - Proposal regeneration: up to 3 regenerations per proposal
 - Profile setup: Manual form only
 - AI limits: Standard
-- Uploads: Not allowed
+- Uploads: Not allowed (NGO **profile** document uploads — see clarification below)
+- M&E reports: Not available (upgrade to Impact)
+- Support: Normal support
 
 
 ### Impact Plan
 - Price: $79/month
-- Fit Scans: 20 / month
+- Fit Scans: 10 / month
 - Proposals: 5 / month
 - Proposal regeneration: up to 3 regenerations per proposal
 - Profile setup: Manual form only
 - AI limits: Higher context + stronger reasoning
+- M&E reports: 2 / month (Donor Report Writer)
+- M&E document uploads: Allowed (report-source documents)
+- Support: Priority support
 
 
 
@@ -45,6 +51,15 @@
 - Free Plan: show upgrade CTA (to Growth) with a user friendly message
 - Growth Plan: show upgrade CTA (to Impact) with a user friendly message
 - Impact Plan: show next reset date with a user friendly message
+
+### M&E report quota exhausted
+- Free/Growth: no M&E allowance; any M&E entry shows upgrade-to-Impact CTA
+- Impact: block new report creation after 2/billing cycle; show next reset date; no purchase path
+
+
+## Upload clarification (MVP)
+
+The **"Uploads: Not allowed"** line on Free and Growth (and profile setup on all plans) refers to **NGO profile document uploads** only. **M&E report-source document uploads** are a distinct capability: allowed on **Impact** only, enforced server-side on `/api/reports/{id}/documents`.
 
 
 ## Rate Limits (MVP)
@@ -71,6 +86,7 @@
   - Proposal → after initial draft is generated
   - Regeneration → after regenerated content is generated successfully
   - DOCX export → after first successful export of a proposal version (idempotent on re-download)
+  - M&E report → decremented only after successful report generation (atomic; exact trigger state defined at implementation)
 - Failed or timed-out operations do not consume quota
 - Quota checks and decrements must be atomic and transactional
 
@@ -81,6 +97,7 @@ Quota Reset Rules:
   - Reset occurs on billing cycle anniversary (not calendar month)
   - Triggered by Stripe subscription renewal webhook
   - If webhook fails, fallback: entitlements endpoint initializes period boundaries
+  - M&E **reports** counter resets on the same billing-cycle anniversary as fit scans and proposals (Impact only)
 
 ## Export Rules (MVP)
 - DOCX export is supported.

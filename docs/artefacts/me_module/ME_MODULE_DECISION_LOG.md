@@ -11,8 +11,8 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-001 | 2026-05 | **Modular monolith** — M&E in `app/reports/`, same repo as core backend | Solo-founder ops simplicity; hooks enforce isolation | A |
 | D-002 | 2026-05 | **One-way dependency** — M&E imports core; core never imports M&E | Killable module; proposal product protected | A |
 | D-003 | 2026-05 | **Single mounting seam** — conditional `include_router` in `app/main.py` only | One line mounts/unmounts entire API | A |
-| D-004 | 2026-05 | **Impact Pro** — $99/mo, new plan enum **`IMPACT_PRO`** | Do not overload IMPACT; dual-capability tier (proposals + reports) | J |
-| D-005 | 2026-05 | **2 M&E reports/month** on Impact Pro | Cost ceiling ~$49.50/report revenue | J |
+| D-004 | 2026-05 | **SUPERSEDED by D-048 — Impact Pro** — $99/mo, new plan enum **`IMPACT_PRO`** | Do not overload IMPACT; dual-capability tier (proposals + reports) | J |
+| D-005 | 2026-05 | **SUPERSEDED by D-048 — 2 M&E reports/month** on Impact Pro | Cost ceiling ~$49.50/report revenue | J |
 | D-006 | 2026-05 | **JSONB `_json` suffix canonical** — `report_sections_json`, `format_rules_json`, `terminology_map_json`, `knowledge_bank_json`, etc. | Avoid column-name drift; consistent with `content_json`, `agent_trace_json` | B |
 | D-007 | 2026-05 | **UI semantic colours** — purple (agent), blue (gate), navy (action) | Authoritative over stale teal/plum/orange in master memory §14 | I |
 | D-008 | 2026-05 | **Docling** for document extraction (Layer 1) | MIT; PDF/DOCX/XLSX/PPTX/images | C |
@@ -50,6 +50,13 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-041 | 2026-05-24 | **E1 gate stability reframed — invariant grading, not byte identity** — `scripts/knowledge_bank_reconciler_gate.py` | E1 certifies the product contract (surface recall, no resolution, provenance via `grade_knowledge_bank`), not run-to-run byte identity. Correctness + all stability runs must each pass invariant grading; `stability_fingerprint` remains computed and written to `recorded/_drift_debug/` on every gate run (pass or fail) for inspection only — fingerprint inequality is no longer a gate failure. Benign shape variation (e.g. 3-way vs 2-way conflict surfacing for the same VALUE_MISMATCH) must not fail the gate when invariants hold. Grading failures persist the failing run’s knowledge bank and assertion list to drift-debug. Reconciler, model, answer key, and graders unchanged. | E |
 | D-042 | 2026-05-24 | **E1 corroboration rule — multi-source identical value** — `knowledge_bank_reconciler.py` SYSTEM_PROMPT, `fcdo_bridgelight_reconciliation_answer_key.json`, `reconciliation_grading.py` | Same normalized value + semantic quantity in multiple documents is corroboration (never a self-conflict, never a single-source pick). Standalone: one `agreed` fact with all sources cited (`source_document_id` + `interpretation_note`). Inside VALUE_MISMATCH: one conflict value entry per corroborating source on that side (FCDO case1: 1,240,000 from award letter **and** indicator sheet vs 1,184,000 from amended schedule). Answer key derived from fixture inputs, not model output. | E |
 | D-043 | 2026-05-24 | **E1 conflict-validity rule — no spurious VALUE_MISMATCH** — `knowledge_bank_reconciler.py` SYSTEM_PROMPT, `reconciliation_grading.py` `assert_no_spurious_conflicts` | A conflict requires ≥2 genuinely different non-empty values for the same quantity; lone values, blank/absence parties, and same-value representation variants are facts not conflicts. Global mechanical grader: distinct normalized value count (not all entries distinct — corroboration repeats allowed) plus no blank parties. Complements D-042; case 1–4 graders unchanged. | E |
+| D-044 | 2026-06-04 | **Stage H export built ahead of plan order** — `report_export_service`, `docx_renderer` (`render_mode: from_scratch` python-docx), `GET /api/reports/{id}/export` | Stage F quality gate must produce a real `.docx` at the end; stubbed export would make the gate meaningless. Long-run docxtpl path unchanged — activates when a base FCDO `.docx` template is supplied. Quality-gate criteria unchanged. | F, H |
+| D-045 | 2026-06-04 | **Terminology corruption fixed at render layer** — `docx_renderer.py` | `canonical_to_funder` applied to **labels only** (not blind find-replace across body prose); template schema-key prose-strip removed; whole-marker citation removal. F1 synthesis and citation hygiene unchanged — stored `content_json` prose was always clean; defect was export-only. | H |
+| D-046 | 2026-06-04 | **F1 reliability bundle (pre-resume)** — per-section KB trim, synthesis-only timeout retry (1), concurrency 5→2 | Each section receives only facts/gaps it needs plus shared programme/grant/reporting context. One retry on transport timeout for `feature=report_synthesis` only. `ME_SYNTHESIS_MAX_CONCURRENCY` default **2**. **90s timeout unchanged.** | F |
+| D-047 | 2026-06-04 | **F1 synthesis resumable/idempotent** — `report_synthesis_service.py`, `content_json_v1.py` | Generate only incomplete sections (missing / `FAILED` / empty); merge-preserve `GENERATED` / `ACCEPTED` / `human_edited` sections and sibling keys (`export`, gate stamps); `DEGRADED` on partial failure, `DRAFT` on full completion. **Rationale:** atomic all-section regeneration fails as ≈p⁸ under transient OpenAI errors; resume converges. Per-section incremental DB commit (medium path) **explicitly not taken** — SQLAlchemy Session thread-safety cost not justified. | F |
+| D-048 | 2026-06-06 | **Two-plan model — Impact Pro retired** | M&E folds into **Impact $79** (2 reports/mo bundled); plan enum stays **FREE \| GROWTH \| IMPACT** only. Free/Growth → upgrade-to-Impact gate on M&E entry. Supersedes D-004, D-005. | J |
+| D-049 | 2026-06-06 | **Impact Fit Scans 20→10** | Aligns pre-award quota with canonical two-plan target (Growth and Impact both 10 Fit Scans/mo). | J |
+| D-050 | 2026-06-06 | **Plan 1 DOCX scope = structural hardening only** | Existing python-docx renderers (`export_service`, `docx_renderer`); **D-010 docxtpl** + **D-020** 10 funder templates remain long-run target, deferred post-Plan-2 quality gate. | H |
 
 ---
 
@@ -60,7 +67,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | O-001 | Vision API vendor | Pick at Stage D; **D5 AI photo interpretation deferred Phase 2 (D-038)** |
 | ~~O-002~~ | ~~`ME_MODULE_ENABLED` default~~ | **Resolved Stage C (D-025):** default `false` in Settings + ENV_VARS_REFERENCE §J |
 | ~~O-003~~ | ~~Report quota event types~~ | **Resolved Stage B:** REPORT_CREATE, REPORT_EXPORT — ENUM_REGISTRY §3.3, §5.10 |
-| O-004 | Stripe `STRIPE_PRICE_ID_IMPACT_PRO` | Stage J |
+| O-004 | Stripe `STRIPE_PRICE_ID_IMPACT` | Stage J — Impact $79 includes bundled M&E (D-048) |
 | ~~O-005~~ | ~~Stage B-validation~~ | **Resolved 2026-05-24 (D-024):** NLCF + FCDO instances validated; see FUNDER_TEMPLATE_SCHEMA §6 |
 
 ---
@@ -71,7 +78,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 
 | ID | Date | Supersedes | New decision | Why |
 |----|------|------------|--------------|-----|
-| — | — | — | — | — |
+| D-048 | 2026-06-06 | D-004, D-005 | Two-plan model; M&E on Impact $79; enum FREE\|GROWTH\|IMPACT | A-00 contract reset |
 
 ---
 

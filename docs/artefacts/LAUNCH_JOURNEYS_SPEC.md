@@ -328,6 +328,41 @@ No quota loss on failures
 
 Support escalation only if necessary
 
+J8. Path C — Won-Anywhere M&E Entry (Donor Report Writer)
+
+User intent
+
+"I won a grant (with GrantPilot or anywhere else) and need to produce the funder report."
+
+Trigger
+
+User arrives at GrantPilot `/reports` (direct link, marketing, or post-login navigation) — **no** `funding_opportunity_id` required.
+
+Preconditions
+
+User authenticated; NGO profile complete (same as proposals).
+
+Plan gate
+
+- **Free / Growth:** show upgrade-to-Impact gate (`403 UPGRADE_REQUIRED`); no M&E quota to exhaust.
+- **Impact:** proceed if `reports.remaining` > 0; if exhausted, show next billing-cycle reset — **no purchase path**.
+
+Journey flow (definition level only — screens/states: Plan 1 Track B)
+
+1. Select funder report template (`GET /api/report-templates`)
+2. Optionally link an existing proposal (`linked_proposal_id` — not required)
+3. Upload report-source documents (`POST /api/reports/{id}/documents`)
+4. **Gate 1** — confirm knowledge bank
+5. **Gate 2** — answer genuinely missing gaps only
+6. **Gate 3** — review draft + critic flags
+7. Export funder-formatted DOCX
+
+Rules
+
+- M&E is independent of NGOInfo WordPress funding opportunities.
+- Quota: 2 reports/month on Impact; decremented server-side after successful generation.
+- Paths A (WordPress → Fit Scan → Proposal) and B (direct proposal) unchanged.
+
 4. Cross-Journey Quota & Plan Rules
 
 Quotas are checked before action

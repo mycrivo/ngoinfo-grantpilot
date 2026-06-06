@@ -101,14 +101,14 @@ If action types stabilize and we need DB-level enforcement:
 ============================================================
 
 4.1 Plan names
-- FREE | GROWTH | IMPACT | **IMPACT_PRO** *(M&E — Stage J)*
+- FREE | GROWTH | IMPACT
 
 **Field:** `user_plans.plan_name` (TEXT + CHECK constraint)
 
 **Rules:**
-- `IMPACT_PRO` is a **new enum value** — do NOT overload `IMPACT` (Decision D-004).
-- JWT `plan` claim and `GET /api/me/entitlements` must reflect `IMPACT_PRO` when active.
-- Migration (Stage J): extend CHECK constraint on `user_plans.plan_name`.
+- Plan enum is exactly **FREE | GROWTH | IMPACT** — no third tier.
+- M&E (Donor Report Writer) is bundled on **IMPACT** ($79/mo): 2 reports/month (see `PRICING_AND_ENTITLEMENTS.md`, Decision D-048).
+- JWT `plan` claim and `GET /api/me/entitlements` reflect the active plan from this enum.
 
 4.2 Usage action types — see §3.3 (includes M&E additions)
 
@@ -217,7 +217,7 @@ When `status = DEGRADED`, `content_json.generation_summary` MUST reflect failed 
 
 | Entitlement key | usage_ledger.action_type | Period |
 |-----------------|--------------------------|--------|
-| reports | REPORT_CREATE | BILLING_CYCLE (2/month on IMPACT_PRO) |
+| reports | REPORT_CREATE | BILLING_CYCLE (2/month on IMPACT) |
 | report_exports | REPORT_EXPORT | Idempotent per report version |
 
 **Cross-reference:** `PRICING_AND_ENTITLEMENTS.md` (Stage J extension), `API_CONTRACT.md` §12.0, §12.14.

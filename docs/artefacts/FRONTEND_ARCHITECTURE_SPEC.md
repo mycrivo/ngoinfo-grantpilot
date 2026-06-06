@@ -88,6 +88,8 @@ AUTHENTICATED (auth required — redirect to /login if no session)
 ├── /billing/cancel                 Post-checkout cancel (Stripe redirect landing)
 ```
 
+**M&E (Track B):** `/reports` UI spec and nav entry pending Plan 1 Track B — see `LAUNCH_JOURNEYS_SPEC.md` J8 and `ME_MODULE_WIREFRAMES_BRANDED.html`.
+
 ### 2.2 Navigation Structure
 
 **Sidebar or top nav (authenticated pages):**
@@ -595,7 +597,7 @@ Section 4: Capacity (OPTIONAL — but strengthens fit scans)
 │  ┌─ Upgrade ─────────────────────────────────────────┐  │
 │  │                                                    │  │
 │  │   IMPACT · $79/month                              │  │
-│  │   20 Fit Scans · 5 Proposals · Consultant-grade   │  │
+│  │   10 Fit Scans · 5 Proposals · 2 M&E reports/mo   │  │
 │  │   [Upgrade to Impact →]                           │  │
 │  │                                                    │  │
 │  └────────────────────────────────────────────────────┘  │
@@ -705,8 +707,8 @@ This is pulled from PRICING_AND_ENTITLEMENTS.md and LAUNCH_JOURNEYS_SPEC.md. It 
 | Plan | Message | CTA |
 |------|---------|-----|
 | Free | "You've used your free Fit Scan. Upgrade to Growth to check fit for more opportunities." | [Upgrade to Growth — $39/mo →] |
-| Growth | "You've used all 10 Fit Scans this month. Upgrade to Impact for 20 scans per month." | [Upgrade to Impact — $79/mo →] |
-| Impact | "You've used all 20 Fit Scans this month. Your quota resets on {date}." | No CTA (just the date) |
+| Growth | "You've used all 10 Fit Scans this month. Upgrade to Impact for 10 Fit Scans and M&E reports." | [Upgrade to Impact — $79/mo →] |
+| Impact | "You've used all 10 Fit Scans this month. Your quota resets on {date}." | No CTA (just the date) |
 
 ### Proposal Quota Exhausted
 
