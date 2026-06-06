@@ -15,6 +15,8 @@ class UsageActionType(str, enum.Enum):
     PROPOSAL_CREATE = "PROPOSAL_CREATE"
     PROPOSAL_REGEN = "PROPOSAL_REGEN"
     DOCX_EXPORT = "DOCX_EXPORT"
+    REPORT_CREATE = "REPORT_CREATE"
+    REPORT_EXPORT = "REPORT_EXPORT"
 
 
 class UsageLedger(Base):
@@ -34,7 +36,8 @@ class UsageLedger(Base):
         "action_type",
         Text,
         nullable=False,
-        # Valid action_type values: FIT_SCAN, PROPOSAL_CREATE, PROPOSAL_REGEN, DOCX_EXPORT.
+        # Valid action_type values: FIT_SCAN, PROPOSAL_CREATE, PROPOSAL_REGEN, DOCX_EXPORT,
+        # REPORT_CREATE, REPORT_EXPORT (application-validated TEXT; no Postgres ENUM).
     )
     occurred_at: Mapped[DateTime] = mapped_column(
         "created_at",

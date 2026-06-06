@@ -15,14 +15,33 @@ PLAN_FREE = "FREE"
 PLAN_GROWTH = "GROWTH"
 PLAN_IMPACT = "IMPACT"
 
-EVENT_FIT_SCAN = "FIT_SCAN"
+EVENT_FIT_SCAN = UsageActionType.FIT_SCAN.value
 EVENT_PROPOSAL = UsageActionType.PROPOSAL_CREATE.value
+EVENT_REPORT_CREATE = UsageActionType.REPORT_CREATE.value
+EVENT_REPORT_EXPORT = UsageActionType.REPORT_EXPORT.value
+
+_QUOTA_ENFORCED_ACTIONS = frozenset(
+    {
+        EVENT_FIT_SCAN,
+        EVENT_PROPOSAL,
+        UsageActionType.DOCX_EXPORT.value,
+        EVENT_REPORT_CREATE,
+    }
+)
+
+_IDEMPOTENCY_ONLY_ACTIONS = frozenset(
+    {
+        EVENT_REPORT_EXPORT,
+        UsageActionType.PROPOSAL_REGEN.value,
+    }
+)
 
 
 @dataclass(frozen=True)
 class PlanQuota:
     fit_scans: int
     proposals: int
+    reports: int
     proposal_regenerations_per_proposal: int
     period_type: str
 
@@ -31,18 +50,21 @@ PLAN_QUOTAS: dict[str, PlanQuota] = {
     PLAN_FREE: PlanQuota(
         fit_scans=1,
         proposals=1,
+        reports=0,
         proposal_regenerations_per_proposal=0,
         period_type="LIFETIME",
     ),
     PLAN_GROWTH: PlanQuota(
         fit_scans=10,
         proposals=3,
+        reports=0,
         proposal_regenerations_per_proposal=3,
         period_type="BILLING_CYCLE",
     ),
     PLAN_IMPACT: PlanQuota(
-        fit_scans=20,
+        fit_scans=10,
         proposals=5,
+        reports=2,
         proposal_regenerations_per_proposal=3,
         period_type="BILLING_CYCLE",
     ),
@@ -114,6 +136,23 @@ def _build_quota_payload(
     }
 
 
+def _quota_limit_for_action(event_type: str, quota: PlanQuota) -> int:
+    if event_type == EVENT_FIT_SCAN:
+        return quota.fit_scans
+    if event_type in (EVENT_PROPOSAL, UsageActionType.DOCX_EXPORT.value):
+        return quota.proposals
+    if event_type == EVENT_REPORT_CREATE:
+        return quota.reports
+    raise ValueError(f"No quota limit mapping for action_type {event_type!r}")
+
+
+def _reports_period_type(plan_name: str, quota: PlanQuota) -> str:
+    """Reports use BILLING_CYCLE on paid plans; FREE uses LIFETIME with limit 0."""
+    if plan_name == PLAN_FREE:
+        return quota.period_type
+    return "BILLING_CYCLE"
+
+
 def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
     plan = get_or_create_user_plan(db, user_id)
     quota = PLAN_QUOTAS[plan.plan_name]
@@ -124,6 +163,7 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
     reset_at = period_end.isoformat() if period_end else None
+    reports_period = _reports_period_type(plan.plan_name, quota)
 
     fit_used = _usage_count(db, user_id, EVENT_FIT_SCAN, period_start, period_end)
     proposal_create_used = _usage_count(db, user_id, EVENT_PROPOSAL, period_start, period_end)
@@ -135,6 +175,12 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
         period_end,
     )
     proposal_used = proposal_create_used + docx_export_used
+    report_create_used = _usage_count(
+        db, user_id, EVENT_REPORT_CREATE, period_start, period_end
+    )
+    report_export_used = _usage_count(
+        db, user_id, EVENT_REPORT_EXPORT, period_start, period_end
+    )
 
     return {
         "plan": plan.plan_name,
@@ -154,6 +200,18 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
             "proposal_regenerations": {
                 "limit_per_proposal": quota.proposal_regenerations_per_proposal
             },
+            "reports": _build_quota_payload(
+                limit=quota.reports,
+                used=report_create_used,
+                period=reports_period,
+                reset_at=reset_at if plan.plan_name != PLAN_FREE else None,
+            ),
+            "report_exports": _build_quota_payload(
+                limit=quota.reports,
+                used=report_export_used,
+                period=reports_period,
+                reset_at=reset_at if plan.plan_name != PLAN_FREE else None,
+            ),
         },
     }
 
@@ -165,6 +223,9 @@ def enforce_quota(
     *,
     commit: bool = True,
 ) -> None:
+    if event_type not in _QUOTA_ENFORCED_ACTIONS:
+        return
+
     plan = get_or_create_user_plan(db, user_id, commit=commit)
     quota = PLAN_QUOTAS[plan.plan_name]
     _ensure_paid_period(plan)
@@ -174,7 +235,7 @@ def enforce_quota(
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
 
-    allowed = quota.fit_scans if event_type == EVENT_FIT_SCAN else quota.proposals
+    allowed = _quota_limit_for_action(event_type, quota)
     used = _usage_count(db, user_id, event_type, period_start, period_end)
     remaining = allowed - used
     if remaining <= 0:
@@ -219,34 +280,37 @@ def record_usage(
         if existing:
             return existing
 
-    plan = get_or_create_user_plan(db, user_id, commit=commit)
-    _ensure_paid_period(plan)
-    if plan.plan_name != PLAN_FREE and commit:
-        db.commit()
+    if event_type in _QUOTA_ENFORCED_ACTIONS:
+        plan = get_or_create_user_plan(db, user_id, commit=commit)
+        quota = PLAN_QUOTAS[plan.plan_name]
+        _ensure_paid_period(plan)
+        if plan.plan_name != PLAN_FREE and commit:
+            db.commit()
 
-    period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
-    period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
-    quota = PLAN_QUOTAS[plan.plan_name]
-    allowed = quota.fit_scans if event_type == EVENT_FIT_SCAN else quota.proposals
-    used = _usage_count(db, user_id, event_type, period_start, period_end)
-    remaining = allowed - used
-    if remaining <= 0:
-        raise ForbiddenError(
-            error_code="QUOTA_EXCEEDED",
-            message="Quota exhausted for this action.",
-            status_code=403,
-            details={
-                "resource": event_type,
-                "remaining": max(remaining, 0),
-                "resets_at": period_end.isoformat() if period_end else None,
-            },
-        )
+        period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
+        period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
+        allowed = _quota_limit_for_action(event_type, quota)
+        used = _usage_count(db, user_id, event_type, period_start, period_end)
+        remaining = allowed - used
+        if remaining <= 0:
+            raise ForbiddenError(
+                error_code="QUOTA_EXCEEDED",
+                message="Quota exhausted for this action.",
+                status_code=403,
+                details={
+                    "resource": event_type,
+                    "remaining": max(remaining, 0),
+                    "resets_at": period_end.isoformat() if period_end else None,
+                },
+            )
 
     ledger = UsageLedger(
+        id=uuid.uuid4(),
         user_id=user_id,
         event_type=event_type,
         occurred_at=datetime.now(timezone.utc),
-        idempotency_key=idempotency_key,
+        idempotency_key=idempotency_key or f"{event_type}:{user_id}:{uuid.uuid4()}",
+        metadata_json={},
     )
     db.add(ledger)
     return ledger

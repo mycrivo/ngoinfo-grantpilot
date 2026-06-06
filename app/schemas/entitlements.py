@@ -17,6 +17,8 @@ class EntitlementsPayload(BaseModel):
     fit_scans: EntitlementQuota
     proposals: EntitlementQuota
     proposal_regenerations: ProposalRegenerationEntitlement
+    reports: EntitlementQuota
+    report_exports: EntitlementQuota
 
 
 class EntitlementsResponse(BaseModel):
