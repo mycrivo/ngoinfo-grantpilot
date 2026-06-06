@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrantPilot Reports — Donor Report Writer (NGO-facing UI)</title>
+
+<!--
+  ============================================================================
+  GrantPilot Reports · Donor Report Writer — NGO-facing UI prototype
+  ----------------------------------------------------------------------------
+  Status      : Design prototype (medium-high fidelity). Not production code.
+  Supersedes  : ME_MODULE_WIREFRAMES_BRANDED.html (v1) / ME_MODULE_WIREFRAMES_V2.html
+                (the technical "blueprint" views) — for customer-facing language.
+  Audience    : NGO programme / grants / M&E officer. Calm reporting workspace.
+  Authority   : BRAND_AND_FRONTEND_SPEC.md (LOCKED v2.0) for tokens/type/spacing;
+                API_CONTRACT.md §12 for routes/state; ME_MODULE_* for behaviour.
+
+  WHY HTML, NOT NEXT.JS:
+    The production frontend is a SEPARATE Next.js repo
+    (API_CONTRACT.md:1111 — frontend `NEXT_PUBLIC_ME_MODULE_ENABLED` (separate repo)).
+    This repo is the FastAPI backend. This file is the authoritative visual + copy
+    reference the frontend team implements against, matching the repo's existing
+    artefact pattern. It renders state only — no business logic, no API calls,
+    no auth tokens, no secrets. All interactivity is presentational.
+
+  ROUTE -> API MAPPING (display only; see companion notes .md):
+    /reports                        GET  /api/reports                       (§12.10)
+    /reports/new/about-you          (NGO profile seed — see GAP note below)
+    /reports/new/confirm-profile    GET/PUT /api/ngo-profile                (§6)
+    /reports/new/funder             GET  /api/report-templates  · POST /api/reports (§12.1, §12.2)
+    /reports/{id}/upload            POST /api/reports/{id}/documents        (§12.3)
+    /reports/{id}/reading           GET  /api/reports/{id}/job              (§12.12)
+    /reports/{id}/facts             GET/PATCH /api/reports/{id}/knowledge-bank (§12.4, §12.5)
+    /reports/{id}/questions         GET  /api/reports/{id}/gap-check · PATCH /api/reports/{id}/gap-answers (§12.6, §12.7)
+    /reports/{id}/review            GET  /api/reports/{id} · PATCH /api/reports/{id}/sections/{key} (§12.9, §12.11)
+    /reports/{id}/done              GET  /api/reports/{id} · POST /api/reports/{id}/export (§12.9, §12.13)
+
+  PLAIN-LANGUAGE STATUS LABELS (display map from status/current_gate enums):
+    "Reading documents" <- EXTRACTING
+    "Needs your review" <- AWAITING_REVIEW / current_gate in (gate1, gate3)
+    "Draft ready"       <- GENERATING complete / content awaiting review
+    "Ready to download" <- COMPLETE (export not yet downloaded)
+    "Downloaded"        <- COMPLETE + first export downloaded (display flag)
+
+  FLAGGED GAP (reported to product owner):
+    Screens 1-2 primary action "Prepare my profile" (auto-draft from a website URL)
+    has NO backing endpoint in API_CONTRACT.md. The manual path (secondary CTA
+    "I'll enter details manually") maps to existing §6 /api/ngo-profile. A new
+    endpoint (e.g. POST /api/ngo-profile/draft-from-source) would be required to
+    ship the auto-draft. Rendered here as design only — no mock API behaviour.
+  ============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- DM Sans only (per BRAND_AND_FRONTEND_SPEC §2 + task design direction). No DM Mono. -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+<style>
+/* ─── BRAND TOKENS (BRAND_AND_FRONTEND_SPEC.md §1–§4, LOCKED) ──────────────── */
+:root{
+  --primary:#1A1F71;            /* navy — primary actions, headings        */
+  --primary-hover:#141A5A;
+  --accent-start:#5B2EFF;       /* purple gradient — upgrade / high-emphasis ONLY */
+  --accent-end:#8B5CFF;
+
+  --app-bg:#F8F9FC;             /* light workspace background               */
+  --card:#FFFFFF;
+  --border:#E5E7EB;
+  --divider:#F1F3F8;
+
+  --success:#059669; --success-soft:#ECFDF5; --success-line:#A7F3D0;
+  --warning:#D97706; --warning-soft:#FFFBEB; --warning-line:#FCD34D;
+  --error:#DC2626;   --error-soft:#FEF2F2;   --error-line:#FCA5A5;
+  --info-soft:#EEF0FB; --info-line:#C9CEF0;  /* navy-tinted neutral surface  */
+
+  --neutral:#475569;
+  --text:#374151;               /* body primary                            */
+  --text-2:#6B7280;             /* body secondary                          */
+  --heading:#1A1F71;
+  --heading-2:#111827;
+
+  --radius-sm:6px; --radius:12px; --radius-pill:999px;
+  --btn-radius:8px;
+  --shadow:0 4px 12px rgba(0,0,0,.05);
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --shadow-md:0 8px 24px rgba(16,24,40,.10);
+  --ring:0 0 0 3px rgba(26,31,113,.18);   /* focus ring (navy)             */
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--app-bg);color:var(--text);
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+:focus-visible{outline:none;box-shadow:var(--ring);border-radius:var(--radius-sm)}
+
+/* ─── PROTOTYPE SCAFFOLD (clearly not part of the product) ─────────────────── */
+.proto-bar{
+  position:sticky;top:0;z-index:50;background:#101326;color:#fff;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.proto-bar .pb-title{font-size:13px;font-weight:600;letter-spacing:.01em;color:#fff;margin-right:4px}
+.proto-bar .pb-title b{color:#B8A8FF}
+.proto-jump{display:flex;gap:6px;flex-wrap:wrap}
+.proto-jump a{
+  font-size:12px;font-weight:500;color:#C7CBD6;text-decoration:none;
+  padding:5px 10px;border-radius:var(--radius-pill);border:1px solid rgba(255,255,255,.12);
+}
+.proto-jump a:hover{color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.06)}
+.proto-note{max-width:1080px;margin:24px auto 0;padding:0 24px;font-size:13px;color:var(--text-2)}
+
+.stage{max-width:1080px;margin:0 auto;padding:36px 24px 80px}
+
+/* screen label above each device frame */
+.screen-label{display:flex;align-items:center;gap:12px;margin:40px 0 14px}
+.screen-label .sl-num{
+  font-size:12px;font-weight:700;color:var(--primary);background:var(--info-soft);
+  border:1px solid var(--info-line);border-radius:var(--radius-sm);padding:3px 9px;letter-spacing:.02em;
+}
+.screen-label .sl-name{font-size:15px;font-weight:700;color:var(--heading-2)}
+.screen-label .sl-route{
+  font-size:12px;font-weight:500;color:var(--text-2);background:var(--card);
+  border:1px solid var(--border);border-radius:var(--radius-pill);padding:3px 11px;
+}
+.screen-label .sl-api{margin-left:auto;font-size:11.5px;font-weight:500;color:var(--text-2)}
+@media(max-width:680px){.screen-label{flex-wrap:wrap}.screen-label .sl-api{margin-left:0;width:100%}}
+
+/* device frame = one realistic product view */
+.device{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden}
+
+/* ─── APP SHELL (Reports Home only) ───────────────────────────────────────── */
+.appbar{
+  display:flex;align-items:center;gap:20px;background:var(--card);
+  border-bottom:1px solid var(--divider);padding:12px 22px;
+}
+.brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.brand .logo-img{height:40px;width:auto;display:block}
+.brand .wordmark{font-size:16px;font-weight:700;color:var(--primary);letter-spacing:-.01em}
+.appnav{display:flex;gap:6px;flex-wrap:wrap}
+.appnav a{
+  font-size:14px;font-weight:500;color:var(--text-2);text-decoration:none;
+  padding:8px 12px;border-radius:var(--btn-radius);
+}
+.appnav a:hover{color:var(--primary);background:var(--info-soft)}
+.appnav a[aria-current="page"]{color:var(--primary);font-weight:700;background:var(--info-soft)}
+.appbar .avatar{
+  margin-left:auto;width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:var(--info-soft);border:1px solid var(--border);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+}
+@media(max-width:680px){.appbar{gap:12px}.appbar .avatar{margin-left:auto}}
+
+/* ─── JOURNEY HEADER (focused screens) ────────────────────────────────────── */
+.jbar{display:flex;align-items:center;gap:14px;background:var(--card);border-bottom:1px solid var(--divider);padding:12px 22px}
+.jbar .j-exit{margin-left:auto;font-size:13px;font-weight:600;color:var(--text-2);text-decoration:none;padding:8px 12px;border-radius:var(--btn-radius)}
+.jbar .j-exit:hover{color:var(--primary);background:var(--info-soft)}
+
+/* ─── VIEW BODY ───────────────────────────────────────────────────────────── */
+.view{padding:32px 32px 36px;background:var(--app-bg)}
+.view.center{max-width:680px;margin:0 auto}
+@media(max-width:680px){.view{padding:24px 18px 28px}}
+
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--primary);
+  background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius-pill);padding:5px 12px;margin-bottom:16px;letter-spacing:.01em}
+
+h1.title{font-size:28px;line-height:1.2;font-weight:700;color:var(--heading);letter-spacing:-.01em;margin-bottom:8px}
+@media(max-width:680px){h1.title{font-size:23px}}
+.subtitle{font-size:15px;color:var(--text-2);line-height:1.55;margin-bottom:24px;max-width:62ch}
+
+.section-eyebrow{font-size:13px;font-weight:700;color:var(--neutral);text-transform:uppercase;letter-spacing:.06em;margin:24px 0 12px}
+
+/* ─── BUTTONS (BRAND §4) ──────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;font-size:16px;font-weight:600;line-height:1;
+  padding:14px 24px;min-height:44px;border-radius:var(--btn-radius);
+  border:1px solid transparent;cursor:pointer;text-decoration:none;white-space:nowrap;
+  transition:background .12s ease,border-color .12s ease,color .12s ease;
+}
+.btn-sm{font-size:14px;padding:10px 16px;min-height:40px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-hover)}
+.btn-secondary{background:transparent;color:var(--primary);border-color:var(--primary)}
+.btn-secondary:hover{background:var(--info-soft)}
+.btn-ghost{background:transparent;color:var(--text-2);border-color:var(--border)}
+.btn-ghost:hover{color:var(--primary);border-color:var(--primary)}
+.btn-link{background:none;border:none;color:var(--text-2);font-weight:600;font-size:14px;padding:10px 6px;cursor:pointer}
+.btn-link:hover{color:var(--primary);text-decoration:underline}
+.btn-upgrade{background:linear-gradient(135deg,var(--accent-start),var(--accent-end));color:#fff} /* upgrade ONLY */
+.btn-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px}
+
+/* ─── CARDS ───────────────────────────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.card + .card{margin-top:12px}
+
+/* primary CTA banner row (reports home) */
+.start-banner{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);margin-bottom:24px}
+.start-banner .sb-text{font-size:15px;font-weight:600;color:var(--heading-2)}
+.start-banner .sb-sub{font-size:13.5px;color:var(--text-2);font-weight:400;margin-top:2px}
+.start-banner .btn{margin-left:auto}
+@media(max-width:560px){.start-banner{flex-wrap:wrap}.start-banner .btn{margin-left:0;width:100%}}
+
+/* ─── REPORT CARD (Screen 0) ──────────────────────────────────────────────── */
+.report-card{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:12px}
+.report-card .rc-body{flex:1;min-width:0}
+.report-card .rc-title{font-size:16px;font-weight:700;color:var(--heading);margin-bottom:6px}
+.report-card .rc-meta{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13.5px;color:var(--text-2)}
+.report-card .rc-meta span{display:inline-flex;align-items:center;gap:6px}
+.report-card .rc-meta b{color:var(--text);font-weight:600}
+.report-card .rc-right{display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0}
+@media(max-width:620px){
+  .report-card{flex-wrap:wrap}
+  .report-card .rc-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between;margin-top:4px}
+}
+
+/* status badge — always carries an icon shape + text (never colour alone) */
+.status{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;
+  border-radius:var(--radius-pill);padding:5px 12px;border:1px solid transparent;white-space:nowrap}
+.status .ic{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-review{color:var(--warning);background:var(--warning-soft);border-color:var(--warning-line)}
+.status-review .ic{background:var(--warning)}
+.status-reading{color:var(--primary);background:var(--info-soft);border-color:var(--info-line)}
+.status-reading .ic{background:var(--primary)}
+.status-draft{color:var(--neutral);background:#F1F5F9;border-color:#E2E8F0}
+.status-draft .ic{background:var(--neutral)}
+.status-ready{color:var(--success);background:var(--success-soft);border-color:var(--success-line)}
+.status-ready .ic{background:var(--success)}
+.status-done{color:var(--neutral);background:#F1F5F9;border-color:#E2E8F0}
+.status-done .ic{width:auto;height:auto;border-radius:0}
+
+/* empty state */
+.empty{text-align:center;padding:56px 24px;background:var(--card);border:1px dashed var(--border);border-radius:var(--radius)}
+.empty .em-ic{width:56px;height:56px;border-radius:14px;background:var(--info-soft);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
+.empty h2{font-size:20px;font-weight:700;color:var(--heading);margin-bottom:8px}
+.empty p{font-size:14.5px;color:var(--text-2);max-width:48ch;margin:0 auto 22px;line-height:1.6}
+
+/* ─── SETUP STEP INDICATOR (Screens 1–3) ──────────────────────────────────── */
+.setup-step{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--primary);
+  background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius-pill);padding:5px 12px;margin-bottom:16px}
+.setup-step .dot{width:7px;height:7px;border-radius:50%;background:var(--primary)}
+
+/* ─── FORM FIELDS ─────────────────────────────────────────────────────────── */
+.field{margin-bottom:18px}
+.field > label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:7px}
+.field .hint{font-size:13px;color:var(--text-2);margin-top:6px}
+.input{display:flex;align-items:center;gap:0;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--btn-radius);overflow:hidden}
+.input:focus-within{border-color:var(--primary);box-shadow:var(--ring)}
+.input .prefix{padding:12px 0 12px 14px;color:var(--text-2);font-size:15px}
+.input input{flex:1;border:none;outline:none;background:transparent;font-family:inherit;font-size:15px;color:var(--text);padding:12px 14px}
+select.input, .select{appearance:none;background:var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%236B7280' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 14px center;
+  border:1.5px solid var(--border);border-radius:var(--btn-radius);font-family:inherit;font-size:15px;color:var(--text);padding:12px 36px 12px 14px;width:100%}
+.select:focus{border-color:var(--primary);box-shadow:var(--ring);outline:none}
+textarea.input{width:100%;border-radius:var(--btn-radius);padding:12px 14px;font-family:inherit;font-size:15px;color:var(--text);resize:vertical;min-height:96px;line-height:1.55}
+
+/* dropzone */
+.dropzone{border:1.5px dashed var(--border);border-radius:var(--radius);padding:30px 24px;text-align:center;background:var(--card);cursor:pointer}
+.dropzone:hover{border-color:var(--primary);background:var(--info-soft)}
+.dropzone .dz-ic{width:46px;height:46px;border-radius:12px;background:var(--info-soft);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px}
+.dropzone .dz-t{font-size:15px;font-weight:600;color:var(--text)}
+.dropzone .dz-s{font-size:13px;color:var(--text-2);margin-top:5px}
+
+/* trust note */
+.trust{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--text-2);line-height:1.5;margin:16px 0 0;padding:12px 14px;background:var(--success-soft);border:1px solid var(--success-line);border-radius:var(--radius-sm)}
+.trust .t-ic{color:var(--success);flex-shrink:0;font-size:15px;line-height:1.3}
+.trust.plain{background:var(--info-soft);border-color:var(--info-line)}
+.trust.plain .t-ic{color:var(--primary)}
+
+/* ─── PROFILE CONFIRM CARDS (Screen 2) ────────────────────────────────────── */
+.profile-card{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px}
+.profile-card .pc-label{font-size:12.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.profile-card .pc-value{font-size:14.5px;color:var(--text);line-height:1.5}
+.profile-card .pc-edit{font-size:13.5px;font-weight:600;color:var(--primary);background:none;border:none;cursor:pointer;flex-shrink:0;align-self:center;padding:6px 8px;border-radius:var(--radius-sm)}
+.profile-card .pc-edit:hover{background:var(--info-soft)}
+
+/* ─── FUNDER SELECT (Screen 3) ────────────────────────────────────────────── */
+.funder-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:620px){.funder-list{grid-template-columns:1fr}}
+.funder{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:15px 16px;cursor:pointer;text-align:left;width:100%;font-family:inherit}
+.funder:hover{border-color:var(--info-line);background:var(--info-soft)}
+.funder[aria-pressed="true"]{border-color:var(--primary);box-shadow:var(--ring);background:#fff}
+.funder .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;position:relative}
+.funder[aria-pressed="true"] .radio{border-color:var(--primary)}
+.funder[aria-pressed="true"] .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--primary)}
+.funder .f-body{flex:1;min-width:0}
+.funder .f-name{font-size:14.5px;font-weight:700;color:var(--heading-2)}
+.funder .f-desc{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.funder .f-badge{flex-shrink:0;font-size:11px;font-weight:600;color:var(--success);background:var(--success-soft);
+  border:1px solid var(--success-line);border-radius:var(--radius-pill);padding:3px 9px}
+.select-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:620px){.select-row{grid-template-columns:1fr}}
+.template-info{display:flex;gap:11px;background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius);padding:15px 16px;margin-top:16px}
+.template-info .ti-ic{color:var(--primary);font-size:16px;flex-shrink:0;font-weight:700}
+.template-info .ti-t{font-size:14px;font-weight:700;color:var(--heading-2);margin-bottom:3px}
+.template-info .ti-b{font-size:13.5px;color:var(--text);line-height:1.55}
+
+/* ─── PROGRESS STEPS (Screens 4–9) — Upload·Read·Facts·Questions·Review·Download ─ */
+.steps{display:flex;align-items:center;gap:0;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;overflow-x:auto}
+.step{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.step .s-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:var(--card);color:var(--text-2)}
+.step .s-label{font-size:13.5px;font-weight:600;color:var(--text-2);white-space:nowrap}
+.step.done .s-dot{background:var(--success);border-color:var(--success);color:#fff}
+.step.done .s-label{color:var(--text)}
+.step.current .s-dot{background:var(--primary);border-color:var(--primary);color:#fff}
+.step.current .s-label{color:var(--primary);font-weight:700}
+.step-line{flex:1;height:2px;background:var(--divider);margin:0 12px;min-width:18px}
+.step-line.done{background:var(--success)}
+@media(max-width:760px){.step .s-label{display:none}.step.current .s-label{display:inline}.step-line{min-width:10px;margin:0 6px}}
+
+/* ─── DOCUMENT LIST (Screen 4) ────────────────────────────────────────────── */
+.doc-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:9px}
+.doc-row .d-ic{width:34px;height:34px;border-radius:8px;background:var(--info-soft);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;font-weight:700}
+.doc-row .d-name{font-size:14px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-type{font-size:12px;font-weight:600;color:var(--neutral);background:#F1F5F9;border:1px solid #E2E8F0;
+  border-radius:var(--radius-pill);padding:4px 11px;flex-shrink:0}
+.doc-remove{background:none;border:none;color:var(--text-2);cursor:pointer;font-size:18px;line-height:1;padding:6px;border-radius:var(--radius-sm);flex-shrink:0}
+.doc-remove:hover{color:var(--error);background:var(--error-soft)}
+
+/* ─── READING CHECKLIST (Screen 5) ────────────────────────────────────────── */
+.work-list{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:8px 20px}
+.work-step{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--divider)}
+.work-step:last-child{border-bottom:none}
+.work-step .w-ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.work-step.done .w-ic{background:var(--success);color:#fff}
+.work-step.current .w-ic{background:var(--info-soft);border:2px solid var(--primary);color:var(--primary);position:relative}
+.work-step.current .w-ic .pulse{position:absolute;inset:5px;border-radius:50%;background:var(--primary);animation:pulse 1.5s ease-in-out infinite}
+.work-step.next .w-ic{background:var(--card);border:2px solid var(--border);color:var(--text-2)}
+.work-step .w-text{font-size:14.5px;font-weight:600;color:var(--text)}
+.work-step.next .w-text{color:var(--text-2);font-weight:500}
+.work-step .w-state{margin-left:auto;font-size:12.5px;font-weight:600;flex-shrink:0}
+.work-step.done .w-state{color:var(--success)}
+.work-step.current .w-state{color:var(--primary)}
+.work-step.next .w-state{color:var(--text-2)}
+@keyframes pulse{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1);opacity:1}}
+.note-line{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--text);line-height:1.5;
+  background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius);padding:14px 16px;margin-top:16px}
+.note-line .n-ic{color:var(--primary);flex-shrink:0;font-size:15px}
+
+/* ─── FACTS (Screen 6) ────────────────────────────────────────────────────── */
+.conflict{background:var(--warning-soft);border:1px solid var(--warning-line);border-radius:var(--radius);padding:18px 18px;margin-bottom:16px}
+.conflict .cf-head{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;color:#92400E;margin-bottom:6px}
+.conflict .cf-ic{width:22px;height:22px;border-radius:50%;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.conflict .cf-sub{font-size:13.5px;color:#92400E;margin-bottom:14px}
+.cf-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:620px){.cf-options{grid-template-columns:1fr}}
+.cf-opt{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;text-align:left;font-family:inherit;width:100%}
+.cf-opt:hover{border-color:var(--warning-line)}
+.cf-opt[aria-pressed="true"]{border-color:var(--primary);box-shadow:var(--ring)}
+.cf-opt .cf-v{font-size:18px;font-weight:700;color:var(--heading)}
+.cf-opt .cf-src{font-size:12px;color:var(--text-2);margin-top:3px}
+.cf-opt.other{display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:600;font-size:14px}
+
+.fact-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:9px}
+.fact-row .f-check{width:22px;height:22px;border-radius:6px;background:var(--success-soft);color:var(--success);border:1px solid var(--success-line);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.fact-row .f-body{flex:1;min-width:0}
+.fact-row .f-main{font-size:14.5px;font-weight:600;color:var(--text)}
+.fact-row .f-src{font-size:12.5px;color:var(--text-2);margin-top:3px}
+.fact-row .f-status{font-size:12px;font-weight:600;color:var(--success);background:var(--success-soft);border:1px solid var(--success-line);border-radius:var(--radius-pill);padding:3px 10px;flex-shrink:0}
+.fact-row .f-edit{font-size:13px;font-weight:600;color:var(--primary);background:none;border:none;cursor:pointer;flex-shrink:0;padding:6px 8px;border-radius:var(--radius-sm)}
+.fact-row .f-edit:hover{background:var(--info-soft)}
+
+/* ─── QUESTIONS (Screen 7) ────────────────────────────────────────────────── */
+.question{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px}
+.question .q-text{font-size:15px;font-weight:700;color:var(--heading-2);margin-bottom:8px}
+.question .q-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px}
+.question .q-why{font-size:13px;color:var(--text-2)}
+.question .q-section{font-size:12px;font-weight:600;color:var(--neutral);background:#F1F5F9;border:1px solid #E2E8F0;border-radius:var(--radius-pill);padding:3px 10px}
+.question .q-foot{display:flex;align-items:center;gap:12px;margin-top:12px}
+
+/* ─── DRAFT REVIEW (Screen 8) ─────────────────────────────────────────────── */
+.alert{display:flex;gap:13px;background:var(--warning-soft);border:1px solid var(--warning-line);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px}
+.alert .a-ic{width:24px;height:24px;border-radius:50%;background:var(--warning);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.alert .a-body{flex:1}
+.alert .a-title{font-size:14.5px;font-weight:700;color:#92400E;margin-bottom:3px}
+.alert .a-text{font-size:13.5px;color:#92400E;line-height:1.5}
+.alert .a-action{margin-left:auto;flex-shrink:0}
+
+.sec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:10px}
+.sec-card.flagged{border-color:var(--warning-line)}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sec-head .sec-name{font-size:15px;font-weight:700;color:var(--heading-2);flex:1;min-width:0}
+.sec-status{font-size:12px;font-weight:600;border-radius:var(--radius-pill);padding:4px 11px;border:1px solid transparent;display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.sec-status .ic{width:7px;height:7px;border-radius:50%}
+.sec-checked{color:var(--success);background:var(--success-soft);border-color:var(--success-line)}
+.sec-checked .ic{background:var(--success)}
+.sec-review{color:var(--warning);background:var(--warning-soft);border-color:var(--warning-line)}
+.sec-review .ic{background:var(--warning)}
+.sec-edited{color:var(--primary);background:var(--info-soft);border-color:var(--info-line)}
+.sec-edited .ic{background:var(--primary)}
+.sec-notprov{color:var(--neutral);background:#F1F5F9;border-color:#E2E8F0}
+.sec-notprov .ic{background:var(--neutral)}
+.sec-preview{font-size:13.5px;color:var(--text-2);line-height:1.6;margin-bottom:12px}
+.sec-issue{display:flex;gap:9px;font-size:13px;color:#92400E;background:var(--warning-soft);border:1px solid var(--warning-line);border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:12px;line-height:1.5}
+.sec-issue .si-ic{color:var(--warning);flex-shrink:0;font-weight:700}
+.sec-editor{margin-top:10px}
+.sec-editor[hidden]{display:none}
+
+/* ─── EXPORT SUMMARY (Screen 9) ───────────────────────────────────────────── */
+.done-hero{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.done-hero .dh-ic{width:44px;height:44px;border-radius:12px;background:var(--success-soft);color:var(--success);border:1px solid var(--success-line);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.summary{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 22px;margin-bottom:20px}
+.summary-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--divider)}
+.summary-row:last-child{border-bottom:none}
+.summary-row .sr-label{font-size:13.5px;color:var(--text-2)}
+.summary-row .sr-value{font-size:14px;font-weight:600;color:var(--text);text-align:right}
+.docfile{display:flex;align-items:center;gap:16px;background:var(--info-soft);border:1px solid var(--info-line);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px}
+.docfile .df-badge{width:48px;height:60px;border-radius:8px;background:var(--card);border:1px solid var(--border);display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px;font-size:11px;font-weight:700;color:var(--primary);flex-shrink:0}
+.docfile .df-t{font-size:15px;font-weight:700;color:var(--heading)}
+.docfile .df-s{font-size:13px;color:var(--text-2);margin-top:3px}
+
+/* ─── ERROR / STATE PATTERNS (appendix) ───────────────────────────────────── */
+.toast{display:flex;align-items:flex-start;gap:12px;border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;border:1px solid}
+.toast .to-ic{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.toast .to-body{flex:1}
+.toast .to-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.toast .to-text{font-size:13.5px;line-height:1.5}
+.toast.err{background:var(--error-soft);border-color:var(--error-line)}
+.toast.err .to-ic{background:var(--error)}.toast.err .to-title{color:#991B1B}.toast.err .to-text{color:#991B1B}
+.toast.warn{background:var(--warning-soft);border-color:var(--warning-line)}
+.toast.warn .to-ic{background:var(--warning)}.toast.warn .to-title{color:#92400E}.toast.warn .to-text{color:#92400E}
+.toast.info{background:var(--info-soft);border-color:var(--info-line)}
+.toast.info .to-ic{background:var(--primary)}.toast.info .to-title{color:var(--primary)}.toast.info .to-text{color:var(--text)}
+
+.foot{max-width:1080px;margin:48px auto 0;padding:24px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-2);line-height:1.7;text-align:center}
+.foot b{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PROTOTYPE SCAFFOLD (not part of the product) ══════════ -->
+<div class="proto-bar" role="navigation" aria-label="Prototype screen index">
+  <span class="pb-title"><b>GrantPilot Reports</b> · NGO-facing UI prototype</span>
+  <div class="proto-jump">
+    <a href="#s0">0 · Reports home</a>
+    <a href="#s1">1 · About you</a>
+    <a href="#s2">2 · Confirm profile</a>
+    <a href="#s3">3 · Funder</a>
+    <a href="#s4">4 · Upload</a>
+    <a href="#s5">5 · Reading</a>
+    <a href="#s6">6 · Facts</a>
+    <a href="#s7">7 · Questions</a>
+    <a href="#s8">8 · Draft review</a>
+    <a href="#s9">9 · Ready</a>
+    <a href="#states">States</a>
+  </div>
+</div>
+<p class="proto-note">A scrollable walkthrough of every screen in the donor report journey. Each frame shows its route and the API it reads/writes. Interactions (selecting a figure, choosing a funder, editing a section) are presentational only — the real product reads state from the backend and never decides facts on its own.</p>
+
+<div class="stage">
+
+  <!-- ══════════════════ SCREEN 0 — REPORTS HOME (populated) ══════════════════ -->
+  <div class="screen-label" id="s0">
+    <span class="sl-num">Screen 0</span><span class="sl-name">Reports home</span>
+    <span class="sl-route">/reports</span><span class="sl-api">GET /api/reports</span>
+  </div>
+  <div class="device">
+    <header class="appbar">
+      <div class="brand">
+        <img class="logo-img" src="https://ngoinfo.org/wp-content/uploads/2026/02/ngoinfo_logo_new.webp" alt="NGOInfo">
+        <span class="wordmark">GrantPilot</span>
+      </div>
+      <nav class="appnav" aria-label="Main">
+        <a href="#s0">Dashboard</a>
+        <a href="#s0">Profile</a>
+        <a href="#s0">Fit Scans</a>
+        <a href="#s0">Proposals</a>
+        <a href="#s0" aria-current="page">Reports</a>
+        <a href="#s0">Billing</a>
+      </nav>
+      <div class="avatar" aria-hidden="true">AK</div>
+    </header>
+    <div class="view">
+      <h1 class="title">Your donor reports</h1>
+      <p class="subtitle">Start a new funder report or continue one you have already begun.</p>
+
+      <div class="start-banner">
+        <div>
+          <div class="sb-text">Ready to report back to a funder?</div>
+          <div class="sb-sub">GrantPilot turns your documents, results, and notes into a structured donor report.</div>
+        </div>
+        <button class="btn btn-primary">Start new report</button>
+      </div>
+
+      <div class="section-eyebrow">In progress &amp; recent</div>
+
+      <!-- Needs your review -->
+      <article class="report-card">
+        <div class="rc-body">
+          <div class="rc-title">FCDO Annual Review — Clean Water Programme</div>
+          <div class="rc-meta">
+            <span><b>FCDO</b></span>
+            <span>Reporting period <b>2024–25</b></span>
+            <span>Last updated <b>2 days ago</b></span>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="status status-review"><span class="ic"></span> Needs your review</span>
+          <button class="btn btn-secondary btn-sm">Continue</button>
+        </div>
+      </article>
+
+      <!-- Reading documents -->
+      <article class="report-card">
+        <div class="rc-body">
+          <div class="rc-title">End-of-grant report — Youth Skills Project</div>
+          <div class="rc-meta">
+            <span><b>National Lottery Community Fund</b></span>
+            <span>Reporting period <b>Apr 2024 – Mar 2025</b></span>
+            <span>Last updated <b>Today</b></span>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="status status-reading"><span class="ic"></span> Reading documents</span>
+          <button class="btn btn-secondary btn-sm">Continue</button>
+        </div>
+      </article>
+
+      <!-- Draft ready -->
+      <article class="report-card">
+        <div class="rc-body">
+          <div class="rc-title">Comic Relief end-of-grant — Safe Spaces</div>
+          <div class="rc-meta">
+            <span><b>Comic Relief</b></span>
+            <span>Reporting period <b>2024–25</b></span>
+            <span>Last updated <b>Yesterday</b></span>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="status status-draft"><span class="ic"></span> Draft ready</span>
+          <button class="btn btn-secondary btn-sm">Continue</button>
+        </div>
+      </article>
+
+      <!-- Ready to download -->
+      <article class="report-card">
+        <div class="rc-body">
+          <div class="rc-title">FCDO Annual Review — Clean Water Programme</div>
+          <div class="rc-meta">
+            <span><b>FCDO</b></span>
+            <span>Reporting period <b>2023–24</b></span>
+            <span>Last updated <b>8 Mar 2026</b></span>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="status status-ready"><span class="ic"></span> Ready to download</span>
+          <button class="btn btn-secondary btn-sm">View report</button>
+        </div>
+      </article>
+
+      <!-- Downloaded -->
+      <article class="report-card">
+        <div class="rc-body">
+          <div class="rc-title">Generic institutional report — Health Outreach</div>
+          <div class="rc-meta">
+            <span><b>Gates Foundation</b></span>
+            <span>Reporting period <b>2023</b></span>
+            <span>Last updated <b>2 Feb 2026</b></span>
+          </div>
+        </div>
+        <div class="rc-right">
+          <span class="status status-done"><span class="ic">✓</span> Downloaded</span>
+          <button class="btn btn-secondary btn-sm">View report</button>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- Screen 0 — EMPTY STATE -->
+  <div class="screen-label">
+    <span class="sl-num">Screen 0</span><span class="sl-name">Reports home — empty state</span>
+    <span class="sl-route">/reports</span>
+  </div>
+  <div class="device">
+    <header class="appbar">
+      <div class="brand">
+        <img class="logo-img" src="https://ngoinfo.org/wp-content/uploads/2026/02/ngoinfo_logo_new.webp" alt="NGOInfo">
+        <span class="wordmark">GrantPilot</span>
+      </div>
+      <nav class="appnav" aria-label="Main">
+        <a href="#s0">Dashboard</a><a href="#s0">Profile</a><a href="#s0">Fit Scans</a>
+        <a href="#s0">Proposals</a><a href="#s0" aria-current="page">Reports</a><a href="#s0">Billing</a>
+      </nav>
+      <div class="avatar" aria-hidden="true">AK</div>
+    </header>
+    <div class="view">
+      <h1 class="title">Your donor reports</h1>
+      <p class="subtitle">Start a new funder report or continue one you have already begun.</p>
+      <div class="empty">
+        <div class="em-ic" aria-hidden="true">▤</div>
+        <h2>No reports yet</h2>
+        <p>When you need to report back to a funder, GrantPilot helps you turn your documents, results, and notes into a structured donor report.</p>
+        <button class="btn btn-primary">Start your first report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 1 — ABOUT YOU ══════════════════ -->
+  <div class="screen-label" id="s1">
+    <span class="sl-num">Screen 1</span><span class="sl-name">Start report — organisation details</span>
+    <span class="sl-route">/reports/new/about-you</span><span class="sl-api">Profile seed · see note ▾</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view center">
+      <span class="setup-step"><span class="dot"></span> Step 1 of 3</span>
+      <h1 class="title">Tell us about your organisation</h1>
+      <p class="subtitle">Add your website so GrantPilot can prepare a starting profile. You can edit everything before it is used in a report.</p>
+
+      <div class="field">
+        <label for="org-url">Organisation website</label>
+        <div class="input">
+          <span class="prefix">https://</span>
+          <input id="org-url" type="text" value="bridgelight.org" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="org-doc">Add a capability statement, annual report, or previous report <span style="color:var(--text-2);font-weight:500">(optional)</span></label>
+        <label class="dropzone" for="org-doc" style="display:block">
+          <div class="dz-ic" aria-hidden="true">↥</div>
+          <div class="dz-t">Drag a file here, or browse</div>
+          <div class="dz-s">Word or PDF</div>
+          <input id="org-doc" type="file" hidden>
+        </label>
+      </div>
+
+      <div class="trust">
+        <span class="t-ic" aria-hidden="true">⛨</span>
+        <span>Your documents are used only to prepare your report workspace. You stay in control of what is included.</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary">Prepare my profile</button>
+        <button class="btn-link">I’ll enter details manually</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 2 — CONFIRM PROFILE ══════════════════ -->
+  <div class="screen-label" id="s2">
+    <span class="sl-num">Screen 2</span><span class="sl-name">Confirm organisation profile</span>
+    <span class="sl-route">/reports/new/confirm-profile</span><span class="sl-api">GET / PUT /api/ngo-profile</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view center">
+      <span class="setup-step"><span class="dot"></span> Step 2 of 3</span>
+      <h1 class="title">Check your organisation profile</h1>
+      <p class="subtitle">We prepared these details from what you shared. Edit anything that is wrong or incomplete.</p>
+
+      <div class="profile-card">
+        <div><div class="pc-label">Mission</div><div class="pc-value">Clean water and sanitation access for rural communities in East Africa.</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+      <div class="profile-card">
+        <div><div class="pc-label">Focus areas</div><div class="pc-value">Water &amp; sanitation · Community health · Climate resilience</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+      <div class="profile-card">
+        <div><div class="pc-label">Countries or regions of work</div><div class="pc-value">Kenya, Tanzania, Uganda</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+      <div class="profile-card">
+        <div><div class="pc-label">Target groups</div><div class="pc-value">Rural households · Women farmers · School-age children</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+      <div class="profile-card">
+        <div><div class="pc-label">Recent projects</div><div class="pc-value">Safe Water Kitui (2022–24) · Sanitation for Schools (2021–23)</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+      <div class="profile-card">
+        <div><div class="pc-label">Main contact</div><div class="pc-value">Amara Kone · Programmes Lead · amara@bridgelight.org</div></div>
+        <button class="pc-edit">Edit</button>
+      </div>
+
+      <div class="trust"><span class="t-ic" aria-hidden="true">⛨</span><span>Nothing is used in a report until you confirm it.</span></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary">Looks right — continue</button>
+        <button class="btn-link">Add more detail</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 3 — FUNDER & PERIOD ══════════════════ -->
+  <div class="screen-label" id="s3">
+    <span class="sl-num">Screen 3</span><span class="sl-name">Choose funder &amp; reporting period</span>
+    <span class="sl-route">/reports/new/funder</span><span class="sl-api">GET /api/report-templates · POST /api/reports</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view center">
+      <span class="setup-step"><span class="dot"></span> Step 3 of 3</span>
+      <h1 class="title">Who are you reporting to?</h1>
+      <p class="subtitle">Choose the funder, grant, and reporting period so GrantPilot can structure the report correctly.</p>
+
+      <div class="funder-list" role="group" aria-label="Choose a funder">
+        <button class="funder" aria-pressed="true" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">FCDO</span><span class="f-desc">UK government — narrative progress, results &amp; value for money</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">National Lottery Community Fund</span><span class="f-desc">Learning-focused progress &amp; end-of-grant reports</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">Comic Relief</span><span class="f-desc">End-of-grant impact and difference made</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">USAID</span><span class="f-desc">Quarterly &amp; annual performance against indicators</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">ECHO</span><span class="f-desc">EU humanitarian Single Form — interim &amp; final</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">Generic institutional donor report</span><span class="f-desc">A structured report for any institutional funder</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+        <button class="funder" aria-pressed="false" data-group="funder">
+          <span class="radio" aria-hidden="true"></span>
+          <span class="f-body"><span class="f-name">Generic CSR project report</span><span class="f-desc">For corporate / CSR-funded projects</span></span>
+          <span class="f-badge">Template ready</span>
+        </button>
+      </div>
+
+      <div class="select-row">
+        <div class="field" style="margin:0">
+          <label for="grant-sel">Grant or project</label>
+          <select id="grant-sel" class="select">
+            <option>Safe Water Kitui — Phase 2</option>
+            <option>Sanitation for Schools</option>
+            <option>+ Add a new grant</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0">
+          <label for="period-sel">Reporting period</label>
+          <select id="period-sel" class="select">
+            <option>Year 2 · 2024–25</option>
+            <option>Year 1 · 2023–24</option>
+            <option>+ Set custom dates</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="template-info">
+        <span class="ti-ic" aria-hidden="true">ⓘ</span>
+        <div>
+          <div class="ti-t">FCDO Annual Review</div>
+          <div class="ti-b">Includes progress against outputs, results, value for money, risks, lessons, and recommendations.</div>
+        </div>
+      </div>
+
+      <div class="btn-row"><button class="btn btn-primary">Start report</button></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 4 — UPLOAD ══════════════════ -->
+  <div class="screen-label" id="s4">
+    <span class="sl-num">Screen 4</span><span class="sl-name">Upload project documents</span>
+    <span class="sl-route">/reports/{reportId}/upload</span><span class="sl-api">POST /api/reports/{id}/documents</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <!-- progress steps -->
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step current" role="listitem"><span class="s-dot">1</span><span class="s-label">Upload</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">2</span><span class="s-label">Read</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">3</span><span class="s-label">Facts</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">4</span><span class="s-label">Questions</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">5</span><span class="s-label">Review</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div style="max-width:720px">
+        <h1 class="title">Upload your project documents</h1>
+        <p class="subtitle">Add what you have. Proposals, grant letters, results spreadsheets, photos, and notes are all useful.</p>
+
+        <label class="dropzone" for="proj-files" style="display:block;margin-bottom:18px">
+          <div class="dz-ic" aria-hidden="true">↥</div>
+          <div class="dz-t">Drag files here, or browse</div>
+          <div class="dz-s">Word, PDF, Excel, CSV, PowerPoint, and images</div>
+          <input id="proj-files" type="file" multiple hidden>
+        </label>
+
+        <div class="section-eyebrow">Your documents</div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">Safe_Water_proposal.pdf</span><span class="doc-type">Proposal</span><button class="doc-remove" aria-label="Remove Safe_Water_proposal.pdf">×</button></div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">grant_award_letter.pdf</span><span class="doc-type">Grant letter</span><button class="doc-remove" aria-label="Remove grant_award_letter.pdf">×</button></div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">Year2_results.xlsx</span><span class="doc-type">Results spreadsheet</span><button class="doc-remove" aria-label="Remove Year2_results.xlsx">×</button></div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">logframe.docx</span><span class="doc-type">Logframe</span><button class="doc-remove" aria-label="Remove logframe.docx">×</button></div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">field_visit_photos.zip</span><span class="doc-type">Activity photos</span><button class="doc-remove" aria-label="Remove field_visit_photos.zip">×</button></div>
+        <div class="doc-row"><span class="d-ic" aria-hidden="true">▦</span><span class="d-name">steering_notes.docx</span><span class="doc-type">Meeting notes</span><button class="doc-remove" aria-label="Remove steering_notes.docx">×</button></div>
+
+        <div class="trust plain"><span class="t-ic" aria-hidden="true">⛨</span><span>Messy files are fine. You will review the important facts before anything goes into your report.</span></div>
+
+        <div class="btn-row"><button class="btn btn-primary">Read my documents</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 5 — READING ══════════════════ -->
+  <div class="screen-label" id="s5">
+    <span class="sl-num">Screen 5</span><span class="sl-name">Reading documents</span>
+    <span class="sl-route">/reports/{reportId}/reading</span><span class="sl-api">GET /api/reports/{id}/job</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Upload</span></div><div class="step-line done"></div>
+        <div class="step current" role="listitem"><span class="s-dot">2</span><span class="s-label">Read</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">3</span><span class="s-label">Facts</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">4</span><span class="s-label">Questions</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">5</span><span class="s-label">Review</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div class="view center" style="padding:0">
+        <h1 class="title">Reading your documents</h1>
+        <p class="subtitle">This can take a minute or two. You can leave this page and come back later.</p>
+
+        <div class="work-list">
+          <div class="work-step done"><span class="w-ic" aria-hidden="true">✓</span><span class="w-text">Files received</span><span class="w-state">Done</span></div>
+          <div class="work-step current"><span class="w-ic" aria-hidden="true"><span class="pulse"></span></span><span class="w-text">Reading project details</span><span class="w-state">In progress</span></div>
+          <div class="work-step next"><span class="w-ic" aria-hidden="true"></span><span class="w-text">Comparing figures across documents</span><span class="w-state">Next</span></div>
+          <div class="work-step next"><span class="w-ic" aria-hidden="true"></span><span class="w-text">Preparing your review</span><span class="w-state">Next</span></div>
+        </div>
+
+        <div class="note-line"><span class="n-ic" aria-hidden="true">✉</span><span>We’ll email you when your report is ready for review.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 6 — REVIEW FACTS ══════════════════ -->
+  <div class="screen-label" id="s6">
+    <span class="sl-num">Screen 6</span><span class="sl-name">Review project facts</span>
+    <span class="sl-route">/reports/{reportId}/facts</span><span class="sl-api">GET / PATCH · confirmed project facts (§12.4–12.5)</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Upload</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Read</span></div><div class="step-line done"></div>
+        <div class="step current" role="listitem"><span class="s-dot">3</span><span class="s-label">Facts</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">4</span><span class="s-label">Questions</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">5</span><span class="s-label">Review</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div style="max-width:760px">
+        <h1 class="title">Review the project facts</h1>
+        <p class="subtitle">These are the details we found. Confirm or correct them before the report is drafted.</p>
+
+        <!-- conflict -->
+        <div class="conflict" role="group" aria-label="Two sources show different figures">
+          <div class="cf-head"><span class="cf-ic" aria-hidden="true">!</span> Two sources show different figures</div>
+          <div class="cf-sub">Which figure should the report use?</div>
+          <div class="cf-options">
+            <button class="cf-opt" aria-pressed="false" data-group="conflict"><div class="cf-v">500 people</div><div class="cf-src">Planned reach · Original proposal</div></button>
+            <button class="cf-opt" aria-pressed="true" data-group="conflict"><div class="cf-v">347 people</div><div class="cf-src">Reported reach · Results spreadsheet</div></button>
+            <button class="cf-opt other" aria-pressed="false" data-group="conflict">Enter another figure</button>
+          </div>
+        </div>
+
+        <div class="section-eyebrow">Confirmed facts</div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Reporting period: April 2024 – March 2025</div><div class="f-src">From: Grant letter</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Grant amount: £248,000</div><div class="f-src">From: Proposal &amp; grant letter</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Activities delivered: 12 community water points, 8 school sanitation blocks</div><div class="f-src">From: Results spreadsheet</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Beneficiaries reached: 347 people</div><div class="f-src">From: Results spreadsheet</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Locations covered: Kitui County — 6 sub-locations</div><div class="f-src">From: Proposal &amp; results spreadsheet</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+        <div class="fact-row"><span class="f-check" aria-hidden="true">✓</span><div class="f-body"><div class="f-main">Key outputs: clean water access within 30 minutes for 6 villages</div><div class="f-src">From: Logframe</div></div><span class="f-status">Confirmed</span><button class="f-edit">Edit</button></div>
+
+        <div class="trust"><span class="t-ic" aria-hidden="true">⛨</span><span>GrantPilot does not choose between conflicting figures. You decide what is correct.</span></div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary">Confirm facts</button>
+          <button class="btn-link">+ Add a fact</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 7 — MISSING QUESTIONS ══════════════════ -->
+  <div class="screen-label" id="s7">
+    <span class="sl-num">Screen 7</span><span class="sl-name">Answer missing questions</span>
+    <span class="sl-route">/reports/{reportId}/questions</span><span class="sl-api">GET /gap-check · PATCH /gap-answers</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Upload</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Read</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Facts</span></div><div class="step-line done"></div>
+        <div class="step current" role="listitem"><span class="s-dot">4</span><span class="s-label">Questions</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">5</span><span class="s-label">Review</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div style="max-width:720px">
+        <h1 class="title">Answer a few missing questions</h1>
+        <p class="subtitle">We could not find these details in your documents. Answer what you can. Skip anything you cannot confirm.</p>
+
+        <div class="question">
+          <div class="q-text">What were the main challenges during this reporting period?</div>
+          <div class="q-meta">
+            <span class="q-why">Funders expect an honest account of what was difficult.</span>
+            <span class="q-section">FCDO · Challenges and adaptation</span>
+          </div>
+          <textarea id="q1" class="input" placeholder="Type your answer…" aria-label="Answer: What were the main challenges during this reporting period?"></textarea>
+          <div class="q-foot"><button class="btn btn-primary btn-sm">Save answer</button><button class="btn-link">Skip</button></div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">How did the team adapt the project during the year?</div>
+          <div class="q-meta">
+            <span class="q-why">Shows how you responded to what you learned.</span>
+            <span class="q-section">FCDO · Challenges and adaptation</span>
+          </div>
+          <textarea id="q2" class="input" placeholder="Type your answer…" aria-label="Answer: How did the team adapt the project during the year?"></textarea>
+          <div class="q-foot"><button class="btn btn-primary btn-sm">Save answer</button><button class="btn-link">Skip</button></div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">Were there any cost savings, delays, or budget changes?</div>
+          <div class="q-meta">
+            <span class="q-why">Needed for the value-for-money section.</span>
+            <span class="q-section">FCDO · Value for money</span>
+          </div>
+          <textarea id="q3" class="input" placeholder="Type your answer…" aria-label="Answer: Were there any cost savings, delays, or budget changes?"></textarea>
+          <div class="q-foot"><button class="btn btn-primary btn-sm">Save answer</button><button class="btn-link">Skip</button></div>
+        </div>
+
+        <div class="question">
+          <div class="q-text">What lessons should be included for the next reporting period?</div>
+          <div class="q-meta">
+            <span class="q-why">Funders value a clear, forward-looking lesson.</span>
+            <span class="q-section">FCDO · Lessons learned</span>
+          </div>
+          <textarea id="q4" class="input" placeholder="Type your answer…" aria-label="Answer: What lessons should be included for the next reporting period?"></textarea>
+          <div class="q-foot"><button class="btn btn-primary btn-sm">Save answer</button><button class="btn-link">Skip</button></div>
+        </div>
+
+        <div class="trust"><span class="t-ic" aria-hidden="true">⛨</span><span>Skipped answers are marked as not provided. GrantPilot will not invent missing information.</span></div>
+
+        <div class="btn-row"><button class="btn btn-primary">Continue to draft</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 8 — DRAFT REVIEW ══════════════════ -->
+  <div class="screen-label" id="s8">
+    <span class="sl-num">Screen 8</span><span class="sl-name">Draft review</span>
+    <span class="sl-route">/reports/{reportId}/review</span><span class="sl-api">GET /api/reports/{id} · PATCH …/sections/{key}</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Upload</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Read</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Facts</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Questions</span></div><div class="step-line done"></div>
+        <div class="step current" role="listitem"><span class="s-dot">5</span><span class="s-label">Review</span></div><div class="step-line"></div>
+        <div class="step" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div style="max-width:780px">
+        <h1 class="title">Review your draft report</h1>
+        <p class="subtitle">The draft follows the funder’s structure and uses the facts you confirmed.</p>
+
+        <!-- source-check alert -->
+        <div class="alert">
+          <span class="a-ic" aria-hidden="true">!</span>
+          <div class="a-body">
+            <div class="a-title">Source check needed</div>
+            <div class="a-text">One section uses a figure that does not match your confirmed project facts.</div>
+          </div>
+          <div class="a-action"><button class="btn btn-secondary btn-sm">Review issue</button></div>
+        </div>
+
+        <div class="section-eyebrow">Report sections</div>
+
+        <!-- Needs review (flagged) -->
+        <div class="sec-card flagged">
+          <div class="sec-head">
+            <span class="sec-name">Results table</span>
+            <span class="sec-status sec-review"><span class="ic"></span> Needs review</span>
+          </div>
+          <div class="sec-issue"><span class="si-ic" aria-hidden="true">!</span><span>The draft says 500 people reached. Your confirmed figure is 347. Please review before download.</span></div>
+          <p class="sec-preview">Against a planned reach of 500, the programme reported reaching people across six sub-locations of Kitui County during the reporting period…</p>
+          <button class="btn btn-secondary btn-sm js-edit-toggle">Edit section</button>
+          <div class="sec-editor" hidden>
+            <label for="edit-results" style="display:block;font-size:13px;font-weight:600;color:var(--text);margin:14px 0 7px">Edit section text</label>
+            <textarea id="edit-results" class="input">Against a planned reach of 500, the programme reported reaching 347 people across six sub-locations of Kitui County during the reporting period…</textarea>
+            <div class="btn-row" style="margin-top:12px"><button class="btn btn-primary btn-sm">Save section</button><button class="btn-link js-edit-cancel">Cancel</button></div>
+          </div>
+        </div>
+
+        <!-- Checked -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Progress against outputs</span><span class="sec-status sec-checked"><span class="ic"></span> Checked</span></div>
+          <p class="sec-preview">All four planned outputs were delivered or exceeded, with 12 community water points completed against a target of 10…</p>
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+        </div>
+
+        <!-- Edited -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Value for money</span><span class="sec-status sec-edited"><span class="ic"></span> Edited</span></div>
+          <p class="sec-preview">Unit costs fell by 14% against budget after local sourcing of materials, with savings redirected to two additional sanitation blocks…</p>
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+        </div>
+
+        <!-- Checked -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Challenges and adaptation</span><span class="sec-status sec-checked"><span class="ic"></span> Checked</span></div>
+          <p class="sec-preview">Seasonal flooding delayed two installations in Q3; the team rescheduled works and engaged community labour to recover the timeline…</p>
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+        </div>
+
+        <!-- Checked -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Risks</span><span class="sec-status sec-checked"><span class="ic"></span> Checked</span></div>
+          <p class="sec-preview">Water-point maintenance remains the primary ongoing risk; a community committee and spare-parts fund have been established…</p>
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+        </div>
+
+        <!-- Checked -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Lessons learned</span><span class="sec-status sec-checked"><span class="ic"></span> Checked</span></div>
+          <p class="sec-preview">Early engagement of local artisans improved both cost and ownership and will be applied from the start in the next phase…</p>
+          <button class="btn btn-ghost btn-sm">Edit section</button>
+        </div>
+
+        <!-- Not provided -->
+        <div class="sec-card">
+          <div class="sec-head"><span class="sec-name">Recommendations</span><span class="sec-status sec-notprov"><span class="ic"></span> Not provided</span></div>
+          <p class="sec-preview">No content provided for this section. It will appear in the report as “not provided”.</p>
+          <button class="btn btn-ghost btn-sm">Add content</button>
+        </div>
+
+        <div class="trust"><span class="t-ic" aria-hidden="true">⛨</span><span>You stay the author. Review, edit, and approve the report before downloading.</span></div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary">Download DOCX</button>
+          <button class="btn-link">Back to questions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 9 — READY / EXPORT ══════════════════ -->
+  <div class="screen-label" id="s9">
+    <span class="sl-num">Screen 9</span><span class="sl-name">Export — your report is ready</span>
+    <span class="sl-route">/reports/{reportId}/done</span><span class="sl-api">GET /api/reports/{id} · POST …/export</span>
+  </div>
+  <div class="device">
+    <header class="jbar">
+      <div class="brand"><span class="wordmark">GrantPilot</span></div>
+      <a class="j-exit" href="#s0">Save &amp; exit</a>
+    </header>
+    <div class="view">
+      <div class="steps" role="list" aria-label="Report progress">
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Upload</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Read</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Facts</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Questions</span></div><div class="step-line done"></div>
+        <div class="step done" role="listitem"><span class="s-dot">✓</span><span class="s-label">Review</span></div><div class="step-line done"></div>
+        <div class="step current" role="listitem"><span class="s-dot">6</span><span class="s-label">Download</span></div>
+      </div>
+
+      <div class="view center" style="padding:0">
+        <div class="done-hero">
+          <span class="dh-ic" aria-hidden="true">✓</span>
+          <h1 class="title" style="margin:0">Your report is ready</h1>
+        </div>
+        <p class="subtitle">Download the formatted Word document and make any final checks before submitting it to your funder.</p>
+
+        <div class="docfile">
+          <span class="df-badge" aria-hidden="true">DOCX</span>
+          <div>
+            <div class="df-t">FCDO Annual Review — Clean Water Programme 2024–25</div>
+            <div class="df-s">Ready to download</div>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-row"><span class="sr-label">Report</span><span class="sr-value">FCDO Annual Review — Clean Water Programme</span></div>
+          <div class="summary-row"><span class="sr-label">Funder</span><span class="sr-value">FCDO</span></div>
+          <div class="summary-row"><span class="sr-label">Reporting period</span><span class="sr-value">April 2024 – March 2025</span></div>
+          <div class="summary-row"><span class="sr-label">Sections</span><span class="sr-value">7</span></div>
+          <div class="summary-row"><span class="sr-label">Source documents used</span><span class="sr-value">6</span></div>
+          <div class="summary-row"><span class="sr-label">Items marked “not provided”</span><span class="sr-value">1</span></div>
+          <div class="summary-row"><span class="sr-label">Last updated</span><span class="sr-value">Today, 14:32</span></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary">Download DOCX</button>
+          <button class="btn-link">Back to review</button>
+        </div>
+
+        <div class="note-line" style="margin-top:20px"><span class="n-ic" aria-hidden="true">↩</span><span>You can return to this report from your Reports page.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ APPENDIX — ERROR & STATE PATTERNS ══════════════════ -->
+  <div class="screen-label" id="states">
+    <span class="sl-num">Patterns</span><span class="sl-name">Plain-language error &amp; quota states</span>
+  </div>
+  <div class="device">
+    <div class="view">
+      <p class="subtitle" style="max-width:none">Every message explains what happened and offers a way forward. None blame the person using GrantPilot.</p>
+      <div class="toast err"><span class="to-ic" aria-hidden="true">!</span><div class="to-body"><div class="to-title">We could not find this report.</div><div class="to-text">It may have been removed. Go back to your Reports page to start or open another one.</div></div></div>
+      <div class="toast err"><span class="to-ic" aria-hidden="true">!</span><div class="to-body"><div class="to-title">The file could not be uploaded.</div><div class="to-text">Please try again.</div></div></div>
+      <div class="toast err"><span class="to-ic" aria-hidden="true">!</span><div class="to-body"><div class="to-title">We could not finish reading your documents.</div><div class="to-text">Please try again, or remove the problem file and read your documents again.</div></div></div>
+      <div class="toast info"><span class="to-ic" aria-hidden="true">!</span><div class="to-body"><div class="to-title">We’re having a temporary issue.</div><div class="to-text">Please try again shortly.</div></div></div>
+      <div class="toast warn"><span class="to-ic" aria-hidden="true">↗</span><div class="to-body"><div class="to-title">You’ve used all of this month’s reports.</div><div class="to-text">Your plan includes a set number of reports each billing period. Your allowance refreshes on your next billing date. <br><span style="display:inline-block;margin-top:10px"><button class="btn btn-upgrade btn-sm">View plan options</button></span></div></div></div>
+      <p class="proto-note" style="margin:8px 0 0;padding:0">Quota wording and limits come from the backend per <b>PRICING_AND_ENTITLEMENTS.md</b> — the workspace only displays the message it is given. The purple button is the one place an upgrade accent is used.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer class="foot">
+  <b>GrantPilot Reports · Donor Report Writer</b> — NGO-facing UI prototype.<br>
+  Renders state only · no business logic, entitlement checks, or report decisions in the frontend · the person stays the author.<br>
+  Tokens, type, spacing &amp; buttons per BRAND_AND_FRONTEND_SPEC.md · routes per API_CONTRACT.md §12.
+</footer>
+
+<script>
+/* Presentational interactivity only. No API calls, no auth, no storage, no business logic.
+   All handlers are null-guarded so the prototype never throws. */
+(function () {
+  "use strict";
+
+  // Single-select button groups (funder choice, conflict choice)
+  document.querySelectorAll('[data-group]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var group = btn.getAttribute('data-group');
+      document.querySelectorAll('[data-group="' + group + '"]').forEach(function (sib) {
+        sib.setAttribute('aria-pressed', 'false');
+      });
+      btn.setAttribute('aria-pressed', 'true');
+    });
+  });
+
+  // Inline section editor (Screen 8) — demonstrates the edit affordance (PATCH …/sections/{key})
+  document.querySelectorAll('.js-edit-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.sec-card');
+      if (!card) return;
+      var editor = card.querySelector('.sec-editor');
+      if (!editor) return;
+      var open = editor.hasAttribute('hidden');
+      if (open) { editor.removeAttribute('hidden'); btn.textContent = 'Close editor'; }
+      else { editor.setAttribute('hidden', ''); btn.textContent = 'Edit section'; }
+    });
+  });
+  document.querySelectorAll('.js-edit-cancel').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('.sec-card');
+      if (!card) return;
+      var editor = card.querySelector('.sec-editor');
+      var toggle = card.querySelector('.js-edit-toggle');
+      if (editor) editor.setAttribute('hidden', '');
+      if (toggle) toggle.textContent = 'Edit section';
+    });
+  });
+
+  // Remove a document row (Screen 4) — visual only
+  document.querySelectorAll('.doc-remove').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var row = btn.closest('.doc-row');
+      if (row) row.remove();
+    });
+  });
+})();
+</script>
+</body>
+</html>
