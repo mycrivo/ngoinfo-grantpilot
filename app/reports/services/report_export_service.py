@@ -10,6 +10,7 @@ from typing import Any, Protocol
 from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError
+from app.models.ngo_profile import NGOProfile
 from app.reports.export.docx_renderer import build_export_filename, render_donor_report_docx
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
@@ -90,6 +91,11 @@ def export_and_persist(
     store = storage or DocumentStorageService()
 
     try:
+        profile = (
+            db.query(NGOProfile).filter(NGOProfile.user_id == report.user_id).one_or_none()
+        )
+        ngo_name = profile.organization_name if profile else "Organisation"
+        generated_at = datetime.now(timezone.utc)
         docx_bytes, render_mode = render_donor_report_docx(
             content_json=content_json,
             template_sections=template.report_sections_json or [],
@@ -100,6 +106,8 @@ def export_and_persist(
             reporting_period_end=report.reporting_period_end.isoformat(),
             funder_name=template.funder_name,
             template_name=template.template_name,
+            ngo_name=ngo_name,
+            generated_at=generated_at,
         )
         filename = build_export_filename(
             funder_name=template.funder_name,
@@ -114,7 +122,7 @@ def export_and_persist(
         )
         store.upload_bytes(storage_ref, docx_bytes, DOCX_CONTENT_TYPE)
 
-        generated_at = datetime.now(timezone.utc).isoformat()
+        generated_at = generated_at.isoformat()
         content_json["export"] = {
             "storage_ref": storage_ref,
             "filename": filename,

@@ -80,7 +80,7 @@ def get_or_create_user_plan(
     plan = db.execute(select(UserPlan).where(UserPlan.user_id == user_id)).scalar_one_or_none()
     if plan:
         return plan
-    plan = UserPlan(user_id=user_id, plan_name=PLAN_FREE)
+    plan = UserPlan(id=uuid.uuid4(), user_id=user_id, plan_name=PLAN_FREE)
     db.add(plan)
     if commit:
         db.commit()
@@ -151,6 +151,76 @@ def _reports_period_type(plan_name: str, quota: PlanQuota) -> str:
     if plan_name == PLAN_FREE:
         return quota.period_type
     return "BILLING_CYCLE"
+
+
+_REPORT_QUOTA_EXCEEDED_MESSAGE = (
+    "You have used all M&E reports for this billing period."
+)
+
+
+def _report_quota_snapshot(
+    db: Session,
+    user_id: uuid.UUID,
+    *,
+    commit: bool = True,
+) -> dict[str, int | str | None]:
+    plan = get_or_create_user_plan(db, user_id, commit=commit)
+    quota = PLAN_QUOTAS[plan.plan_name]
+    _ensure_paid_period(plan)
+    if plan.plan_name != PLAN_FREE and commit:
+        db.commit()
+
+    period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
+    period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
+    reset_at = period_end.isoformat() if period_end else None
+    reports_period = _reports_period_type(plan.plan_name, quota)
+    used = _usage_count(db, user_id, EVENT_REPORT_CREATE, period_start, period_end)
+    limit = quota.reports
+    remaining = max(limit - used, 0)
+    return {
+        "entitlement": "reports",
+        "limit": limit,
+        "used": used,
+        "remaining": remaining,
+        "period": reports_period,
+        "reset_at": reset_at if plan.plan_name != PLAN_FREE else None,
+    }
+
+
+def _raise_report_quota_exceeded(snapshot: dict[str, int | str | None]) -> None:
+    raise ForbiddenError(
+        error_code="QUOTA_EXCEEDED",
+        message=_REPORT_QUOTA_EXCEEDED_MESSAGE,
+        status_code=403,
+        details={
+            "entitlement": snapshot["entitlement"],
+            "limit": snapshot["limit"],
+            "used": snapshot["used"],
+            "remaining": 0,
+            "period": snapshot["period"],
+            "reset_at": snapshot["reset_at"],
+        },
+    )
+
+
+def _lock_user_plan_row(db: Session, user_id: uuid.UUID) -> UserPlan | None:
+    return db.execute(
+        select(UserPlan).where(UserPlan.user_id == user_id).with_for_update()
+    ).scalar_one_or_none()
+
+
+def enforce_report_create_quota(
+    db: Session,
+    user_id: uuid.UUID,
+    *,
+    commit: bool = True,
+    lock: bool = False,
+) -> None:
+    if lock:
+        _lock_user_plan_row(db, user_id)
+    snapshot = _report_quota_snapshot(db, user_id, commit=commit)
+    if int(snapshot["remaining"]) <= 0:
+        _raise_report_quota_exceeded(snapshot)
 
 
 def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
@@ -239,6 +309,9 @@ def enforce_quota(
     used = _usage_count(db, user_id, event_type, period_start, period_end)
     remaining = allowed - used
     if remaining <= 0:
+        if event_type == EVENT_REPORT_CREATE:
+            snapshot = _report_quota_snapshot(db, user_id, commit=False)
+            _raise_report_quota_exceeded(snapshot)
         raise ForbiddenError(
             error_code="QUOTA_EXCEEDED",
             message="Quota exhausted for this action.",
@@ -281,6 +354,8 @@ def record_usage(
             return existing
 
     if event_type in _QUOTA_ENFORCED_ACTIONS:
+        if event_type == EVENT_REPORT_CREATE:
+            _lock_user_plan_row(db, user_id)
         plan = get_or_create_user_plan(db, user_id, commit=commit)
         quota = PLAN_QUOTAS[plan.plan_name]
         _ensure_paid_period(plan)
@@ -293,6 +368,9 @@ def record_usage(
         used = _usage_count(db, user_id, event_type, period_start, period_end)
         remaining = allowed - used
         if remaining <= 0:
+            if event_type == EVENT_REPORT_CREATE:
+                snapshot = _report_quota_snapshot(db, user_id, commit=False)
+                _raise_report_quota_exceeded(snapshot)
             raise ForbiddenError(
                 error_code="QUOTA_EXCEEDED",
                 message="Quota exhausted for this action.",

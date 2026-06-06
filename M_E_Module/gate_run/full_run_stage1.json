@@ -1,0 +1,111 @@
+{
+  "wall_seconds": 422.0,
+  "generated": 6,
+  "failed": 2,
+  "input_tokens": 93176,
+  "output_tokens": 8067,
+  "openai_posts": 11,
+  "retries_fired": 5,
+  "sections": [
+    {
+      "section_key": "summary_and_overview",
+      "generation_status": "FAILED",
+      "failure_reason": "server_error",
+      "text_len": 0,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 0,
+      "remapped_citations": 0,
+      "auto_citations": 0
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "generation_status": "FAILED",
+      "failure_reason": "timeout",
+      "text_len": 0,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 0,
+      "remapped_citations": 0,
+      "auto_citations": 0
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 4792,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 1,
+      "remapped_citations": 0,
+      "auto_citations": 30
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 7213,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 0,
+      "remapped_citations": 0,
+      "auto_citations": 23
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 4559,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 1,
+      "remapped_citations": 0,
+      "auto_citations": 22
+    },
+    {
+      "section_key": "value_for_money",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 3406,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 6,
+      "remapped_citations": 0,
+      "auto_citations": 27
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 2496,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 0,
+      "remapped_citations": 0,
+      "auto_citations": 24
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "generation_status": "GENERATED",
+      "failure_reason": null,
+      "text_len": 1622,
+      "critic_flags_total": 0,
+      "critic_blocks": 0,
+      "dropped_citations": 0,
+      "remapped_citations": 0,
+      "auto_citations": 3
+    }
+  ],
+  "hard_gate": {
+    "passed": false,
+    "generated": 6,
+    "failed": 2,
+    "timeout_sections": [
+      "performance_and_conclusions"
+    ],
+    "failed_sections": [
+      "summary_and_overview",
+      "performance_and_conclusions"
+    ]
+  }
+}

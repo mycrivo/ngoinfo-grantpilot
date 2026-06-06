@@ -10,6 +10,8 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.errors import ConflictError, DomainError, NotFoundError
+from app.models.usage_ledger import UsageActionType
+from app.services.quota_service import enforce_report_create_quota, record_usage
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import (
     DonorReportStatus,
@@ -109,6 +111,8 @@ def create_donor_report(
     template = _resolve_funder_template(
         db, funder_report_template_id=funder_report_template_id
     )
+    enforce_report_create_quota(db, user_id, commit=False, lock=True)
+
     now = datetime.now(timezone.utc)
     report = DonorReport(
         id=uuid.uuid4(),
@@ -126,8 +130,23 @@ def create_donor_report(
         created_at=now,
         updated_at=now,
     )
-    db.add(report)
-    db.commit()
+    try:
+        db.add(report)
+        db.flush()
+        record_usage(
+            db,
+            user_id,
+            UsageActionType.REPORT_CREATE.value,
+            idempotency_key=f"report:create:{report.id}",
+            commit=False,
+        )
+        db.commit()
+    except DomainError:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
     db.refresh(report)
     logger.info("donor_report_created id=%s user_id=%s", report.id, user_id)
     return report

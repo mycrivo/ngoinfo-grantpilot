@@ -17,7 +17,7 @@ router = APIRouter(tags=["reports"])
 
 
 @router.post(
-    "/api/reports/donor-reports/{donor_report_id}/knowledge-bank/gate3/confirm",
+    "/api/reports/{donor_report_id}/knowledge-bank/gate3/confirm",
     response_model=Gate3ConfirmResponse,
 )
 def confirm_gate3_review(

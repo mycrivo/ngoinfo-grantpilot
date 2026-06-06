@@ -1,0 +1,41 @@
+---
+description: M&E modular monolith isolation — one-way dependency, one seam, killable module
+alwaysApply: true
+---
+
+# M&E isolation (cardinal rule)
+
+## One-way dependency
+
+- **`app/reports/` may import core** (`app.services`, `app.models`, `app.core`, `app.ai`, `app.integrations`, `app.api.dependencies`).
+- **Core must NEVER import `app.reports`.** Enforced by `.cursor/hooks/isolation_veto.py`.
+
+## Single mounting seam (backend)
+
+The **only** core file that may reference M&E is `app/main.py`, and only as:
+
+```python
+if settings.ME_MODULE_ENABLED:
+    from app.reports.router import router as reports_router
+    app.include_router(reports_router)
+```
+
+No other `app.reports` imports anywhere under core paths.
+
+## Single mounting seam (frontend — separate repo)
+
+- Feature flag (e.g. `NEXT_PUBLIC_ME_MODULE_ENABLED`) + `/reports/*` routes.
+- Un-mount API router + flag off UI = code kill switch.
+
+## Data isolation
+
+- Four M&E tables only; FKs **inward** to core (`users`, `proposals` nullable).
+- **No** core table FKs to M&E tables.
+- **No** core migration alters core tables for M&E.
+
+## Runtime isolation
+
+- Agent pipeline runs in **background worker** (`Procfile` worker line), not sync API path.
+- Worker scale-to-0 = runtime kill switch.
+
+See `docs/artefacts/me_module/ME_MODULE_KILL_SWITCH.md` and `REPO_MAP_ME_MODULE.md`.

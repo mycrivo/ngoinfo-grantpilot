@@ -7,7 +7,7 @@ queued ``report_jobs`` row so ``poll_once`` / ``claim_next_job`` can be exercise
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -15,7 +15,11 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.models.ngo_profile import NGOProfile
+from app.models.usage_ledger import UsageLedger
 from app.models.user import User
+from app.models.user_plan import UserPlan
+from app.services.quota_service import PLAN_FREE, PLAN_IMPACT
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import ReportJobStage, ReportJobStatus
 from app.reports.models.funder_report_template import FunderReportTemplate
@@ -53,6 +57,9 @@ def create_worker_validation_sessionmaker():
 
     tables = (
         User.__table__,
+        NGOProfile.__table__,
+        UserPlan.__table__,
+        UsageLedger.__table__,
         FunderReportTemplate.__table__,
         DonorReport.__table__,
         UploadedDocument.__table__,
@@ -72,6 +79,42 @@ def create_worker_validation_sessionmaker():
             column.server_default = originals.get((table.name, column.name))
 
     return sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+
+def seed_user_plan(
+    session: Session,
+    user_id: uuid.UUID,
+    *,
+    plan_name: str = PLAN_IMPACT,
+) -> UserPlan:
+    now = datetime.now(timezone.utc)
+    period_start = now
+    period_end = now + timedelta(days=30)
+    existing = session.query(UserPlan).filter(UserPlan.user_id == user_id).one_or_none()
+    if existing is not None:
+        existing.plan_name = plan_name
+        existing.plan_activated_at = period_start
+        existing.billing_period_start = (
+            period_start if plan_name != PLAN_FREE else None
+        )
+        existing.billing_period_end = period_end if plan_name != PLAN_FREE else None
+        existing.updated_at = now
+        session.flush()
+        return existing
+
+    plan = UserPlan(
+        id=uuid.uuid4(),
+        user_id=user_id,
+        plan_name=plan_name,
+        plan_activated_at=period_start,
+        billing_period_start=period_start if plan_name != PLAN_FREE else None,
+        billing_period_end=period_end if plan_name != PLAN_FREE else None,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(plan)
+    session.flush()
+    return plan
 
 
 def seed_queued_report_job(

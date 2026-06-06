@@ -1,0 +1,889 @@
+{
+  "report_id": "fda69a23-7e31-4ff9-afaf-0b5486eac54b",
+  "prior_walk_report_id": "5026ab66-9e30-413b-a823-7931c16fe435",
+  "precondition": {
+    "github_main_sha_prefix": "cd15e37",
+    "f1_hygiene_live": true
+  },
+  "upload_set": [
+    "01_FCDO_BridgeLight_Winning_Proposal.docx",
+    "02_FCDO_BridgeLight_Award_Letter.docx",
+    "BridgeLight Logframe and Finance AR1 Export.xlsx"
+  ],
+  "doc03_omitted_reason": "Answer-key Document 3 is spreadsheet content fully carried by the .xlsx; the .docx duplicate only triggers DEGRADED_EXTRACTION_UNPARSEABLE without unique planted conflicts.",
+  "reconcile": {
+    "outcome": "complete",
+    "conflicts_pre_gate1": []
+  },
+  "gate2": {
+    "answered": [
+      "summary_and_overview:indicator:overall_progress",
+      "performance_and_conclusions:table:outcome_assessment",
+      "detailed_output_scoring:indicator:output_scores",
+      "evidence_and_evaluation:indicator:evidence_base_strength",
+      "evidence_and_evaluation:indicator:new_evidence",
+      "evidence_and_evaluation:indicator:evaluation_progress",
+      "evidence_and_evaluation:indicator:data_quality_limitations",
+      "risk_and_safeguarding:indicator:new_risks",
+      "risk_and_safeguarding:indicator:realised_assumptions",
+      "risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+      "risk_and_safeguarding:indicator:climate_environment_risk",
+      "risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+      "programme_management_delivery_commercial_financial:indicator:partner_performance",
+      "programme_management_delivery_commercial_financial:indicator:financial_delivery",
+      "programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+      "recommendations_and_actions:indicator:recommendations_from_current_review",
+      "recommendations_and_actions:indicator:updates_on_previous_recommendations",
+      "recommendations_and_actions:indicator:priorities_for_next_period",
+      "recommendations_and_actions:table:recommendations_action_plan"
+    ],
+    "skipped": [
+      "summary_and_overview:indicator:main_results_achieved",
+      "summary_and_overview:indicator:main_issues",
+      "summary_and_overview:indicator:key_recommendations",
+      "summary_and_overview:table:review_summary_sheet",
+      "performance_and_conclusions:indicator:outcome_indicators",
+      "performance_and_conclusions:indicator:progress_against_expected_results",
+      "performance_and_conclusions:indicator:major_deviations",
+      "performance_and_conclusions:indicator:gender_age_or_vulnerable_group_disaggregation_where_relevant",
+      "detailed_output_scoring:indicator:impact_weightings",
+      "detailed_output_scoring:indicator:risk_ratings",
+      "detailed_output_scoring:table:output_score_table",
+      "value_for_money:indicator:economy",
+      "value_for_money:indicator:efficiency",
+      "value_for_money:indicator:effectiveness",
+      "value_for_money:indicator:equity",
+      "value_for_money:indicator:cost_drivers",
+      "value_for_money:indicator:forecast_vs_actual_costs",
+      "value_for_money:indicator:commercial_improvement_where_relevant",
+      "value_for_money:table:vfm_measures",
+      "programme_management_delivery_commercial_financial:indicator:supplier_or_consultant_performance",
+      "programme_management_delivery_commercial_financial:indicator:forecast_vs_actual_spend",
+      "programme_management_delivery_commercial_financial:indicator:commercial_or_procurement_issues"
+    ],
+    "gap_item_keys": [
+      "detailed_output_scoring:indicator:impact_weightings",
+      "detailed_output_scoring:indicator:output_scores",
+      "detailed_output_scoring:indicator:risk_ratings",
+      "detailed_output_scoring:table:output_score_table",
+      "evidence_and_evaluation:indicator:data_quality_limitations",
+      "evidence_and_evaluation:indicator:evaluation_progress",
+      "evidence_and_evaluation:indicator:evidence_base_strength",
+      "evidence_and_evaluation:indicator:new_evidence",
+      "performance_and_conclusions:indicator:gender_age_or_vulnerable_group_disaggregation_where_relevant",
+      "performance_and_conclusions:indicator:major_deviations",
+      "performance_and_conclusions:indicator:outcome_indicators",
+      "performance_and_conclusions:indicator:progress_against_expected_results",
+      "performance_and_conclusions:table:outcome_assessment",
+      "programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+      "programme_management_delivery_commercial_financial:indicator:commercial_or_procurement_issues",
+      "programme_management_delivery_commercial_financial:indicator:financial_delivery",
+      "programme_management_delivery_commercial_financial:indicator:forecast_vs_actual_spend",
+      "programme_management_delivery_commercial_financial:indicator:partner_performance",
+      "programme_management_delivery_commercial_financial:indicator:supplier_or_consultant_performance",
+      "recommendations_and_actions:indicator:priorities_for_next_period",
+      "recommendations_and_actions:indicator:recommendations_from_current_review",
+      "recommendations_and_actions:indicator:updates_on_previous_recommendations",
+      "recommendations_and_actions:table:recommendations_action_plan",
+      "risk_and_safeguarding:indicator:climate_environment_risk",
+      "risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+      "risk_and_safeguarding:indicator:new_risks",
+      "risk_and_safeguarding:indicator:realised_assumptions",
+      "risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+      "summary_and_overview:indicator:key_recommendations",
+      "summary_and_overview:indicator:main_issues",
+      "summary_and_overview:indicator:main_results_achieved",
+      "summary_and_overview:indicator:overall_progress",
+      "summary_and_overview:table:review_summary_sheet",
+      "value_for_money:indicator:commercial_improvement_where_relevant",
+      "value_for_money:indicator:cost_drivers",
+      "value_for_money:indicator:economy",
+      "value_for_money:indicator:effectiveness",
+      "value_for_money:indicator:efficiency",
+      "value_for_money:indicator:equity",
+      "value_for_money:indicator:forecast_vs_actual_costs",
+      "value_for_money:table:vfm_measures"
+    ]
+  },
+  "f1_hygiene_audit": {
+    "citation_resolution_block_count": 37,
+    "prior_walk_citation_resolution_blocks_approx": 55,
+    "total_critic_blocks": 37,
+    "citation_resolution_flags": [
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The cited source fact:indicators.OP4_1_district_meetings.AR1_actual confirms the actual of 3, but no cited source provides the target of four for OP4.1. The target is not present in evidence_used[] or cited_sources.",
+        "claim_text": "three district learning meetings were held against a target of four"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "Neither the actual value of 136 nor the target of 120 for this indicator appears in any cited source within evidence_used[].",
+        "claim_text": "136 school or community actors were trained on girls' re-entry and safeguarding protocols against a target of 120"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The figure of 16 deduplicated caregiver records is not present in any cited source within evidence_used[].",
+        "claim_text": "deduplicating 16 caregiver records before payment"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "Neither the budget figure of GBP 880,000 nor the actual spend of GBP 920,420 appears in any cited source within evidence_used[].",
+        "claim_text": "total output-line budget of GBP 880,000 against actual spend of GBP 920,420"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The partner return period of 01-Oct-24 to 30-Sep-25 is not present in any cited source within evidence_used[].",
+        "claim_text": "partner returns used the period 01-Oct-24 to 30-Sep-25"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The specific figure of three schools lacking a female focal teacher is not present in any cited source within evidence_used[].",
+        "claim_text": "Three schools lacked a female focal teacher for menstrual health training"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The specific figure of four schools submitting late registers is not present in any cited source within evidence_used[].",
+        "claim_text": "Four schools submitted attendance registers late"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "The specific figure of four latrine units awaiting disposal bins is not present in any cited source within evidence_used[].",
+        "claim_text": "finish disposal bins at four latrine units"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "Neither OP4.3 actual (136) nor its target (120) appears in any cited source value. No fact: or gap: key in evidence_used[] supplies these figures.",
+        "claim_text": "136 school or community actors were trained on girls' re-entry and safeguarding protocols against a target of 120"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "OP4.3 milestone target of 120 is not present in any cited source value in evidence_used[].",
+        "claim_text": "target of 120"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "OP4.1 actual (3) and milestone (4) are not present in any cited source value in evidence_used[].",
+        "claim_text": "3 district learning meetings held against a milestone of 4"
+      },
+      {
+        "section_key": "evidence_and_evaluation",
+        "severity": "BLOCK",
+        "reason": "The cited sources include fact:indicators.OP4_3_actors_trained.AR1_actual = 136 (VERIFIED), but no source in evidence_used[] provides a milestone target of 120 for OP4.3. There is no fact:indicators.OP4_3_actors_trained.AR1_milestone_target in cited_sources.",
+        "claim_text": "OP4.3 trained 136 school or community actors against a target of 120"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "OP3.1 actual spend of 151440 is not present in any cited source. fact:financials.OP3_1.AR1_budget confirms budget of 146000, but no source for OP3.1 actual spend is included in evidence_used or cited_sources.",
+        "claim_text": "OP3.1 spent 151440 against 146000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "Neither OP3.2 budget (103000) nor OP3.2 actual spend (109250) appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP3.2 spent 109250 against 103000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "Neither OP4.3 budget (54000) nor OP4.3 actual spend (58630) appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP4.3 spent 58630 against 54000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "Neither OP3.3 budget (31000) nor OP3.3 actual spend (24980) appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP3.3 spent 24980 against 31000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "Neither OP4.1 budget (39000) nor OP4.1 actual spend (32700) appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP4.1 spent 32700 against 39000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 684 and 650 for OP1.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP1.1 reached 684 girls re-enrolled or newly retained against a milestone of 650"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 438 and 420 for OP1.3 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP1.3 reached 438 girls completing remedial sessions against 420"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 31 and 24 for OP2.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP2.1 delivered 31 latrine stances against 24"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 392 and 400 for OP3.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP3.1 reached 392 caregivers receiving hardship grants against 400"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 571 and 550 for OP3.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP3.2 reached 571 girls receiving re-entry kits or learning materials against 550"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 136 and 120 for OP4.3 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP4.3 reached 136 actors trained against 120"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 472 and 500 for OP1.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP1.2 recorded 472 girls attending at least eighty percent of school days against a milestone of 500"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values 17 and 20 for OP2.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "OP2.2 reached 17 schools with menstrual health supplies and trained focal teachers against a milestone of 20"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The value 136 for actors trained does not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "reaching 136 people in AR1"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The number three for district learning meetings does not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "three district learning meetings"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The values GBP 694860 and GBP 653000 do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "sampled Year 1 lines totalled actual spend of GBP 694860 against forecast GBP 653000"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The partner review period dates do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "review period of 01-Oct-24 to thirty September twenty twenty-five"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "The award letter dates do not appear in any cited source in evidence_used or cited_sources.",
+        "claim_text": "award letter cites fifteen October twenty twenty-four to fourteen October twenty twenty-five"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The OP2.1 actual spend of 148900 is supported by fact:financials.OP2_1.AR1_actual_spend, but no cited source provides an OP2.1 AR1 budget figure of 121000. This budget value is not present in any cited source.",
+        "claim_text": "actual spend was 148900 against a budget of 121000"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "Neither the figure of 17 schools reached nor the milestone target of 20 schools for OP2.2 menstrual health supply appears in any cited source.",
+        "claim_text": "the programme reached 17 schools against an AR1 milestone target of 20"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The specific figure of three schools lacking a female focal teacher is not supported by any cited source in evidence_used[].",
+        "claim_text": "three schools lacked a female focal teacher for menstrual health training"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The specific figure of 16 caregiver records deduplicated is not supported by any cited source in evidence_used[].",
+        "claim_text": "duplicate-payment risk in 16 caregiver records"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The specific dates 2024-10-15 to 2025-10-14 for the Annual Review period are not present in any cited source in evidence_used[].",
+        "claim_text": "the award letter set the Annual Review period as 2024-10-15 to 2025-10-14"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The specific partner reporting dates 01-Oct-24 to 30-Sep-25 are not present in any cited source in evidence_used[].",
+        "claim_text": "partner returns used 01-Oct-24 to 30-Sep-25"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "The specific submission deadline of 2025-11-21 is not present in any cited source in evidence_used[].",
+        "claim_text": "pack due by 2025-11-21"
+      }
+    ],
+    "evidence_used_non_ascii_digit_keys": [],
+    "prose_control_char_hits": [],
+    "dropped_citations": [
+      {
+        "section_key": "summary_and_overview",
+        "dropped": "fact:indicators.OP4_4_district_meetings.ARI_milestone_target"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "dropped": "fact:indicators.OP4_3_actors_trained.ARI_actual"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "{}"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "fact:indicators.OP4_1_district_meetings.ARI_milestone_target"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "fact:indicators.OP4_1_district_meetings.ARI_actual"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "fact:indicators.OP4_3_actors_trained.ARI_actual"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "fact:indicators.OP4_3_actors_trained.ARI_milestone_target"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "gap:update_on_previous_recommendations"
+      },
+      {
+        "section_key": "evidence_and_evaluation",
+        "dropped": "fact:title"
+      },
+      {
+        "section_key": "value_for_money",
+        "dropped": "fact:financials.OP3_0.AR"
+      }
+    ],
+    "evidence_used_count": 153
+  },
+  "three_layer_scoring": [
+    {
+      "num": 1,
+      "issue_type": "Output actual mismatch",
+      "planted_problem": "OP1.1 actual for girls re-enrolled is stated in the proposal narrative as 612 girls by 16 Sept 2025, but spreadsheet shows 684 actual achieved.",
+      "true_intended": "684 is intended final AR1 actual; 612 is stale proposal-pack note.",
+      "expected_catch_layer": "Reconciler should flag numeric contradiction before output scoring.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP1.1 reached 684 girls re-enrolled or newly retained against a milestone of 650\", \"reason\": \"The values 684 and 650 for OP1.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 2,
+      "issue_type": "Missing indicator row",
+      "planted_problem": "Proposal includes OP2.3: schools with active safeguarding referral pathway tested through termly case-review meeting, but spreadsheet has no OP2.3 row.",
+      "true_intended": "Indicator required; data missing.",
+      "expected_catch_layer": "Gap agent must request OP2.3 actual, evidence source, variance explanation and score.",
+      "caught_at": "GAP",
+      "evidence": [
+        "gap item_key=summary_and_overview:indicator:overall_progress",
+        "gap item_key=risk_and_safeguarding:indicator:safeguarding_risk_where_relevant ref=safeguarding_risk_where_relevant"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 3,
+      "issue_type": "Missing indicator row",
+      "planted_problem": "Proposal includes OP4.2: number of learning briefs produced and shared, but spreadsheet has no OP4.2 row.",
+      "true_intended": "Indicator required; data missing.",
+      "expected_catch_layer": "Gap agent must request learning brief count, evidence and explanation.",
+      "caught_at": "GAP",
+      "evidence": [
+        "gap item_key=summary_and_overview:indicator:overall_progress"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 4,
+      "issue_type": "Budget mismatch",
+      "planted_problem": "Proposal and spreadsheet are based on \u00a31,184,000 full project budget / old envelope; award letter approves \u00a31,240,000.",
+      "true_intended": "\u00a31,240,000 is the official grant amount.",
+      "expected_catch_layer": "Summary sheet, VfM and forecast-vs-actual review must not silently use old proposal total.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"total output-line budget of GBP 880,000 against actual spend of GBP 920,420\", \"reason\": \"Neither the budget figure of GBP 880,000 nor the actual spend of GBP 920,420 appears in any cited source within evidence_used[].\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.1 spent 151440 against 146000\", \"reason\": \"OP3.1 actual spend of 151440 is not present in any cited source. fact:financials.OP3_1.AR1_budget confirms budget of 146000, but no source for OP3.1 actual spend is included in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.2 spent 109250 against 103000\", \"reason\": \"Neither OP3.2 budget (103000) nor OP3.2 actual spend (109250) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.3 spent 58630 against 54000\", \"reason\": \"Neither OP4.3 budget (54000) nor OP4.3 actual spend (58630) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.3 spent 24980 against 31000\", \"reason\": \"Neither OP3.3 budget (31000) nor OP3.3 actual spend (24980) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.1 spent 32700 against 39000\", \"reason\": \"Neither OP4.1 budget (39000) nor OP4.1 actual spend (32700) appear in any cited source in evidence_used or cited_sources.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 5,
+      "issue_type": "Date mismatch",
+      "planted_problem": "Proposal expects project period 1 Oct 2024-30 Sept 2026 and AR1 Oct 2024-Sept 2025; award letter says project period 15 Oct 2024-14 Oct 2026 and AR1 15 Oct 2024-14 Oct 2025. Spreadsheet note still uses 1 Oct-30 Sept.",
+      "true_intended": "15 Oct 2024-14 Oct 2025 for AR1; 15 Oct 2024-14 Oct 2026 project period.",
+      "expected_catch_layer": "Report summary sheet and annual review period should be flagged for human confirmation.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"partner returns used the period 01-Oct-24 to 30-Sep-25\", \"reason\": \"The partner return period of 01-Oct-24 to 30-Sep-25 is not present in any cited source within evidence_used[].\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"review period of 01-Oct-24 to thirty September twenty twenty-five\", \"reason\": \"The partner review period dates do not appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"partner returns used 01-Oct-24 to 30-Sep-25\", \"reason\": \"The specific partner reporting dates 01-Oct-24 to 30-Sep-25 are not present in any cited source in evidence_used[].\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 6,
+      "issue_type": "Forecast-vs-actual scope ambiguity",
+      "planted_problem": "Spreadsheet total forecast/actual is AR1 only: forecast \u00a3880,000, actual \u00a3920,420. Proposal budget is full project \u00a31,184,000. Award letter is full award \u00a31,240,000.",
+      "true_intended": "Use \u00a3920,420 actual AR1 spend against \u00a3880,000 AR1 forecast, while keeping \u00a31,240,000 as official full grant.",
+      "expected_catch_layer": "VfM and financial performance agent must not compare AR1 actual directly with full two-year award.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"total output-line budget of GBP 880,000 against actual spend of GBP 920,420\", \"reason\": \"Neither the budget figure of GBP 880,000 nor the actual spend of GBP 920,420 appears in any cited source within evidence_used[].\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.1 spent 151440 against 146000\", \"reason\": \"OP3.1 actual spend of 151440 is not present in any cited source. fact:financials.OP3_1.AR1_budget confirms budget of 146000, but no source for OP3.1 actual spend is included in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.2 spent 109250 against 103000\", \"reason\": \"Neither OP3.2 budget (103000) nor OP3.2 actual spend (109250) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.3 spent 58630 against 54000\", \"reason\": \"Neither OP4.3 budget (54000) nor OP4.3 actual spend (58630) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.3 spent 24980 against 31000\", \"reason\": \"Neither OP3.3 budget (31000) nor OP3.3 actual spend (24980) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.1 spent 32700 against 39000\", \"reason\": \"Neither OP4.1 budget (39000) nor OP4.1 actual spend (32700) appear in any cited source in evidence_used or cited_sources.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 7,
+      "issue_type": "Disaggregation arithmetic error",
+      "planted_problem": "OP1.1 actual is 684, but female disaggregation cells sum to 681: 58 + 590 + 33.",
+      "true_intended": "True actual is 684; disaggregation is short by 3.",
+      "expected_catch_layer": "Disaggregation checker should flag sum mismatch.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.3 spent 58630 against 54000\", \"reason\": \"Neither OP4.3 budget (54000) nor OP4.3 actual spend (58630) appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP1.1 reached 684 girls re-enrolled or newly retained against a milestone of 650\", \"reason\": \"The values 684 and 650 for OP1.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 8,
+      "issue_type": "Disaggregation category problem",
+      "planted_problem": "OP3.1 is caregivers receiving hardship grants, but gender/age disaggregation appears under male child/adolescent age bands instead of caregiver sex/age bands.",
+      "true_intended": "Actual 392 caregivers is intended, but beneficiary disaggregation is invalid/misaligned.",
+      "expected_catch_layer": "Engine should ask for correct caregiver gender/age/vulnerability split.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"deduplicating 16 caregiver records before payment\", \"reason\": \"The figure of 16 deduplicated caregiver records is not present in any cited source within evidence_used[].\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"OP3.1 reached 392 caregivers receiving hardship grants against 400\", \"reason\": \"The values 392 and 400 for OP3.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"duplicate-payment risk in 16 caregiver records\", \"reason\": \"The specific figure of 16 caregiver records deduplicated is not supported by any cited source in evidence_used[].\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 9,
+      "issue_type": "Awkward formatting / buried fact",
+      "planted_problem": "Award letter buries reporting period mid-paragraph; proposal uses GBP 1.184m, \u00a31.18 million and \u00a31,184,000; award uses GBP 1,240,000.",
+      "true_intended": "Official award value \u00a31,240,000; official AR1 period 15 Oct 2024-14 Oct 2025.",
+      "expected_catch_layer": "Extractor should handle inconsistent money formats and buried contractual facts.",
+      "caught_at": "NOT CAUGHT",
+      "evidence": [],
+      "dangerous_unflagged_in_prose": []
+    }
+  ],
+  "dangerous_unflagged": [],
+  "false_positives": [],
+  "critique_trace": {
+    "action": "critique_completed",
+    "flagged": 5,
+    "skipped": 0,
+    "verified": 3,
+    "unverified": 0,
+    "completed_at": "2026-06-01T17:25:13.935731+00:00",
+    "critic_blocks": 37,
+    "section_count": 8,
+    "gate2_confirmed_at": "2026-06-01T17:20:33.263911+00:00"
+  },
+  "cost": {
+    "claude_upstream_input": 48,
+    "claude_upstream_output": 45252,
+    "claude_critic_input": 0,
+    "claude_critic_output": 0,
+    "claude_critic_model": null,
+    "claude_total_input": 48,
+    "claude_total_output": 45252,
+    "claude_usd": 0.22630799999999998,
+    "openai_input_tokens": 0,
+    "openai_output_tokens": 0,
+    "openai_usd": 0.0,
+    "total_usd": 0.22630799999999998
+  },
+  "sections_summary": [
+    {
+      "section_key": "summary_and_overview",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 8,
+      "critic_flags": [
+        {
+          "reason": "The cited source fact:indicators.OP4_1_district_meetings.AR1_actual confirms the actual of 3, but no cited source provides the target of four for OP4.1. The target is not present in evidence_used[] or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "three district learning meetings were held against a target of four",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither the actual value of 136 nor the target of 120 for this indicator appears in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "136 school or community actors were trained on girls' re-entry and safeguarding protocols against a target of 120",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The figure of 16 deduplicated caregiver records is not present in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "deduplicating 16 caregiver records before payment",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither the budget figure of GBP 880,000 nor the actual spend of GBP 920,420 appears in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "total output-line budget of GBP 880,000 against actual spend of GBP 920,420",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The partner return period of 01-Oct-24 to 30-Sep-25 is not present in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "partner returns used the period 01-Oct-24 to 30-Sep-25",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific figure of three schools lacking a female focal teacher is not present in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "Three schools lacked a female focal teacher for menstrual health training",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific figure of four schools submitting late registers is not present in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "Four schools submitted attendance registers late",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific figure of four latrine units awaiting disposal bins is not present in any cited source within evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "finish disposal bins at four latrine units",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "generation_status": "GENERATED",
+      "critic_flags_count": 0,
+      "critic_flags": []
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 3,
+      "critic_flags": [
+        {
+          "reason": "Neither OP4.3 actual (136) nor its target (120) appears in any cited source value. No fact: or gap: key in evidence_used[] supplies these figures.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "136 school or community actors were trained on girls' re-entry and safeguarding protocols against a target of 120",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "OP4.3 milestone target of 120 is not present in any cited source value in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "target of 120",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "OP4.1 actual (3) and milestone (4) are not present in any cited source value in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "3 district learning meetings held against a milestone of 4",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 1,
+      "critic_flags": [
+        {
+          "reason": "The cited sources include fact:indicators.OP4_3_actors_trained.AR1_actual = 136 (VERIFIED), but no source in evidence_used[] provides a milestone target of 120 for OP4.3. There is no fact:indicators.OP4_3_actors_trained.AR1_milestone_target in cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP4.3 trained 136 school or community actors against a target of 120",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "generation_status": "GENERATED",
+      "critic_flags_count": 0,
+      "critic_flags": []
+    },
+    {
+      "section_key": "value_for_money",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 18,
+      "critic_flags": [
+        {
+          "reason": "OP3.1 actual spend of 151440 is not present in any cited source. fact:financials.OP3_1.AR1_budget confirms budget of 146000, but no source for OP3.1 actual spend is included in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP3.1 spent 151440 against 146000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither OP3.2 budget (103000) nor OP3.2 actual spend (109250) appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP3.2 spent 109250 against 103000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither OP4.3 budget (54000) nor OP4.3 actual spend (58630) appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP4.3 spent 58630 against 54000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither OP3.3 budget (31000) nor OP3.3 actual spend (24980) appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP3.3 spent 24980 against 31000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither OP4.1 budget (39000) nor OP4.1 actual spend (32700) appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP4.1 spent 32700 against 39000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 684 and 650 for OP1.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP1.1 reached 684 girls re-enrolled or newly retained against a milestone of 650",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 438 and 420 for OP1.3 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP1.3 reached 438 girls completing remedial sessions against 420",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 31 and 24 for OP2.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP2.1 delivered 31 latrine stances against 24",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 392 and 400 for OP3.1 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP3.1 reached 392 caregivers receiving hardship grants against 400",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 571 and 550 for OP3.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP3.2 reached 571 girls receiving re-entry kits or learning materials against 550",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 136 and 120 for OP4.3 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP4.3 reached 136 actors trained against 120",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 472 and 500 for OP1.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP1.2 recorded 472 girls attending at least eighty percent of school days against a milestone of 500",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values 17 and 20 for OP2.2 indicator actuals and milestone do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP2.2 reached 17 schools with menstrual health supplies and trained focal teachers against a milestone of 20",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The value 136 for actors trained does not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "reaching 136 people in AR1",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The number three for district learning meetings does not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "three district learning meetings",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The values GBP 694860 and GBP 653000 do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "sampled Year 1 lines totalled actual spend of GBP 694860 against forecast GBP 653000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The partner review period dates do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "review period of 01-Oct-24 to thirty September twenty twenty-five",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The award letter dates do not appear in any cited source in evidence_used or cited_sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "award letter cites fifteen October twenty twenty-four to fourteen October twenty twenty-five",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 7,
+      "critic_flags": [
+        {
+          "reason": "The OP2.1 actual spend of 148900 is supported by fact:financials.OP2_1.AR1_actual_spend, but no cited source provides an OP2.1 AR1 budget figure of 121000. This budget value is not present in any cited source.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "actual spend was 148900 against a budget of 121000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither the figure of 17 schools reached nor the milestone target of 20 schools for OP2.2 menstrual health supply appears in any cited source.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "the programme reached 17 schools against an AR1 milestone target of 20",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific figure of three schools lacking a female focal teacher is not supported by any cited source in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "three schools lacked a female focal teacher for menstrual health training",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific figure of 16 caregiver records deduplicated is not supported by any cited source in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "duplicate-payment risk in 16 caregiver records",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific dates 2024-10-15 to 2025-10-14 for the Annual Review period are not present in any cited source in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "the award letter set the Annual Review period as 2024-10-15 to 2025-10-14",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific partner reporting dates 01-Oct-24 to 30-Sep-25 are not present in any cited source in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "partner returns used 01-Oct-24 to 30-Sep-25",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The specific submission deadline of 2025-11-21 is not present in any cited source in evidence_used[].",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "pack due by 2025-11-21",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "generation_status": "GENERATED",
+      "critic_flags_count": 0,
+      "critic_flags": []
+    }
+  ],
+  "final_job": {
+    "stage": "export",
+    "status": "awaiting_human"
+  },
+  "gap_retry": true
+}

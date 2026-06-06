@@ -1,0 +1,50 @@
+---
+description: Backend contract-first patterns — migrations, models, enums, field contracts
+globs: app/**/*.py,alembic/**/*.py,docs/artefacts/**/*.md
+alwaysApply: false
+---
+
+# Backend contract-first
+
+## Triple parity (required for every new column)
+
+Migration SQL column name = SQLAlchemy `mapped_column("db_name", ...)` = `DB_FIELD_CONTRACT_*.md` field name.
+
+**Standard pattern** (existing core — follow this):
+
+```python
+# app/models/usage_ledger.py
+event_type: Mapped[str] = mapped_column("action_type", Text, ...)
+occurred_at: Mapped[DateTime] = mapped_column("created_at", ...)
+metadata_json: Mapped[dict] = mapped_column("metadata", JSONB, ...)
+```
+
+When Python attribute name differs from DB column, **always** pass the DB name as the first positional arg to `mapped_column`.
+
+## M&E JSONB columns
+
+Canonical `_json` suffix: `report_sections_json`, `format_rules_json`, `terminology_map_json`, `knowledge_bank_json`, `content_json`, `extracted_json`, `agent_trace_json`, `indicator_actuals_json`.
+
+## Enum alignment
+
+Report/job/document enums must match across:
+
+1. Migration `CHECK` constraints
+2. SQLAlchemy model constraints/comments
+3. Pydantic schemas in `app/reports/schemas/`
+4. `docs/artefacts/ENUM_REGISTRY.md`
+
+## Routes → services → models
+
+- Routes validate (Pydantic) → call service → return envelope per `API_CONTRACT.md`.
+- Business logic in services; no M&E logic in core routes.
+
+## Alembic
+
+- Never edit old migrations; add new revisions only.
+- Register M&E models in `alembic/env.py` when created (Stage C).
+- Hook `migration_parity_check.py` flags model/migration drift.
+
+## M&E migrations location
+
+New revisions: `alembic/versions/0014_me_module_*.py` onward — M&E tables only, no core table changes.

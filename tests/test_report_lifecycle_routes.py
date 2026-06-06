@@ -11,11 +11,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+import app.core.security as security
 from app.core.config import get_settings
+from app.core.config import get_settings as config_get_settings
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.main import create_app
 from app.models.user import User
+from app.services.quota_service import PLAN_IMPACT
 from app.reports.models.enums import (
     DonorReportStatus,
     ExtractionStatus,
@@ -30,9 +33,21 @@ from app.reports.services.donor_report_lifecycle_service import (
     enqueue_report_job,
     upload_document,
 )
-from tests.worker_validation_seed import create_worker_validation_sessionmaker
+from tests.worker_validation_seed import (
+    create_worker_validation_sessionmaker,
+    seed_user_plan,
+)
 
 get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def _reset_settings_cache():
+    get_settings.cache_clear()
+    security.get_settings = config_get_settings
+    yield
+    get_settings.cache_clear()
+    security.get_settings = config_get_settings
 
 
 def _settings(*, me_enabled: bool = True) -> SimpleNamespace:
@@ -57,6 +72,7 @@ def lifecycle_api():
             updated_at=now,
         )
     )
+    seed_user_plan(db, user_id, plan_name=PLAN_IMPACT)
     db.commit()
     db.close()
 
@@ -332,6 +348,7 @@ def test_unauthorized_and_non_owner_rejected(lifecycle_api):
             updated_at=now,
         )
     )
+    seed_user_plan(session, other_id, plan_name=PLAN_IMPACT)
     report = create_donor_report(
         session,
         user_id=owner_id,
@@ -350,8 +367,8 @@ def test_unauthorized_and_non_owner_rejected(lifecycle_api):
     forbidden = lifecycle_api.client.get(
         f"/api/reports/{report_id}/job", headers=other_header
     )
-    assert forbidden.status_code == 403
-    assert forbidden.json()["error_code"] == "FORBIDDEN"
+    assert forbidden.status_code == 404
+    assert forbidden.json()["error_code"] == "DONOR_REPORT_NOT_FOUND"
 
 
 def test_service_upload_unit_with_mock_storage():
@@ -368,6 +385,7 @@ def test_service_upload_unit_with_mock_storage():
             updated_at=now,
         )
     )
+    seed_user_plan(session, user_id, plan_name=PLAN_IMPACT)
     report = create_donor_report(
         session,
         user_id=user_id,

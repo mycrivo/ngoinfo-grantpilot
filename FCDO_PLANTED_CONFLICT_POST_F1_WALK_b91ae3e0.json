@@ -1,0 +1,638 @@
+{
+  "report_id": "b91ae3e0-92fb-430d-9feb-1dcd9b878b70",
+  "prior_walk_report_id": "5026ab66-9e30-413b-a823-7931c16fe435",
+  "precondition": {
+    "github_main_sha_prefix": "cd15e37",
+    "f1_hygiene_live": true
+  },
+  "upload_set": [
+    "01_FCDO_BridgeLight_Winning_Proposal.docx",
+    "02_FCDO_BridgeLight_Award_Letter.docx",
+    "BridgeLight Logframe and Finance AR1 Export.xlsx"
+  ],
+  "doc03_omitted_reason": "Answer-key Document 3 is spreadsheet content fully carried by the .xlsx; the .docx duplicate only triggers DEGRADED_EXTRACTION_UNPARSEABLE without unique planted conflicts.",
+  "reconcile": {
+    "outcome": "complete",
+    "conflicts_pre_gate1": []
+  },
+  "gate2": {
+    "answered": [
+      "summary_and_overview:indicator:overall_progress",
+      "performance_and_conclusions:table:outcome_assessment",
+      "detailed_output_scoring:indicator:output_scores",
+      "evidence_and_evaluation:indicator:evidence_base_strength",
+      "evidence_and_evaluation:indicator:new_evidence",
+      "evidence_and_evaluation:indicator:evaluation_progress",
+      "evidence_and_evaluation:indicator:data_quality_limitations",
+      "risk_and_safeguarding:indicator:new_risks",
+      "risk_and_safeguarding:indicator:realised_assumptions",
+      "risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+      "risk_and_safeguarding:indicator:climate_environment_risk",
+      "risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+      "programme_management_delivery_commercial_financial:indicator:partner_performance",
+      "programme_management_delivery_commercial_financial:indicator:financial_delivery",
+      "programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+      "recommendations_and_actions:indicator:recommendations_from_current_review",
+      "recommendations_and_actions:indicator:updates_on_previous_recommendations",
+      "recommendations_and_actions:indicator:priorities_for_next_period",
+      "recommendations_and_actions:table:recommendations_action_plan"
+    ],
+    "skipped": [
+      "summary_and_overview:indicator:main_results_achieved",
+      "summary_and_overview:indicator:main_issues",
+      "summary_and_overview:indicator:key_recommendations",
+      "summary_and_overview:table:review_summary_sheet",
+      "performance_and_conclusions:indicator:outcome_indicators",
+      "performance_and_conclusions:indicator:progress_against_expected_results",
+      "performance_and_conclusions:indicator:major_deviations",
+      "performance_and_conclusions:indicator:gender_age_or_vulnerable_group_disaggregation_where_relevant",
+      "detailed_output_scoring:indicator:impact_weightings",
+      "detailed_output_scoring:indicator:risk_ratings",
+      "detailed_output_scoring:table:output_score_table",
+      "value_for_money:indicator:economy",
+      "value_for_money:indicator:efficiency",
+      "value_for_money:indicator:effectiveness",
+      "value_for_money:indicator:equity",
+      "value_for_money:indicator:cost_drivers",
+      "value_for_money:indicator:forecast_vs_actual_costs",
+      "value_for_money:indicator:commercial_improvement_where_relevant",
+      "value_for_money:table:vfm_measures",
+      "programme_management_delivery_commercial_financial:indicator:supplier_or_consultant_performance",
+      "programme_management_delivery_commercial_financial:indicator:forecast_vs_actual_spend",
+      "programme_management_delivery_commercial_financial:indicator:commercial_or_procurement_issues"
+    ],
+    "gap_item_keys": [
+      "detailed_output_scoring:indicator:impact_weightings",
+      "detailed_output_scoring:indicator:output_scores",
+      "detailed_output_scoring:indicator:risk_ratings",
+      "detailed_output_scoring:table:output_score_table",
+      "evidence_and_evaluation:indicator:data_quality_limitations",
+      "evidence_and_evaluation:indicator:evaluation_progress",
+      "evidence_and_evaluation:indicator:evidence_base_strength",
+      "evidence_and_evaluation:indicator:new_evidence",
+      "performance_and_conclusions:indicator:gender_age_or_vulnerable_group_disaggregation_where_relevant",
+      "performance_and_conclusions:indicator:major_deviations",
+      "performance_and_conclusions:indicator:outcome_indicators",
+      "performance_and_conclusions:indicator:progress_against_expected_results",
+      "performance_and_conclusions:table:outcome_assessment",
+      "programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+      "programme_management_delivery_commercial_financial:indicator:commercial_or_procurement_issues",
+      "programme_management_delivery_commercial_financial:indicator:financial_delivery",
+      "programme_management_delivery_commercial_financial:indicator:forecast_vs_actual_spend",
+      "programme_management_delivery_commercial_financial:indicator:partner_performance",
+      "programme_management_delivery_commercial_financial:indicator:supplier_or_consultant_performance",
+      "recommendations_and_actions:indicator:priorities_for_next_period",
+      "recommendations_and_actions:indicator:recommendations_from_current_review",
+      "recommendations_and_actions:indicator:updates_on_previous_recommendations",
+      "recommendations_and_actions:table:recommendations_action_plan",
+      "risk_and_safeguarding:indicator:climate_environment_risk",
+      "risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+      "risk_and_safeguarding:indicator:new_risks",
+      "risk_and_safeguarding:indicator:realised_assumptions",
+      "risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+      "summary_and_overview:indicator:key_recommendations",
+      "summary_and_overview:indicator:main_issues",
+      "summary_and_overview:indicator:main_results_achieved",
+      "summary_and_overview:indicator:overall_progress",
+      "summary_and_overview:table:review_summary_sheet",
+      "value_for_money:indicator:commercial_improvement_where_relevant",
+      "value_for_money:indicator:cost_drivers",
+      "value_for_money:indicator:economy",
+      "value_for_money:indicator:effectiveness",
+      "value_for_money:indicator:efficiency",
+      "value_for_money:indicator:equity",
+      "value_for_money:indicator:forecast_vs_actual_costs",
+      "value_for_money:table:vfm_measures"
+    ]
+  },
+  "f1_hygiene_audit": {
+    "citation_resolution_block_count": 18,
+    "prior_walk_citation_resolution_blocks_approx": 55,
+    "total_critic_blocks": 19,
+    "citation_resolution_flags": [
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "fact:reporting_period_ar1.start and fact:reporting_period_ar1.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.",
+        "claim_text": "15 October 2024 to 14 October 2025"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "fact:reporting_deadline.annual_review_pack is cited in the prose but is NOT present in evidence_used[] or cited_sources. No admissible source confirms this date.",
+        "claim_text": "21 November 2025"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "fact:grant_period.start and fact:grant_period.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.",
+        "claim_text": "15 October 2024 to 14 October 2026"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "fact:financials.lines.TOTAL.actual and fact:financials.lines.TOTAL.budget are cited in the prose but are NOT present in evidence_used[] or cited_sources. The only financial total in cited_sources (gap:programme_management_delivery_commercial_financial:indicator:financial_delivery) states GBP 694,860 actual against GBP 653,000 forecast for sampled lines \u2014 contradicting both figures in the prose.",
+        "claim_text": "total actual spend of GBP 920,420 against a Year 1 budget of GBP 880,000"
+      },
+      {
+        "section_key": "summary_and_overview",
+        "severity": "BLOCK",
+        "reason": "fact:financials.lines.OP4.3.actual and fact:financials.lines.OP4.3.budget are not present in evidence_used[] or cited_sources. Additionally, the text is malformed (garbled characters), making the specific unverifiable.",
+        "claim_text": "OP4.3 at GBP b58,630 \u05e0\u05d2\u05d3 GBP b54,000"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "severity": "BLOCK",
+        "reason": "Neither fact:indicators.OP3.3.actual nor fact:indicators.OP3.3.target appear in cited_sources. These keys are referenced in evidence_used[] but no resolved values are provided, so the values 0.68 and 0.75 cannot be verified.",
+        "claim_text": "Verified attendance follow-up within 45 days reached 0.68 against a target of 0.75"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "The actual value 392 for OP3.1 is not present in any cited source. fact:indicators.OP3.1.target confirms 400, but no fact or gap key supplies an actual of 392 for OP3.1.",
+        "claim_text": "hardship grant delivery was close to plan at 392 against a target of 400"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "The actual value 571 for OP3.2 is not present in any cited source. fact:indicators.OP3.2.target confirms 550, but no fact or gap key supplies an actual of 571 for OP3.2.",
+        "claim_text": "learning materials distribution exceeded target at 571 against 550"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "severity": "BLOCK",
+        "reason": "Neither the actual (0.68) nor the target (0.75) for OP3.3 appear in any cited source. fact:indicators.OP3.3.actual and fact:indicators.OP3.3.target are listed in evidence_used but are not present in cited_sources with resolved values.",
+        "claim_text": "verified attendance follow-up within 45 days, which reached 0.68 against a target of 0.75"
+      },
+      {
+        "section_key": "evidence_and_evaluation",
+        "severity": "BLOCK",
+        "reason": "The value 472 for OP1.2 actual does not appear in any cited source. fact:indicators.OP1.2.target is cited and confirms 500, but no fact:indicators.OP1.2.actual is present in evidence_used or cited_sources to verify 472.",
+        "claim_text": "attendance at 80% or above reached 472 against a target of 500"
+      },
+      {
+        "section_key": "evidence_and_evaluation",
+        "severity": "BLOCK",
+        "reason": "The start date 2024-10-15 is not confirmed by any cited source. fact:reporting_period_ar1.end confirms 2025-10-14, and gap:evidence_and_evaluation:indicator:data_quality_limitations references '15-Oct to 14-Oct' without a year for the start. The prose asserts '2024-10-15' as a specific dated value not explicitly confirmed in cited sources.",
+        "claim_text": "formal Annual Review period in the award letter ran from 2024-10-15 to 2025-10-14"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "No cited source provides a TOTAL actual of 920,420. fact:financials.lines.TOTAL.actual is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 694,860 as Year 1 actual spend, which contradicts 920,420.",
+        "claim_text": "GBP 920,420"
+      },
+      {
+        "section_key": "value_for_money",
+        "severity": "BLOCK",
+        "reason": "No cited source provides a TOTAL budget of 880,000. fact:financials.lines.TOTAL.budget is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 653,000 as forecast, which contradicts 880,000.",
+        "claim_text": "GBP 880,000"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "No cited source confirms 'three schools' lacking a female focal teacher. The gap source on new risks references menstrual health supply delays and 17/20 schools but does not mention three schools lacking a female focal teacher. The recommendations source mentions 'three remaining schools' for completing menstrual health training but does not specify the reason as absence of a female focal teacher.",
+        "claim_text": "absence of a female focal teacher in three schools for menstrual health training"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "No cited source supports a total actual spend of GBP 920,420 or a total Year 1 budget of GBP 880,000. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source states 'GBP 694,860 against forecast GBP 653,000 across sampled lines', which contradicts these totals.",
+        "claim_text": "Total actual spend reached GBP 920,420 against a Year 1 budget of GBP 880,000"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "No cited source confirms the specific dates '15 October 2024 to 14 October 2025'. The gap:evidence_and_evaluation:indicator:data_quality_limitations source references '15-Oct to 14-Oct' without specifying the year 2024/2025, and fact:reporting_obligations.annual_review only states 'Annual Review'. The specific year dates are not verifiable from cited sources.",
+        "claim_text": "award letter set the first Annual Review period as 15 October 2024 to 14 October 2025"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "No cited source confirms the deadline of 21 November 2025 for the review pack submission.",
+        "claim_text": "required the review pack by 21 November 2025"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "severity": "BLOCK",
+        "reason": "No cited source confirms the number 'sixteen caregiver records'. The gap:recommendations_and_actions:indicator:updates_on_previous_recommendations mentions 'September deduplication removed double-count risk on OP1.1' but does not specify sixteen records.",
+        "claim_text": "hardship grant records were deduplicated before payment for sixteen caregiver records"
+      }
+    ],
+    "evidence_used_non_ascii_digit_keys": [],
+    "prose_control_char_hits": [],
+    "dropped_citations": [
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "fact:.start"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "fact:.end"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "gap::table:"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "gap::indicator:data_quality_limitations"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "gap::indicator:"
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "dropped": "gap::indicator:new_risks"
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "dropped": "fact:indicators.OP3.POPULATED_IF_MISSING"
+      },
+      {
+        "section_key": "risk_and_safeguarding",
+        "dropped": "fact:indicators.OP1.aactual"
+      },
+      {
+        "section_key": "value_for_money",
+        "dropped": "gap:evidence_and_evaluation:value_for_money:new_evidence"
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "dropped": "fact:indicators.OP2.,target"
+      }
+    ],
+    "evidence_used_count": 306
+  },
+  "three_layer_scoring": [
+    {
+      "num": 1,
+      "issue_type": "Output actual mismatch",
+      "planted_problem": "OP1.1 actual for girls re-enrolled is stated in the proposal narrative as 612 girls by 16 Sept 2025, but spreadsheet shows 684 actual achieved.",
+      "true_intended": "684 is intended final AR1 actual; 612 is stale proposal-pack note.",
+      "expected_catch_layer": "Reconciler should flag numeric contradiction before output scoring.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"hardship grant records were deduplicated before payment for sixteen caregiver records\", \"reason\": \"No cited source confirms the number 'sixteen caregiver records'. The gap:recommendations_and_actions:indicator:updates_on_previous_recommendations mentions 'September deduplication removed double-count risk on OP1.1' but does not specify sixteen records.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 2,
+      "issue_type": "Missing indicator row",
+      "planted_problem": "Proposal includes OP2.3: schools with active safeguarding referral pathway tested through termly case-review meeting, but spreadsheet has no OP2.3 row.",
+      "true_intended": "Indicator required; data missing.",
+      "expected_catch_layer": "Gap agent must request OP2.3 actual, evidence source, variance explanation and score.",
+      "caught_at": "GAP",
+      "evidence": [
+        "gap item_key=summary_and_overview:indicator:overall_progress",
+        "gap item_key=risk_and_safeguarding:indicator:safeguarding_risk_where_relevant ref=safeguarding_risk_where_relevant"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 3,
+      "issue_type": "Missing indicator row",
+      "planted_problem": "Proposal includes OP4.2: number of learning briefs produced and shared, but spreadsheet has no OP4.2 row.",
+      "true_intended": "Indicator required; data missing.",
+      "expected_catch_layer": "Gap agent must request learning brief count, evidence and explanation.",
+      "caught_at": "GAP",
+      "evidence": [
+        "gap item_key=summary_and_overview:indicator:overall_progress"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 4,
+      "issue_type": "Budget mismatch",
+      "planted_problem": "Proposal and spreadsheet are based on \u00a31,184,000 full project budget / old envelope; award letter approves \u00a31,240,000.",
+      "true_intended": "\u00a31,240,000 is the official grant amount.",
+      "expected_catch_layer": "Summary sheet, VfM and forecast-vs-actual review must not silently use old proposal total.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"total actual spend of GBP 920,420 against a Year 1 budget of GBP 880,000\", \"reason\": \"fact:financials.lines.TOTAL.actual and fact:financials.lines.TOTAL.budget are cited in the prose but are NOT present in evidence_used[] or cited_sources. The only financial total in cited_sources (gap:programme_management_delivery_commercial_financial:indicator:financial_delivery) states GBP 694,860 actual against GBP 653,000 forecast for sampled lines \\u2014 contradicting both figures in the prose.\"}",
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.3 at GBP b58,630 \\u05e0\\u05d2\\u05d3 GBP b54,000\", \"reason\": \"fact:financials.lines.OP4.3.actual and fact:financials.lines.OP4.3.budget are not present in evidence_used[] or cited_sources. Additionally, the text is malformed (garbled characters), making the specific unverifiable.\"}",
+        "critic_flags[] section=performance_and_conclusions: {\"severity\": \"BLOCK\", \"claim_text\": \"Total actual spend was GBP 920420 against a Year 1 budget of GBP 880000\", \"reason\": \"Neither fact:financials.lines.TOTAL.actual nor fact:financials.lines.TOTAL.budget appear in cited_sources with resolved values. The values GBP 920420 and GBP 880000 cannot be verified against any provided source. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source cites GBP 694,860 actual against GBP 653,000 forecast for sampled lines only, which does not match these totals.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"GBP 880,000\", \"reason\": \"No cited source provides a TOTAL budget of 880,000. fact:financials.lines.TOTAL.budget is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 653,000 as forecast, which contradicts 880,000.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"Total actual spend reached GBP 920,420 against a Year 1 budget of GBP 880,000\", \"reason\": \"No cited source supports a total actual spend of GBP 920,420 or a total Year 1 budget of GBP 880,000. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source states 'GBP 694,860 against forecast GBP 653,000 across sampled lines', which contradicts these totals.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 5,
+      "issue_type": "Date mismatch",
+      "planted_problem": "Proposal expects project period 1 Oct 2024-30 Sept 2026 and AR1 Oct 2024-Sept 2025; award letter says project period 15 Oct 2024-14 Oct 2026 and AR1 15 Oct 2024-14 Oct 2025. Spreadsheet note still uses 1 Oct-30 Sept.",
+      "true_intended": "15 Oct 2024-14 Oct 2025 for AR1; 15 Oct 2024-14 Oct 2026 project period.",
+      "expected_catch_layer": "Report summary sheet and annual review period should be flagged for human confirmation.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"15 October 2024 to 14 October 2025\", \"reason\": \"fact:reporting_period_ar1.start and fact:reporting_period_ar1.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.\"}",
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"15 October 2024 to 14 October 2026\", \"reason\": \"fact:grant_period.start and fact:grant_period.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"award letter set the first Annual Review period as 15 October 2024 to 14 October 2025\", \"reason\": \"No cited source confirms the specific dates '15 October 2024 to 14 October 2025'. The gap:evidence_and_evaluation:indicator:data_quality_limitations source references '15-Oct to 14-Oct' without specifying the year 2024/2025, and fact:reporting_obligations.annual_review only states 'Annual Review'. The specific year dates are not verifiable from cited sources.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 6,
+      "issue_type": "Forecast-vs-actual scope ambiguity",
+      "planted_problem": "Spreadsheet total forecast/actual is AR1 only: forecast \u00a3880,000, actual \u00a3920,420. Proposal budget is full project \u00a31,184,000. Award letter is full award \u00a31,240,000.",
+      "true_intended": "Use \u00a3920,420 actual AR1 spend against \u00a3880,000 AR1 forecast, while keeping \u00a31,240,000 as official full grant.",
+      "expected_catch_layer": "VfM and financial performance agent must not compare AR1 actual directly with full two-year award.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"total actual spend of GBP 920,420 against a Year 1 budget of GBP 880,000\", \"reason\": \"fact:financials.lines.TOTAL.actual and fact:financials.lines.TOTAL.budget are cited in the prose but are NOT present in evidence_used[] or cited_sources. The only financial total in cited_sources (gap:programme_management_delivery_commercial_financial:indicator:financial_delivery) states GBP 694,860 actual against GBP 653,000 forecast for sampled lines \\u2014 contradicting both figures in the prose.\"}",
+        "critic_flags[] section=performance_and_conclusions: {\"severity\": \"BLOCK\", \"claim_text\": \"Total actual spend was GBP 920420 against a Year 1 budget of GBP 880000\", \"reason\": \"Neither fact:financials.lines.TOTAL.actual nor fact:financials.lines.TOTAL.budget appear in cited_sources with resolved values. The values GBP 920420 and GBP 880000 cannot be verified against any provided source. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source cites GBP 694,860 actual against GBP 653,000 forecast for sampled lines only, which does not match these totals.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"GBP 920,420\", \"reason\": \"No cited source provides a TOTAL actual of 920,420. fact:financials.lines.TOTAL.actual is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 694,860 as Year 1 actual spend, which contradicts 920,420.\"}",
+        "critic_flags[] section=value_for_money: {\"severity\": \"BLOCK\", \"claim_text\": \"GBP 880,000\", \"reason\": \"No cited source provides a TOTAL budget of 880,000. fact:financials.lines.TOTAL.budget is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 653,000 as forecast, which contradicts 880,000.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"Total actual spend reached GBP 920,420 against a Year 1 budget of GBP 880,000\", \"reason\": \"No cited source supports a total actual spend of GBP 920,420 or a total Year 1 budget of GBP 880,000. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source states 'GBP 694,860 against forecast GBP 653,000 across sampled lines', which contradicts these totals.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 7,
+      "issue_type": "Disaggregation arithmetic error",
+      "planted_problem": "OP1.1 actual is 684, but female disaggregation cells sum to 681: 58 + 590 + 33.",
+      "true_intended": "True actual is 684; disaggregation is short by 3.",
+      "expected_catch_layer": "Disaggregation checker should flag sum mismatch.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=summary_and_overview: {\"severity\": \"BLOCK\", \"claim_text\": \"OP4.3 at GBP b58,630 \\u05e0\\u05d2\\u05d3 GBP b54,000\", \"reason\": \"fact:financials.lines.OP4.3.actual and fact:financials.lines.OP4.3.budget are not present in evidence_used[] or cited_sources. Additionally, the text is malformed (garbled characters), making the specific unverifiable.\"}",
+        "critic_flags[] section=evidence_and_evaluation: {\"severity\": \"WARN\", \"claim_text\": \"FCDO requires monitoring data to be disaggregated where relevant by gender, age and vulnerability group\", \"reason\": \"fact:reporting_obligations.data_disaggregation is cited in the section text but is not present in evidence_used[] or cited_sources; no cited source confirms this specific obligation wording.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 8,
+      "issue_type": "Disaggregation category problem",
+      "planted_problem": "OP3.1 is caregivers receiving hardship grants, but gender/age disaggregation appears under male child/adolescent age bands instead of caregiver sex/age bands.",
+      "true_intended": "Actual 392 caregivers is intended, but beneficiary disaggregation is invalid/misaligned.",
+      "expected_catch_layer": "Engine should ask for correct caregiver gender/age/vulnerability split.",
+      "caught_at": "CRITIC",
+      "evidence": [
+        "critic_flags[] section=detailed_output_scoring: {\"severity\": \"BLOCK\", \"claim_text\": \"hardship grant delivery was close to plan at 392 against a target of 400\", \"reason\": \"The actual value 392 for OP3.1 is not present in any cited source. fact:indicators.OP3.1.target confirms 400, but no fact or gap key supplies an actual of 392 for OP3.1.\"}",
+        "critic_flags[] section=evidence_and_evaluation: {\"severity\": \"WARN\", \"claim_text\": \"FCDO requires monitoring data to be disaggregated where relevant by gender, age and vulnerability group\", \"reason\": \"fact:reporting_obligations.data_disaggregation is cited in the section text but is not present in evidence_used[] or cited_sources; no cited source confirms this specific obligation wording.\"}",
+        "critic_flags[] section=programme_management_delivery_commercial_financial: {\"severity\": \"BLOCK\", \"claim_text\": \"hardship grant records were deduplicated before payment for sixteen caregiver records\", \"reason\": \"No cited source confirms the number 'sixteen caregiver records'. The gap:recommendations_and_actions:indicator:updates_on_previous_recommendations mentions 'September deduplication removed double-count risk on OP1.1' but does not specify sixteen records.\"}"
+      ],
+      "dangerous_unflagged_in_prose": []
+    },
+    {
+      "num": 9,
+      "issue_type": "Awkward formatting / buried fact",
+      "planted_problem": "Award letter buries reporting period mid-paragraph; proposal uses GBP 1.184m, \u00a31.18 million and \u00a31,184,000; award uses GBP 1,240,000.",
+      "true_intended": "Official award value \u00a31,240,000; official AR1 period 15 Oct 2024-14 Oct 2025.",
+      "expected_catch_layer": "Extractor should handle inconsistent money formats and buried contractual facts.",
+      "caught_at": "NOT CAUGHT",
+      "evidence": [],
+      "dangerous_unflagged_in_prose": []
+    }
+  ],
+  "dangerous_unflagged": [],
+  "false_positives": [],
+  "critique_trace": {
+    "action": "critique_completed",
+    "flagged": 6,
+    "skipped": 0,
+    "verified": 2,
+    "unverified": 0,
+    "completed_at": "2026-06-01T22:09:32.014999+00:00",
+    "critic_blocks": 19,
+    "section_count": 8,
+    "gate2_confirmed_at": "2026-06-01T22:04:59.465652+00:00"
+  },
+  "cost": {
+    "claude_upstream_input": 32,
+    "claude_upstream_output": 31624,
+    "claude_critic_input": 0,
+    "claude_critic_output": 0,
+    "claude_critic_model": null,
+    "claude_total_input": 32,
+    "claude_total_output": 31624,
+    "claude_usd": 0.15815200000000001,
+    "openai_input_tokens": 0,
+    "openai_output_tokens": 0,
+    "openai_usd": 0.0,
+    "total_usd": 0.15815200000000001
+  },
+  "sections_summary": [
+    {
+      "section_key": "summary_and_overview",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 5,
+      "critic_flags": [
+        {
+          "reason": "fact:reporting_period_ar1.start and fact:reporting_period_ar1.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "15 October 2024 to 14 October 2025",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "fact:reporting_deadline.annual_review_pack is cited in the prose but is NOT present in evidence_used[] or cited_sources. No admissible source confirms this date.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "21 November 2025",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "fact:grant_period.start and fact:grant_period.end are cited in the prose but are NOT present in evidence_used[] or cited_sources. No admissible source confirms these dates.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "15 October 2024 to 14 October 2026",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "fact:financials.lines.TOTAL.actual and fact:financials.lines.TOTAL.budget are cited in the prose but are NOT present in evidence_used[] or cited_sources. The only financial total in cited_sources (gap:programme_management_delivery_commercial_financial:indicator:financial_delivery) states GBP 694,860 actual against GBP 653,000 forecast for sampled lines \u2014 contradicting both figures in the prose.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "total actual spend of GBP 920,420 against a Year 1 budget of GBP 880,000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "fact:financials.lines.OP4.3.actual and fact:financials.lines.OP4.3.budget are not present in evidence_used[] or cited_sources. Additionally, the text is malformed (garbled characters), making the specific unverifiable.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "OP4.3 at GBP b58,630 \u05e0\u05d2\u05d3 GBP b54,000",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "performance_and_conclusions",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 2,
+      "critic_flags": [
+        {
+          "reason": "Neither fact:indicators.OP3.3.actual nor fact:indicators.OP3.3.target appear in cited_sources. These keys are referenced in evidence_used[] but no resolved values are provided, so the values 0.68 and 0.75 cannot be verified.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "Verified attendance follow-up within 45 days reached 0.68 against a target of 0.75",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither fact:financials.lines.TOTAL.actual nor fact:financials.lines.TOTAL.budget appear in cited_sources with resolved values. The values GBP 920420 and GBP 880000 cannot be verified against any provided source. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source cites GBP 694,860 actual against GBP 653,000 forecast for sampled lines only, which does not match these totals.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "Total actual spend was GBP 920420 against a Year 1 budget of GBP 880000",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 3,
+      "critic_flags": [
+        {
+          "reason": "The actual value 392 for OP3.1 is not present in any cited source. fact:indicators.OP3.1.target confirms 400, but no fact or gap key supplies an actual of 392 for OP3.1.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "hardship grant delivery was close to plan at 392 against a target of 400",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The actual value 571 for OP3.2 is not present in any cited source. fact:indicators.OP3.2.target confirms 550, but no fact or gap key supplies an actual of 571 for OP3.2.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "learning materials distribution exceeded target at 571 against 550",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "Neither the actual (0.68) nor the target (0.75) for OP3.3 appear in any cited source. fact:indicators.OP3.3.actual and fact:indicators.OP3.3.target are listed in evidence_used but are not present in cited_sources with resolved values.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "verified attendance follow-up within 45 days, which reached 0.68 against a target of 0.75",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 3,
+      "critic_flags": [
+        {
+          "reason": "The value 472 for OP1.2 actual does not appear in any cited source. fact:indicators.OP1.2.target is cited and confirms 500, but no fact:indicators.OP1.2.actual is present in evidence_used or cited_sources to verify 472.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "attendance at 80% or above reached 472 against a target of 500",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "The start date 2024-10-15 is not confirmed by any cited source. fact:reporting_period_ar1.end confirms 2025-10-14, and gap:evidence_and_evaluation:indicator:data_quality_limitations references '15-Oct to 14-Oct' without a year for the start. The prose asserts '2024-10-15' as a specific dated value not explicitly confirmed in cited sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "formal Annual Review period in the award letter ran from 2024-10-15 to 2025-10-14",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "fact:reporting_obligations.data_disaggregation is cited in the section text but is not present in evidence_used[] or cited_sources; no cited source confirms this specific obligation wording.",
+          "accepted": false,
+          "severity": "WARN",
+          "claim_text": "FCDO requires monitoring data to be disaggregated where relevant by gender, age and vulnerability group",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "risk_and_safeguarding",
+      "generation_status": "GENERATED",
+      "critic_flags_count": 0,
+      "critic_flags": []
+    },
+    {
+      "section_key": "value_for_money",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 2,
+      "critic_flags": [
+        {
+          "reason": "No cited source provides a TOTAL actual of 920,420. fact:financials.lines.TOTAL.actual is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 694,860 as Year 1 actual spend, which contradicts 920,420.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "GBP 920,420",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "No cited source provides a TOTAL budget of 880,000. fact:financials.lines.TOTAL.budget is listed in evidence_used but not present in cited_sources. gap:programme_management_delivery_commercial_financial:indicator:financial_delivery gives GBP 653,000 as forecast, which contradicts 880,000.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "GBP 880,000",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "programme_management_delivery_commercial_financial",
+      "generation_status": "AWAITING_REVIEW",
+      "critic_flags_count": 5,
+      "critic_flags": [
+        {
+          "reason": "No cited source confirms 'three schools' lacking a female focal teacher. The gap source on new risks references menstrual health supply delays and 17/20 schools but does not mention three schools lacking a female focal teacher. The recommendations source mentions 'three remaining schools' for completing menstrual health training but does not specify the reason as absence of a female focal teacher.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "absence of a female focal teacher in three schools for menstrual health training",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "No cited source supports a total actual spend of GBP 920,420 or a total Year 1 budget of GBP 880,000. The gap:programme_management_delivery_commercial_financial:indicator:financial_delivery source states 'GBP 694,860 against forecast GBP 653,000 across sampled lines', which contradicts these totals.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "Total actual spend reached GBP 920,420 against a Year 1 budget of GBP 880,000",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "No cited source confirms the specific dates '15 October 2024 to 14 October 2025'. The gap:evidence_and_evaluation:indicator:data_quality_limitations source references '15-Oct to 14-Oct' without specifying the year 2024/2025, and fact:reporting_obligations.annual_review only states 'Annual Review'. The specific year dates are not verifiable from cited sources.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "award letter set the first Annual Review period as 15 October 2024 to 14 October 2025",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "No cited source confirms the deadline of 21 November 2025 for the review pack submission.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "required the review pack by 21 November 2025",
+          "accepted_at": null,
+          "source_required": true
+        },
+        {
+          "reason": "No cited source confirms the number 'sixteen caregiver records'. The gap:recommendations_and_actions:indicator:updates_on_previous_recommendations mentions 'September deduplication removed double-count risk on OP1.1' but does not specify sixteen records.",
+          "accepted": false,
+          "severity": "BLOCK",
+          "claim_text": "hardship grant records were deduplicated before payment for sixteen caregiver records",
+          "accepted_at": null,
+          "source_required": true
+        }
+      ]
+    },
+    {
+      "section_key": "recommendations_and_actions",
+      "generation_status": "GENERATED",
+      "critic_flags_count": 0,
+      "critic_flags": []
+    }
+  ],
+  "final_job": {
+    "stage": "export",
+    "status": "awaiting_human"
+  },
+  "gap_retry": true
+}

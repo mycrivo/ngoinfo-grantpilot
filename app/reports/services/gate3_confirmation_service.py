@@ -9,8 +9,9 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.core.errors import DomainError, ForbiddenError, NotFoundError
+from app.core.errors import DomainError
 from app.reports.services.gate_preconditions import require_gate2_confirmed
+from app.reports.services.report_access import get_owned_donor_report
 
 logger = logging.getLogger("reports.services.gate3_confirmation")
 
@@ -81,21 +82,9 @@ def confirm_gate3(
     user_id: uuid.UUID,
 ) -> dict[str, Any]:
     """Stamp gate3_confirmed_at after human review and re-enqueue for export stage."""
-    from app.reports.models.donor_report import DonorReport
-
-    report = db.get(DonorReport, donor_report_id)
-    if report is None:
-        raise NotFoundError(
-            error_code="DONOR_REPORT_NOT_FOUND",
-            message=f"Donor report {donor_report_id} not found",
-            status_code=404,
-        )
-    if report.user_id != user_id:
-        raise ForbiddenError(
-            error_code="FORBIDDEN",
-            message="Forbidden",
-            status_code=403,
-        )
+    report = get_owned_donor_report(
+        db, donor_report_id=donor_report_id, user_id=user_id
+    )
 
     require_gate2_confirmed(report.knowledge_bank_json)
 

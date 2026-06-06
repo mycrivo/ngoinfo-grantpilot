@@ -1,0 +1,433 @@
+{
+  "report_id": "1c9f7ffa-9853-40e7-86c2-5c9e41300be6",
+  "resolution_log": [
+    {
+      "fact_key": "indicators.OP1.1.target",
+      "resolved_value": 650,
+      "values_preserved": [
+        {
+          "unit": "girls",
+          "value": 1200,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of out-of-school or at-risk girls re-enrolled through support",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 1 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "girls",
+          "value": 650,
+          "provenance": {
+            "page": null,
+            "excerpt": "650",
+            "cell_ref": "Sheet1!G10",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.2.target",
+      "resolved_value": 500,
+      "values_preserved": [
+        {
+          "unit": "girls",
+          "value": 900,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of supported girls attending \u226580% of school days",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 1 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "girls",
+          "value": 500,
+          "provenance": {
+            "page": null,
+            "excerpt": "500",
+            "cell_ref": "Sheet1!G11",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.3.target",
+      "resolved_value": 420,
+      "values_preserved": [
+        {
+          "unit": "girls",
+          "value": 850,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of girls completing \u226520 remedial learning sessions",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 1 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "girls",
+          "value": 420,
+          "provenance": {
+            "page": null,
+            "excerpt": "420",
+            "cell_ref": "Sheet1!G12",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP2.1.target",
+      "resolved_value": 24,
+      "values_preserved": [
+        {
+          "unit": "stances",
+          "value": 40,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of separate, lockable girls latrine stances rehabilitated",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 2 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "stances",
+          "value": 24,
+          "provenance": {
+            "page": null,
+            "excerpt": "24",
+            "cell_ref": "Sheet1!G13",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP2.2.target",
+      "resolved_value": 20,
+      "values_preserved": [
+        {
+          "unit": "schools",
+          "value": 40,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of schools with menstrual health supplies and trained teachers",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 2 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "schools",
+          "value": 20,
+          "provenance": {
+            "page": null,
+            "excerpt": "20",
+            "cell_ref": "Sheet1!G14",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP3.1.target",
+      "resolved_value": 400,
+      "values_preserved": [
+        {
+          "unit": "caregivers",
+          "value": 800,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of caregivers receiving education hardship grant",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 3 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "caregivers",
+          "value": 400,
+          "provenance": {
+            "page": null,
+            "excerpt": "400",
+            "cell_ref": "Sheet1!G15",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP3.2.target",
+      "resolved_value": 550,
+      "values_preserved": [
+        {
+          "unit": "girls",
+          "value": 1100,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of girls receiving school re-entry kit or learning materials",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 3 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "girls",
+          "value": 550,
+          "provenance": {
+            "page": null,
+            "excerpt": "550",
+            "cell_ref": "Sheet1!G16",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP3.3.target",
+      "resolved_value": 0.75,
+      "values_preserved": [
+        {
+          "unit": "%",
+          "value": 85,
+          "provenance": {
+            "page": null,
+            "excerpt": "% of hardship grant households with verified attendance follow-up",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 3 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "proportion",
+          "value": 0.75,
+          "provenance": {
+            "page": null,
+            "excerpt": "0.75",
+            "cell_ref": "Sheet1!G17",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP4.1.target",
+      "resolved_value": 4,
+      "values_preserved": [
+        {
+          "unit": "meetings",
+          "value": 8,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of district learning meetings with documented action points",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 4 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "meetings",
+          "value": 4,
+          "provenance": {
+            "page": null,
+            "excerpt": "4",
+            "cell_ref": "Sheet1!G18",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "indicators.OP4.3.target",
+      "resolved_value": 120,
+      "values_preserved": [
+        {
+          "unit": "actors",
+          "value": 240,
+          "provenance": {
+            "page": null,
+            "excerpt": "Number of school/community actors trained on girls re-entry protocols",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": "Section 5 - Output 4 indicators"
+          },
+          "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+          "source_document_id": "be2c9b27-6852-41b1-945f-fc799d9bf1bc"
+        },
+        {
+          "unit": "actors",
+          "value": 120,
+          "provenance": {
+            "page": null,
+            "excerpt": "120",
+            "cell_ref": "Sheet1!G19",
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+          "source_document_id": "8ed6f708-9545-4fe2-813d-9178089b440b"
+        }
+      ]
+    },
+    {
+      "fact_key": "grant.reporting_cycle_convention",
+      "resolved_value": "2024-10-15 to 2025-10-14",
+      "values_preserved": [
+        {
+          "unit": null,
+          "value": "2024-10-15 to 2025-10-14",
+          "provenance": {
+            "page": null,
+            "excerpt": "first Annual Review will cover the period 15 October 2024 to 14 October 2025",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+          "source_document_id": "419a8f0b-0e6c-4c6c-a8eb-4c37e498d0fc"
+        },
+        {
+          "unit": null,
+          "value": "October to September",
+          "provenance": {
+            "page": null,
+            "excerpt": "project team discussed 'October to September' in inception call",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+          "source_document_id": "419a8f0b-0e6c-4c6c-a8eb-4c37e498d0fc"
+        }
+      ]
+    }
+  ],
+  "gate1_response_gate1_confirmed_at": "2026-06-05T12:29:58.062952+00:00",
+  "post_gate1_job": {
+    "job_id": "e9e8adaf-d72c-4fef-bba9-52769221dd70",
+    "donor_report_id": "1c9f7ffa-9853-40e7-86c2-5c9e41300be6",
+    "stage": "gap",
+    "status": "failed",
+    "error": "gap: Gap agent response is not valid JSON: Expecting value: line 1 column 1 (char 0)",
+    "started_at": "2026-06-05T11:13:15.942188Z",
+    "finished_at": "2026-06-05T12:32:11.001864Z",
+    "agent_trace_json": {
+      "stages": {
+        "extract": {
+          "completed_at": "2026-06-05T11:17:39.629425+00:00",
+          "degraded_documents": [
+            "1452a00e-2b95-4ef3-8c2b-27a8e37f8c8e"
+          ]
+        },
+        "classify": {
+          "completed_at": "2026-06-05T11:13:37.890805+00:00",
+          "degraded_notes": [],
+          "document_count": 4
+        },
+        "reconcile": {
+          "degraded": false,
+          "completed_at": "2026-06-05T11:20:22.756202+00:00"
+        }
+      },
+      "failure": {
+        "at": "2026-06-05T12:32:11.001902+00:00",
+        "event": "pipeline_exception",
+        "message": "gap: Gap agent response is not valid JSON: Expecting value: line 1 column 1 (char 0)"
+      },
+      "failed_stage": "gap"
+    }
+  },
+  "db_state": {
+    "donor_report": {
+      "id": "1c9f7ffa-9853-40e7-86c2-5c9e41300be6",
+      "status": "DRAFT",
+      "updated_at": "2026-06-05 11:13:11.683556+00:00",
+      "gate1": "2026-06-05T12:29:58.062952+00:00",
+      "gate2": null
+    },
+    "report_jobs": [
+      {
+        "id": "e9e8adaf-d72c-4fef-bba9-52769221dd70",
+        "stage": "gap",
+        "status": "failed",
+        "started_at": "2026-06-05 11:13:15.942188+00:00",
+        "finished_at": "2026-06-05 12:32:11.001864+00:00",
+        "gap_trace": null
+      }
+    ]
+  }
+}

@@ -237,7 +237,7 @@ def test_gate2_endpoint_requires_auth():
     client = TestClient(app)
     report_id = uuid.uuid4()
     response = client.post(
-        f"/api/reports/donor-reports/{report_id}/knowledge-bank/gate2/gap-responses",
+        f"/api/reports/{report_id}/knowledge-bank/gate2/gap-responses",
         json={"responses": {}},
     )
     assert response.status_code == 401

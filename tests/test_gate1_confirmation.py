@@ -102,7 +102,7 @@ def test_gate1_confirm_endpoint_requires_auth():
     client = TestClient(app)
     report_id = uuid.uuid4()
     response = client.post(
-        f"/api/reports/donor-reports/{report_id}/knowledge-bank/gate1/confirm",
+        f"/api/reports/{report_id}/knowledge-bank/gate1/confirm",
         json={"knowledge_bank_json": _minimal_reconciled_kb()},
     )
     assert response.status_code == 401
@@ -114,7 +114,7 @@ def test_gate1_confirm_endpoint_rejects_invalid_token():
     client = TestClient(app)
     report_id = uuid.uuid4()
     response = client.post(
-        f"/api/reports/donor-reports/{report_id}/knowledge-bank/gate1/confirm",
+        f"/api/reports/{report_id}/knowledge-bank/gate1/confirm",
         json={"knowledge_bank_json": _minimal_reconciled_kb()},
         headers={"Authorization": "Bearer not-a-jwt"},
     )
@@ -126,7 +126,7 @@ def test_gate1_confirm_endpoint_404_when_module_disabled():
     client = TestClient(app)
     token, _ = create_access_token(str(uuid.uuid4()), "u@example.com", "free")
     response = client.post(
-        f"/api/reports/donor-reports/{uuid.uuid4()}/knowledge-bank/gate1/confirm",
+        f"/api/reports/{uuid.uuid4()}/knowledge-bank/gate1/confirm",
         json={"knowledge_bank_json": _minimal_reconciled_kb()},
         headers={"Authorization": f"Bearer {token}"},
     )

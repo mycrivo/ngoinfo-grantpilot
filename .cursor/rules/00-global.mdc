@@ -1,0 +1,32 @@
+---
+description: GrantPilot global build discipline — spec-first, outcome-driven, decision log
+alwaysApply: true
+---
+
+# Global build discipline
+
+## Spec → code (never reverse)
+
+- Contract docs in `docs/artefacts/` and `docs/artefacts/me_module/` are truth; code obeys them.
+- Do not retroactively change contracts to match code without a decision-log entry and explicit approval.
+- M&E contracts lock in Stage B; no M&E product code before Stage B exit.
+
+## Outcome-driven prompts
+
+- Specify **what** must be true when done, not step-by-step pseudocode.
+- One scoped outcome per task; include explicit **STOP** conditions and non-goals.
+- Diagnose before fixing — structured root-cause before any patch.
+
+## Backend is source of truth
+
+- All reasoning, entitlements, gates, and AI live server-side.
+- Frontend (separate repo) renders and calls the API only; adapt UI to contract, never reverse.
+
+## Scope drift
+
+If a prompt drifts into M&E non-goals (field collection, dashboards, logframe live system, Level-3 autonomy, modifying core proposal/export services), **STOP** and flag — do not implement.
+
+## Decision log
+
+- Locked or revised choices go in `docs/artefacts/me_module/ME_MODULE_DECISION_LOG.md`.
+- Append; do not silently pivot. Reference the log when resolving ambiguity.

@@ -9,12 +9,13 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.core.errors import DomainError, ForbiddenError, NotFoundError
+from app.core.errors import DomainError
 from app.reports.models.enums import ReportJobStage, ReportJobStatus
 from app.reports.models.report_job import ReportJob
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     validate_gate1_confirm_payload,
 )
+from app.reports.services.report_access import get_owned_donor_report
 
 logger = logging.getLogger("reports.services.gate1_confirmation")
 
@@ -55,22 +56,9 @@ def confirm_gate1(
     knowledge_bank_json: dict[str, Any],
 ) -> dict[str, Any]:
     """Overwrite knowledge_bank_json with human final state and set gate1_confirmed_at."""
-    from app.reports.models.donor_report import DonorReport
-
-    report = db.get(DonorReport, donor_report_id)
-    if report is None:
-        raise NotFoundError(
-            error_code="DONOR_REPORT_NOT_FOUND",
-            message=f"Donor report {donor_report_id} not found",
-            status_code=404,
-        )
-    if report.user_id != user_id:
-        raise ForbiddenError(
-            error_code="FORBIDDEN",
-            message="Forbidden",
-            status_code=403,
-        )
-
+    report = get_owned_donor_report(
+        db, donor_report_id=donor_report_id, user_id=user_id
+    )
     payload = dict(knowledge_bank_json)
     payload.pop("gate1_confirmed_at", None)
 

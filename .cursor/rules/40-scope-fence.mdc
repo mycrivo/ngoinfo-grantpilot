@@ -1,0 +1,39 @@
+---
+description: M&E scope fence — non-goals and forbidden core modifications
+globs: app/**/*
+alwaysApply: false
+---
+
+# M&E scope fence
+
+## Non-goals (STOP if prompt drifts here)
+
+- Field data **collection** (KoboToolbox/ODK) — we ingest, not collect
+- Dashboards / visualisation
+- Full logframe / Theory of Change as a live system
+- Real-time monitoring
+- Multi-user approval workflows
+- Level-3 open-ended agent autonomy
+- Railway per-session sandboxes (use in-app job queue)
+- Building Docling, Agent SDK, or Word engine from scratch
+- n8n as orchestrator (plumbing only, post-launch for template ingestion)
+
+## Forbidden core modifications
+
+M&E must **not** modify:
+
+| Core file / area | Why |
+|------------------|-----|
+| `app/services/export_service.py` | Proposal export stays python-docx |
+| `app/services/proposal_service.py` | Pre-award product unchanged |
+| `app/api/routes/proposals.py` | Proposal API unchanged |
+| `app/ai/prompts/proposal.py` | Proposal prompts unchanged |
+| Core models/migrations | No core table changes for M&E |
+
+## M&E owns its export
+
+Build `app/reports/services/report_export_service.py` using **docxtpl** + funder `.docx` templates under `app/reports/templates/docx/`.
+
+## Reuse, don't fork
+
+Import core auth, quota, profile, email, OpenAI client, humaniser patterns — extend via `app/reports/`, never patch core services.

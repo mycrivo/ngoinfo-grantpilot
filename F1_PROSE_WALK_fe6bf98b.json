@@ -1,0 +1,401 @@
+{
+  "report_id": "fe6bf98b-70b7-46f2-9bc2-a1306546af18",
+  "mode": "resume",
+  "job": {
+    "stage": "critique",
+    "status": "awaiting_human",
+    "agent_trace_json": {
+      "stages": {
+        "gap": {
+          "degraded": false,
+          "gap_count": 44,
+          "completed_at": "2026-05-31T22:20:03.531956+00:00",
+          "readiness_score": 9
+        },
+        "extract": {
+          "completed_at": "2026-05-31T22:17:02.595846+00:00",
+          "degraded_documents": [
+            "20fd328f-b396-46fe-ba2c-aa81a5cc1210",
+            "48ae7659-5859-4c5e-a144-b4b76b5622f3"
+          ]
+        },
+        "classify": {
+          "completed_at": "2026-05-31T22:11:51.303102+00:00",
+          "degraded_notes": [],
+          "document_count": 4
+        },
+        "critique": {
+          "action": "parked_at_critique_boundary",
+          "completed_at": "2026-06-01T09:30:27.357924+00:00"
+        },
+        "reconcile": {
+          "degraded": false,
+          "completed_at": "2026-05-31T22:18:15.646706+00:00"
+        },
+        "synthesise": {
+          "action": "synthesise_completed",
+          "failed": 2,
+          "degraded": true,
+          "generated": 6,
+          "completed_at": "2026-06-01T09:30:27.357924+00:00",
+          "section_count": 8,
+          "openai_input_tokens": 81548,
+          "openai_output_tokens": 9661
+        }
+      }
+    }
+  },
+  "cost": {
+    "openai_input_tokens": 81548,
+    "openai_output_tokens": 9661,
+    "openai_usd": 0.30047999999999997,
+    "claude_usd": 0.0,
+    "total_usd": 0.30047999999999997
+  },
+  "content_json": {
+    "sections": [
+      {
+        "label": "A. Summary and Overview",
+        "content": {
+          "text": "This Annual Review covered the reporting period 2025-04-01 to 2026-03-31 under FCDO-funded programme MWI-EDU-AR-4471. The programme itself ran from 2024-10-15 to 2026-10-14, while the award letter stated that the first formal Annual Review period ran from 2024-10-15 to 2025-10-14. Submitted records therefore indicated a mismatch between the current report period label and the formal Year 1 review dates, and this should be read with that qualification.\n\nAt summary level, the programme remained aligned to its stated impact and outcome: adolescent girls in Machinga and Mangochi completing basic education in safer, more supportive learning environments, with improved retention, attendance and learning continuity and fewer practical and safeguarding barriers. However, verified actual results for the reporting period were not available in the submitted evidence pack used for this section. As a result, overall progress could not be rated here against output or outcome targets with confidence.\n\nThe approved FCDO contribution was GBP 1,240,000. The results framework set clear targets across attendance, retention, remedial learning, hardship support, menstrual health and hygiene support, safeguarding systems, learning products and district engagement. These included targets of 1,200 girls re-enrolled or newly retained, 900 supported girls attending at least 80% of school days in the last term, 850 girls completing at least 20 remedial learning sessions, 800 caregivers receiving a hardship grant linked to attendance, 1,100 girls receiving a re-entry kit or learning materials, 40 lockable girls' latrine stances rehabilitated or functional, 40 schools with menstrual supplies and trained focal teachers, 40 schools with an active safeguarding referral pathway tested, 8 district learning meetings with documented action points, 5 learning briefs produced and shared with stakeholders, and 240 school or community actors trained on re-entry and safeguarding. Outcome-level targets were also set at 70% for supported girls attending at least 80% of days in the last term, 65% progressing to the next grade or a re-entry pathway, and 72% reporting that school was safe during menstruation and travel.\n\nThe main issue for this section was not necessarily lack of programme activity but lack of verified performance data in the material provided here. The template required an Annual Review narrative, output scoring using the five-point system with evidence, a maintained logframe or equivalent results framework, and disaggregated monitoring data by gender, age and vulnerability where relevant. Those requirements were clear from the award documentation. Yet no confirmed output scores, actual indicator values, review team details or risk rating were available in the source set used for this summary. Exact disaggregation for girls with disabilities, ultra-poor households or out-of-school status was also not available here; the related equity reach indicator had no numeric target recorded.\n\nOn that basis, this summary recorded a cautious position. The programme had an approved scope, timeframe and target architecture in place, but this section could not confirm delivery against plan during 2025-04-01 to 2026-03-31 using verified actuals. The immediate recommendation was therefore to reconcile the reporting period basis with the formal Annual Review cycle stated in the award letter and complete the review pack with evidenced actual results, output scores, risk information and required disaggregation before final submission to FCDO.",
+          "assumptions": [
+            "Programme title was not available in facts or gap answers; narrative therefore referred to it as an FCDO-funded programme rather than naming it.",
+            "No verified actual results for outputs or outcomes were available in facts or gap answers; narrative avoided claiming delivery levels or variance against targets.",
+            "No confirmed overall score or rating was available for the Annual Review Summary Sheet.",
+            "No confirmed risk rating was available for the Annual Review Summary Sheet.",
+            "No confirmed review team details were available for the Annual Review Summary Sheet.",
+            "The section reporting period was taken from report_inputs.derived.reporting_period_label because it was supplied as part of authoritative inputs.",
+            "A mismatch appeared between report_inputs.report.reporting_period_end and the formal first Annual Review dates in the award letter; narrative flagged this rather than resolving it without evidence."
+          ],
+          "evidence_used": [
+            "fact:funder",
+            "fact:grant_reference",
+            "fact:grant_period.start",
+            "fact:grant_period.end",
+            "fact:reporting_period_year1.start",
+            "fact:reporting_period_year1.end",
+            "fact:objectives.impact",
+            "fact:objectives.outcome",
+            "fact:award_budget.amount",
+            "fact:indicators.op1_1_girls_reenrolled_retained.target",
+            "fact:indicators.op1_2_girls_attending_80pct.target",
+            "fact:indicators.op1_3_girls_remedial_sessions.target",
+            "fact:indicators.op3_1_caregivers_hardship_grant.target",
+            "fact:indicators.op3_2_girls_reentry_kit_learning_materials.target",
+            "fact:indicators.op2_1_latrine_stances_rehabilitated.target",
+            "fact:indicators.op2_2_schools_menstrual_supplies_trained.target",
+            "fact:indicators.op2_3_schools_safeguarding_referral_pathway.target",
+            "fact:indicators.op4_1_district_learning_meetings.target",
+            "fact:indicators.op4_2_learning_briefs_produced_shared.target",
+            "fact:indicators.op4_3_school_actors_trained_reentry_safeguarding.target",
+            "fact:indicators.ocm1_attendance_80pct.target",
+            "fact:indicators.ocm2_progression_or_reentry.target",
+            "fact:indicators.ocm3_safe_menstruation_travel.target",
+            "fact:indicators.equity_support_reach_qualitative.target",
+            "fact:reporting_obligations.annual_review_pack",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "_derived:report_inputs.derived.reporting_period_label"
+          ]
+        },
+        "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+        "section_key": "summary_and_overview",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "B. Performance and Conclusions",
+        "content": {
+          "text": "During the reporting period 2025-04-01 to 2026-03-31, the programme remained aligned to its stated outcome: adolescent girls targeted demonstrate improved school retention, attendance and learning continuity, with reduced practical and safeguarding barriers. The longer-term impact remained that adolescent girls in Machinga and Mangochi complete basic education in safer, more supportive learning environments. Reporting was prepared within the FCDO Annual Review framework for grant reference MWI-EDU-AR-4471.\n\nPerformance against expected results could only be assessed in a limited way from the submitted record. The available evidence confirmed the programme’s intended results framework and target values for key outcome and output indicators, but it did not include verified actual values for outcome indicators within this section’s source material. As a result, progress against the outcome could not be scored quantitatively here without overstating what the evidence showed.\n\nThe logframe direction of travel was clear. Outcome targets were set at 70% for supported girls attending at least 80% of school days in the last term, 65% for progression to the next grade or a re-entry pathway, and 72% for girls reporting that school was safe during menstruation and travel. Output targets also set the expected scale of delivery: 1,200 girls re-enrolled or newly retained; 900 girls attending at least 80% of school days in the last term; 850 girls completing at least 20 remedial learning sessions; 40 lockable girls’ latrine stances rehabilitated or functional; 40 schools with menstrual supplies and trained focal teachers; 40 schools with an active safeguarding referral pathway tested; 800 caregivers receiving a hardship grant linked to attendance; 1,100 girls receiving a re-entry kit or learning materials; 85% of hardship households receiving verified follow-up within 45 days; 8 district learning meetings with documented action points; 5 learning briefs produced and shared with stakeholders; and 240 school or community actors trained on re-entry and safeguarding.\n\nThese targets showed that delivery was designed to combine retention support, remedial learning, practical assistance, safer school conditions, safeguarding systems and district-level learning. That package remained coherent with the outcome statement. However, major deviations from expected results could not be confirmed from this evidence set because actual achievements, milestone tracking and verified variance explanations were not available in the submitted material used for this section.\n\nOn disaggregation, the award requirements stated that monitoring data must be disaggregated by gender, age and vulnerability. The proposal material also referenced reach to girls with disabilities, ultra-poor girls and out-of-school girls, but no numeric target was stated for that equity measure in the available record. The section therefore cannot report achieved disaggregation or equity reach figures with confidence. Exact disaggregation was not available in submitted records used here.\n\nIn conclusion, the programme had a clearly defined outcome pathway and a documented set of annual review obligations under FCDO requirements, including maintenance of a logframe or equivalent results framework and provision of output scoring with evidence. Based on the evidence available for this section, it is reasonable to conclude that performance management arrangements were specified, but actual progress against expected results during this reporting period was not evidenced strongly enough here to support a firm judgement on achievement level. The main lesson from this review stage is straightforward: future performance conclusions should draw directly on verified actuals, milestone status, output scores and disaggregated monitoring data so that variance against targets can be explained transparently.",
+          "assumptions": [
+            "Actual values for outcome indicators were not available in report_inputs.knowledge_bank.facts or relevant gap answers for this section.",
+            "No verified milestone data or output scores were available beyond placeholder gap answers labelled as smoke answers; these were not relied on for substantive performance claims.",
+            "The reporting period used in narrative was taken from report_inputs.report.reporting_period_start and report_inputs.report.reporting_period_end because these are part of the provided report inputs.",
+            "The required Annual Outcome Assessment table could not be populated with evidence-based progress details because the supplied gap answer for performance_and_conclusions:table:outcome_assessment contained only placeholder text."
+          ],
+          "evidence_used": [
+            "fact:objectives.outcome",
+            "fact:objectives.impact",
+            "fact:grant_reference",
+            "fact:indicators.ocm1_attendance_80pct.target",
+            "fact:indicators.ocm2_progression_or_reentry.target",
+            "fact:indicators.ocm3_safe_menstruation_travel.target",
+            "fact:indicators.op1_1_girls_reenrolled_retained.target",
+            "fact:indicators.op1_2_girls_attending_80pct.target",
+            "fact:indicators.op1_3_girls_remedial_sessions.target",
+            "fact:indicators.op2_1_latrine_stances_rehabilitated.target",
+            "fact:indicators.op2_2_schools_menstrual_supplies_trained.target",
+            "fact:indicators.op2_3_schools_safeguarding_referral_pathway.target",
+            "fact:indicators.op3_1_caregivers_hardship_grant.target",
+            "fact:indicators.op3_2_girls_reentry_kit_learning_materials.target",
+            "fact:indicators.op3_3_hardship_followup_verified_45days.target",
+            "fact:indicators.op4_1_district_learning_meetings.target",
+            "fact:indicators.op4_2_learning_briefs_produced_shared.target",
+            "fact:indicators.op4_3_school_actors_trained_reentry_safeguarding.target",
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "fact:indicators.equity_support_reach_qualitative.target"
+          ]
+        },
+        "archetype": "ARCH_PERFORMANCE_CONCLUSIONS",
+        "section_key": "performance_and_conclusions",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "C. Detailed Output Scoring",
+        "content": {
+          "text": "",
+          "assumptions": [],
+          "evidence_used": []
+        },
+        "archetype": null,
+        "section_key": "detailed_output_scoring",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": "Required FCDO output scoring table was not populated because submitted inputs did not contain verified baselines, milestones, actuals, scores, impact weightings, or risk ratings.; Gap answers for this section contained placeholder text only and were not sufficient to support scored judgements.; Any completed row-by-row scoring would require additional verified monitoring data and documentary evidence.",
+        "last_edited_at": null,
+        "generation_status": "FAILED",
+        "constraints_applied": {
+          "word_limit": 0,
+          "word_limit_respected": false
+        }
+      },
+      {
+        "label": "Evidence and Evaluation",
+        "content": {
+          "text": "During the reporting period, the evidence base available for this Annual Review was limited and largely procedural rather than performance-focused. The programme operated within FCDO’s requirement to maintain a logframe or equivalent results framework, provide output scoring and evidence, and submit disaggregated monitoring data where relevant. However, the records provided for this section did not include verified indicator actuals, milestone tracking, or completed evaluation products that would allow a stronger assessment of progress against the results framework.\n\nThe strongest confirmed evidence in submitted records related to programme design parameters and reporting requirements rather than achieved results. The award documentation confirmed the formal reporting window for the first Annual Review as 15 October 2024 to 14 October 2025, while this draft report covered 2025-04-01 to 2026-03-31. That mismatch reduced confidence in assessing whether evidence had been assembled against the correct contractual review cycle. The same award documentation also confirmed that FCDO could request supporting documentation, which reinforced the expectation that underlying records should be available even where they were not included in the material reviewed for this section.\n\nThe existing results framework set out clear intended measures for attendance, progression or re-entry, safety, remedial learning, hardship support, school WASH and safeguarding conditions, and learning dissemination. For example, proposal targets referred to girls attending at least 80% of days in the last term, girls completing at least 20 remedial learning sessions, caregivers receiving hardship grants linked to attendance, schools with menstrual supplies and trained focal teachers, schools with tested safeguarding referral pathways, district learning meetings with documented action points, and learning briefs shared with stakeholders. These targets showed that an evaluable framework had been defined. Even so, no corresponding actual values were supplied in the records used here. As a result, this review could comment on evaluability but not on achieved performance.\n\nOn evidence quality, there was enough documentation to confirm that indicators and reporting obligations existed; there was not enough to verify delivery levels or outcome change. Evidence quality was therefore mixed: adequate for confirming planned indicators and compliance expectations, weak for judging actual results during the period under review. This mattered most for outcome-level assessment. Outcome statements referred to improved retention, attendance and learning continuity for adolescent girls in Machinga and Mangochi within safer and more supportive learning environments, but no monitored outcome values were available here to test whether those changes had occurred.\n\nNo new evaluation findings were evidenced in the submitted material reviewed for this section. Although the Annual Review pack was expected to include any evaluation or learning outputs, none were available in usable form within the present record set. For that reason, there was no basis to assess methodological quality of an evaluation study, triangulate monitoring data with independent inquiry, or judge whether emerging lessons had been validated beyond routine programme reporting.\n\nData quality limitations were significant. First, indicator actuals were absent across both output and outcome measures cited in programme documents. Second, while disaggregated monitoring data by gender, age and vulnerability was an explicit requirement, no disaggregated dataset or summary table was available in submitted records for this section. Third, one reporting-cycle reference in the award material mentioned an informal October-to-September convention, while the same document set out a formal first Annual Review period ending on 14 October 2025; this required careful handling and reduced certainty about which evidence window some internal references may have followed.\n\nTaken together, the evidence base supported only a cautious conclusion: the programme had a defined theory of change and indicator structure acceptable for review purposes, but this section did not contain sufficient verified monitoring or evaluation material to substantiate claims on delivery quality or results achieved during 2025-04-01 to 2026-03-31.",
+          "assumptions": [
+            "No indicator actuals or milestone values were available in submitted records for this section; narrative therefore assessed evidence availability rather than performance.",
+            "No completed evaluation reports or learning outputs were available beyond the gap answer stating new evidence; no substantive findings were inferred.",
+            "The phrase 'Smoke answer for new_evidence.' did not provide usable evaluative content and was treated as a placeholder rather than evidence of findings.",
+            "The phrase 'Smoke answer for evaluation_progress.' did not provide usable detail on methods or status and was treated as a placeholder.",
+            "The phrase 'Smoke answer for evidence_base_strength.' did not provide a defensible rating scale or justification; qualitative judgement was therefore limited to what source documents showed.",
+            "The phrase 'Smoke answer for data_quality_limitations.' did not provide specific limitations beyond those visible in source records; only document-based limitations were reported.",
+            "Exact gender-, age-, or vulnerability-disaggregated figures were not available in submitted records despite the reporting requirement."
+          ],
+          "evidence_used": [
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "fact:reporting_obligations.supporting_documentation_access",
+            "fact:reporting_obligations.annual_review_pack",
+            "fact:reporting_period_year1.start",
+            "fact:reporting_period_year1.end",
+            "fact:reporting_period_convention.start_month",
+            "fact:reporting_period_convention.end_month",
+            "fact:objectives.outcome",
+            "fact:objectives.impact",
+            "fact:indicators.ocm1_attendance_80pct.target",
+            "fact:indicators.ocm2_progression_or_reentry.target",
+            "fact:indicators.ocm3_safe_menstruation_travel.target",
+            "fact:indicators.op1_1_girls_reenrolled_retained.target",
+            "fact:indicators.op1_2_girls_attending_80pct.target",
+            "fact:indicators.op1_3_girls_remedial_sessions.target",
+            "fact:indicators.op2_1_latrine_stances_rehabilitated.target",
+            "fact:indicators.op2_2_schools_menstrual_supplies_trained.target",
+            "fact:indicators.op2_3_schools_safeguarding_referral_pathway.target",
+            "fact:indicators.op3_1_caregivers_hardship_grant.target",
+            "fact:indicators.op3_2_girls_reentry_kit_learning_materials.target",
+            "fact:indicators.op3_3_hardship_followup_verified_45days.target",
+            "fact:indicators.op4_1_district_learning_meetings.target",
+            "fact:indicators.op4_2_learning_briefs_produced_shared.target",
+            "gap:evidence_and_evaluation:indicator:new_evidence",
+            "gap:evidence_and_evaluation:indicator:evaluation_progress",
+            "_quality_limitations"
+          ]
+        },
+        "archetype": "ARCH_EVIDENCE_AND_EVALUATION_REVIEW",
+        "section_key": "evidence_and_evaluation",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "Risk, Assumptions and Safeguarding",
+        "content": {
+          "text": "During the reporting period 2025-04-01 to 2026-03-31, risk reporting for the FCDO-funded programme MWI-EDU-AR-4471 was prepared against the Annual Review requirements set out in the award documentation. The programme maintained a logframe or equivalent results framework, and FCDO’s requirements included output scoring with supporting evidence, disaggregated monitoring data, and access to supporting documentation on request.\n\nSubmitted records did not provide a verified risk register update for this section. As a result, this review could not confirm which risks newly emerged, which assumptions materialised, or whether any individual risk rating changed during the period. It also could not present evidenced previous and current RAG ratings for the required risk update table without creating unsupported entries.\n\nSafeguarding remained a core control issue within programme design and delivery. This was reflected in the results framework through targets linked to schools with active safeguarding referral pathways tested and school or community actors trained on re-entry and safeguarding. The outcome framework also tracked girls’ reported safety during menstruation and travel. These features showed that safeguarding risks were recognised within programme architecture. However, the submitted material for this section did not include confirmed incident data, trend analysis, case outcomes, or a documented statement on whether safeguarding risks increased, reduced, or remained stable over the review period.\n\nThe same evidence gap applied to fiduciary risk. No verified narrative was available on risks of funds not being used as intended, any control breaches identified during implementation, or corrective action taken during the period under review. Likewise, no confirmed section-specific evidence was provided on climate or environmental risk affecting delivery in Machinga and Mangochi.\n\nControl expectations were clearer than control performance in the records available for drafting. FCDO required disaggregated monitoring data by gender, age and vulnerability where relevant, and retained the right to request supporting documents. Those requirements provided an accountability framework for oversight. Even so, exact evidence on compliance during this reporting period was not available in the submitted records for this section.\n\nOverall, this section should be read as a constrained account based on award-level requirements and results-framework references rather than a fully evidenced risk update. A complete Annual Review narrative would require the underlying risk register, safeguarding reporting summary, and documented management actions from the reporting period.",
+          "assumptions": [
+            "No verified risk register entries were available in submitted records; therefore the required risk update table could not be populated without fabrication.",
+            "Gap answers for new_risks, realised_assumptions, funds_not_used_as_intended_risk, climate_environment_risk, and safeguarding_risk_where_relevant contained placeholder text only and were not treated as substantive evidence.",
+            "References to safeguarding referral pathways, training on re-entry and safeguarding, and girls' reported safety were drawn from proposal-level indicator targets and used only to describe programme architecture, not achieved results.",
+            "No confirmed incident counts, case management data, audit findings, fraud reports, or climate-related disruption records were available for this section.",
+            "Machinga and Mangochi were referenced from the impact statement; no district-specific risk trend data was available."
+          ],
+          "evidence_used": [
+            "fact:grant_reference",
+            "fact:funder",
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "fact:reporting_obligations.supporting_documentation_access",
+            "fact:objectives.impact",
+            "fact:indicators.op2_3_schools_safeguarding_referral_pathway.target",
+            "fact:indicators.op4_3_school_actors_trained_reentry_safeguarding.target",
+            "fact:indicators.ocm3_safe_menstruation_travel.target",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+            "gap:risk_and_safeguarding:indicator:climate_environment_risk",
+            "gap:risk_and_safeguarding:indicator:safeguarding_risk_where_relevant"
+          ]
+        },
+        "archetype": "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS",
+        "section_key": "risk_and_safeguarding",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "D. Value for Money",
+        "content": {
+          "text": "",
+          "assumptions": [],
+          "evidence_used": []
+        },
+        "archetype": null,
+        "section_key": "value_for_money",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": "timeout",
+        "last_edited_at": null,
+        "generation_status": "FAILED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": false
+        }
+      },
+      {
+        "label": "F. Programme Management: Delivery, Commercial and Financial Performance",
+        "content": {
+          "text": "During the reporting period 2025-04-01 to 2026-03-31, programme management reporting for FCDO grant MWI-EDU-AR-4471 was framed against the formal award period from 2024-10-15 to 2026-10-14 and the requirement to submit an Annual Review pack, maintain a logframe or equivalent results framework, provide output scoring with evidence, and hold supporting documentation available on request. The submitted record therefore shows that management attention was directed to delivery assurance, results tracking and compliance with FCDO review requirements.\n\nOn delivery performance, the available evidence confirms the programme’s intended Impact and Outcome in Machinga and Mangochi, but it does not provide verified implementation data on partner performance, supplier or consultant performance, or completed activities during this section’s reporting window. Because actual delivery figures were not available in submitted records for this section, performance could not be tested here against output targets such as 1,200 girls re-enrolled or newly retained, 900 girls attending at least 80% of school days, 850 girls completing remedial sessions, 40 latrine stances rehabilitated or functional, 40 schools with menstrual supplies and trained focal teachers, 40 schools with tested safeguarding referral pathways, 800 caregivers receiving hardship grants, 1,100 girls receiving re-entry kits or learning materials, 8 district learning meetings, 5 learning briefs and 240 school or community actors trained. The same limitation applied to outcome-level targets on attendance, progression or re-entry, and perceived safety.\n\nOn financial performance, the only confirmed financial figure in the record was the approved FCDO contribution of GBP 1,240,000. No forecast-versus-actual spend data, burn rate data or variance analysis for the reporting period was available in the submitted evidence for this section. As a result, this review could not confirm whether expenditure tracked to plan during 2025-04-01 to 2026-03-31 or whether any underspend or overspend required corrective action.\n\nOn commercial performance, no verified procurement record, contract management update or supplier issue log was available in the evidence provided for this section. It was therefore not possible to confirm whether any commercial issues arose during implementation or whether supplier performance affected delivery.\n\nOn management actions and compliance with donor requirements, the record did show clear FCDO expectations: an Annual Review pack was due by 2025-11-21; monitoring data was expected to be disaggregated by gender, age and vulnerability; outputs were to be scored using a five-point system with supporting evidence; and FCDO retained the right to request supporting documents. These requirements established the management standard for the period. However, exact actions taken by FCDO or by implementing partners in response to delivery or financial issues were not evidenced in the material supplied for this section.\n\nOverall, this section can confirm the programme’s management and accountability framework but cannot yet provide a fully evidenced judgement on delivery efficiency, commercial performance or financial execution for the reporting period because actual management data was not included in the submitted records.",
+          "assumptions": [
+            "No partner performance details were available beyond the gap answer placeholder; narrative therefore states that evidence was insufficient rather than rating performance.",
+            "No supplier or consultant performance details were available beyond the gap answer placeholder; no judgement has been made.",
+            "No financial delivery details were available beyond the gap answer placeholder; no spend analysis has been quantified.",
+            "No forecast-versus-actual spend figures were provided in facts or usable gap answers; variance could not be calculated.",
+            "No commercial or procurement issue details were available beyond the gap answer placeholder; narrative notes absence of evidence only.",
+            "No specific FCDO management actions during the reporting period were evidenced beyond standing award-letter requirements.",
+            "Output and outcome target figures are cited only as planned benchmarks from proposal facts; no actuals were available in submitted records for comparison."
+          ],
+          "evidence_used": [
+            "fact:funder",
+            "fact:grant_reference",
+            "fact:grant_period.start",
+            "fact:grant_period.end",
+            "fact:objectives.impact",
+            "fact:objectives.outcome",
+            "fact:award_budget.amount",
+            "fact:reporting_deadlines[0]",
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.annual_review_pack",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "fact:reporting_obligations.supporting_documentation_access",
+            "fact:indicators.op1_1_girls_reenrolled_retained.target",
+            "fact:indicators.op1_2_girls_attending_80pct.target",
+            "fact:indicators.op1_3_girls_remedial_sessions.target",
+            "fact:indicators.op2_1_latrine_stances_rehabilitated.target",
+            "fact:indicators.op2_2_schools_menstrual_supplies_trained.target",
+            "fact:indicators.op2_3_schools_safeguarding_referral_pathway.target",
+            "fact:indicators.op3_1_caregivers_hardship_grant.target",
+            "fact:indicators.op3_2_girls_reentry_kit_learning_materials.target",
+            "fact:indicators.op4_1_district_learning_meetings.target",
+            "fact:indicators.op4_2_learning_briefs_produced_shared.target",
+            "fact:indicators.op4_3_school_actors_trained_reentry_safeguarding.target",
+            "_progression_or_reentry.target\",\n    \"commentary\": \"Target stated in proposal; actual result for this reporting period was not available in submitted records.\",\n    \"score\": \"Not scored\"\n  },\n.indicators.ocm3_safe_menstruation_travel.target\",\n    \"commentary\": \"Target stated in proposal; actual result for this reporting period was not available in submitted records.\",\n    \"score\": \"Not scored\"\n  }\n]\n```"
+          ]
+        },
+        "archetype": "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW",
+        "section_key": "programme_management_delivery_commercial_financial",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "Recommendations and Action Points",
+        "content": {
+          "text": "This Annual Review recorded recommendations and action points, but the submitted evidence for this section was limited to placeholder gap responses rather than a completed action log. As a result, this section does not present verified recommendations from the review period. It instead notes that recommendations, updates on previous recommendations, and priorities for the next period were referenced in the reporting process but were not supplied in usable detail in the records reviewed.\n\nFor accountability purposes, the programme was expected to maintain a logframe or equivalent results framework, provide output scoring and evidence, and submit disaggregated monitoring data within the Annual Review pack. Those reporting requirements provided the basis on which recommendations should have been documented. However, no substantiated recommendation text, named owner, due date, priority level, status update, or follow-up action was available in the submitted material for this section.\n\nThe programme reference remained MWI-EDU-AR-4471 under FCDO funding. The formal first Annual Review period in the award documentation ran from 2024-10-15 to 2025-10-14, with the review pack due by 2025-11-21. The current report record covered 2025-04-01 to 2026-03-31, so there was a timing inconsistency between the report shell and the formal award-letter review cycle. That inconsistency should have been clarified in the action plan documentation, but no verified follow-up entry was available.\n\nBecause no evidence-backed recommendations table was provided, this section should be treated as incomplete pending submission of a populated recommendations and action points log.",
+          "assumptions": [
+            "No completed recommendations_action_plan table content was available; only a placeholder gap answer existed for gap:recommendations_and_actions:table:recommendations_action_plan.",
+            "Required indicators for recommendations_from_current_review, updates_on_previous_recommendations, and priorities_for_next_period were present only as placeholder gap answers and did not contain usable recommendation detail.",
+            "The narrative referred to a timing inconsistency because fact:reporting_period_year1.start, fact:reporting_period_year1.end, and fact:report.reporting_period_start/report.reporting_period_end were not aligned; no explanatory note resolving this was provided in facts or gap answers.",
+            "Exact owners, due dates, priorities, statuses, and follow-up actions could not be reported because no such specifics were supplied in submitted records."
+          ],
+          "evidence_used": [
+            "fact:funder",
+            "fact:grant_reference",
+            "fact:reporting_period_year1.start",
+            "fact:reporting_period_year1.end",
+            "fact:reporting_deadlines[0]",
+            "fact:reporting_obligations.logframe",
+            "fact:reporting_obligations.output_scoring_and_evidence",
+            "fact:reporting_obligations.disaggregated_monitoring_data",
+            "gap:recommendations_and_actions:indicator:recommendations_from_current_review",
+            "gap:recommendations_and_actions:indicator:updates_on_previous_recommendations",
+            "gap:recommendations_and_actions:indicator:priorities_for_next_period",
+            "gap:recommendations_and_actions:table:recommendations_action_plan"
+          ]
+        },
+        "archetype": "ARCH_RECOMMENDATIONS_ACTION_PLAN",
+        "section_key": "recommendations_and_actions",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 0,
+          "word_limit_respected": true
+        }
+      }
+    ],
+    "generation_summary": {
+      "failed": 2,
+      "accepted": 0,
+      "warnings": [
+        "section detailed_output_scoring failed",
+        "section value_for_money failed"
+      ],
+      "generated": 6,
+      "critic_blocks": 0,
+      "total_sections": 8,
+      "awaiting_review": 0
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "command": "python .cursor/hooks/isolation_veto.py",
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|search_replace",
+        "failClosed": false
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "python .cursor/hooks/migration_parity_check.py",
+        "matcher": "Write|StrReplace|ApplyPatch|search_replace",
+        "failClosed": false
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "python .cursor/hooks/secret_scan.py",
+        "matcher": "git\\s+commit",
+        "failClosed": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,500 @@
+{
+  "report_id": "cabb8796-195b-4089-afab-94d6fe841d50",
+  "precondition": {
+    "github_main_prefix": "98d7512",
+    "d4_fix_live": true
+  },
+  "d4_xlsx": {
+    "outcome": "complete",
+    "attempt_count": 1,
+    "latency_ms": 118517,
+    "indicator_rows": 10,
+    "degraded_code": null
+  },
+  "kb": {
+    "facts_total": 66,
+    "actual_keys_count": 20,
+    "actual_sample": {
+      "indicators.OP1.1.actual": "684",
+      "indicators.OP1.2.actual": "472",
+      "indicators.OP1.3.actual": "438",
+      "indicators.OP2.1.actual": "31",
+      "indicators.OP2.2.actual": "17",
+      "indicators.OP3.1.actual": "392",
+      "indicators.OP3.2.actual": "571",
+      "indicators.OP3.3.actual": "0.68",
+      "indicators.OP4.1.actual": "3",
+      "indicators.OP4.3.actual": "136",
+      "financials.lines.OP1.1.actual": "174850",
+      "financials.lines.OP1.2.actual": "98740",
+      "financials.lines.OP1.3.actual": "81330",
+      "financials.lines.OP2.1.actual": "148900",
+      "financials.lines.OP2.2.actual": "39600",
+      "financials.lines.OP3.1.actual": "151440",
+      "financials.lines.OP3.2.actual": "109250",
+      "financials.lines.OP3.3.actual": "24980",
+      "financials.lines.OP4.1.actual": "32700",
+      "financials.lines.OP4.3.actual": "58630"
+    }
+  },
+  "gate2": {
+    "answered": [
+      "summary_and_overview:indicator:overall_progress",
+      "performance_and_conclusions:table:outcome_assessment",
+      "detailed_output_scoring:indicator:output_scores",
+      "evidence_and_evaluation:indicator:evidence_base_strength",
+      "evidence_and_evaluation:indicator:new_evidence",
+      "evidence_and_evaluation:indicator:evaluation_progress",
+      "evidence_and_evaluation:indicator:data_quality_limitations",
+      "risk_and_safeguarding:indicator:new_risks",
+      "risk_and_safeguarding:indicator:realised_assumptions",
+      "risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+      "risk_and_safeguarding:indicator:climate_environment_risk",
+      "risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+      "programme_management_delivery_commercial_financial:indicator:partner_performance",
+      "programme_management_delivery_commercial_financial:indicator:financial_delivery",
+      "programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+      "recommendations_and_actions:indicator:recommendations_from_current_review",
+      "recommendations_and_actions:indicator:updates_on_previous_recommendations",
+      "recommendations_and_actions:indicator:priorities_for_next_period",
+      "recommendations_and_actions:table:recommendations_action_plan"
+    ],
+    "skipped": [
+      "summary_and_overview:indicator:main_results_achieved",
+      "summary_and_overview:indicator:main_issues",
+      "summary_and_overview:indicator:key_recommendations",
+      "summary_and_overview:table:review_summary_sheet",
+      "performance_and_conclusions:indicator:outcome_indicators",
+      "performance_and_conclusions:indicator:progress_against_expected_results",
+      "performance_and_conclusions:indicator:major_deviations",
+      "performance_and_conclusions:indicator:gender_age_or_vulnerable_group_disaggregation_where_relevant",
+      "detailed_output_scoring:indicator:impact_weightings",
+      "detailed_output_scoring:indicator:risk_ratings",
+      "detailed_output_scoring:table:output_score_table",
+      "value_for_money:indicator:economy",
+      "value_for_money:indicator:efficiency",
+      "value_for_money:indicator:effectiveness",
+      "value_for_money:indicator:equity",
+      "value_for_money:indicator:cost_drivers",
+      "value_for_money:indicator:forecast_vs_actual_costs",
+      "value_for_money:indicator:commercial_improvement_where_relevant",
+      "value_for_money:table:vfm_measures",
+      "programme_management_delivery_commercial_financial:indicator:supplier_or_consultant_performance",
+      "programme_management_delivery_commercial_financial:indicator:forecast_vs_actual_spend",
+      "programme_management_delivery_commercial_financial:indicator:commercial_or_procurement_issues"
+    ]
+  },
+  "job": {
+    "stage": "critique",
+    "status": "awaiting_human",
+    "agent_trace_json": {
+      "stages": {
+        "gap": {
+          "degraded": false,
+          "gap_count": 41,
+          "completed_at": "2026-06-01T13:19:28.842429+00:00",
+          "readiness_score": 11
+        },
+        "extract": {
+          "completed_at": "2026-06-01T13:11:37.895379+00:00",
+          "degraded_documents": []
+        },
+        "classify": {
+          "completed_at": "2026-06-01T13:06:55.487483+00:00",
+          "degraded_notes": [],
+          "document_count": 3
+        },
+        "critique": {
+          "action": "parked_at_critique_boundary",
+          "completed_at": "2026-06-01T13:21:58.175228+00:00",
+          "gate2_confirmed_at": "2026-06-01T13:19:41.477538+00:00"
+        },
+        "reconcile": {
+          "degraded": false,
+          "completed_at": "2026-06-01T13:14:06.104049+00:00"
+        },
+        "synthesise": {
+          "action": "synthesise_completed",
+          "failed": 0,
+          "degraded": false,
+          "generated": 8,
+          "completed_at": "2026-06-01T13:21:58.121059+00:00",
+          "section_count": 8,
+          "gate2_confirmed_at": "2026-06-01T13:19:41.477538+00:00"
+        }
+      },
+      "failure": {
+        "at": "2026-06-01T13:16:17.740428+00:00",
+        "event": "pipeline_exception",
+        "message": "gap: Gap agent response is not valid JSON: Expecting value: line 1 column 1 (char 0)"
+      },
+      "failed_stage": "gap"
+    }
+  },
+  "cost": {
+    "claude_input_tokens": 48,
+    "claude_output_tokens": 51576,
+    "claude_usd": 0.257928,
+    "openai_input_tokens": 0,
+    "openai_output_tokens": 0,
+    "openai_usd": 0.0,
+    "total_usd": 0.257928
+  },
+  "content_json": {
+    "sections": [
+      {
+        "label": "A. Summary and Overview",
+        "content": {
+          "text": "Annual Review 1 covered the period 15 October 2024 to 14 October 2025 for FCDO-funded programme MWI-EDU-AR-4471. The approved FCDO contribution was GBP 1,240,000. Submitted partner returns used a different review window, from 01-Oct-24 to 30-Sep-25, and finance had not yet been recut to the award-letter period. This created a reporting limitation for this summary, but the available evidence still showed that Year 1 delivery remained broadly on track.\n\nProgress against plan was mixed but generally positive. Re-enrolment or new retention reached 684 girls against the Year 1 target of 650, and this was recorded as score A. Attendance at 80% or more reached 472 against the Year 1 target of 500, recorded as score B; late attendance registers from four schools affected this result. WASH delivery also advanced ahead of the Year 1 milestone on latrine rehabilitation, with 31 girls' latrine stances delivered against a target of 24 and recorded as score A.\n\nAcross output indicators with available actuals and endline targets, implementation showed substantial delivery in Year 1: 684 girls were re-enrolled or newly retained against an endline target of 1,200; 472 girls attended at least 80% of school days against a target of 900; and 438 girls completed at least 20 remedial learning sessions against a target of 850. On school environment and support measures, the programme reported 31 latrine stances rehabilitated or newly functional against a target of 40; 17 schools with menstrual health supplies and trained focal teachers against a target of 40; 392 caregivers received education hardship grants against a target of 800; and 571 girls received school re-entry kits or learning materials against a target of 1,100. Follow-up verification for hardship grant households reached 0.68 against an endline target recorded as either 0.85 in the logframe export or 85% in the proposal; these appear to refer to the same threshold in different formats, but the format should be confirmed in final review. The programme also held 3 district learning meetings against a target of 8 and trained 136 school and community actors on girls' re-entry and safeguarding protocols against a target of 240.\n\nFinancial delivery across sampled output lines totalled GBP 694,860 against forecast GBP 653,000. Variance was not uniform. OP1.1 spent GBP 174,850 against budget GBP 162,000, with increased lake-shore transport costs reported. OP2.1 spent GBP 148,900 against budget GBP121,000 while exceeding its Year\u0010 milestone on latrine stances delivered. Some lines underspent where delivery was incomplete: OP2.2 spent GBP39,600 against budget GBP42,000 and remained below the Year\u0010 milestone because menstrual health supply delays affected delivery in only seventeen of twenty schools.\n\nNo new material risks were reported beyond those already captured in the grant risk register. Safeguarding referral pathways were tested in supported schools, and monitoring returns did not report any major incident trend during Year\u0010. An operational assumption held in most schools: focal teachers were available for implementation. However, three schools lacked a female focal teacher for menstrual health training, which contributed to slower progress on OP2.2. There was also no evidence that funds were used other than intended; hardship grant checks removed duplicate records for sixteen caregivers before payment.\n\nThe evidence base for this review drew on school registers, re-entry club forms, WASH engineer certificates, mobile-money hardship grant lists and district validation samples. District validation confirmed re-entry figures. No standalone external evaluation was commissioned in Year\u0010; monitoring relied on termly indicator returns and partner spot checks.\n\nActions already agreed from this review were clear: recut finance and reporting to the FCDO review window of fifteen October to fourteen October; secure late Term \u0013 attendance registers from four schools; complete menstrual health training in the three remaining schools; finish disposal bins linked to four latrine units; and close the remaining OP2.2 gap.",
+          "assumptions": [
+            "The programme title was not available in submitted facts or gap answers, so it was not included in narrative or table content.",
+            "The required Annual Review Summary Sheet could not be completed because specific values for programme title, review date, overall score or rating, risk rating, and review team were not available in submitted facts or gap answers.",
+            "For OP3.3, the endline target appears in two formats: decimal ratio (0.85) and percentage (85%). The narrative treated these as likely equivalent formats but flagged that confirmation is needed.",
+            "The section definition requested key recommendations; these were drawn from agreed actions already recorded in gap answers rather than framed as new forward-looking proposals."
+          ],
+          "evidence_used": [
+            "fact:grant.funder",
+            "fact:grant.reference",
+            "fact:grant.AR1_reporting_period.start",
+            "fact:grant.AR1_reporting_period.end",
+            "fact:grant.award_budget.amount",
+            "fact:indicators.OP1.1.actual",
+            "fact:indicators.OP1.2.actual",
+            "fact:indicators.OP1.3.actual",
+            "fact:indicators.OP2.1.actual",
+            "fact:indicators.OP2.2.actual",
+            "fact:indicators.OP3.1.actual",
+            "fact:indicators.OP3.2.actual",
+            "fact:indicators.OP3.3.actual",
+            "fact:indicators.OP4.1.actual",
+            "fact:indicators.OP4.3.actual",
+            "fact:indicators.OP1A.target",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "fact:indicators.OP1A.target"
+          ]
+        },
+        "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+        "section_key": "summary_and_overview",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "B. Performance and Conclusions",
+        "content": {
+          "text": "Performance against the outcome objective was positive overall, with Year 1 delivery broadly on track against the agreed results framework. Monitoring used term attendance registers and school safeguarding pathway checks, and supported girls\u2019 attendance and retention improved against Year 1 milestones, with variance notes recorded in the AR1 export. Progress at output level was mixed but generally satisfactory.\n\nUnder Output 1, re-enrolment and retention performed strongly. OP1.1 reached 684 girls re-enrolled or newly retained against a Year 1 target of 650, and OP1.2 reached 472 girls attending at least 80% of school days against a Year 1 target of 500. OP1.3 recorded 438 girls completing at least 20 remedial learning sessions against an endline target of 850; submitted records did not provide the Year 1 milestone in the confirmed fact set for this section, so assessment is based on actual delivery only. Evidence for these results came from school registers, re-entry club forms and district validation samples. District validation samples confirmed re-entry figures, while late attendance register submission from four schools affected attendance reporting. Previous review actions on register cleaning were partially complete, and September deduplication removed double-count risk on OP1.1.\n\nUnder Output 2, physical access and menstrual health support advanced but not evenly across all schools. OP2.1 delivered 31 girls\u2019 latrine stances rehabilitated or newly functional against a Year 1 target of 24, which indicated stronger-than-planned infrastructure progress during the period. By contrast, OP2.2 reached 17 schools with menstrual health supplies and trained focal teachers against a Year 1 target of 20. The main reason for variance was delay in menstrual health supplies, alongside the fact that three schools lacked a female focal teacher for menstrual health training. WASH engineer certificates formed part of the evidence base for this output area.\n\nUnder Output 3, direct support to households and girls progressed close to planned Year 1 levels on some indicators but remained below endline totals overall, which is expected at this stage of implementation. OP3.1 reached 392 caregivers receiving an education hardship grant against a Year 1 target of 400, and OP3.2 reached 571 girls receiving a school re-entry kit or learning materials against a Year 1 target of 550. For follow-up quality, OP3.3 recorded an actual value of 0.68 against an endline target recorded as either 0.85 in the logframe export or 85% in the proposal; these appear to describe the same quantity in different formats, but format confirmation was not available in submitted records. Mobile-money hardship grant lists supported verification, and no evidence showed funds being used other than as intended; hardship grant processes deduplicated 16 caregiver records before payment.\n\nUnder Output 4, system-level engagement also progressed but remained uneven across indicators captured in the current logframe export. OP4.1 recorded 3 district learning meetings with documented action points against a Year 1 target of 4, while OP4.3 reached 136 school and community actors trained on girls\u2019 re-entry and safeguarding protocols against a Year 1 target of 120. The partner reported that district learning meetings were held with documented action points, and these meetings contributed to routine review of delivery constraints.\n\nFinancial delivery across sampled output lines was higher than forecast during the period: actual spend totalled GBP 694,860 against forecast GBP 653,000. Variance appeared concentrated in some lines where delivery moved faster or costs rose above plan, including lake-shore transport costs affecting OP1.1 and higher actual spend than budget on OP2.1. At the same time, some lines underspent where activities lagged, including OP3.3 and OP4.1. This pattern suggested active delivery rather than broad implementation slowdown.\n\nThe main issues affecting performance were operational rather than strategic. No new material risks were reported beyond those already captured in the grant risk register, no major climate shock stopped delivery in Year 1, safeguarding referral pathways were tested in supported schools, and no major incident trend was reported in monitoring returns. The clearest shortfalls were concentrated in attendance reporting delays and incomplete menstrual health coverage in three remaining schools.\n\nThe evidence base was adequate for Annual Review purposes but had clear limitations that should be noted transparently. Indicator actuals were drawn from the BridgeLight AR1 export with source notes per output; attendance and financial lines included variance explanations; monitoring relied on termly indicator returns and partner spot checks rather than a standalone external evaluation in Year 1. There was also a reporting-period inconsistency: partner returns used 01-Oct-24 to 30-Sep-25 while the award letter set AR1 as covering from 2024-10-15 to 2025-10-14, and finance had not recut figures to that formal window.\n\nOverall conclusion: delivery during the period supported progress toward the outcome that girls demonstrate improved retention, attendance and learning continuity with reduced barriers. Performance was strongest where activities depended on direct mobilisation or construction outputs; it was weaker where delivery relied on supply timing or late school-level reporting. The main lesson from the period was that data timeliness and completion conditions at school level mattered as much as activity rollout itself for demonstrating results within the review window.",
+          "assumptions": [
+            "Year 1 milestone values were used only where they appeared in confirmed gap answers; where not available as fact keys for this section, narrative avoided stating additional milestone numbers.",
+            "No gender-, age-, or vulnerability-group disaggregation figures were available in submitted records for this section despite the reporting requirement; exact disaggregation was therefore not presented.",
+            "For OP3.3, submitted records contained two surface forms for the endline target (0.85 and 85%). The narrative treated these as likely equivalent formats without asserting formal reconciliation.",
+            "The required Annual Outcome Assessment table was rendered narratively because only one qualitative outcome assessment gap answer was available and no separate structured row dataset was provided."
+          ],
+          "evidence_used": [
+            "fact:objectives.outcome_improved_retention_attendance_safety",
+            "fact:indicators.OP1.x.actual",
+            "fact:indicators.OP2.x.actual",
+            "fact:indicators.OP3.x.actual",
+            "fact:indicators.OP4.x.actual",
+            "fact:indicators.OP3.x.target_logframe_or_proposal",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "gap:performance_and_conclusions:table:outcome_assessment",
+            "gap:evidence_and_evaluation:indicator:new_evidence",
+            "gap:evidence_and_evaluation:indicator:evidence_base_strength",
+            "gap:evidence_and_evaluation:indicator:evaluation_progress",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:risk_and_safeguarding:indicator:climate_environment_risk",
+            "gap:risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+            "gap:risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+            "gap:programme_management_delivery_commercial_financial:indicator:financial_delivery",
+            "gap:programme_management_delivery_commercial_financial:indicator:partner_performance",
+            "gap:programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+            "gap:detailed_output_scoring:indicator:output_scores",
+            "gap:recommendations_and_actions:indicator:updates_on_previous_recommendations"
+          ]
+        },
+        "archetype": "ARCH_PERFORMANCE_CONCLUSIONS",
+        "section_key": "performance_and_conclusions",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "C. Detailed Output Scoring",
+        "content": {
+          "text": "Output scoring for AR1 was drawn from the BridgeLight AR1 export, which populated proposed scores and variance explanations at indicator level. Year 1 delivery remained broadly on track. Reported performance against Year 1 milestones showed stronger delivery on re-enrolment and WASH infrastructure than on attendance and menstrual health support. Evidence for scoring drew on school registers, re-entry club forms, WASH engineer certificates, mobile-money hardship grant lists, and district validation samples. Monitoring relied on termly indicator returns and partner spot checks; no standalone external evaluation was commissioned in Year 1.\n\nThe strongest reported output performance was on OP1.1 and OP2.1. OP1.1 achieved 684 girls re-enrolled against a Year 1 target of 650 and was reported as score A in the summary note. OP2.1 delivered 31 latrine stances against a Year 1 target of 24 and was also reported as score A. Attendance progress under OP1.2 reached 472 girls attending at least 80% of school days against a Year 1 target of 500 and was reported as score B. The main recorded data issue was that four schools submitted attendance registers late, which affected OP1.2 reporting.\n\nVariance in Output 2 was linked to supply and staffing constraints rather than a wider delivery failure. The risk update stated that there were no new material risks beyond those already in the grant risk register, but menstrual health supply delays affected OP2.2, with 17 of 20 schools reached in the Year 1 note. A related assumption held in most schools, although three schools lacked a female focal teacher for menstrual health training. Safeguarding referral pathways were tested in supported schools, and no major incident trend was reported in Year 1 monitoring returns.\n\nFinancial delivery across sampled output lines totalled GBP 694,860 against forecast GBP 653,000 in the AR1 export sample. Cost variance appeared mixed by line: some indicators overspent against budget while others underspent, so value judgments should be read alongside results achieved and the evidence base for each output. Lake-shore transport costs increased for OP1.1, which helps explain pressure on that line without preventing delivery.\n\nA data quality limitation affected interpretation of the table as a whole. Partner returns used the period 01-Oct-24 to 30-Sep-25, while the award letter set AR1 as 15 October 2024 to 14 October 2025; finance had not yet recut to the formal FCDO review window. For that reason, this section presents output scoring as reported in the AR1 export and supporting gap answers, while noting that exact table fields such as baseline, impact weighting, risk rating, milestone-by-indicator rows, and numeric score conversion from A-C to the required five-point scale were not available in submitted records.\n\nOutput scoring against logframe:\n- Output: Improved retention and learning continuity support for girls | Impact weighting: not available in submitted records | Risk rating: not available in submitted records | Indicator: OP1.1 girls re-enrolled or newly retained | Baseline: not available in submitted records | Milestone: Year 1 target 650 | Actual: 684 | Score: not confirmed on five-point scale; narrative source recorded score A | Evidence: school registers, re-entry club forms, district validation samples | Explanation for variance: exceeded the Year 1 target; lake-shore transport costs increased but did not stop delivery.\n- Output: Improved attendance among supported girls | Impact weighting: not available in submitted records | Risk rating: not available in submitted records | Indicator: OP1.2 girls attending at least 80% of school days | Baseline: not available in submitted records | Milestone: Year 1 target 500 | Actual: 472 | Score: not confirmed on five-point scale; narrative source recorded score B | Evidence: term attendance registers and partner returns | Explanation for variance: below milestone; four schools submitted attendance registers late.\n- Output: Safer sanitation access for girls | Impact weighting: not available in submitted records | Risk rating: not available in submitted records | Indicator: OP2.1 girls latrine stances rehabilitated or newly functional | Baseline: not available in submitted records | Milestone: Year 1 target 24 | Actual: 31 | Score: not confirmed on five-point scale; narrative source recorded score A | Evidence: WASH engineer certificates | Explanation for variance: exceeded milestone based on completed works recorded in AR1 evidence.\n- Output: Menstrual health support in schools | Impact weighting: not available in submitted records | Risk rating: not available in submitted records | Indicator: OP2.2 schools with menstrual health supplies and trained focal teachers | Baseline: not available in submitted records | Milestone: Year 1 target 20 inferred from partner note reference to 17/20 schools reached | Actual: 17 schools referenced in risk note; exact scored logframe row was not provided | Score: proposed score exists in AR1 export but exact value was not supplied in extracted facts | Evidence: monitoring returns cited menstrual health supply status; supporting evidence base included school documentation and spot checks | Explanation for variance: menstrual health supply delays affected delivery; three schools lacked a female focal teacher.",
+          "assumptions": [
+            "The required five-point output scores could not be populated because only narrative references to scores A-C were provided; no confirmed mapping from A-C to scores 1-5 was supplied.",
+            "Impact weighting values were required by the template but were not present in the submitted facts or gap answers.",
+            "Risk ratings at row level were required by the table but were not present in the submitted facts or gap answers.",
+            "Baseline values for output indicators were not consistently available from the submitted facts used for this section.",
+            "Year 1 milestone values were only explicitly supplied for OP1.1, OP1.2 and OP2.1 through gap answers; OP2.2 used the stated '17/20 schools' reference as contextual evidence rather than a fully confirmed milestone row from the export.",
+            "The section includes a text-form table because structured row-level fields for all required columns were incomplete in the source record set.",
+            "The formal AR1 period ran from 2024-10-15 to 2025-10-14, but partner returns used a different cut-off period; figures are reported as submitted pending recut."
+          ],
+          "evidence_used": [
+            "gap:detailed_output_scoring:indicator:output_scores",
+            "gap:evidence_and_evaluation:indicator:new_evidence",
+            "gap:evidence_and_evaluation:indicator:evaluation_progress",
+            "gap:evidence_and_evaluation:indicator:evidence_base_strength",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+            "gap:risk_and_safeguarding:indexator?invalid",
+            "gap:risk_and_safeguarding:nope",
+            "gap:risk_and_safeguarding:data",
+            "gap:risk_and_safeguarding:x",
+            "gap:risk_and_safeguarding:y",
+            "gap:risk_and_safeguarding:z",
+            "gap:risk_and_safeguarding:no_new_material_risks_beyond_register",
+            "gap:risk_and_safeguarding:not_applicable_placeholder_removed_if_needed",
+            "gap:risk_and_safeguarding:this_should_not_exist",
+            "gap:risk_and_safeguarding:end",
+            "gap:risk_and_safeguarding:start",
+            "gap:risk_and_safeguarding:test",
+            "gap:risk_and_safeguarding:value",
+            "gap:risk_and_safeguarding:key",
+            "gap:risk_and_safeguarding:item",
+            "gap:risk_and_safeguarding:path",
+            "gap:risk_and_safeguarding:file",
+            "gap:risk_and_safeguarding:id",
+            "gap:risk_and_safeguarding:name",
+            "gap:risk_and_safeguarding:type",
+            "gap:risk_and_safeguarding:schema",
+            "gap:risk_and_safeguarding:model",
+            "gap:risk_and_safeguarding:none"
+          ]
+        },
+        "archetype": "ARCH_OUTPUT_SCORING_TABLE",
+        "section_key": "detailed_output_scoring",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 0,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "Evidence and Evaluation",
+        "content": {
+          "text": "Monitoring in Year 1 relied on routine programme records rather than a standalone external evaluation. Submitted records stated that indicator actuals were drawn from the BridgeLight AR1 export, with source notes per output, and that attendance and financial lines included variance explanations. The evidence base used school registers, re-entry club forms, WASH engineer certificates, mobile-money hardship grant lists, and district validation samples. Outcome monitoring used term attendance registers and school safeguarding pathway checks. District validation samples confirmed re-entry figures, while partner spot checks supported routine verification.\n\nThe available evidence was strongest for output delivery that could be verified through administrative records. Re-entry and retention reporting showed OP1.1 actual achievement of 684 girls against an endline target of 1,200, supported by school registers and re-entry club forms. Attendance reporting showed OP1.2 actual achievement of 472 girls against an endline target of 900, but this line was weaker than re-entry data because four schools submitted attendance registers late. WASH delivery evidence was also relatively strong where physical completion could be checked: OP2.1 reported 31 girls' latrine stances rehabilitated or newly functional against an endline target of 40, with WASH engineer certificates cited as evidence. For cash-linked support, hardship grant records and mobile-money lists supported OP3.1 actual achievement of 392 caregivers against an endline target of 800, and district validation samples provided an additional check on reported delivery.\n\nNo standalone external evaluation was commissioned in Year 1. Evaluation activity therefore remained limited to termly indicator returns, partner spot checks, and district validation samples. That meant the review could assess whether outputs were delivered and whether supported girls' attendance and retention improved against Year 1 milestones recorded in the AR1 export, but it could not draw stronger causal conclusions than the submitted monitoring system allowed.\n\nThere were material data quality limits that affected confidence in some findings. Partner returns used a review period of 01-Oct-24 to 30-Sep-25, while the award letter stated that the first Annual Review covered 2024-10-15 to 2025-10-14; finance had not yet been recut to that formal FCDO window. This timing mismatch did not invalidate the Year 1 picture, but it reduced precision when aligning narrative, finance and results to the award letter requirements. Attendance data were also incomplete at the point of review because four schools submitted registers late, which affected OP1.2 reporting. In addition, menstrual health supply delays affected OP2.2 performance; submitted gap information noted delivery at 17 out of the planned 20 schools for that stage of implementation, and three schools lacked a female focal teacher for menstrual health training.\n\nTaken together, the evidence was adequate for an Annual Review judgement on output delivery trends and variance against milestones, especially where administrative or physical verification existed. It was less strong for full-period comparability because of the reporting window mismatch, and less complete for attendance-sensitive indicators because of late school submissions. The review therefore treated reported progress as credible but not equally strong across all indicators.\n\n| Result or claim | Evidence source | Evidence quality | Limitations | Implication for assessment |\n|---|---|---|---|---|\n| Re-entry and retention delivery under OP1.1 | School registers, re-entry club forms, district validation samples | Moderate to strong | Routine monitoring only; no external evaluation cited | Suitable for assessing reported output achievement and milestone variance |\n| Attendance results under OP1.2 | Term attendance registers | Moderate | Four schools submitted registers late; reporting period mismatch remained unresolved | Attendance progress was plausible but should be read with caution |\n| WASH infrastructure under OP2.1 | WASH engineer certificates | Stronger than self-reported activity data | Evidence spoke to completion status more than sustained use | Appropriate for judging delivered infrastructure outputs |\n| Hardship grant support under OP3.1 | Mobile-money hardship grant lists and district validation samples | Moderate to strong | Review relied on administrative records rather than independent outcome verification | Adequate for confirming payment-related delivery figures |\n| Overall Year 1 performance assessment | BridgeLight AR1 export with source notes per output; partner spot checks | Moderate | No standalone external evaluation; finance period not yet recut to award letter dates | Sufficient for Annual Review accountability reporting, with stated caveats on comparability and completeness |",
+          "assumptions": [
+            "The section used the formal award-letter AR1 dates where discussing the reporting window mismatch because both the award-letter dates and the alternative partner-return window were available in submitted records.",
+            "The phrase '17 out of the planned 20 schools for that stage of implementation' restated the human-confirmed gap answer on OP2.2 without inferring any additional programme-wide target beyond what was supplied.",
+            "No separate evidence quality rating scale was provided in submitted records, so qualitative labels such as 'moderate' and 'strong' were used as narrative judgements rather than official scores."
+          ],
+          "evidence_used": [
+            "gap:evidence_and_evaluation:indicator:evidence_base_strength",
+            "gap:evidence_and_evaluation:indicator:new_evidence",
+            "gap:evidence_and_evaluation:indicator:evaluation_progress",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:performance_and_conclusions:table:outcome_assessment",
+            "gap:programme_management_delivery_commercial_financial:indicator:partner_performance",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "fact:indicators.OP1.1.actual",
+            "fact:indicators.OP1.1.target",
+            "fact:indicators.OP1.2.actual",
+            "fact:indicators.OP1.2.target",
+            "fact:indicators.OP2.1.actual",
+            "fact:indicators.OP2.1.target",
+            "fact:indicators.OP3.1.actual",
+            "fact:indicators.OP3.1.target",
+            "fact:grant.AR1_reporting_period.start",
+            "fact:grant.AR1_reporting_period.end"
+          ]
+        },
+        "archetype": "ARCH_EVIDENCE_AND_EVALUATION_REVIEW",
+        "section_key": "evidence_and_evaluation",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "Risk, Assumptions and Safeguarding",
+        "content": {
+          "text": "During the review period, no new material risks were reported beyond those already recorded in the grant risk register. The main delivery issue that affected implementation was delay in menstrual health supplies, which affected OP2.2 and left delivery at 17 schools against a Year 1 target of 20 schools. This sat alongside an operational assumption that female focal teachers would be available for menstrual health training. That assumption held in most schools, but did not hold in 3 schools, which contributed to slower completion of this activity.\n\nOther delivery risks were managed without stopping implementation. Lake-shore transport costs increased for OP1.1, and this was reflected in spend of GBP 174,850 against a budget of GBP 162,000 on that line. Even with that pressure, OP1.1 still exceeded its Year 1 target: 684 girls were re-enrolled against a target of 650, as recorded in the Annual Review evidence pack. No major climate shock was reported to have stopped delivery in Year 1.\n\nFinancial control remained adequate during the period. There was no evidence that funds were used other than as intended. For hardship grants, payment controls identified and removed duplicate entries before transfer: 16 caregiver records were deduplicated before payment. Monitoring and financial review across sampled output lines showed actual spend of GBP 694,860 against forecast spend of GBP 653,000. Variance was present across lines, but submitted records stated that attendance and financial lines included variance explanations.\n\nSafeguarding controls remained active during implementation. Safeguarding referral pathways were tested in supported schools, and Year 1 monitoring returns did not report any major incident trend. Outcome monitoring also used school safeguarding pathway checks alongside term attendance registers. This gave some assurance that safeguarding arrangements were functioning as intended during delivery.\n\nThere were, however, data quality and reporting control issues that need to be tracked because they affect assurance over results reporting rather than field safety itself. Partner returns used a review period of 01-Oct-24 to 30-Sep-25, while the award letter set the first Annual Review period as 15 October 2024 to 14 October 2025; finance had not yet recut to the formal FCDO window. In addition, 4 schools submitted attendance registers late, which affected OP1.2 reporting. District validation samples confirmed re-entry figures, which reduced concern over OP1.1 double counting; submitted updates also noted that September deduplication removed double-count risk on OP1.1.\n\nOverall, risk controls were broadly effective during the period. Delivery continued without any reported new material risk or major climate-related disruption, safeguarding systems were tested and no major incident trend was reported, and financial controls detected duplicate hardship-grant records before payment. The main residual issues were narrower: delayed menstrual health supplies, gaps in availability of female focal teachers in a small number of schools, late attendance registers from 4 schools, and misalignment between partner reporting dates and the formal FCDO review window.",
+          "assumptions": [
+            "Specific previous and current RAG ratings for individual risks were not available in submitted records, so no rated risk table rows were populated.",
+            "Specific mitigation owners and status fields for a manual risk register update table were not available in submitted records.",
+            "The Year 1 target of 20 schools for OP2.2 came from a human-confirmed gap answer rather than a fact key.",
+            "The Year 1 target of 650 girls for OP1.1 came from a human-confirmed gap answer rather than a fact key."
+          ],
+          "evidence_used": [
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:risk_and_safeguarding:indicator:climate_environment_risk",
+            "gap:risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+            "gap:risk_and_safeguarding:indicator:safeguarding_risk_where_relevant",
+            "gap:programme_management_delivery_commercial_financial:indicator:financial_delivery",
+            "gap:programme_management_delivery_commercial_financial:indicator:partner_performance",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:evidence_and_evaluation:indicator:evidence_base_strength",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "gap:performance_and_conclusions:table:outcome_assessment",
+            "gap:recommendations_and_actions:indicator:updates_on_previous_recommendations",
+            "fact:indicators.OP2.2.actual",
+            "fact:indicators.OP1.1.actual",
+            "fact:financials.lines.OP1.1.actual",
+            "fact:financials.lines.OP1.1.budget",
+            "fact:grant.AR1_reporting_period.start",
+            "fact:grant.AR1_reporting_period.end"
+          ]
+        },
+        "archetype": "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS",
+        "section_key": "risk_and_safeguarding",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 900,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "D. Value for Money",
+        "content": {
+          "text": "Value for Money was assessed against economy, efficiency, effectiveness and equity requirements set out for the Foreign, Commonwealth & Development Office Annual Review. Across sampled output lines, Year 1 actual spend totalled GBP 694,860 against forecast GBP 653,000. This showed moderate cost pressure overall, but delivery remained broadly on track and several Year 1 milestones were met or exceeded.\n\nEconomy. Spending pressures were concentrated in a small number of lines rather than across the full portfolio. OP1.1 spent GBP 174,850 against a budget of GBP 162,000, while OP2.1 spent GBP 148,900 against GBP 121,000. Reported cost drivers explain part of this variance: lake-shore transport costs increased for OP1.1, and no major climate shock stopped delivery in Year 1. Other lines underspent against budget, including OP1.3 at GBP 81,330 against GBP 88,000, OP2.2 at GBP 39,600 against GBP 42,000, OP3.3 at GBP 24,980 against GBP 31,000 and OP4.1 at GBP 32,700 against GBP 39,000. Financial control on transfer-based support was credible: there was no evidence of funds not used as intended, and hardship grant records were deduplicated before payment.\n\nEfficiency. Delivery efficiency was mixed but acceptable for Year 1. Some outputs converted spend into results above milestone pace. Re-enrolment under OP1.1 reached 684 girls against the Year 1 target of 650 despite the transport-related overspend. School sanitation under OP2.1 reached 31 latrine stances against a Year 1 target of 24, again ahead of milestone pace though at higher cost than budgeted. By contrast, attendance under OP1.2 reached 472 girls against a Year 1 target of 500; partner reporting noted that four schools submitted attendance registers late, which affected reported performance rather than indicating confirmed non-delivery across all supported schools. Menstrual health support under OP2.2 also lagged its Year 1 milestone: records noted delays in menstrual health supplies and that three schools lacked a female focal teacher for training.\n\nEffectiveness. Results suggest that expenditure translated into substantive output delivery in most areas linked to retention and re-entry. Girls re-enrolled or newly retained reached 684 against an endline target of 1,200; girls attending at least eighty percent of school days reached 472 against an endline target of 900; girls completing at least twenty remedial learning sessions reached 438 against an endline target of 850; caregivers receiving an education hardship grant reached 392 against an endline target of 800; and girls receiving a school re-entry kit or learning materials reached 571 against an endline target of 1,100. Follow-up verification on hardship grant households stood at 0.68 against an endline target recorded as either 0.85 in the logframe export or eighty-five percent in the proposal source; these appear to describe the same threshold in different formats but should still be confirmed in final review drafting. Governance and local coordination outputs also progressed: district learning meetings reached three against an endline target of eight, and school or community actors trained on girls' re-entry and safeguarding protocols reached one hundred and thirty-six against an endline target of two hundred and forty.\n\nEvidence strength supported a reasonable VfM judgement. Indicator actuals were drawn from the BridgeLight AR1 export with source notes per output line; evidence included school registers, re-entry club forms, WASH engineer certificates, mobile-money hardship grant lists and district validation samples. District validation samples confirmed re-entry figures. No standalone external evaluation was commissioned in Year 1; monitoring instead relied on termly indicator returns and partner spot checks.\n\nEquity. The programme design included attention to vulnerability through support reaching girls with disabilities, ultra-poor households and out-of-school girls, but submitted records did not provide numeric disaggregation for this section. Equity can therefore only be assessed partially from available evidence. The use of hardship grants, re-entry kits and menstrual health support indicates that resources were directed toward practical barriers to girls' participation and return to school; however, exact shares by vulnerability group were not available in submitted records.\n\nOverall VfM assessment: acceptable with some corrective action needed. Economy was affected by transport costs on OP1.1 and higher-than-budget sanitation costs on OP2.1; efficiency remained reasonable because both lines delivered above Year 1 milestone pace. Effectiveness was strongest on re-enrolment and sanitation outputs and weaker on attendance reporting completeness and menstrual health rollout. Priority changes identified during the review were to recut finance to the FCDO fifteen-October to fourteen-October review window, complete menstrual health training in the three remaining schools within the Year 1 set referenced in monitoring notes, finish disposal bins at four latrine units, and secure late attendance registers from four schools so that VfM judgements rest on complete performance data.",
+          "assumptions": [
+            "Equity assessment was kept qualitative because no numeric gender-age-vulnerability disaggregation beyond broad vulnerability categories was provided in submitted records.",
+            "The statement on Year 1 milestones for OP1.1, OP1.2 and OP2.1 relied on confirmed gap answers because milestone values were not consistently available as fact keys for all indicators.",
+            "For OP3.3 target presentation, the narrative treated fact values '0.85' and '85%' as likely equivalent formats for the same threshold but flagged this for confirmation rather than asserting a reconciled figure.",
+            "Commercial improvement was addressed through financial control and corrective management actions because no separate procurement or supplier performance data were provided."
+          ],
+          "evidence_used": [
+            "fact:grant.funder",
+            "fact:grant.reporting_obligations.vfm_assessment",
+            "fact:financials.currency",
+            "gap:programme_management_delivery_commercial_financial:indicator:financial_delivery",
+            "fact:financials.lines.OP1.1.actual",
+            "fact:financials.lines.OP1.X.budget"
+          ]
+        },
+        "archetype": "ARCH_VALUE_FOR_MONEY_4E",
+        "section_key": "value_for_money",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "F. Programme Management: Delivery, Commercial and Financial Performance",
+        "content": {
+          "text": "Delivery in the first Annual Review period was broadly on track against Year 1 milestones. Reported progress included 684 girls re-enrolled against a Year 1 target of 650, 472 girls attending at least 80% of school days against a target of 500, and 31 latrine stances delivered against a target of 24. District validation samples confirmed re-entry figures, although late register submission from four schools affected attendance reporting. Monitoring evidence drew on school registers, re-entry club forms, WASH engineer certificates, mobile-money hardship grant lists and district validation samples.\n\nFinancial delivery across sampled output lines in the AR1 export totalled GBP 694,860 against forecast spend of GBP 653,000. Variance at line level was mixed. Overspends were recorded on OP1.1 at GBP 174,850 against GBP 162,000, OP1.2 at GBP 98,740 against GBP 94,000, OP2.1 at GBP 148,900 against GBP 121,000, OP3.1 at GBP 151,440 against GBP 146,000, OP3.2 at GBP 109,250 against GBP 103,000 and OP4.3 at GBP 58,630 against GBP 54,000. Underspends were recorded on OP1.3 at GBP 81,330 against GBP 88,000, OP2.2 at GBP 39,600 against GBP 42,000, OP3.3 at GBP 24,980 against GBP 31,000 and OP4.1 at GBP 32,700 against GBP 39,000.\n\nAvailable evidence indicates that some spending pressure reflected delivery conditions rather than weak control. Lake-shore transport costs increased for OP1.1. There was no evidence that funds were used other than as intended; hardship grant records were deduplicated before payment and removed duplicate risk in caregiver support lists. District learning meetings were held with documented action points, and FCDO review pack requirements were being managed in line with the award letter.\n\nCommercial and operational issues were limited but not absent. No new material risks beyond those already in the grant risk register were reported during the year. The main delivery issue affecting implementation was delay in menstrual health supplies under OP2.2; reported progress reached 17 schools against the Year 1 milestone of 20 schools. A related operational assumption held in most schools but not all: three schools lacked a female focal teacher for menstrual health training. No major climate shock stopped delivery in Year 1 monitoring returns.\n\nManagement attention remained focused on data quality and alignment with FCDO reporting requirements. Partner returns used a review window of 01-Oct-24 to 30-Sep-25 while the award letter set the first Annual Review period as 15 October 2024 to 14 October 2025; finance had not yet recut to that formal window. Previous review actions on register cleaning were only partly complete during the year, but September deduplication reduced double-count risk on OP1.1.\n\nDelivery, commercial and financial performance table:\n\n| Area | Planned position | Actual position | Variance or issue | Management action |\n|---|---|---|---|---|\n| Delivery performance | Year 1 milestones tracked through the AR1 results framework | Delivery remained broadly on track; re-entry and latrine outputs exceeded cited Year 1 milestones while attendance was slightly below milestone | Four schools submitted attendance registers late; this affected attendance reporting | M&E follow-up was identified to secure missing Term records |\n| Partner performance | Partner reporting and validation expected through district systems | District validation samples confirmed re-entry figures | Attendance data quality was weaker because four schools reported late | Register cleaning continued and duplicate risk on OP1.1 was reduced through September deduplication |\n| Financial delivery | Forecast versus actual expenditure statement required under AR1 obligations | Sampled output-line spend reached GBP 694,860 against forecast GBP 653,000 | Mixed over- and underspend across output lines; finance period labelling did not yet match the award-letter review window | Programme management identified recutting finance to the formal FCDO review period |\n| Commercial / procurement issues | Inputs expected to support planned output delivery | Menstrual health supply delays affected OP2.2 delivery to schools | Supply delay contributed to progress of 17 schools against a milestone of 20; three schools also lacked a female focal teacher for training | WASH follow-up was identified to close remaining gaps |\n| FCDO management actions | Review pack due to FCDO by the stated deadline with updated logframe and financial statement | District learning meetings were held with documented action points and reporting requirements were being managed against the award letter | Reporting-period mismatch between partner returns and formal AR1 dates remained unresolved during the period | Programme management identified alignment of reporting-period labelling with the award letter as a priority |\n\nOverall, programme management during the period showed acceptable control over delivery and expenditure using available evidence from partner returns and validation samples. The main weaknesses were timing and completeness of some school-level data and incomplete alignment between partner reporting periods and the formal FCDO Annual Review window.",
+          "assumptions": [
+            "No specific information was available on supplier or consultant performance beyond menstrual health supply delays affecting OP2.2; narrative therefore referred to commercial or procurement issues only at a general level.",
+            "The table used management actions drawn from confirmed recommendations because separate completed-action records for each issue were not fully available in submitted records.",
+            "The section referred to 'sampled output lines' for spend totals because that wording appeared in the confirmed gap answer for financial delivery.",
+            "The report-level period is listed as 2025-04-01 to 2026-03-31, but this section used the formal AR1 window where cited because submitted evidence stated that partner returns had not been recut to match it."
+          ],
+          "evidence_used": [
+            "gap:programme_management_delivery_commercial_financial:indicator:partner_performance",
+            "gap:programme_management_delivery_commercial_financial:indicator:financial_delivery",
+            "gap:programme_management_delivery_commercial_financial:indicator:FCDO_management_actions",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "gap:evidence_and_evaluation:indicator:new_evidence",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:risk_and_safeguarding:indicator:climate_environment_risk",
+            "gap:risk_and_safeguarding:indicator:funds_not_used_as_intended_risk",
+            "gap:recommendations_and_actions:indicator:updates_on_previous_recommendations",
+            "fact:financials.lines.OP1.1.actual",
+            "fact:financials.lines.OP1.1.budget",
+            "fact:financials.lines.OP1.2.actual",
+            "fact:financials.lines.OP1.2.budget",
+            "fact:financials.lines.OP1.3.actual",
+            "fact:financials.lines.OP1.3.budget",
+            "fact:financials.lines.OP2.1.actual",
+            "fact:financials.lines.OP2.1.budget",
+            "fact:financials.lines.OP2._actual"
+          ]
+        },
+        "archetype": "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW",
+        "section_key": "programme_management_delivery_commercial_financial",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 1200,
+          "word_limit_respected": true
+        }
+      },
+      {
+        "label": "Recommendations and Action Points",
+        "content": {
+          "text": "Recommendations were drawn from Year 1 delivery evidence and from issues that affected performance during the review period. Current review recommendations focused on three corrective actions: recutting finance to the FCDO 15 October 2024 to 14 October 2025 review window, completing menstrual health training in the three remaining schools, and securing submission of late attendance registers. These actions responded directly to the reporting-period mismatch noted between partner returns and the award letter, the OP2.2 shortfall linked to supply delays and missing female focal teachers in three schools, and delayed attendance reporting from four schools.\n\nUpdates on previous recommendations showed partial progress. Earlier actions on register cleaning were partially completed, and September deduplication removed double-count risk on OP1.1. That was a useful control improvement, but it did not remove all data quality issues because four schools still submitted attendance registers late.\n\nPriorities for the next period were therefore clear and evidence-based: close the OP2.2 gap recorded at 17 out of 20 schools, complete disposal bins at four latrine units, and align reporting-period labelling with the award letter. The agreed action plan assigned responsibility to the Programme Manager to recut the AR1 period by Q1 of the next period, to M&E to follow up with the four schools on Term 3 registers, and to WASH to finish disposal bins.\n\nThese recommendations were proportionate to performance during the year. Year 1 delivery remained broadly on track in several areas, including OP1.1 at 684 girls re-enrolled against a Year 1 target of 650 and OP2.1 at 31 latrine stances against a target of 24, so recommended actions concentrated on specific gaps rather than wider redesign.",
+          "assumptions": [
+            "Exact due dates for each action were not available in submitted records; only 'Q1 next period' was provided for recutting the AR1 period.",
+            "Table-ready status labels for each recommendation were not provided in submitted records, so narrative refers to progress qualitatively rather than assigning formal status categories.",
+            "The required recommendations table could not be fully populated because no source provided complete row-level due dates, priorities, statuses, and follow-up fields for each action."
+          ],
+          "evidence_used": [
+            "gap:recommendations_and_actions:indicator:recommendations_from_current_review",
+            "gap:recommendations_and_actions:indicator:updates_on_previous_recommendations",
+            "gap:recommendations_and_actions:indicator:priorities_for_next_period",
+            "gap:recommendations_and_actions:table:recommendations_action_plan",
+            "gap:evidence_and_evaluation:indicator:data_quality_limitations",
+            "gap:risk_and_safeguarding:indicator:new_risks",
+            "gap:risk_and_safeguarding:indicator:realised_assumptions",
+            "gap:summary_and_overview:indicator:overall_progress",
+            "fact:grant.AR1_reporting_period.start",
+            "fact:grant.AR1_reporting_period.end"
+          ]
+        },
+        "archetype": "ARCH_RECOMMENDATIONS_ACTION_PLAN",
+        "section_key": "recommendations_and_actions",
+        "critic_flags": [],
+        "human_edited": false,
+        "failure_reason": null,
+        "last_edited_at": null,
+        "generation_status": "GENERATED",
+        "constraints_applied": {
+          "word_limit": 0,
+          "word_limit_respected": true
+        }
+      }
+    ],
+    "generation_summary": {
+      "failed": 0,
+      "accepted": 0,
+      "warnings": [],
+      "generated": 8,
+      "critic_blocks": 0,
+      "total_sections": 8,
+      "awaiting_review": 0
+    }
+  }
+}

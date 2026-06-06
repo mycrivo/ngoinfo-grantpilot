@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 from docx import Document
-from docx.shared import Pt
+
+from app.core.docx_presentation import (
+    add_assumptions_appendix,
+    add_branded_title_block,
+    add_document_footer,
+    apply_house_styles,
+    strip_markdown_heading_prefix,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -33,9 +41,7 @@ def resolve_docx_template_path(docx_template_ref: str | None) -> Path | None:
 
 
 def _apply_basic_styles(document: Document) -> None:
-    style = document.styles["Normal"]
-    style.font.name = "Arial"
-    style.font.size = Pt(11)
+    apply_house_styles(document)
 
 
 def _terminology_substitutions(terminology_map: dict[str, Any]) -> list[tuple[re.Pattern[str], str]]:
@@ -145,6 +151,8 @@ def render_donor_report_docx(
     reporting_period_end: str,
     funder_name: str,
     template_name: str,
+    ngo_name: str = "",
+    generated_at: datetime | None = None,
 ) -> tuple[bytes, str]:
     """
     Build export bytes and report which template path was used.
@@ -161,11 +169,19 @@ def render_donor_report_docx(
 
     _apply_basic_styles(document)
 
-    title = str(format_rules_json.get("document_title") or template_name or "Donor Report")
-    document.add_heading(title, level=0)
-    document.add_paragraph(f"Funder: {funder_name}")
-    document.add_paragraph(
-        f"Reporting period: {reporting_period_start} to {reporting_period_end}"
+    when = generated_at or datetime.now(timezone.utc)
+    document_title = str(
+        format_rules_json.get("document_title") or template_name or "Donor Report"
+    )
+    add_branded_title_block(
+        document,
+        org_name=ngo_name or "Organisation",
+        document_title=f"Donor Report — {funder_name}",
+        subtitle_lines=[
+            f"Reporting period: {reporting_period_start} to {reporting_period_end}",
+            document_title if document_title != funder_name else "",
+        ],
+        document_date=when,
     )
     document.add_page_break()
 
@@ -175,44 +191,46 @@ def render_donor_report_docx(
             sections_by_key[str(item["section_key"])] = item
 
     subs = _terminology_substitutions(terminology_map_json)
+    collected_assumptions: list[str] = []
 
     for template_section in template_sections:
         if not isinstance(template_section, dict):
             continue
         section_key = str(template_section.get("section_key") or "")
-        heading = str(template_section.get("label") or section_key)
+        heading = strip_markdown_heading_prefix(
+            str(template_section.get("label") or section_key)
+        )
         document.add_heading(_apply_terminology(heading, subs), level=1)
 
         for table_def in template_section.get("required_tables") or []:
             if not isinstance(table_def, dict):
                 continue
-            table_label = str(table_def.get("label") or "")
+            table_label = strip_markdown_heading_prefix(str(table_def.get("label") or ""))
             if table_label:
                 document.add_heading(_apply_terminology(table_label, subs), level=2)
 
         section = sections_by_key.get(section_key)
         if section is None:
-            document.add_paragraph("[Section not generated]")
             continue
 
         status = section.get("generation_status")
         content = section.get("content") or {}
         text = str(content.get("text") or "")
+        section_assumptions = content.get("assumptions") or []
+        collected_assumptions.extend(str(a) for a in section_assumptions if a)
 
         if status in ("GENERATED", "AWAITING_REVIEW", "ACCEPTED") and text.strip():
             _render_section_body(document, text)
         elif status == "FAILED":
-            reason = section.get("failure_reason") or "Generation failed"
-            document.add_paragraph(f"[Not generated: {reason}]")
-        else:
-            document.add_paragraph("[Section not generated]")
+            pass
+        # Empty / missing content: heading only — no internal placeholder paragraphs.
 
-        assumptions = content.get("assumptions") or []
-        if assumptions:
-            document.add_heading("Assumptions", level=3)
-            for assumption in assumptions:
-                if assumption:
-                    document.add_paragraph(str(assumption), style="List Bullet")
+    add_assumptions_appendix(document, collected_assumptions)
+    add_document_footer(
+        document,
+        org_name=ngo_name or "Organisation",
+        document_label="Donor Report",
+    )
 
     buffer = BytesIO()
     document.save(buffer)

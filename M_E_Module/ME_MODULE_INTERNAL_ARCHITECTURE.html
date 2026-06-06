@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrantPilot · M&E Module — Internal Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1A1F71; --navy-dark:#111653; --navy-deep:#0C1030;
+  --blue:#2563EB; --blue-soft:#DBEAFE;
+  --purple:#6D35FF; --purple-soft:#EDE9FF; --purple-light:#A78BFA;
+  --teal:#0F8A8A; --teal-soft:#D2F0F0;
+  --amber:#D97706; --amber-soft:#FEF3C7;
+  --green:#059669; --green-soft:#D1FAE5;
+  --rose:#E11D48; --rose-soft:#FFE4E6;
+  --bg:#F4F6FB; --card:#FFFFFF; --ink:#1F2937; --muted:#64748B;
+  --border:#E2E6F0; --line:#CBD3E4;
+  --reuse:#0F8A8A; --build:#6D35FF; --existing:#2563EB;
+  --r:12px; --r-sm:8px;
+  --sh:0 4px 16px rgba(15,23,42,.08),0 1px 4px rgba(15,23,42,.04);
+  --sh-sm:0 1px 3px rgba(15,23,42,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:48px 28px 120px}
+.mono{font-family:'DM Mono',monospace}
+
+/* masthead */
+.mast{background:var(--navy-deep);border-radius:16px;padding:36px 44px;position:relative;overflow:hidden;margin-bottom:14px}
+.mast::before{content:'';position:absolute;top:-80px;right:-40px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(109,53,255,.28),transparent 70%)}
+.mast::after{content:'';position:absolute;bottom:-100px;left:30%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.20),transparent 70%)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(109,53,255,.18);border:1px solid rgba(109,53,255,.35);border-radius:20px;padding:5px 14px;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#C4B5FD;margin-bottom:18px;position:relative}
+.eyebrow .d{width:6px;height:6px;border-radius:50%;background:var(--purple)}
+.mast h1{font-size:clamp(26px,3.6vw,40px);font-weight:700;line-height:1.08;letter-spacing:-.02em;color:#fff;margin-bottom:12px;position:relative}
+.mast h1 em{font-style:normal;color:var(--purple-light)}
+.mast p{font-size:14.5px;color:#94A3B8;max-width:680px;position:relative}
+.mast-meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:12px;color:#64748B;position:relative}
+.mast-meta b{color:#CBD5E1;font-weight:600}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.lchip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:7px 13px;font-size:12px;font-weight:600;box-shadow:var(--sh-sm)}
+.lchip .sw{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.sw-reuse{background:var(--reuse)} .sw-build{background:var(--build)} .sw-existing{background:var(--existing)}
+.sw-gate{background:var(--blue);border-radius:50%!important} .sw-agent{background:var(--purple)}
+
+/* section heading */
+.sh{display:flex;align-items:center;gap:13px;margin:44px 0 18px}
+.sh .bar{width:30px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--blue))}
+.sh .n{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--navy);background:var(--purple-soft);border-radius:6px;padding:2px 9px}
+.sh h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
+
+/* generic node card */
+.node{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);padding:14px 16px}
+.node .nt{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.node .nd{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.45}
+.tagband{display:inline-block;font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:.06em;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.tg-reuse{background:var(--teal-soft);color:var(--reuse)}
+.tg-build{background:var(--purple-soft);color:var(--build)}
+.tg-existing{background:var(--blue-soft);color:var(--existing)}
+
+/* ── ENTRY LAYER ── */
+.entry-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:820px){.entry-row{grid-template-columns:1fr}}
+.entry{position:relative;border-radius:var(--r);padding:16px 18px;color:#fff;overflow:hidden;box-shadow:var(--sh)}
+.entry.e1{background:linear-gradient(135deg,#1A1F71,#2563EB)}
+.entry.e2{background:linear-gradient(135deg,#4F2BD9,#6D35FF)}
+.entry.e3{background:linear-gradient(135deg,#0F8A8A,#14B8A6)}
+.entry .ec{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:6px}
+.entry .eh{font-size:15px;font-weight:700;margin-bottom:5px}
+.entry .ep{font-size:12px;opacity:.92;line-height:1.45}
+
+/* flow arrow */
+.flow{display:flex;justify-content:center;margin:14px 0;color:var(--line);font-size:22px}
+.flow.small{margin:8px 0}
+
+/* tier band */
+.tier{background:linear-gradient(135deg,#101430,#1A1F71);border-radius:var(--r);padding:20px 24px;color:#fff;box-shadow:var(--sh);position:relative;overflow:hidden}
+.tier::after{content:'IMPACT PRO';position:absolute;right:18px;top:50%;transform:translateY(-50%) rotate(0deg);font-family:'DM Mono',monospace;font-size:54px;font-weight:500;color:rgba(255,255,255,.05);letter-spacing:.05em;pointer-events:none}
+.tier .th{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;margin-bottom:4px;position:relative}
+.tier .tprice{font-family:'DM Mono',monospace;background:var(--purple);color:#fff;border-radius:6px;padding:2px 9px;font-size:13px}
+.tier .tp{font-size:12.5px;color:#94A3B8;margin-bottom:14px;position:relative;max-width:620px}
+.tier-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative}
+@media(max-width:820px){.tier-split{grid-template-columns:1fr}}
+.tcap{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-sm);padding:12px 14px}
+.tcap .ch{font-size:12.5px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.tcap .cd{font-size:11.5px;color:#A9B4CC;line-height:1.45}
+.tcap .pill{font-family:'DM Mono',monospace;font-size:9.5px;padding:2px 7px;border-radius:4px;letter-spacing:.05em}
+.pill-pre{background:rgba(37,99,235,.25);color:#93C5FD}
+.pill-post{background:rgba(109,53,255,.25);color:#C4B5FD}
+
+/* core shared services */
+.core{background:var(--card);border:1.5px solid var(--blue);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;position:relative}
+.core-badge{position:absolute;top:-11px;left:18px;background:var(--blue);color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:3px 11px;border-radius:5px}
+.core-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+@media(max-width:820px){.core-grid{grid-template-columns:1fr 1fr}}
+.cnode{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px}
+.cnode .cnt{font-size:12px;font-weight:700}
+.cnode .cnd{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+/* two-product split under core */
+.prod-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.prod-row{grid-template-columns:1fr}}
+.prod{border-radius:var(--r);padding:2px;box-shadow:var(--sh)}
+.prod.pre{background:linear-gradient(135deg,var(--blue),#60A5FA)}
+.prod.post{background:linear-gradient(135deg,var(--purple),var(--purple-light))}
+.prod-inner{background:var(--card);border-radius:10px;padding:16px 18px;height:100%}
+.prod-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.prod-head .ph{font-size:14px;font-weight:700}
+.prod-head .ph small{display:block;font-size:11px;font-weight:500;color:var(--muted)}
+.prod-tag{font-family:'DM Mono',monospace;font-size:9.5px;padding:3px 8px;border-radius:5px;letter-spacing:.05em}
+.pt-pre{background:var(--blue-soft);color:var(--blue)}
+.pt-post{background:var(--purple-soft);color:var(--build)}
+
+/* isolation seam note */
+.seam{display:flex;align-items:center;gap:10px;background:var(--rose-soft);border:1px dashed var(--rose);border-radius:var(--r-sm);padding:9px 13px;font-size:11.5px;color:#9F1239;margin-top:10px}
+.seam b{color:#881337}
+
+/* pipeline */
+.pipe{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:22px 18px;overflow-x:auto}
+.ptrack{display:flex;align-items:stretch;gap:0;min-width:880px}
+.pstage{flex:1;position:relative;padding:0 7px;text-align:center}
+.pstage:not(:last-child)::after{content:'→';position:absolute;right:-6px;top:26px;color:var(--line);font-size:15px;z-index:2}
+.pstage .pn{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted)}
+.pstage .pic{width:52px;height:52px;margin:5px auto 8px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;border:1.5px solid var(--border);background:var(--bg)}
+.pstage.ag .pic{border-color:var(--purple);background:var(--purple-soft);color:var(--purple)}
+.pstage.gt .pic{border-color:var(--blue);background:var(--blue-soft);color:var(--blue);border-radius:50%}
+.pstage .pnm{font-size:11px;font-weight:700;line-height:1.25}
+.pstage.gt .pnm{color:var(--blue)}
+.pstage .pml{font-size:9.5px;color:var(--muted);margin-top:2px}
+.pipe-foot{font-size:11px;color:var(--muted);text-align:center;margin-top:14px;font-style:italic}
+
+/* agent table */
+.atbl{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:820px){.atbl{grid-template-columns:1fr}}
+.arow{display:flex;gap:11px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 13px;box-shadow:var(--sh-sm)}
+.arow .ai{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--purple-soft);color:var(--purple);font-weight:700}
+.arow.strong .ai{background:var(--navy);color:#fff}
+.arow.gate .ai{background:var(--blue-soft);color:var(--blue);border-radius:50%}
+.arow .at{font-size:12.5px;font-weight:700}
+.arow .ad{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.arow .amodel{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;display:inline-block;background:var(--bg);padding:1px 6px;border-radius:4px}
+
+/* infra grid */
+.infra{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.infra{grid-template-columns:1fr}}
+.ibox{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);padding:16px 18px}
+.ibox .ih{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--divider,#EEF1F7)}
+.ibox .ih .hdot{width:9px;height:9px;border-radius:50%}
+.iline{display:flex;align-items:flex-start;gap:8px;font-size:12px;margin:7px 0;color:var(--ink)}
+.iline .ik{font-weight:600;min-width:0}
+.iline small{color:var(--muted);font-size:10.5px}
+
+/* data model */
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:820px){.dgrid{grid-template-columns:1fr}}
+.dtbl{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
+.dtbl .dh{background:var(--navy);color:#fff;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.dtbl .dh .dnew{font-size:9px;background:var(--purple);border-radius:4px;padding:1px 7px;letter-spacing:.05em}
+.dtbl .dbody{padding:11px 14px}
+.dfield{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ink);margin:3px 0;line-height:1.5}
+.dfield .key{color:var(--purple);font-weight:500}
+.dfield .fk{color:var(--blue)}
+.dnote{font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+
+/* kill switch */
+.kill{background:linear-gradient(135deg,#1F0A12,#3F1020);border-radius:var(--r);padding:22px 26px;color:#fff;box-shadow:var(--sh)}
+.kill h3{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.kill .ksub{font-size:12.5px;color:#E5A3B3;margin-bottom:16px}
+.kgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:820px){.kgrid{grid-template-columns:1fr}}
+.kcard{background:rgba(255,255,255,.06);border:1px solid rgba(225,29,72,.3);border-radius:var(--r-sm);padding:13px 15px}
+.kcard .kn{font-family:'DM Mono',monospace;font-size:10px;color:#FB7185;letter-spacing:.06em;margin-bottom:6px}
+.kcard .kt{font-size:13px;font-weight:700;margin-bottom:4px}
+.kcard .kd{font-size:11px;color:#E5A3B3;line-height:1.45}
+
+/* callout */
+.call{background:var(--purple-soft);border-left:4px solid var(--purple);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px 18px;margin-top:16px}
+.call b{color:var(--build)}
+.call p{font-size:13px;color:var(--ink)}
+
+.foot{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:44px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <div class="mast">
+    <span class="eyebrow"><span class="d"></span> Internal architecture · not customer-facing</span>
+    <h1>M&amp;E Module — <em>how it works, end to end</em></h1>
+    <p>The build blueprint for the Donor Report Writer. Shows how three entry paths converge on one shared core; how the Impact&nbsp;Pro tier carries both proposal credits (pre-award) and M&amp;E reports (post-award); how the isolated, killable agent module runs; and where every piece comes from. Built for Cursor/Claude Code context, not for users.</p>
+    <div class="mast-meta">
+      <span><b>Pattern</b> · modular monolith, one seam</span>
+      <span><b>Runtime</b> · Claude Agent SDK on Railway worker</span>
+      <span><b>Autonomy</b> · Level 2 + 3 human gates</span>
+      <span><b>Tier</b> · Impact Pro $99 (dual-capability)</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="lchip"><span class="sw sw-existing"></span> EXISTING — reuse/extend core</span>
+    <span class="lchip"><span class="sw sw-reuse"></span> REUSE — external OSS/service</span>
+    <span class="lchip"><span class="sw sw-build"></span> BUILD — our IP (the moat)</span>
+    <span class="lchip"><span class="sw sw-agent"></span> agent (autonomous)</span>
+    <span class="lchip"><span class="sw sw-gate"></span> human gate (server-enforced)</span>
+  </div>
+
+  <!-- 01 ENTRY PATHS -->
+  <div class="sh"><span class="bar"></span><span class="n">01</span><h2>Three ways in — all converge on one core</h2></div>
+  <div class="entry-row">
+    <div class="entry e1">
+      <div class="ec">Path A · the original funnel</div>
+      <div class="eh">Via NGOInfo.org</div>
+      <div class="ep">Discovers a funding opportunity on the WordPress site → signs up → writes a proposal. The pre-award journey we already have.</div>
+    </div>
+    <div class="entry e2">
+      <div class="ec">Path B · direct to product</div>
+      <div class="eh">Direct to GrantPilot</div>
+      <div class="ep">Comes straight to the app for proposals, never touching the WordPress site. Already supported today.</div>
+    </div>
+    <div class="entry e3">
+      <div class="ec">Path C · the new M&amp;E door</div>
+      <div class="eh">"Won a grant anywhere"</div>
+      <div class="ep">Arrives in reporting-deadline pain — won a grant with us <em>or anyone else</em>. Needs a report now, not a proposal. The new top-of-funnel.</div>
+    </div>
+  </div>
+  <div class="call"><p><b>The key design fact:</b> Path C does not require ever having used NGOInfo or written a proposal. A charity can enter purely for M&amp;E. But because they pay for <b>Impact Pro</b>, they also receive proposal credits — so the moment they need to bid again, the pre-award product is already theirs. One tier, both needs, served seamlessly.</p></div>
+
+  <div class="flow">↓</div>
+
+  <!-- 02 THE TIER -->
+  <div class="sh"><span class="bar"></span><span class="n">02</span><h2>Impact Pro — one tier, two capabilities</h2></div>
+  <div class="tier">
+    <div class="th">Impact Pro <span class="tprice">$99 / mo</span></div>
+    <div class="tp">Everything in Impact, plus M&amp;E reporting. A single subscription that serves whatever the NGO needs next — winning the next grant or reporting on the last one. Entitlements gate both capabilities from the same plan claim in the JWT.</div>
+    <div class="tier-split">
+      <div class="tcap">
+        <div class="ch"><span class="pill pill-pre">PRE-AWARD</span> Proposal credits</div>
+        <div class="cd">Fit scans + proposal generation (inherited from Impact). Already built — the M&amp;E tier simply carries the same entitlements.</div>
+      </div>
+      <div class="tcap">
+        <div class="ch"><span class="pill pill-post">POST-AWARD</span> 2 M&amp;E reports / month</div>
+        <div class="cd">The new donor-report writer. Quota enforced like proposal regeneration. The reason a Path-C user subscribes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">↓</div>
+
+  <!-- 03 SHARED CORE -->
+  <div class="sh"><span class="bar"></span><span class="n">03</span><h2>The shared core — serves both products</h2></div>
+  <div class="core">
+    <span class="core-badge">EXISTING · GrantPilot core (single source of truth)</span>
+    <div class="core-grid">
+      <div class="cnode"><div class="cnt">Auth &amp; SSO</div><div class="cnd">Google OAuth + magic link; JWT plan claims</div></div>
+      <div class="cnode"><div class="cnt">NGO Profile</div><div class="cnd">Mission, sectors, geography — used by both</div></div>
+      <div class="cnode"><div class="cnt">Billing / Stripe</div><div class="cnd">Impact Pro tier, quotas, webhooks</div></div>
+      <div class="cnode"><div class="cnt">DOCX utilities</div><div class="cnd">Export plumbing both products lean on</div></div>
+      <div class="cnode"><div class="cnt">Proposal engine</div><div class="cnd">prompt_runner · archetypes · humaniser</div></div>
+      <div class="cnode"><div class="cnt">Funding opps</div><div class="cnd">requirements_json · fit scans</div></div>
+      <div class="cnode"><div class="cnt">PostgreSQL</div><div class="cnd">core tables (untouched by M&amp;E)</div></div>
+      <div class="cnode"><div class="cnt">Email (Resend)</div><div class="cnd">lifecycle emails, shared service</div></div>
+    </div>
+  </div>
+
+  <div class="prod-row" style="margin-top:16px">
+    <div class="prod pre">
+      <div class="prod-inner">
+        <div class="prod-head">
+          <div class="ph">Pre-award product <small>proposal writing — already live</small></div>
+          <span class="prod-tag pt-pre">EXISTING</span>
+        </div>
+        <div class="node" style="border:none;box-shadow:none;padding:0">
+          <div class="nd">Discover opportunity → fit scan → proposal draft → DOCX export. Reuses core directly. <b>No change</b> for this build — it simply coexists with the M&amp;E module under the same tier.</div>
+        </div>
+      </div>
+    </div>
+    <div class="prod post">
+      <div class="prod-inner">
+        <div class="prod-head">
+          <div class="ph">Post-award product <small>M&amp;E donor reports — the new module</small></div>
+          <span class="prod-tag pt-post">BUILD · isolated</span>
+        </div>
+        <div class="node" style="border:none;box-shadow:none;padding:0">
+          <div class="nd">Upload documents → agents extract → reconcile → gaps → write → critic → funder DOCX. Lives in its own <span class="mono">reports/</span> package. <b>Imports core; core never imports it.</b></div>
+        </div>
+        <div class="seam"><span>⚠</span><div><b>One removable seam:</b> a single router-include mounts the whole module; a single feature flag shows the UI. Sever both and GrantPilot runs untouched.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow">↓ &nbsp; the M&amp;E module, expanded</div>
+
+  <!-- 04 THE AGENT PIPELINE -->
+  <div class="sh"><span class="bar"></span><span class="n">04</span><h2>Inside the module — the agent pipeline</h2></div>
+  <div class="pipe">
+    <div class="ptrack">
+      <div class="pstage"><div class="pn">01</div><div class="pic">⤓</div><div class="pnm">Intake</div><div class="pml">upload + pick funder</div></div>
+      <div class="pstage ag"><div class="pn">02</div><div class="pic">⊞</div><div class="pnm">Classify</div><div class="pml">label &amp; route</div></div>
+      <div class="pstage ag"><div class="pn">03</div><div class="pic">⚙</div><div class="pnm">Extract</div><div class="pml">concurrent</div></div>
+      <div class="pstage ag"><div class="pn">04</div><div class="pic">⤝</div><div class="pnm">Reconcile</div><div class="pml">surface conflicts</div></div>
+      <div class="pstage gt"><div class="pn">G1</div><div class="pic">✓</div><div class="pnm">Confirm facts</div><div class="pml">human</div></div>
+      <div class="pstage gt"><div class="pn">G2</div><div class="pic">?</div><div class="pnm">Fill gaps</div><div class="pml">human</div></div>
+      <div class="pstage ag"><div class="pn">06</div><div class="pic">✎</div><div class="pnm">Write + critic</div><div class="pml">per section</div></div>
+      <div class="pstage gt"><div class="pn">G3</div><div class="pic">⎙</div><div class="pnm">Review</div><div class="pml">human</div></div>
+      <div class="pstage"><div class="pn">08</div><div class="pic">↧</div><div class="pnm">Export</div><div class="pml">funder DOCX</div></div>
+    </div>
+    <div class="pipe-foot">Purple = agents run autonomously in the background job queue · Blue = pipeline halts for a human decision (enforced server-side, not just in the UI)</div>
+  </div>
+
+  <!-- 05 AGENT ROSTER -->
+  <div class="sh"><span class="bar"></span><span class="n">05</span><h2>The agent roster — all BUILD, on the Agent SDK</h2></div>
+  <div class="atbl">
+    <div class="arow strong"><div class="ai">◆</div><div><div class="at">Orchestrator</div><div class="ad">Inventories uploads, dispatches agents, holds state, decides readiness, routes to gates.</div><span class="amodel">strong · Opus-class</span></div></div>
+    <div class="arow"><div class="ai">⊞</div><div><div class="at">Document classifier</div><div class="ad">Labels each upload; routes to the right extractor.</div><span class="amodel">cheap</span></div></div>
+    <div class="arow"><div class="ai">📄</div><div><div class="at">Proposal extractor</div><div class="ad">Objectives, activities, original indicators + targets.</div><span class="amodel">cheap–mid</span></div></div>
+    <div class="arow"><div class="ai">✉</div><div><div class="at">Grant-terms extractor</div><div class="ad">Reporting obligations, deadline, period, budget, funder.</div><span class="amodel">cheap–mid</span></div></div>
+    <div class="arow"><div class="ai">▦</div><div><div class="at">Tabular/indicator extractor</div><div class="ad">Actuals vs targets, beneficiary counts, disaggregation, financials.</div><span class="amodel">cheap–mid</span></div></div>
+    <div class="arow"><div class="ai">▢</div><div><div class="at">Vision agent</div><div class="ad">Captions/interprets photos &amp; image-only PDFs as evidence.</div><span class="amodel">cheap multimodal API</span></div></div>
+    <div class="arow strong"><div class="ai">⤝</div><div><div class="at">Knowledge-bank reconciler</div><div class="ad">Merges extractions; surfaces conflicts instead of averaging.</div><span class="amodel">strong</span></div></div>
+    <div class="arow strong"><div class="ai">?</div><div><div class="at">Gap / compliance agent</div><div class="ad">Knowledge bank vs funder template → readiness + questions.</div><span class="amodel">strong</span></div></div>
+    <div class="arow"><div class="ai">✎</div><div><div class="at">Synthesis agents</div><div class="ad">Write each section; reuse archetypes + humaniser.</div><span class="amodel">gpt-5.4</span></div></div>
+    <div class="arow strong"><div class="ai">!</div><div><div class="at">Fact-safety critic</div><div class="ad">Checks every claim vs sources; flags mismatches. Mandatory.</div><span class="amodel">strong</span></div></div>
+  </div>
+
+  <!-- 06 EXECUTION & INFRA -->
+  <div class="sh"><span class="bar"></span><span class="n">06</span><h2>Execution model &amp; where everything runs</h2></div>
+  <div class="infra">
+    <div class="ibox">
+      <div class="ih"><span class="hdot" style="background:var(--existing)"></span> Compute &amp; runtime · Railway</div>
+      <div class="iline"><span class="ik">FastAPI backend</span></div>
+      <div class="iline"><small>Hosts all agent code as Python objects — not a separate service</small></div>
+      <div class="iline"><span class="ik">Background worker</span></div>
+      <div class="iline"><small>Runs the pipeline behind <span class="mono">run_pipeline(report_id)</span>; scale-to-0 = runtime kill switch</small></div>
+      <div class="iline"><span class="ik">PostgreSQL</span></div>
+      <div class="iline"><small>Core tables + 4 new M&amp;E tables</small></div>
+      <div class="iline"><span class="ik">Railway Buckets</span></div>
+      <div class="iline"><small>Object storage for uploaded documents (the one new primitive)</small></div>
+    </div>
+    <div class="ibox">
+      <div class="ih"><span class="hdot" style="background:var(--reuse)"></span> Reused plumbing (libraries/services)</div>
+      <div class="iline"><span class="ik">Docling</span> <small>· L1 extraction — PDF/DOCX/XLSX/PPTX/images</small></div>
+      <div class="iline"><span class="ik">Claude Agent SDK</span> <small>· L2 runtime — loop, subagents, gate hooks</small></div>
+      <div class="iline"><span class="ik">docxtpl</span> <small>· L4 export — templates designed in Word</small></div>
+      <div class="iline"><span class="ik">n8n</span> <small>· L5 template ingestion (post-launch) + optional Drive/Gmail pull</small></div>
+      <div class="iline"><span class="ik">Vision / gpt-5.4 / Claude</span> <small>· model APIs over the network</small></div>
+    </div>
+    <div class="ibox">
+      <div class="ih"><span class="hdot" style="background:var(--build)"></span> Build &amp; governance</div>
+      <div class="iline"><span class="ik">Cursor (Composer 2.5)</span> <small>· conventional backend</small></div>
+      <div class="iline"><span class="ik">Claude Code (Opus)</span> <small>· the agent layer</small></div>
+      <div class="iline"><span class="ik">.cursor/hooks + .claude/hooks</span> <small>· deterministic enforcement (isolation veto, migration parity, secret scan) — Python, cross-platform</small></div>
+      <div class="iline"><span class="ik">Railway Agent</span> <small>· DevOps accelerator (not a product part)</small></div>
+      <div class="iline"><span class="ik">Hostinger</span> <small>· WordPress/NGOInfo marketing only — app never spreads here</small></div>
+    </div>
+  </div>
+
+  <!-- 07 DATA MODEL -->
+  <div class="sh"><span class="bar"></span><span class="n">07</span><h2>Data model — 4 new tables, FKs inward only</h2></div>
+  <div class="dgrid">
+    <div class="dtbl">
+      <div class="dh">donor_reports <span class="dnew">NEW</span></div>
+      <div class="dbody">
+        <div class="dfield">id · user_id <span class="fk">→ core</span></div>
+        <div class="dfield"><span class="key">funder_report_template_id</span> <span class="fk">FK</span></div>
+        <div class="dfield"><span class="key">linked_proposal_id</span> <span class="fk">FK?</span> <span style="color:var(--muted)">nullable — set if won via GrantPilot</span></div>
+        <div class="dfield">reporting_period_start / end</div>
+        <div class="dfield">status · version</div>
+        <div class="dfield"><span class="key">knowledge_bank_json</span> · <span class="key">indicator_actuals_json</span></div>
+        <div class="dfield"><span class="key">content_json</span> <span style="color:var(--muted)">per-section + status</span></div>
+        <div class="dnote">Post-award equivalent of <span class="mono">proposals</span>. The <span class="mono">linked_proposal_id</span> is the bridge between the two products — present when the same NGO won through GrantPilot.</div>
+      </div>
+    </div>
+    <div class="dtbl">
+      <div class="dh">funder_report_templates <span class="dnew">NEW</span></div>
+      <div class="dbody">
+        <div class="dfield">id · funder_name · template_name · region</div>
+        <div class="dfield">reporting_frequency</div>
+        <div class="dfield"><span class="key">report_sections_json</span> <span style="color:var(--muted)">sections, archetypes, limits</span></div>
+        <div class="dfield"><span class="key">format_rules_json</span> <span style="color:var(--muted)">RAG, Single Form blocks</span></div>
+        <div class="dfield"><span class="key">terminology_map_json</span></div>
+        <div class="dfield">docx_template_ref · is_active · version</div>
+        <div class="dnote">Post-award equivalent of <span class="mono">requirements_json</span>. The 10 launch templates live here; n8n scales 11+ post-launch.</div>
+      </div>
+    </div>
+    <div class="dtbl">
+      <div class="dh">uploaded_documents <span class="dnew">NEW</span></div>
+      <div class="dbody">
+        <div class="dfield">id · donor_report_id <span class="fk">FK</span> · user_id <span class="fk">→ core</span></div>
+        <div class="dfield">storage_ref <span style="color:var(--muted)">→ Railway Buckets</span></div>
+        <div class="dfield">original_filename · mime_type · size_bytes</div>
+        <div class="dfield"><span class="key">classification</span> <span style="color:var(--muted)">proposal|grant_letter|mou|…</span></div>
+        <div class="dfield"><span class="key">extracted_json</span> · extraction_status</div>
+        <div class="dnote">The ingestion surface — the new "bring your mess" capability the classifier and extractors consume.</div>
+      </div>
+    </div>
+    <div class="dtbl">
+      <div class="dh">report_jobs <span class="dnew">NEW</span></div>
+      <div class="dbody">
+        <div class="dfield">id · donor_report_id <span class="fk">FK</span></div>
+        <div class="dfield"><span class="key">stage</span> <span style="color:var(--muted)">classify|extract|reconcile|gap|…</span></div>
+        <div class="dfield"><span class="key">status</span> <span style="color:var(--muted)">queued|running|awaiting_human|…</span></div>
+        <div class="dfield"><span class="key">agent_trace_json</span> <span style="color:var(--muted)">per-agent IO + cost</span></div>
+        <div class="dfield">error · started_at · finished_at</div>
+        <div class="dnote">Async pipeline state + the cost-accounting ledger (<span class="mono">agent_trace_json</span>) that keeps per-report cost inside the tier price.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 08 KILL SWITCH -->
+  <div class="sh"><span class="bar"></span><span class="n">08</span><h2>Isolation &amp; the three kill switches</h2></div>
+  <div class="kill">
+    <h3>🛑 Plug it out without touching GrantPilot</h3>
+    <div class="ksub">The module fits naturally but stays separable. If it delays launch, runs hot, or misbehaves — any one of these severs it, and the proposal product keeps running.</div>
+    <div class="kgrid">
+      <div class="kcard">
+        <div class="kn">SWITCH 1 · CODE</div>
+        <div class="kt">Un-mount + flag off</div>
+        <div class="kd">Remove the single router-include and turn the UI feature flag off. The M&amp;E API and screens vanish; core untouched.</div>
+      </div>
+      <div class="kcard">
+        <div class="kn">SWITCH 2 · RUNTIME</div>
+        <div class="kt">Worker → 0</div>
+        <div class="kd">Scale the background worker to zero. The agent pipeline stops; the main API serving proposals never notices.</div>
+      </div>
+      <div class="kcard">
+        <div class="kn">SWITCH 3 · DATA</div>
+        <div class="kt">Drop 4 tables</div>
+        <div class="kd">Because FKs point inward only and no core migration touches M&amp;E, dropping the 4 tables leaves the core schema intact.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="call"><p><b>Why this matters for the build:</b> the dual-capability tier means a paying NGO is never stuck — proposals and reports are both there. The isolation means <b>you</b> are never stuck — if M&amp;E threatens the launch or the running product, it unplugs in three independent ways. Fits naturally; kills cleanly.</p></div>
+
+  <div class="foot">GrantPilot · M&amp;E Module · internal architecture v1 · for build context — not customer-facing</div>
+
+</div>
+</body>
+</html>

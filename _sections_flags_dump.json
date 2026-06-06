@@ -1,0 +1,543 @@
+[
+  {
+    "section_key": "summary_and_overview",
+    "generation_status": "AWAITING_REVIEW",
+    "critic_flags_count": 1,
+    "critic_flags": [
+      {
+        "reason": "The cited source (gap:recommendations_and_actions:table:recommendations_action_plan) mentions 'finish disposal bins' but does not specify 'four latrine units'. No cited source provides the number four for disposal bin units or explicitly states 'three remaining schools' for menstrual health training in the recommendations context (the three schools figure appears in gap:risk_and_safeguarding:indicator:realised_assumptions for focal teacher absence, not for remaining menstrual health training schools in the action plan).",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "completion of disposal bins at four latrine units and menstrual health training in the three remaining schools",
+        "accepted_at": null,
+        "source_required": true
+      }
+    ]
+  },
+  {
+    "section_key": "performance_and_conclusions",
+    "generation_status": "AWAITING_REVIEW",
+    "critic_flags_count": 1,
+    "critic_flags": [
+      {
+        "reason": "The cited sources confirm district validation samples exist (gap:evidence_and_evaluation:indicator:new_evidence) but none explicitly state that district validation samples confirmed re-entry figures specifically; this is an inference not directly supported by a cited source value.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "District validation samples confirmed re-entry figures",
+        "accepted_at": null,
+        "source_required": true
+      }
+    ]
+  },
+  {
+    "section_key": "detailed_output_scoring",
+    "generation_status": "AWAITING_REVIEW",
+    "critic_flags_count": 19,
+    "critic_flags": [
+      {
+        "reason": "The AR1 target for OP2_1 (latrine stances) is not present in cited_sources. The key 'fact:indicators.op2_1.ar1_target' appears in evidence_used but has no resolved value in cited_sources; only the actual (31) is provided.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "24",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 7 (31 minus 24) depends on the AR1 target of 24 for OP2_1, which is not resolved in cited_sources. The key 'fact:indicators.op2_1.ar1_target' (using Bengali digit variant) has no resolved value supplied.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Exceeded the AR1 milestone by 7",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 20 for OP2_2 (schools with menstrual health supplies) is referenced via 'fact:indicators.op2_2.ar1_target' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "20",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 17 for OP2_2 is referenced via 'fact:indicators.op2_2.ar1_actual' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "17",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 400 for OP3_1 (caregivers receiving hardship grant) is referenced via 'fact:indicators.op3_1.ar1_target' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "400",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 392 for OP3_1 is referenced via 'fact:indicators.op3_1.ar1_actual' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "392",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 8 (400 minus 392) depends on OP3_1 target and actual values that are not resolved in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Fell short of the AR1 milestone by 8",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 550 for OP3_2 (girls receiving re-entry kit) is referenced via 'fact:indicators.op3_2.ar1_target' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "550",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 571 for OP3_2 is referenced via 'fact:indicators.op3_2.ar1_actual' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "571",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 21 (571 minus 550) depends on OP3_2 target and actual values that are not resolved in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Exceeded the AR1 milestone by 21",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 0.75 for OP3_3 (hardship grant households with verified attendance follow-up) is referenced via 'fact:indicators.op3_3.ar1_target' (mixed digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "0.75",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 0.68 for OP3_3 is referenced via 'fact:indicators.op3_3.ar1_actual' (Bengali digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "0.68",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 0.07 depends on OP3_3 target and actual values that are not resolved in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Fell short of the AR1 milestone by 0.07 proportion points",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 4 for OP4_1 (district learning meetings) is referenced via 'fact:indicators.op4_1.ar1_target' (mixed digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "4",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 3 for OP4_1 is referenced via 'fact:indicators.op4_1.ar1_actual' (mixed digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "3",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 1 depends on OP4_1 target and actual values that are not resolved in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Fell short of the AR1 milestone by 1 meeting",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 target of 120 for OP4_3 (school/community actors trained) is referenced via 'fact:indicators.op4_3.ar1_target' (mixed digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "120",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The AR1 actual of 136 for OP4_3 is referenced via 'fact:indicators.op4_3.ar1_actual' (mixed digit variant key) in evidence_used but has no resolved value in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "136",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The variance of 16 depends on OP4_3 target and actual values that are not resolved in cited_sources.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Exceeded the AR1 milestone by 16",
+        "accepted_at": null,
+        "source_required": true
+      }
+    ]
+  },
+  {
+    "section_key": "evidence_and_evaluation",
+    "generation_status": "GENERATED",
+    "critic_flags_count": 0,
+    "critic_flags": []
+  },
+  {
+    "section_key": "risk_and_safeguarding",
+    "generation_status": "GENERATED",
+    "critic_flags_count": 0,
+    "critic_flags": []
+  },
+  {
+    "section_key": "value_for_money",
+    "generation_status": "AWAITING_REVIEW",
+    "critic_flags_count": 21,
+    "critic_flags": [
+      {
+        "reason": "No cited source provides a total actual spend figure of GBP 694,860.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Year 1 actual spend on sampled output lines totalled GBP 694,860",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides a total forecast spend figure of GBP 653,000.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "against a forecast of GBP 653,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides the figure of 16 deduplicated caregiver records.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "deduplicating 16 caregiver records before payment",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP1.3.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP1.3 at GBP 81,330 against GBP 88,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP2.2.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP2.2 at GBP 39,600 against GBP 42,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP3.3.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.3 at GBP 24,980 against GBP 31,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP4.1.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP4.1 at GBP 32,700 against GBP 39,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP1.1.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP1.1 reached GBP 174,850 against GBP 162,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP1.2.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP1.2 reached GBP 98,740 against GBP 94,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP2.1.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP2.1 reached GBP 148,900 against GBP 121,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP3.1.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.1 reached GBP 151,440 against GBP 146,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP3.2.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.2 reached GBP 109,250 against GBP 103,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides budget or spend figures for OP4.3.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP4.3 reached GBP 58,630 against GBP 54,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides actual or target figures for OP4.3 output indicators.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP4.3 trained 136 school or community actors against a target of 120",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides the figure of four schools submitting late attendance registers.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "four schools submitted attendance registers late",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides the figure of three schools lacking a female focal teacher.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "three schools lacked a female focal teacher for menstrual health training",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides actual or target figures of 136 and 120 for OP4.3.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "training on girls' re-entry and safeguarding protocols also surpassed plan at 136 participants compared with the target of120",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides actual or target figures for district learning meetings.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "district learning meetings reached three against a target of four",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The cited source fact:grant_period.start gives 2024-10-15 as a start date but no end date of 14 October 2025 is provided in any cited source, and the review window framing is not confirmed by any cited source.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "FCDO review window of15 October2024 to14 October2025",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source confirms the figure of three remaining schools for menstrual health training completion.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "completing menstrual health training in the three remaining schools",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "No cited source provides the figure of four latrine units lacking disposal bins.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "finishing disposal bins at four latrine units",
+        "accepted_at": null,
+        "source_required": true
+      }
+    ]
+  },
+  {
+    "section_key": "programme_management_delivery_commercial_financial",
+    "generation_status": "AWAITING_REVIEW",
+    "critic_flags_count": 19,
+    "critic_flags": [
+      {
+        "reason": "The values 136 (actual) and 120 (target) for this indicator do not appear in any cited source. No cited source key maps to a re-entry/safeguarding training indicator with these values.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "training on girls' re-entry and safeguarding protocols reached 136 school and community actors against a target of 120",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific number 'four schools' for late register submission is not supported by any cited source value in evidence_used.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "late attendance registers from four schools affected OP1.2 reporting",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific number 'three schools' lacking a female focal teacher is not supported by any cited source value in evidence_used.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "three schools lacked a female focal teacher for menstrual health training",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The target of 4 for district learning meetings is not supported by any valid cited source. The key 'fact:indicators.op4_0?ar?_target' is malformed and has no resolved value in cited_sources, so the target of 4 cannot be verified.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "District learning meetings also fell slightly short, with three meetings held against a target of four",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Neither GBP 694,860 nor GBP 653,000 appear in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "Actual spend totalled GBP 694,860 against forecast spend of GBP 653,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 174,850 and GBP 162,000 for OP1.1 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP1.1 at GBP 174,850 against GBP 162,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 148,900 and GBP 121,000 for OP2.1 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP2.1 at GBP 148,900 against GBP 121,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 151,440 and GBP 146,000 for OP3.1 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.1 at GBP 151,440 against GBP 146,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 109,250 and GBP 103,000 for OP3.2 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.2 at GBP 109,250 against GBP 103,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 58,630 and GBP 54,000 for OP4.3 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP4.3 at GBP 58,630 against GBP 54,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 81,330 and GBP 88,000 for OP1.3 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP1.3 spent GBP 81,330 against GBP 88,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 39,600 and GBP 42,000 for OP2.2 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP2.2 spent GBP 39,600 against GBP 42,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 24,980 and GBP 31,000 for OP3.3 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP3.3 spent GBP 24,980 against GBP 31,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "Financial figures GBP 32,700 and GBP 39,000 for OP4.1 are not present in any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "OP4.1 spent GBP 32,700 against GBP 39,000",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific date range 01-Oct-24 to 30-Sep-25 is not supported by any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "review window of 01-Oct-24 to 30-Sep-25",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific date range 15 October 2024 to 14 October 2025 is not supported by any cited source in evidence_used.",
+        "accepted": false,
+        "severity": "BLOCK",
+        "claim_text": "award letter set the first Annual Review period as 15 October 2024 to 14 October 2025",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific number 'four schools' for late register submission is not supported by any cited source value in evidence_used.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "late Term 3 attendance registers from four schools",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific number 'three remaining schools' is not supported by any cited source value in evidence_used.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "complete menstrual health training in the three remaining schools",
+        "accepted_at": null,
+        "source_required": true
+      },
+      {
+        "reason": "The specific number 'four latrine units' for disposal bins is not supported by any cited source value in evidence_used.",
+        "accepted": false,
+        "severity": "WARN",
+        "claim_text": "finish disposal bins linked to four latrine units",
+        "accepted_at": null,
+        "source_required": true
+      }
+    ]
+  },
+  {
+    "section_key": "recommendations_and_actions",
+    "generation_status": "GENERATED",
+    "critic_flags_count": 0,
+    "critic_flags": []
+  }
+]

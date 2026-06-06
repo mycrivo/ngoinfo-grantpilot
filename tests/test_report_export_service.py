@@ -13,11 +13,15 @@ import pytest
 from docx import Document
 from fastapi.testclient import TestClient
 
+import app.core.security as security
 from app.core.config import get_settings
+from app.core.config import get_settings as config_get_settings
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.main import create_app
 from app.models.user import User
+from app.models.ngo_profile import NGOProfile
+from app.services.quota_service import PLAN_IMPACT
 from app.reports.export.docx_renderer import render_donor_report_docx
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
@@ -27,7 +31,10 @@ from app.reports.services.report_export_service import (
     ReportExportServiceError,
     export_and_persist,
 )
-from tests.worker_validation_seed import create_worker_validation_sessionmaker
+from tests.worker_validation_seed import (
+    create_worker_validation_sessionmaker,
+    seed_user_plan,
+)
 
 FCDO_TEMPLATE_PATH = (
     Path(__file__).resolve().parents[1]
@@ -44,6 +51,15 @@ FCDO_CONTENT_PATH = (
 )
 
 get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def _reset_settings_cache():
+    get_settings.cache_clear()
+    security.get_settings = config_get_settings
+    yield
+    get_settings.cache_clear()
+    security.get_settings = config_get_settings
 
 
 class MemoryDocumentStorage:
@@ -127,6 +143,26 @@ def _seed_gate3_ready_report(session) -> tuple[uuid.UUID, uuid.UUID, MemoryDocum
         updated_at=now,
     )
     session.add_all([user, template, report])
+    session.add(
+        NGOProfile(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            organization_name="BridgeLight Education Trust",
+            country_of_registration="Uganda",
+            mission_statement="Girls' education access",
+            focus_sectors=[],
+            geographic_areas_of_work=[],
+            target_groups=[],
+            past_projects=[],
+            profile_status="COMPLETE",
+            completeness_score=100,
+            missing_fields=[],
+            funders_worked_with_before=[],
+            created_at=now,
+            updated_at=now,
+        )
+    )
+    seed_user_plan(session, user.id, plan_name=PLAN_IMPACT)
     session.commit()
     return report.id, user.id, MemoryDocumentStorage()
 

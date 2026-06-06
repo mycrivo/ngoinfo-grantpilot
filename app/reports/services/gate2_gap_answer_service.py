@@ -9,7 +9,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.core.errors import DomainError, ForbiddenError, NotFoundError
+from app.core.errors import DomainError
 from app.reports.gap.gap_answer import (
     GAP_ANSWER_DISPOSITION_ANSWERED,
     GAP_ANSWER_DISPOSITION_SKIPPED,
@@ -21,6 +21,7 @@ from app.reports.services.gate_preconditions import (
     require_gap_analysis,
     require_gate1_confirmed,
 )
+from app.reports.services.report_access import get_owned_donor_report
 
 logger = logging.getLogger("reports.services.gate2_gap_answers")
 
@@ -110,21 +111,9 @@ def submit_gate2_gap_responses(
     responses: dict[str, Gate2GapResponseInput],
 ) -> dict[str, Any]:
     """Merge final gap answers/skips; set gate2_confirmed_at when every E3 gap is addressed."""
-    from app.reports.models.donor_report import DonorReport
-
-    report = db.get(DonorReport, donor_report_id)
-    if report is None:
-        raise NotFoundError(
-            error_code="DONOR_REPORT_NOT_FOUND",
-            message=f"Donor report {donor_report_id} not found",
-            status_code=404,
-        )
-    if report.user_id != user_id:
-        raise ForbiddenError(
-            error_code="FORBIDDEN",
-            message="Forbidden",
-            status_code=403,
-        )
+    report = get_owned_donor_report(
+        db, donor_report_id=donor_report_id, user_id=user_id
+    )
 
     require_gate1_confirmed(report.knowledge_bank_json)
     surfaced = require_gap_analysis(report.gap_analysis_json)

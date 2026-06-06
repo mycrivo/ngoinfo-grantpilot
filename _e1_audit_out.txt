@@ -1,0 +1,101 @@
+﻿python : Traceback (most recent call last):
+At C:\Users\prana\AppData\Local\Temp\ps-script-38c4463c-613a-4f04-bacd-8bd506dac6a4.ps1:79 char:58
++ cd "c:\Users\prana\OneDrive\Desktop\NGOInfo-Grantpilot"; python -c "
++                                                          ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 
+922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column "created_at" does not exist
+LINE 1: ...66-9e30-413b-a823-7931c16fe435' AS uuid) ORDER BY created_at...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 41, in <module>
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1416, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py", line 
+516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+2343, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py", line 
+1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\default.py", line 
+922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column "created_at" does not exist
+LINE 1: ...66-9e30-413b-a823-7931c16fe435' AS uuid) ORDER BY created_at...
+                                                             ^
+
+[SQL: SELECT agent_trace_json FROM report_jobs WHERE donor_report_id=CAST(%(r)s AS uuid) ORDER BY created_at DESC 
+LIMIT 1]
+[parameters: {'r': '5026ab66-9e30-413b-a823-7931c16fe435'}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+=== ANSWER KEY PARAS ===
+0: ANSWER KEY - DO NOT INCLUDE IN DOCUMENTS
+1: FCDO planted inconsistencies and grading sheet
+2: Issue type
+3: Conflict / planted problem
+4: Documents involved
+5: True / intended value
+6: What engine should catch
+7: Output actual mismatch
+8: OP1.1 actual for girls re-enrolled is stated in the proposal narrative as 612 girls by 16 Sept 2025, but spreadsheet shows 684 actual achieved.
+9: Document 1 vs Document 3
+10: 684 is intended final AR1 actual; 612 is stale proposal-pack note.
+11: Reconciler should flag numeric contradiction before output scoring.
+12: Missing indicator row
+13: Proposal includes OP2.3: schools with active safeguarding referral pathway tested through termly case-review meeting, but spreadsheet has no OP2.3 row.
+14: Document 1 vs Document 3
+15: Indicator required; data missing.
+16: Gap agent must request OP2.3 actual, evidence source, variance explanation and score.
+17: Missing indicator row
+18: Proposal includes OP4.2: number of learning briefs produced and shared, but spreadsheet has no OP4.2 row.
+19: Document 1 vs Document 3
+20: Indicator required; data missing.
+21: Gap agent must request learning brief count, evidence and explanation.
+22: Budget mismatch
+23: Proposal and spreadsheet are based on ┬ú1,184,000 full project budget / old envelope; award letter approves ┬ú1,240,000.
+24: Document 1 + Document 3 vs Document 2
+25: ┬ú1,240,000 is the official grant amount.
+26: Summary sheet, VfM and forecast-vs-actual review must not silently use old proposal total.
+27: Date mismatch
+28: Proposal expects project period 1 Oct 2024-30 Sept 2026 and AR1 Oct 2024-Sept 2025; award letter says project period 15 Oct 2024-14 Oct 2026 and AR1 15 Oct 2024-14 Oct 2025. Spreadsheet note still uses 1 Oct-30 Sept.
+29: Document 1 + Document 3 vs Document 2
+...
+
+=== ANSWER KEY ROWS (9) ===
+{"issue_type": "Documents involved", "planted_problem": "True / intended value", "documents": "What engine should catch", "true_value": "Output actual mismatch", "expected_catch": "OP1.1 actual for girls re-enrolled is stated in the proposal narrative as 612 girls by 16 Sept 2025, but spreadsheet shows 684 actual achieved."}
+{"issue_type": "Document 1 vs Document 3", "planted_problem": "684 is intended final AR1 actual; 612 is stale proposal-pack note.", "documents": "Reconciler should flag numeric contradiction before output scoring.", "true_value": "Missing indicator row", "expected_catch": "Proposal includes OP2.3: schools with active safeguarding referral pathway tested through termly case-review meeting, but spreadsheet has no OP2.3 row."}
+{"issue_type": "Document 1 vs Document 3", "planted_problem": "Indicator required; data missing.", "documents": "Gap agent must request OP2.3 actual, evidence source, variance explanation and score.", "true_value": "Missing indicator row", "expected_catch": "Proposal includes OP4.2: number of learning briefs produced and shared, but spreadsheet has no OP4.2 row."}
+{"issue_type": "Document 1 vs Document 3", "planted_problem": "Indicator required; data missing.", "documents": "Gap agent must request learning brief count, evidence and explanation.", "true_value": "Budget mismatch", "expected_catch": "Proposal and spreadsheet are based on ┬ú1,184,000 full project budget / old envelope; award letter approves ┬ú1,240,000."}
+{"issue_type": "Document 1 + Document 3 vs Document 2", "planted_problem": "┬ú1,240,000 is the official grant amount.", "documents": "Summary sheet, VfM and forecast-vs-actual review must not silently use old proposal total.", "true_value": "Date mismatch", "expected_catch": "Proposal expects project period 1 Oct 2024-30 Sept 2026 and AR1 Oct 2024-Sept 2025; award letter says project period 15 Oct 2024-14 Oct 2026 and AR1 15 Oct 2024-14 Oct 2025. Spreadsheet note still uses 1 Oct-30 Sept."}
+{"issue_type": "Document 1 + Document 3 vs Document 2", "planted_problem": "15 Oct 2024-14 Oct 2025 for AR1; 15 Oct 2024-14 Oct 2026 project period.", "documents": "Report summary sheet and annual review period should be flagged for human confirmation.", "true_value": "Forecast-vs-actual scope ambiguity", "expected_catch": "Spreadsheet total forecast/actual is AR1 only: forecast ┬ú880,000, actual ┬ú920,420. Proposal budget is full project ┬ú1,184,000. Award letter is full award ┬ú1,240,000."}
+{"issue_type": "All three", "planted_problem": "Use ┬ú920,420 actual AR1 spend against ┬ú880,000 AR1 forecast, while keeping ┬ú1,240,000 as official full grant.", "documents": "VfM and financial performance agent must not compare AR1 actual directly with full two-year award.", "true_value": "Disaggregation arithmetic error", "expected_catch": "OP1.1 actual is 684, but female disaggregation cells sum to 681: 58 + 590 + 33."}
+{"issue_type": "Document 3 internal", "planted_problem": "True actual is 684; disaggregation is short by 3.", "documents": "Disaggregation checker should flag sum mismatch.", "true_value": "Disaggregation category problem", "expected_catch": "OP3.1 is caregivers receiving hardship grants, but gender/age disaggregation appears under male child/adolescent age bands instead of caregiver sex/age bands."}
+{"issue_type": "Document 3 internal", "planted_problem": "Actual 392 caregivers is intended, but beneficiary disaggregation is invalid/misaligned.", "documents": "Engine should ask for correct caregiver gender/age/vulnerability split.", "true_value": "Awkward formatting / buried fact", "expected_catch": "Award letter buries reporting period mid-paragraph; proposal uses GBP 1.184m, ┬ú1.18 million and ┬ú1,184,000; award uses GBP 1,240,000."}

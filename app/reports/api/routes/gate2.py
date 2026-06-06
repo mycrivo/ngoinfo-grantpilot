@@ -21,7 +21,7 @@ router = APIRouter(tags=["reports"])
 
 
 @router.post(
-    "/api/reports/donor-reports/{donor_report_id}/knowledge-bank/gate2/gap-responses",
+    "/api/reports/{donor_report_id}/knowledge-bank/gate2/gap-responses",
     response_model=Gate2GapAnswersResponse,
 )
 def submit_gap_responses_gate2(

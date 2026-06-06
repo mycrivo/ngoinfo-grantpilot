@@ -1,0 +1,226 @@
+{
+  "report_id": "6643d922-150d-4000-b878-4025e7c9145a",
+  "guards": {
+    "production_target": "https://ngoinfo-grantpilot-production.up.railway.app",
+    "railway_project": "NGOINfo-GrantPilot AI",
+    "railway_environment": "production",
+    "deploy_sha": "a6b430c8745e88cb833c226f7cf6e8588ac22c15",
+    "resume_sha": "a6b430c8745e88cb833c226f7cf6e8588ac22c15",
+    "trim_sha": "628493e7fe8aab10d25f24e2908fecaac4342872",
+    "concurrency_sha": "d8dd1905ead539c80e9597c626d9b502f1c82fdd",
+    "fixes_present": true,
+    "me_synthesis_max_concurrency": 2
+  },
+  "baseline": {
+    "rows": [
+      {
+        "section_key": "summary_and_overview",
+        "generation_status": "FAILED",
+        "failure_reason": "server_error",
+        "text_len": 0,
+        "human_edited": false
+      },
+      {
+        "section_key": "performance_and_conclusions",
+        "generation_status": "FAILED",
+        "failure_reason": "timeout",
+        "text_len": 0,
+        "human_edited": false
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 4792,
+        "human_edited": false
+      },
+      {
+        "section_key": "evidence_and_evaluation",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 7213,
+        "human_edited": false
+      },
+      {
+        "section_key": "risk_and_safeguarding",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 4559,
+        "human_edited": false
+      },
+      {
+        "section_key": "value_for_money",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 3406,
+        "human_edited": false
+      },
+      {
+        "section_key": "programme_management_delivery_commercial_financial",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 2496,
+        "human_edited": false
+      },
+      {
+        "section_key": "recommendations_and_actions",
+        "generation_status": "GENERATED",
+        "failure_reason": null,
+        "text_len": 1622,
+        "human_edited": false
+      }
+    ],
+    "incomplete_count": 2,
+    "generated_count": 6,
+    "failed_empty_count": 2,
+    "accepted_count": 0,
+    "human_edited_count": 0
+  },
+  "passes": [
+    {
+      "before_incomplete": 2,
+      "after_incomplete": 0,
+      "before_rows": [
+        {
+          "section_key": "summary_and_overview",
+          "generation_status": "FAILED",
+          "failure_reason": "server_error",
+          "text_len": 0,
+          "human_edited": false
+        },
+        {
+          "section_key": "performance_and_conclusions",
+          "generation_status": "FAILED",
+          "failure_reason": "timeout",
+          "text_len": 0,
+          "human_edited": false
+        },
+        {
+          "section_key": "detailed_output_scoring",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 4792,
+          "human_edited": false
+        },
+        {
+          "section_key": "evidence_and_evaluation",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 7213,
+          "human_edited": false
+        },
+        {
+          "section_key": "risk_and_safeguarding",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 4559,
+          "human_edited": false
+        },
+        {
+          "section_key": "value_for_money",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 3406,
+          "human_edited": false
+        },
+        {
+          "section_key": "programme_management_delivery_commercial_financial",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 2496,
+          "human_edited": false
+        },
+        {
+          "section_key": "recommendations_and_actions",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 1622,
+          "human_edited": false
+        }
+      ],
+      "after_rows": [
+        {
+          "section_key": "summary_and_overview",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 3838,
+          "human_edited": false
+        },
+        {
+          "section_key": "performance_and_conclusions",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 5889,
+          "human_edited": false
+        },
+        {
+          "section_key": "detailed_output_scoring",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 4792,
+          "human_edited": false
+        },
+        {
+          "section_key": "evidence_and_evaluation",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 7213,
+          "human_edited": false
+        },
+        {
+          "section_key": "risk_and_safeguarding",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 4559,
+          "human_edited": false
+        },
+        {
+          "section_key": "value_for_money",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 3406,
+          "human_edited": false
+        },
+        {
+          "section_key": "programme_management_delivery_commercial_financial",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 2496,
+          "human_edited": false
+        },
+        {
+          "section_key": "recommendations_and_actions",
+          "generation_status": "GENERATED",
+          "failure_reason": null,
+          "text_len": 1622,
+          "human_edited": false
+        }
+      ],
+      "expected_regenerate_keys": [
+        "performance_and_conclusions",
+        "summary_and_overview"
+      ],
+      "called_keys": [
+        "summary_and_overview",
+        "performance_and_conclusions"
+      ],
+      "input_tokens": 30028,
+      "output_tokens": 2924,
+      "openai_posts": 3,
+      "retries_fired": 1,
+      "wall_seconds": 174.6,
+      "result_generated": 8,
+      "result_failed": 0,
+      "assertions": {
+        "monotonic": true,
+        "preservation": true,
+        "selection": true,
+        "preservation_violations": []
+      },
+      "complete_after_pass": true,
+      "pass_number": 1
+    }
+  ],
+  "verdict": "PASS",
+  "stop_reason": null
+}
