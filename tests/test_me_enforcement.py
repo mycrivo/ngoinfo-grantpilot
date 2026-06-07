@@ -19,7 +19,13 @@ from app.db.session import get_db
 from app.main import create_app
 from app.models.usage_ledger import UsageActionType, UsageLedger
 from app.models.user import User
-from app.services.quota_service import PLAN_FREE, PLAN_GROWTH, PLAN_IMPACT, get_entitlements
+from app.services.quota_service import (
+    PLAN_FREE,
+    PLAN_GROWTH,
+    PLAN_IMPACT,
+    get_entitlements,
+    release_report_create_quota,
+)
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
 from app.reports.models.funder_report_template import FunderReportTemplate
@@ -418,3 +424,63 @@ def test_export_does_not_change_reports_used():
     after = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
     db.close()
     assert after == before == 1
+
+
+def test_job_failure_refunds_report_create_quota():
+    from app.reports.models.enums import ReportJobStage, ReportJobStatus
+    from app.reports.models.report_job import ReportJob
+    from app.reports.worker.job_failure import FAILURE_EVENT_EXCEPTION, mark_job_failed
+
+    api = _me_api(plan_name=PLAN_IMPACT)
+    create_resp = api.client.post(
+        "/api/reports",
+        headers=api.auth_header,
+        json=_create_payload(api.template_id),
+    )
+    assert create_resp.status_code == 200
+    report_id = uuid.UUID(create_resp.json()["id"])
+
+    db = api.session_factory()
+    before = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
+    job = ReportJob(
+        id=uuid.uuid4(),
+        donor_report_id=report_id,
+        stage=ReportJobStage.EXTRACT.value,
+        status=ReportJobStatus.RUNNING.value,
+        agent_trace_json={},
+    )
+    db.add(job)
+    db.commit()
+
+    assert mark_job_failed(
+        db,
+        job,
+        error="extract: simulated failure",
+        event=FAILURE_EVENT_EXCEPTION,
+    )
+    after = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
+    refund_count = db.execute(
+        select(func.count())
+        .select_from(UsageLedger)
+        .where(
+            UsageLedger.user_id == api.user_id,
+            UsageLedger.event_type == UsageActionType.REPORT_CREATE_REFUND.value,
+        )
+    ).scalar_one()
+    db.close()
+
+    assert before == 1
+    assert after == 0
+    assert refund_count == 1
+
+    db = api.session_factory()
+    refund_again = release_report_create_quota(
+        db,
+        api.user_id,
+        report_id,
+        commit=True,
+    )
+    after_repeat = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
+    db.close()
+    assert refund_again is False
+    assert after_repeat == 0

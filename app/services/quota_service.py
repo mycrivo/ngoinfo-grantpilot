@@ -18,6 +18,7 @@ PLAN_IMPACT = "IMPACT"
 EVENT_FIT_SCAN = UsageActionType.FIT_SCAN.value
 EVENT_PROPOSAL = UsageActionType.PROPOSAL_CREATE.value
 EVENT_REPORT_CREATE = UsageActionType.REPORT_CREATE.value
+EVENT_REPORT_CREATE_REFUND = UsageActionType.REPORT_CREATE_REFUND.value
 EVENT_REPORT_EXPORT = UsageActionType.REPORT_EXPORT.value
 
 _QUOTA_ENFORCED_ACTIONS = frozenset(
@@ -32,6 +33,7 @@ _QUOTA_ENFORCED_ACTIONS = frozenset(
 _IDEMPOTENCY_ONLY_ACTIONS = frozenset(
     {
         EVENT_REPORT_EXPORT,
+        EVENT_REPORT_CREATE_REFUND,
         UsageActionType.PROPOSAL_REGEN.value,
     }
 )
@@ -126,6 +128,19 @@ def _usage_count(
     return int(db.execute(query).scalar_one())
 
 
+def _report_create_net_used(
+    db: Session,
+    user_id: uuid.UUID,
+    period_start: datetime | None,
+    period_end: datetime | None,
+) -> int:
+    created = _usage_count(db, user_id, EVENT_REPORT_CREATE, period_start, period_end)
+    refunded = _usage_count(
+        db, user_id, EVENT_REPORT_CREATE_REFUND, period_start, period_end
+    )
+    return max(created - refunded, 0)
+
+
 def _build_quota_payload(
     *, limit: int, used: int, period: str, reset_at: str | None
 ) -> dict[str, int | str | None]:
@@ -177,7 +192,7 @@ def _report_quota_snapshot(
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
     reset_at = period_end.isoformat() if period_end else None
     reports_period = _reports_period_type(plan.plan_name, quota)
-    used = _usage_count(db, user_id, EVENT_REPORT_CREATE, period_start, period_end)
+    used = _report_create_net_used(db, user_id, period_start, period_end)
     limit = quota.reports
     remaining = max(limit - used, 0)
     return {
@@ -248,9 +263,7 @@ def get_entitlements(db: Session, user_id: uuid.UUID) -> dict[str, object]:
         period_end,
     )
     proposal_used = proposal_create_used + docx_export_used
-    report_create_used = _usage_count(
-        db, user_id, EVENT_REPORT_CREATE, period_start, period_end
-    )
+    report_create_used = _report_create_net_used(db, user_id, period_start, period_end)
     report_export_used = _usage_count(
         db, user_id, EVENT_REPORT_EXPORT, period_start, period_end
     )
@@ -308,9 +321,14 @@ def enforce_quota(
     period_start = plan.billing_period_start if plan.plan_name != PLAN_FREE else None
     period_end = plan.billing_period_end if plan.plan_name != PLAN_FREE else None
 
-    allowed = _quota_limit_for_action(event_type, quota)
-    used = _usage_count(db, user_id, event_type, period_start, period_end)
-    remaining = allowed - used
+    if event_type == EVENT_REPORT_CREATE:
+        allowed = _quota_limit_for_action(event_type, quota)
+        used = _report_create_net_used(db, user_id, period_start, period_end)
+        remaining = allowed - used
+    else:
+        allowed = _quota_limit_for_action(event_type, quota)
+        used = _usage_count(db, user_id, event_type, period_start, period_end)
+        remaining = allowed - used
     if remaining <= 0:
         if event_type == EVENT_REPORT_CREATE:
             snapshot = _report_quota_snapshot(db, user_id, commit=False)
@@ -395,3 +413,47 @@ def record_usage(
     )
     db.add(ledger)
     return ledger
+
+
+def release_report_create_quota(
+    db: Session,
+    user_id: uuid.UUID,
+    donor_report_id: uuid.UUID,
+    *,
+    commit: bool = True,
+) -> bool:
+    """Restore one REPORT_CREATE slot when a pipeline job fails (idempotent per report)."""
+    refund_key = f"report:refund:{donor_report_id}"
+    existing_refund = db.execute(
+        select(UsageLedger).where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == EVENT_REPORT_CREATE_REFUND,
+            UsageLedger.idempotency_key == refund_key,
+        )
+    ).scalar_one_or_none()
+    if existing_refund is not None:
+        return False
+
+    create_key = f"report:create:{donor_report_id}"
+    original_create = db.execute(
+        select(UsageLedger).where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == EVENT_REPORT_CREATE,
+            UsageLedger.idempotency_key == create_key,
+        )
+    ).scalar_one_or_none()
+    if original_create is None:
+        return False
+
+    ledger = UsageLedger(
+        id=uuid.uuid4(),
+        user_id=user_id,
+        event_type=EVENT_REPORT_CREATE_REFUND,
+        occurred_at=datetime.now(timezone.utc),
+        idempotency_key=refund_key,
+        metadata_json={"donor_report_id": str(donor_report_id)},
+    )
+    db.add(ledger)
+    if commit:
+        db.commit()
+    return True

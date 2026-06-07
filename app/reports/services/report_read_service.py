@@ -14,7 +14,9 @@ from app.reports.services.donor_report_lifecycle_service import (
     DEFAULT_TEMPLATE_NAME,
 )
 from app.reports.services.report_access import get_owned_donor_report
+from app.reports.models.report_job import ReportJob
 from app.reports.services.report_gate_state import compute_current_gate
+from app.reports.services.report_job_query import get_latest_jobs_for_reports
 
 
 def list_user_reports(
@@ -67,7 +69,11 @@ def list_active_report_templates(
     return list(db.execute(query).scalars().all())
 
 
-def report_list_item_payload(report: DonorReport) -> dict:
+def report_list_item_payload(
+    report: DonorReport,
+    *,
+    latest_job: ReportJob | None = None,
+) -> dict:
     template = report.funder_report_template
     return {
         "id": report.id,
@@ -77,9 +83,19 @@ def report_list_item_payload(report: DonorReport) -> dict:
         "reporting_period_start": report.reporting_period_start,
         "reporting_period_end": report.reporting_period_end,
         "current_gate": compute_current_gate(report),
+        "latest_job_status": latest_job.status if latest_job else None,
+        "latest_job_stage": latest_job.stage if latest_job else None,
         "created_at": report.created_at,
         "updated_at": report.updated_at,
     }
+
+
+def report_list_payloads(db: Session, reports: list[DonorReport]) -> list[dict]:
+    latest_jobs = get_latest_jobs_for_reports(db, [report.id for report in reports])
+    return [
+        report_list_item_payload(report, latest_job=latest_jobs.get(report.id))
+        for report in reports
+    ]
 
 
 def report_detail_payload(report: DonorReport) -> dict:

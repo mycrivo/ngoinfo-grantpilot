@@ -17,8 +17,9 @@ from app.db.session import get_db
 from app.main import create_app
 from app.models.user import User
 from app.reports.models.donor_report import DonorReport
-from app.reports.models.enums import DonorReportStatus
+from app.reports.models.enums import DonorReportStatus, ReportJobStage, ReportJobStatus
 from app.reports.models.funder_report_template import FunderReportTemplate
+from app.reports.models.report_job import ReportJob
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     KNOWLEDGE_BANK_RECONCILIATION_VERSION,
     RECONCILER_AGENT_NAME,
@@ -215,11 +216,45 @@ def test_list_reports_returns_only_owner_reports_respects_limit():
         "reporting_period_start",
         "reporting_period_end",
         "current_gate",
+        "latest_job_status",
+        "latest_job_stage",
         "created_at",
         "updated_at",
     }
     assert "knowledge_bank_json" not in item
     assert body["reports"][0]["created_at"] >= body["reports"][1]["created_at"]
+
+
+def test_list_reports_includes_latest_failed_job_status():
+    api = _read_api(plan_name=PLAN_IMPACT)
+    session = api.session_factory()
+    report = create_donor_report(
+        session,
+        user_id=api.user_id,
+        reporting_period_start=date(2025, 1, 1),
+        reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=api.template_id,
+    )
+    session.add(
+        ReportJob(
+            id=uuid.uuid4(),
+            donor_report_id=report.id,
+            stage=ReportJobStage.EXTRACT.value,
+            status=ReportJobStatus.FAILED.value,
+            agent_trace_json={},
+            error="extract: unsupported format",
+            started_at=datetime.now(timezone.utc),
+            finished_at=datetime.now(timezone.utc),
+        )
+    )
+    session.commit()
+    session.close()
+
+    response = api.client.get("/api/reports", headers=api.auth_header)
+    assert response.status_code == 200
+    item = response.json()["reports"][0]
+    assert item["latest_job_status"] == ReportJobStatus.FAILED.value
+    assert item["latest_job_stage"] == ReportJobStage.EXTRACT.value
 
 
 def test_get_report_detail_owner_and_foreign_404():

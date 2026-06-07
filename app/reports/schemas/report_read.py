@@ -17,6 +17,8 @@ class ReportListItemResponse(BaseModel):
     reporting_period_start: date
     reporting_period_end: date
     current_gate: str
+    latest_job_status: str | None = None
+    latest_job_stage: str | None = None
     created_at: datetime
     updated_at: datetime
 

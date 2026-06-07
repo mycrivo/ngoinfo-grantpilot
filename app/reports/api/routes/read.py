@@ -22,7 +22,7 @@ from app.reports.services.report_read_service import (
     list_active_report_templates,
     list_user_reports,
     report_detail_payload,
-    report_list_item_payload,
+    report_list_payloads,
 )
 
 router = APIRouter(tags=["reports"])
@@ -37,8 +37,8 @@ def list_reports(
     reports = list_user_reports(db, user_id=current_user.id, limit=limit)
     return ReportListResponse(
         reports=[
-            ReportListItemResponse(**report_list_item_payload(report))
-            for report in reports
+            ReportListItemResponse(**payload)
+            for payload in report_list_payloads(db, reports)
         ]
     )
 

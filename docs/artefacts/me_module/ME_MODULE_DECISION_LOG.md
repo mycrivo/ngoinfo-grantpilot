@@ -57,6 +57,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-048 | 2026-06-06 | **Two-plan model — Impact Pro retired** | M&E folds into **Impact $79** (2 reports/mo bundled); plan enum stays **FREE \| GROWTH \| IMPACT** only. Free/Growth → upgrade-to-Impact gate on M&E entry. Supersedes D-004, D-005. | J |
 | D-049 | 2026-06-06 | **Impact Fit Scans 20→10** | Aligns pre-award quota with canonical two-plan target (Growth and Impact both 10 Fit Scans/mo). | J |
 | D-050 | 2026-06-06 | **Plan 1 DOCX scope = structural hardening only** | Existing python-docx renderers (`export_service`, `docx_renderer`); **D-010 docxtpl** + **D-020** 10 funder templates remain long-run target, deferred post-Plan-2 quality gate. | H |
+| D-051 | 2026-06-07 | **REPORT_CREATE refund on pipeline failure** | Charge at report create (`report:create:{id}`); on any terminal `report_jobs.status = failed`, insert idempotent `REPORT_CREATE_REFUND` (`report:refund:{id}`). Net used = creates − refunds. List API exposes `latest_job_status` for failed UX. | J |
 
 ---
 
