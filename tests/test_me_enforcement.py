@@ -47,6 +47,35 @@ _CREATE_JSON = {
 }
 
 
+def _seed_template(session) -> FunderReportTemplate:
+    now = datetime.now(timezone.utc)
+    template = FunderReportTemplate(
+        id=uuid.uuid4(),
+        funder_name="Enforcement Test Funder",
+        template_name="Annual Report",
+        region="uk",
+        reporting_frequency="annual",
+        report_sections_json=[],
+        format_rules_json={},
+        terminology_map_json={},
+        docx_template_ref="validation/test.docx",
+        is_active=True,
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(template)
+    session.flush()
+    return template
+
+
+def _create_payload(template_id: uuid.UUID) -> dict:
+    return {
+        **_CREATE_JSON,
+        "funder_report_template_id": str(template_id),
+    }
+
+
 def _settings(*, me_enabled: bool = True) -> SimpleNamespace:
     return SimpleNamespace(
         CORS_ALLOWED_ORIGINS="http://localhost:3000",
@@ -69,6 +98,8 @@ def _me_api(*, plan_name: str = PLAN_IMPACT):
         )
     )
     seed_user_plan(db, user_id, plan_name=plan_name)
+    template = _seed_template(db)
+    template_id = template.id
     db.commit()
     db.close()
 
@@ -88,6 +119,7 @@ def _me_api(*, plan_name: str = PLAN_IMPACT):
         client=client,
         token=token,
         user_id=user_id,
+        template_id=template_id,
         session_factory=session_factory,
         auth_header={"Authorization": f"Bearer {token}"},
     )
@@ -128,7 +160,7 @@ def test_free_user_create_returns_upgrade_required():
     response = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     assert response.status_code == 403
     assert response.json() == _upgrade_required_body()
@@ -187,7 +219,7 @@ def test_impact_user_passes_plan_gate_on_create_and_upload():
     create_resp = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     assert create_resp.status_code == 200
     report_id = create_resp.json()["id"]
@@ -212,7 +244,7 @@ def test_impact_create_decrements_reports_used():
     response = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     assert response.status_code == 200
 
@@ -232,7 +264,7 @@ def test_impact_third_create_returns_quota_exceeded():
     response = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     assert response.status_code == 429
     body = response.json()
@@ -256,12 +288,13 @@ def test_second_create_returns_429_when_one_slot_remains():
     first = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     second = api.client.post(
         "/api/reports",
         headers=api.auth_header,
         json={
+            "funder_report_template_id": str(api.template_id),
             "reporting_period_start": "2024-01-01",
             "reporting_period_end": "2024-12-31",
         },
@@ -303,7 +336,7 @@ def test_record_usage_quota_check_rolls_back_report():
         response = api.client.post(
             "/api/reports",
             headers=api.auth_header,
-            json=_CREATE_JSON,
+            json=_create_payload(api.template_id),
         )
 
     assert response.status_code == 429
@@ -338,7 +371,7 @@ def test_create_failure_no_ledger_row():
         response = client.post(
             "/api/reports",
             headers=api.auth_header,
-            json=_CREATE_JSON,
+            json=_create_payload(api.template_id),
         )
     assert response.status_code == 500
 
@@ -366,7 +399,7 @@ def test_export_does_not_change_reports_used():
     create_resp = api.client.post(
         "/api/reports",
         headers=api.auth_header,
-        json=_CREATE_JSON,
+        json=_create_payload(api.template_id),
     )
     assert create_resp.status_code == 200
     report_id = create_resp.json()["id"]

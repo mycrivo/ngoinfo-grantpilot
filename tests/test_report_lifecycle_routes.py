@@ -27,8 +27,11 @@ from app.reports.models.enums import (
 )
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
+from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.services.document_storage_service import DocumentStorageService
 from app.reports.services.donor_report_lifecycle_service import (
+    DEFAULT_FUNDER_NAME,
+    DEFAULT_TEMPLATE_NAME,
     create_donor_report,
     enqueue_report_job,
     upload_document,
@@ -57,6 +60,58 @@ def _settings(*, me_enabled: bool = True) -> SimpleNamespace:
     )
 
 
+def _seed_template(session) -> FunderReportTemplate:
+    now = datetime.now(timezone.utc)
+    template = FunderReportTemplate(
+        id=uuid.uuid4(),
+        funder_name="Lifecycle Test Funder",
+        template_name="Annual Report",
+        region="uk",
+        reporting_frequency="annual",
+        report_sections_json=[],
+        format_rules_json={},
+        terminology_map_json={},
+        docx_template_ref="validation/test.docx",
+        is_active=True,
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(template)
+    session.flush()
+    return template
+
+
+def _seed_sentinel_template(session) -> FunderReportTemplate:
+    now = datetime.now(timezone.utc)
+    template = FunderReportTemplate(
+        id=uuid.uuid4(),
+        funder_name=DEFAULT_FUNDER_NAME,
+        template_name=DEFAULT_TEMPLATE_NAME,
+        region="global",
+        reporting_frequency="annual",
+        report_sections_json=[],
+        format_rules_json={},
+        terminology_map_json={},
+        docx_template_ref="system/default.docx",
+        is_active=True,
+        version=1,
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(template)
+    session.flush()
+    return template
+
+
+def _create_report_json(template_id: uuid.UUID) -> dict:
+    return {
+        "funder_report_template_id": str(template_id),
+        "reporting_period_start": "2025-01-01",
+        "reporting_period_end": "2025-12-31",
+    }
+
+
 @pytest.fixture
 def lifecycle_api():
     session_factory = create_worker_validation_sessionmaker()
@@ -73,6 +128,8 @@ def lifecycle_api():
         )
     )
     seed_user_plan(db, user_id, plan_name=PLAN_IMPACT)
+    template = _seed_template(db)
+    template_id = template.id
     db.commit()
     db.close()
 
@@ -92,6 +149,7 @@ def lifecycle_api():
         client=client,
         token=token,
         user_id=user_id,
+        template_id=template_id,
         session_factory=session_factory,
         auth_header={"Authorization": f"Bearer {token}"},
     )
@@ -118,17 +176,46 @@ def test_create_persists_draft_report(lifecycle_api):
     response = lifecycle_api.client.post(
         "/api/reports",
         headers=lifecycle_api.auth_header,
-        json={
-            "reporting_period_start": "2025-01-01",
-            "reporting_period_end": "2025-12-31",
-        },
+        json=_create_report_json(lifecycle_api.template_id),
     )
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == DonorReportStatus.DRAFT.value
     assert body["reporting_period_start"] == "2025-01-01"
-    assert body["funder_name"]
-    assert body["template_name"]
+    assert body["funder_name"] == "Lifecycle Test Funder"
+    assert body["template_name"] == "Annual Report"
+
+
+def test_create_rejects_missing_template_id(lifecycle_api):
+    response = lifecycle_api.client.post(
+        "/api/reports",
+        headers=lifecycle_api.auth_header,
+        json={
+            "reporting_period_start": "2025-01-01",
+            "reporting_period_end": "2025-12-31",
+        },
+    )
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error_code"] == "VALIDATION_ERROR"
+
+
+def test_create_rejects_sentinel_template_id(lifecycle_api):
+    session = lifecycle_api.session_factory()
+    sentinel = _seed_sentinel_template(session)
+    sentinel_id = sentinel.id
+    session.commit()
+    session.close()
+
+    response = lifecycle_api.client.post(
+        "/api/reports",
+        headers=lifecycle_api.auth_header,
+        json=_create_report_json(sentinel_id),
+    )
+    assert response.status_code == 422
+    body = response.json()
+    assert body["error_code"] == "VALIDATION_ERROR"
+    assert "cannot be used" in body["message"].lower()
 
 
 def test_upload_stores_via_mock_storage_and_creates_pending_document(lifecycle_api):
@@ -138,6 +225,7 @@ def test_upload_stores_via_mock_storage_and_creates_pending_document(lifecycle_a
         user_id=lifecycle_api.user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
     )
     report_id = report.id
     session.close()
@@ -177,6 +265,7 @@ def test_enqueue_creates_one_queued_job_and_rejects_duplicate_active(lifecycle_a
         user_id=lifecycle_api.user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
     )
     report_id = report.id
     session.close()
@@ -211,6 +300,7 @@ def test_enqueue_reclaims_failed_gap_job_at_failed_stage(lifecycle_api):
         user_id=lifecycle_api.user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
     )
     report.knowledge_bank_json = {
         "facts": {},
@@ -261,6 +351,7 @@ def test_enqueue_does_not_hijack_awaiting_human_job(lifecycle_api):
         user_id=lifecycle_api.user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
     )
     report.knowledge_bank_json = {
         "facts": {},
@@ -294,6 +385,7 @@ def test_status_and_knowledge_bank_reads(lifecycle_api):
         user_id=lifecycle_api.user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
     )
     report.knowledge_bank_json = {
         "facts": {"budget_total": {"value": 100}},
@@ -349,11 +441,14 @@ def test_unauthorized_and_non_owner_rejected(lifecycle_api):
         )
     )
     seed_user_plan(session, other_id, plan_name=PLAN_IMPACT)
+    template = _seed_template(session)
+    session.commit()
     report = create_donor_report(
         session,
         user_id=owner_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=template.id,
     )
     report_id = report.id
     session.close()
@@ -386,11 +481,14 @@ def test_service_upload_unit_with_mock_storage():
         )
     )
     seed_user_plan(session, user_id, plan_name=PLAN_IMPACT)
+    template = _seed_template(session)
+    session.commit()
     report = create_donor_report(
         session,
         user_id=user_id,
         reporting_period_start=date(2025, 1, 1),
         reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=template.id,
     )
     mock_storage = MagicMock()
     doc = upload_document(

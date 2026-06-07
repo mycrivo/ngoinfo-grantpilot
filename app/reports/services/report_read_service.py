@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
+from app.reports.services.donor_report_lifecycle_service import (
+    DEFAULT_FUNDER_NAME,
+    DEFAULT_TEMPLATE_NAME,
+)
 from app.reports.services.report_access import get_owned_donor_report
 from app.reports.services.report_gate_state import compute_current_gate
 
@@ -48,7 +52,11 @@ def list_active_report_templates(
     region: str | None = None,
 ) -> list[FunderReportTemplate]:
     query = select(FunderReportTemplate).where(
-        FunderReportTemplate.is_active.is_(True)
+        FunderReportTemplate.is_active.is_(True),
+        ~(
+            (FunderReportTemplate.funder_name == DEFAULT_FUNDER_NAME)
+            & (FunderReportTemplate.template_name == DEFAULT_TEMPLATE_NAME)
+        ),
     )
     if region:
         query = query.where(FunderReportTemplate.region == region)

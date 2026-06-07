@@ -13,7 +13,7 @@ class CreateDonorReportRequest(BaseModel):
     reporting_period_start: date
     reporting_period_end: date
     linked_proposal_id: uuid.UUID | None = None
-    funder_report_template_id: uuid.UUID | None = None
+    funder_report_template_id: uuid.UUID
 
 
 class DonorReportSummaryResponse(BaseModel):

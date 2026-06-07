@@ -28,8 +28,8 @@ from app.reports.services.report_access import get_owned_donor_report
 
 logger = logging.getLogger("reports.services.donor_report_lifecycle")
 
-_DEFAULT_FUNDER_NAME = "__default__"
-_DEFAULT_TEMPLATE_NAME = "__lifecycle_default__"
+DEFAULT_FUNDER_NAME = "__default__"
+DEFAULT_TEMPLATE_NAME = "__lifecycle_default__"
 _MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 _ACTIVE_JOB_STATUSES = frozenset(
@@ -41,55 +41,32 @@ _ACTIVE_JOB_STATUSES = frozenset(
 )
 
 
-def get_or_create_default_funder_template(db: Session) -> FunderReportTemplate:
-    template = (
-        db.query(FunderReportTemplate)
-        .filter(
-            FunderReportTemplate.funder_name == _DEFAULT_FUNDER_NAME,
-            FunderReportTemplate.template_name == _DEFAULT_TEMPLATE_NAME,
-            FunderReportTemplate.is_active.is_(True),
-        )
-        .first()
+def is_system_funder_template(template: FunderReportTemplate) -> bool:
+    return (
+        template.funder_name == DEFAULT_FUNDER_NAME
+        and template.template_name == DEFAULT_TEMPLATE_NAME
     )
-    if template is not None:
-        return template
-
-    now = datetime.now(timezone.utc)
-    template = FunderReportTemplate(
-        id=uuid.uuid4(),
-        funder_name=_DEFAULT_FUNDER_NAME,
-        template_name=_DEFAULT_TEMPLATE_NAME,
-        region="global",
-        reporting_frequency="annual",
-        report_sections_json=[],
-        format_rules_json={},
-        terminology_map_json={},
-        docx_template_ref="system/default.docx",
-        is_active=True,
-        version=1,
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(template)
-    db.flush()
-    return template
 
 
 def _resolve_funder_template(
     db: Session,
     *,
-    funder_report_template_id: uuid.UUID | None,
+    funder_report_template_id: uuid.UUID,
 ) -> FunderReportTemplate:
-    if funder_report_template_id is not None:
-        template = db.get(FunderReportTemplate, funder_report_template_id)
-        if template is None or not template.is_active:
-            raise NotFoundError(
-                error_code="TEMPLATE_NOT_FOUND",
-                message=f"Funder template {funder_report_template_id} not found",
-                status_code=404,
-            )
-        return template
-    return get_or_create_default_funder_template(db)
+    template = db.get(FunderReportTemplate, funder_report_template_id)
+    if template is None or not template.is_active:
+        raise NotFoundError(
+            error_code="TEMPLATE_NOT_FOUND",
+            message=f"Funder template {funder_report_template_id} not found",
+            status_code=404,
+        )
+    if is_system_funder_template(template):
+        raise DomainError(
+            error_code="VALIDATION_ERROR",
+            message="This funder template cannot be used to create a report.",
+            status_code=422,
+        )
+    return template
 
 
 def create_donor_report(
@@ -99,7 +76,7 @@ def create_donor_report(
     reporting_period_start,
     reporting_period_end,
     linked_proposal_id: uuid.UUID | None = None,
-    funder_report_template_id: uuid.UUID | None = None,
+    funder_report_template_id: uuid.UUID,
 ) -> DonorReport:
     if reporting_period_end < reporting_period_start:
         raise DomainError(
