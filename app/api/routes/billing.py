@@ -172,7 +172,7 @@ async def billing_webhook(request: Request, db: Session = Depends(get_db)) -> JS
     except Exception as exc:
         logger.exception("stripe_webhook_processing_error")
         processing_result = PROCESSING_FAILED
-        error_message = "PROCESSING_ERROR"
+        error_message = f"PROCESSING_ERROR:{type(exc).__name__}:{exc!s}"[:500]
         should_retry = True
 
     record = db.execute(

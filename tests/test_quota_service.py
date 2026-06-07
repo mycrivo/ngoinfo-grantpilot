@@ -117,6 +117,37 @@ def test_plan_quotas_impact_fit_scans_ten():
     assert impact.proposals == 5
 
 
+def test_get_entitlements_impact_without_billing_period_fields():
+    """Paid plan rows missing period timestamps must not 500 (manual DB edits / partial sync)."""
+    db = _db_session()
+    now = datetime.now(timezone.utc)
+    user = User(
+        email=f"{uuid.uuid4()}@example.org",
+        auth_provider="email",
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(user)
+    db.flush()
+    db.add(
+        UserPlan(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            plan_name=quota_service.PLAN_IMPACT,
+            plan_activated_at=None,
+            billing_period_start=None,
+            billing_period_end=None,
+            created_at=now,
+            updated_at=now,
+        )
+    )
+    db.commit()
+
+    payload = quota_service.get_entitlements(db, user.id)
+    assert payload["plan"] == quota_service.PLAN_IMPACT
+    assert payload["entitlements"]["reports"]["limit"] == 2
+
+
 def test_get_entitlements_impact_reports_default():
     db = _db_session()
     user_id = _seed_user_plan(db, plan_name=quota_service.PLAN_IMPACT)

@@ -96,7 +96,10 @@ def _ensure_paid_period(plan: UserPlan) -> None:
         return
     if plan.billing_period_start and plan.billing_period_end:
         return
-    activated_at = plan.plan_activated_at
+
+    activated_at = plan.plan_activated_at or datetime.now(timezone.utc)
+    if plan.plan_activated_at is None:
+        plan.plan_activated_at = activated_at
     if activated_at.tzinfo is None:
         activated_at = activated_at.replace(tzinfo=timezone.utc)
     else:
