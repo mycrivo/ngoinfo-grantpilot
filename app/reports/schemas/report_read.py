@@ -19,6 +19,7 @@ class ReportListItemResponse(BaseModel):
     current_gate: str
     latest_job_status: str | None = None
     latest_job_stage: str | None = None
+    document_count: int = 0
     created_at: datetime
     updated_at: datetime
 

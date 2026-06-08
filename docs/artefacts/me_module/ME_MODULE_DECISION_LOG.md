@@ -143,3 +143,14 @@ Context: M_E_Module/P2_ENGINE_SURVIVES_BAD_INPUT_PLAN.md; owner approved classif
 4. Option B (no schema change): `extraction_outcome: degraded` on `extracted_json` maps to existing `unreadable_sources[]` in `input_builder.py` only; degraded payloads never enter reconciler fact candidates (zero-hallucination fence unchanged).
 5. Out of scope: synthesis/gap/critic prompts; classify-stage intake (extract-stage only for P2 intake wrap).
 ---
+DECISION (2026-06-08) — P4 status legibility (user sees the truth).
+Context: M_E_Module/P4 plan; owner approved build including sentinel filter policy A.
+
+1. Stage-specific failure copy on reading screen keyed off `job.stage` (reading / drafting / export) — never raw `job.error`.
+2. Gate 1 `unreadable_sources[]` panel for P2 degraded documents; confirm not blocked.
+3. Terminal `DEGRADED` list chip → "Completed with limitations"; done page leads with degraded notice.
+4. Upload enqueue routes to `/reports/{id}/reading`; quota exhausted on enqueue uses same screen as create.
+5. Empty sentinel shell list filter (display only): hide when `__default__` + `__lifecycle_default__` AND `latest_job_status === null` AND `document_count === 0` — never uses `donor_reports.status`.
+6. §12.10 additive field: `document_count` on list items.
+7. Export client uses GET to match live backend. Gate 3 display polish only — §12.11 PATCH out of scope.
+---

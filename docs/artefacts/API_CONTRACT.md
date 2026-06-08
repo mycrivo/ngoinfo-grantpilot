@@ -1675,6 +1675,7 @@ Response 200:
       "current_gate": "none | gate1 | gate2 | gate3",
       "latest_job_status": "queued | running | awaiting_human | failed | done | null",
       "latest_job_stage": "classify | extract | reconcile | gap | synthesise | critique | export | null",
+      "document_count": 0,
       "created_at": "ISO-8601 timestamp",
       "updated_at": "ISO-8601 timestamp"
     }

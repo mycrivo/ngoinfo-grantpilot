@@ -218,11 +218,59 @@ def test_list_reports_returns_only_owner_reports_respects_limit():
         "current_gate",
         "latest_job_status",
         "latest_job_stage",
+        "document_count",
         "created_at",
         "updated_at",
     }
     assert "knowledge_bank_json" not in item
     assert body["reports"][0]["created_at"] >= body["reports"][1]["created_at"]
+
+
+def test_list_reports_includes_document_count():
+    api = _read_api(plan_name=PLAN_IMPACT)
+    session = api.session_factory()
+    template = _seed_template(session)
+    report = DonorReport(
+        id=uuid.uuid4(),
+        user_id=api.user_id,
+        funder_report_template_id=template.id,
+        reporting_period_start=date(2025, 1, 1),
+        reporting_period_end=date(2025, 12, 31),
+        status=DonorReportStatus.DRAFT.value,
+        knowledge_bank_json={},
+        gap_analysis_json={},
+        indicator_actuals_json={},
+        content_json={},
+        version=1,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+    )
+    session.add(report)
+    session.flush()
+    from app.reports.models.uploaded_document import UploadedDocument
+
+    session.add(
+        UploadedDocument(
+            id=uuid.uuid4(),
+            donor_report_id=report.id,
+            user_id=api.user_id,
+            original_filename="proposal.docx",
+            mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            size_bytes=100,
+            storage_ref="test/proposal.docx",
+            extracted_json={},
+            extraction_status="PENDING",
+            created_at=datetime.now(timezone.utc),
+        )
+    )
+    session.commit()
+    report_id = report.id
+    session.close()
+
+    response = api.client.get("/api/reports", headers=api.auth_header)
+    assert response.status_code == 200
+    item = next(row for row in response.json()["reports"] if row["id"] == str(report_id))
+    assert item["document_count"] == 1
 
 
 def test_list_reports_includes_latest_failed_job_status():

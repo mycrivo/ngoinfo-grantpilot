@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
+from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.services.donor_report_lifecycle_service import (
     DEFAULT_FUNDER_NAME,
     DEFAULT_TEMPLATE_NAME,
@@ -69,10 +70,25 @@ def list_active_report_templates(
     return list(db.execute(query).scalars().all())
 
 
+def get_document_counts_for_reports(
+    db: Session,
+    report_ids: list[uuid.UUID],
+) -> dict[uuid.UUID, int]:
+    if not report_ids:
+        return {}
+    rows = db.execute(
+        select(UploadedDocument.donor_report_id, func.count())
+        .where(UploadedDocument.donor_report_id.in_(report_ids))
+        .group_by(UploadedDocument.donor_report_id)
+    ).all()
+    return {report_id: int(count) for report_id, count in rows}
+
+
 def report_list_item_payload(
     report: DonorReport,
     *,
     latest_job: ReportJob | None = None,
+    document_count: int = 0,
 ) -> dict:
     template = report.funder_report_template
     return {
@@ -85,15 +101,22 @@ def report_list_item_payload(
         "current_gate": compute_current_gate(report),
         "latest_job_status": latest_job.status if latest_job else None,
         "latest_job_stage": latest_job.stage if latest_job else None,
+        "document_count": document_count,
         "created_at": report.created_at,
         "updated_at": report.updated_at,
     }
 
 
 def report_list_payloads(db: Session, reports: list[DonorReport]) -> list[dict]:
-    latest_jobs = get_latest_jobs_for_reports(db, [report.id for report in reports])
+    report_ids = [report.id for report in reports]
+    latest_jobs = get_latest_jobs_for_reports(db, report_ids)
+    document_counts = get_document_counts_for_reports(db, report_ids)
     return [
-        report_list_item_payload(report, latest_job=latest_jobs.get(report.id))
+        report_list_item_payload(
+            report,
+            latest_job=latest_jobs.get(report.id),
+            document_count=document_counts.get(report.id, 0),
+        )
         for report in reports
     ]
 
