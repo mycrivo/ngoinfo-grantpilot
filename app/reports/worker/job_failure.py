@@ -9,7 +9,8 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
-from app.reports.models.enums import ReportJobStatus
+from app.reports.models.donor_report import DonorReport
+from app.reports.models.enums import DonorReportStatus, ReportJobStatus
 from app.reports.models.report_job import ReportJob
 
 logger = logging.getLogger("reports.worker")
@@ -52,6 +53,10 @@ def mark_job_failed(
     job.error = error
     job.finished_at = now
     append_failure_trace(job, event=event, message=error)
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is not None and report.status == DonorReportStatus.DRAFT.value:
+        report.status = DonorReportStatus.DEGRADED.value
+        session.add(report)
     session.add(job)
     session.commit()
     logger.warning(

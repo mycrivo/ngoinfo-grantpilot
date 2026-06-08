@@ -1,14 +1,39 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
+
+logger = logging.getLogger("reports.extraction.docling")
+
+
+class DoclingIntakeError(Exception):
+    """Docling could not extract text from the document (per-document degrade)."""
+
+    def __init__(self, message: str, *, cause: Exception | None = None) -> None:
+        super().__init__(message)
+        self.message = message
+        self.cause = cause
 
 
 def extract_text_from_path(path: Path) -> dict:
     """Extract structured text from a document using Docling."""
-    from docling.document_converter import DocumentConverter
+    try:
+        from docling.document_converter import DocumentConverter
+    except OSError as exc:
+        raise DoclingIntakeError(
+            f"Docling import failed: {exc}",
+            cause=exc,
+        ) from exc
 
-    converter = DocumentConverter()
-    result = converter.convert(str(path))
+    try:
+        converter = DocumentConverter()
+        result = converter.convert(str(path))
+    except Exception as exc:
+        raise DoclingIntakeError(
+            f"Docling conversion failed: {exc}",
+            cause=exc,
+        ) from exc
+
     document = result.document
     text = document.export_to_markdown()
     conversion_errors: list[str] = []

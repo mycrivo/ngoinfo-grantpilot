@@ -6,6 +6,7 @@ from app.reports.api.routes import export as export_routes
 from app.reports.api.routes import gate1 as gate1_routes
 from app.reports.api.routes import gate2 as gate2_routes
 from app.reports.api.routes import gate3 as gate3_routes
+from app.reports.api.routes import review as review_routes
 from app.reports.api.routes import health as health_routes
 from app.reports.api.routes import lifecycle as lifecycle_routes
 
@@ -19,4 +20,5 @@ gated_router.include_router(export_routes.router)
 gated_router.include_router(gate1_routes.router)
 gated_router.include_router(gate2_routes.router)
 gated_router.include_router(gate3_routes.router)
+gated_router.include_router(review_routes.router)
 router.include_router(gated_router)

@@ -1,0 +1,13 @@
+# Railway/Nixpacks — Docling PDF backend needs X11/render libs (libxcb.so.1).
+# P0-1: without these, any PDF hard-crashes the classify stage on the worker.
+[phases.setup]
+aptPkgs = [
+  "libxcb1",
+  "libxcb-render0",
+  "libxcb-shm0",
+  "libx11-6",
+  "libglib2.0-0",
+  "libgl1",
+  "tesseract-ocr",
+  "poppler-utils",
+]

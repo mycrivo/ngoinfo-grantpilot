@@ -23,7 +23,7 @@ from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.services.document_storage_service import DocumentStorageService
 from app.reports.services.gate_preconditions import require_gate1_confirmed
 from app.reports.services.report_access import get_owned_donor_report
-from app.reports.services.upload_format_validation import validate_upload_format
+from app.services.quota_service import enforce_report_create_quota
 
 logger = logging.getLogger("reports.services.donor_report_lifecycle")
 
@@ -87,6 +87,8 @@ def create_donor_report(
     template = _resolve_funder_template(
         db, funder_report_template_id=funder_report_template_id
     )
+
+    enforce_report_create_quota(db, user_id, commit=False, lock=True)
 
     now = datetime.now(timezone.utc)
     report = DonorReport(

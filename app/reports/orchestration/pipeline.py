@@ -11,20 +11,24 @@ from typing import Any, Callable
 from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError
-from app.reports.agents.classifier import classify_document_text
 from app.reports.agents.gap_compliance_agent import run_gap_compliance
 from app.reports.models.donor_report import DonorReport
-from app.reports.models.enums import DocumentClassification, ReportJobStage, ReportJobStatus
+from app.reports.models.enums import (
+    DocumentClassification,
+    DonorReportStatus,
+    ReportJobStage,
+    ReportJobStatus,
+)
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
+from app.reports.orchestration.classify_isolation import (
+    ClassifyHardFailure,
+    process_classify_document,
+)
 from app.reports.orchestration.dispatch import DispatchOutcome, StageFailure, dispatch_stage
 from app.reports.orchestration.extract_isolation import ExtractHardFailure, process_extract_document
 from app.reports.orchestration.extract_stage_state import ExtractStageRunState
-from app.reports.orchestration.document_intake import (
-    classification_from_mime,
-    load_document_text,
-)
 from app.reports.services.knowledge_bank_reconciliation_service import (
     KnowledgeBankReconciliationServiceError,
     reconcile_and_persist,
@@ -414,28 +418,22 @@ async def _run_classify_stage(
         session.refresh(job)
         if _job_is_terminal(job):
             return
-        mime_label = classification_from_mime(document.mime_type)
-        if mime_label is not None:
-            document.classification = mime_label
-            session.add(document)
-            continue
+        try:
+            degraded_id = await process_classify_document(
+                session,
+                document,
+                ctx=ctx,
+                stage=stage,
+            )
+        except ClassifyHardFailure as exc:
+            raise StageFailure(stage, exc.message) from exc
+        if degraded_id is not None:
+            degraded_notes.append(degraded_id)
 
-        text = load_document_text(document, loader_override=ctx.text_loader)
-        outcome = await dispatch_stage(
-            classify_document_text(
-                text,
-                filename=document.original_filename,
-                mime_type=document.mime_type,
-                query_fn=ctx.query_fn_classifier,
-            ),
-            stage=stage,
-        )
-        result = outcome.result
-        if result.intake_outcome == "unreadable":
-            document.classification = DocumentClassification.OTHER.value
-        else:
-            document.classification = result.classification
-        session.add(document)
+    report = session.get(DonorReport, job.donor_report_id)
+    if report is not None and degraded_notes:
+        report.status = DonorReportStatus.DEGRADED.value
+        session.add(report)
 
     _commit_checkpoint(
         session,

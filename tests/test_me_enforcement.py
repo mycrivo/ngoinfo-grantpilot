@@ -271,8 +271,8 @@ def test_impact_create_does_not_decrement_reports_used():
     assert ledger_count == 0
 
 
-def test_impact_multiple_creates_allowed_before_complete():
-    """D6 — quota is not enforced at create; only at first COMPLETE."""
+def test_impact_create_rejected_when_quota_exhausted():
+    """P0-3 — pre-create quota check refuses a 3rd report before any work."""
     api = _me_api(plan_name=PLAN_IMPACT)
     _seed_report_create_rows(api.session_factory, api.user_id, count=2)
 
@@ -281,7 +281,8 @@ def test_impact_multiple_creates_allowed_before_complete():
         headers=api.auth_header,
         json=_create_payload(api.template_id),
     )
-    assert response.status_code == 200
+    assert response.status_code == 429
+    assert response.json()["error_code"] == "QUOTA_EXCEEDED"
 
     db = api.session_factory()
     report_count = db.execute(
@@ -290,10 +291,11 @@ def test_impact_multiple_creates_allowed_before_complete():
         .where(DonorReport.user_id == api.user_id)
     ).scalar_one()
     db.close()
-    assert report_count == 1
+    assert report_count == 0
 
 
-def test_create_persists_report_without_quota_enforcement():
+def test_create_allowed_when_quota_remaining():
+    """P0-3 — create succeeds when quota remains."""
     api = _me_api(plan_name=PLAN_IMPACT)
     _seed_report_create_rows(api.session_factory, api.user_id, count=1)
 

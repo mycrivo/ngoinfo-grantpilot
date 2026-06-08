@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import Date, DateTime, ForeignKey, Integer, Text, text
+from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,10 +52,13 @@ class DonorReport(Base):
         Integer, nullable=False, server_default=text("1")
     )
     created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
+        DateTime(timezone=True), nullable=False, server_default=func.now()
     )
     updated_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
     )
 
     user = relationship("User")

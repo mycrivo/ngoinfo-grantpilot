@@ -14,6 +14,7 @@ from app.reports.agents.indicator_data_extractor import (
     IndicatorDataExtractorError,
 )
 from app.reports.agents.proposal_extractor import ProposalExtractorError
+from app.reports.extraction.docling_adapter import DoclingIntakeError
 from app.reports.models.enums import DocumentClassification
 from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.orchestration.dispatch import DispatchOutcome, is_degraded_result
@@ -61,6 +62,8 @@ class ExtractHardFailure(Exception):
 
 def classify_intake_exception(exc: Exception) -> str:
     """Return 'hard_fail' or 'degrade' for load/intake errors."""
+    if isinstance(exc, DoclingIntakeError):
+        return "degrade"
     if is_systemic_extraction_failure(message=str(exc)):
         return "hard_fail"
     if isinstance(exc, RuntimeError):
