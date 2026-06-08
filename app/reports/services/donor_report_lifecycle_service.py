@@ -25,6 +25,7 @@ from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.services.document_storage_service import DocumentStorageService
 from app.reports.services.gate_preconditions import require_gate1_confirmed
 from app.reports.services.report_access import get_owned_donor_report
+from app.reports.services.upload_format_validation import validate_upload_format
 
 logger = logging.getLogger("reports.services.donor_report_lifecycle")
 
@@ -161,6 +162,8 @@ def upload_document(
             message=f"Upload exceeds {_MAX_UPLOAD_BYTES} bytes",
             status_code=413,
         )
+
+    validate_upload_format(filename=filename, mime_type=mime_type)
 
     store = storage or DocumentStorageService()
     storage_ref = DocumentStorageService.build_storage_ref(

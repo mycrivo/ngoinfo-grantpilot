@@ -1288,6 +1288,7 @@ Errors:
 - 413 `FILE_TOO_LARGE` (limit in ENV_VARS — Stage C)
 - 415 `UNSUPPORTED_MEDIA_TYPE`
 - 422 `VALIDATION_ERROR`
+- 422 `UNSUPPORTED_DOCUMENT_FORMAT` (extension/MIME not accepted for any upload lane — message names accepted formats for the detected lane)
 - 500 `INTERNAL_SERVER_ERROR`
 
 ---
@@ -1788,6 +1789,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` 
 | `EXPORT_NOT_READY` | 409 | Gate 3 incomplete or critic blocks remain |
 | `FILE_TOO_LARGE` | 413 | Upload exceeds limit |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | MIME not allowed |
+| `UNSUPPORTED_DOCUMENT_FORMAT` | 422 | Upload extension/MIME not accepted for any lane (P1 door) |
 | `UPGRADE_REQUIRED` | 403 | Free/Growth M&E entry (§10.3) |
 | `DOCUMENT_NOT_FOUND` | 404 | Document id invalid for this report |
 | `ACTIVE_JOB_EXISTS` | 409 | Report job in progress or awaiting human gate |
