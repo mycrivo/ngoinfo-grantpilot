@@ -10,14 +10,51 @@ from sqlalchemy.orm import Session
 from app.api.dependencies.auth import get_current_user
 from app.db.session import get_db
 from app.models.user import User
+from app.reports.schemas.gap_check import GapCheckResponse, PatchGapAnswersRequest
 from app.reports.schemas.gate2_gap_answers import (
     Gate2GapAnswersRequest,
     Gate2GapAnswersResponse,
     Gate2RemainingGap,
 )
+from app.reports.services.gap_check_service import get_gap_check, patch_gap_answers
 from app.reports.services.gate2_gap_answer_service import submit_gate2_gap_responses
 
 router = APIRouter(tags=["reports"])
+
+
+@router.get(
+    "/api/reports/{donor_report_id}/gap-check",
+    response_model=GapCheckResponse,
+)
+def read_gap_check(
+    donor_report_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> GapCheckResponse:
+    payload = get_gap_check(
+        db, donor_report_id=donor_report_id, user_id=current_user.id
+    )
+    return GapCheckResponse(**payload)
+
+
+@router.patch(
+    "/api/reports/{donor_report_id}/gap-answers",
+    response_model=GapCheckResponse,
+)
+def update_gap_answers(
+    donor_report_id: uuid.UUID,
+    body: PatchGapAnswersRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> GapCheckResponse:
+    payload = patch_gap_answers(
+        db,
+        donor_report_id=donor_report_id,
+        user_id=current_user.id,
+        gap_answers_patch=body.gap_answers,
+        confirm_gate2=body.confirm_gate2,
+    )
+    return GapCheckResponse(**payload)
 
 
 @router.post(
