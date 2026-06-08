@@ -1,6 +1,8 @@
 """Upload format gating — extension/MIME lane validation at the door (P1 / D1).
 
 Validation is lane-based at upload time, independent of later classifier labels.
+Monitoring data (indicator_data after classify): `.xlsx`, `.csv`, and `.docx` with
+tables (P5 — `.docx` accepted via the text lane at upload; extracted via Docling).
 """
 
 from __future__ import annotations
@@ -50,7 +52,7 @@ _LANE_MESSAGES: dict[str, str] = {
     ),
     "spreadsheet": (
         "This file is not supported for monitoring data. "
-        "Upload Excel (.xlsx) or CSV (.csv)."
+        "Upload Excel (.xlsx), CSV (.csv), or Word (.docx) with tables."
     ),
     "photo": (
         "This image format is not supported. "
@@ -63,7 +65,7 @@ _LANE_MESSAGES: dict[str, str] = {
     "unsupported": (
         "This file type is not supported. "
         "Use Word (.docx), PDF (.pdf), or text (.txt) for project documents; "
-        "Excel (.xlsx) or CSV (.csv) for monitoring data; "
+        "Excel (.xlsx), CSV (.csv), or Word (.docx) with tables for monitoring data; "
         "common images or PowerPoint for supporting files."
     ),
 }
@@ -145,8 +147,8 @@ def validate_upload_format(*, filename: str, mime_type: str) -> None:
             message=(
                 "Compressed archives are not supported. "
                 "Upload the document inside using Word (.docx), PDF (.pdf), "
-                "or plain text (.txt) for project documents, or Excel (.xlsx) "
-                "or CSV (.csv) for monitoring data."
+                "or plain text (.txt) for project documents, or Excel (.xlsx), "
+                "CSV (.csv), or Word (.docx) with tables for monitoring data."
             ),
             status_code=422,
             details={

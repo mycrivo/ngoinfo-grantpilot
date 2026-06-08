@@ -145,7 +145,7 @@ def minimal_indicator_data_query_fn():
 
 
 def mixed_indicator_spreadsheet_loader():
-    """Simulate prod: .docx indicator_data fails intake; .xlsx loads fixture workbook."""
+    """Mixed intake: xlsx loads fixture; logframe .docx simulates unreadable table doc."""
 
     from app.reports.extraction.spreadsheet_input import (
         compute_spreadsheet_hash,
@@ -163,7 +163,7 @@ def mixed_indicator_spreadsheet_loader():
 
     def _loader(document: UploadedDocument) -> tuple[str, str | None]:
         if document.original_filename.lower().endswith(".docx"):
-            raise ValueError("Unsupported spreadsheet format: .docx")
+            raise ValueError(f"No tables found in document: {document.original_filename}")
         parsed = parse_xlsx_workbook(fixture_xlsx)
         text, _truncated = spreadsheet_to_json_text(parsed)
         return text, compute_spreadsheet_hash(parsed)

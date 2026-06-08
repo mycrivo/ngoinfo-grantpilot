@@ -47,6 +47,7 @@ def _reset_settings_cache():
         ("notes.txt", "text/plain"),
         ("monitoring.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
         ("actuals.csv", "text/csv"),
+        ("logframe_tables.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
         ("site_photo.jpg", "image/jpeg"),
         ("site_photo.png", "image/png"),
         ("site_photo.gif", "image/gif"),
@@ -66,13 +67,13 @@ def test_validate_upload_format_accepts_d1_lanes(filename, mime_type):
             "legacy.xls",
             "application/vnd.ms-excel",
             "spreadsheet",
-            "Excel (.xlsx) or CSV (.csv)",
+            "Excel (.xlsx), CSV (.csv)",
         ),
         (
             "legacy.ods",
             "application/vnd.oasis.opendocument.spreadsheet",
             "spreadsheet",
-            "Excel (.xlsx) or CSV (.csv)",
+            "Excel (.xlsx), CSV (.csv)",
         ),
         (
             "legacy.doc",
@@ -135,7 +136,7 @@ def test_upload_reject_does_not_touch_storage_or_db(lifecycle_api):
     body = response.json()
     assert body["error_code"] == "UNSUPPORTED_DOCUMENT_FORMAT"
     assert body["details"]["lane"] == "spreadsheet"
-    assert "Excel (.xlsx) or CSV (.csv)" in body["message"]
+    assert "Excel (.xlsx), CSV (.csv)" in body["message"]
     mock_storage.upload_bytes.assert_not_called()
 
     verify = lifecycle_api.session_factory()

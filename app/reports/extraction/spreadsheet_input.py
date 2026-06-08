@@ -2,6 +2,7 @@
 
 Preserves cell state (stated / blank / not_applicable) and row identity.
 Docling markdown is not used for indicator_data — see ME_MODULE D-036.
+P5: `.docx` monitoring tables via Docling table export (layout-aware read).
 """
 
 from __future__ import annotations
@@ -9,6 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any, Literal
@@ -35,8 +37,10 @@ def _format_cell_ref(col: int, row: int) -> str:
     return f"{get_column_letter(col)}{row}"
 
 
-def _normalize_xlsx_value(value: Any) -> str | None:
+def _normalize_tabular_cell_value(value: Any) -> str | None:
     if value is None:
+        return None
+    if isinstance(value, float) and math.isnan(value):
         return None
     if isinstance(value, bool):
         return "TRUE" if value else "FALSE"
@@ -46,7 +50,71 @@ def _normalize_xlsx_value(value: Any) -> str | None:
         if value == int(value):
             return str(int(value))
         return str(value)
-    return str(value).strip() or None
+    text = str(value).strip()
+    return text or None
+
+
+def _normalize_xlsx_value(value: Any) -> str | None:
+    return _normalize_tabular_cell_value(value)
+
+
+def _rows_from_dataframe(df: Any) -> list[dict[str, Any]]:
+    """Convert a Docling/pandas table to the shared indicator grid shape."""
+    rows: list[dict[str, Any]] = []
+
+    header_cells: list[dict[str, Any]] = []
+    for col_idx, col_name in enumerate(df.columns, start=1):
+        raw, cell_state = _classify_cell_raw(_normalize_tabular_cell_value(col_name))
+        header_cells.append(
+            {
+                "ref": _format_cell_ref(col_idx, 1),
+                "raw": raw,
+                "cell_state": cell_state,
+            }
+        )
+    rows.append({"row_index": 1, "cells": header_cells})
+
+    for offset, (_, series) in enumerate(df.iterrows(), start=2):
+        cells: list[dict[str, Any]] = []
+        for col_idx, value in enumerate(series.tolist(), start=1):
+            raw_text = _normalize_tabular_cell_value(value)
+            raw, cell_state = _classify_cell_raw(raw_text)
+            cells.append(
+                {
+                    "ref": _format_cell_ref(col_idx, offset),
+                    "raw": raw,
+                    "cell_state": cell_state,
+                }
+            )
+        rows.append({"row_index": offset, "cells": cells})
+    return rows
+
+
+def parse_docx_tables(path: Path) -> dict[str, Any]:
+    """Extract Word table grids via Docling — values read from cells, never inferred."""
+    from docling.document_converter import DocumentConverter
+
+    result = DocumentConverter().convert(str(path))
+    document = result.document
+    if not document.tables:
+        raise ValueError(f"No tables found in document: {path.name}")
+
+    sheets: list[dict[str, Any]] = []
+    for table_idx, table in enumerate(document.tables):
+        dataframe = table.export_to_dataframe(doc=document)
+        sheet_name = f"Table{table_idx + 1}"
+        sheets.append(
+            {
+                "name": sheet_name,
+                "rows": _rows_from_dataframe(dataframe),
+            }
+        )
+
+    return {
+        "source_path": str(path),
+        "format": "docx",
+        "sheets": sheets,
+    }
 
 
 def parse_xlsx_workbook(path: Path) -> dict[str, Any]:
@@ -107,6 +175,8 @@ def parse_spreadsheet_from_path(path: Path) -> dict[str, Any]:
         return parse_xlsx_workbook(path)
     if suffix == ".csv":
         return parse_csv_file(path)
+    if suffix == ".docx":
+        return parse_docx_tables(path)
     raise ValueError(f"Unsupported spreadsheet format: {suffix}")
 
 

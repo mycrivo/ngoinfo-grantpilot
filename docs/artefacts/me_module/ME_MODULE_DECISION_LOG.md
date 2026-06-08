@@ -143,6 +143,15 @@ Context: M_E_Module/P2_ENGINE_SURVIVES_BAD_INPUT_PLAN.md; owner approved classif
 4. Option B (no schema change): `extraction_outcome: degraded` on `extracted_json` maps to existing `unreadable_sources[]` in `input_builder.py` only; degraded payloads never enter reconciler fact candidates (zero-hallucination fence unchanged).
 5. Out of scope: synthesis/gap/critic prompts; classify-stage intake (extract-stage only for P2 intake wrap).
 ---
+DECISION (2026-06-08) — P5 indicator_data tabular coverage (.docx tables).
+Context: M_E_Module/CURSOR_BUILD_INSTRUCTIONS.md §P5.
+
+1. `parse_docx_tables()` in `spreadsheet_input.py` — Docling `export_to_dataframe` → shared cell grid; values read, never inferred.
+2. `parse_spreadsheet_from_path` routes `.docx` alongside `.xlsx`/`.csv` for indicator_data intake.
+3. D1 door messages updated to name Word (.docx) with tables for monitoring data; `.docx` already accepted at upload via text lane.
+4. Empty/no-table `.docx` raises `ValueError` → P2 degrade path (no fabrication).
+5. Out of scope: binary `.doc`, OCR, images-of-tables.
+---
 DECISION (2026-06-08) — P4 status legibility (user sees the truth).
 Context: M_E_Module/P4 plan; owner approved build including sentinel filter policy A.
 
@@ -153,4 +162,5 @@ Context: M_E_Module/P4 plan; owner approved build including sentinel filter poli
 5. Empty sentinel shell list filter (display only): hide when `__default__` + `__lifecycle_default__` AND `latest_job_status === null` AND `document_count === 0` — never uses `donor_reports.status`.
 6. §12.10 additive field: `document_count` on list items.
 7. Export client uses GET to match live backend. Gate 3 display polish only — §12.11 PATCH out of scope.
+8. `UNSUPPORTED_DOCUMENT_FORMAT` passes through server lane-specific message on upload (`me-error-messages.ts`).
 ---
