@@ -58,6 +58,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-049 | 2026-06-06 | **Impact Fit Scans 20→10** | Aligns pre-award quota with canonical two-plan target (Growth and Impact both 10 Fit Scans/mo). | J |
 | D-050 | 2026-06-06 | **Plan 1 DOCX scope = structural hardening only** | Existing python-docx renderers (`export_service`, `docx_renderer`); **D-010 docxtpl** + **D-020** 10 funder templates remain long-run target, deferred post-Plan-2 quality gate. | H |
 | D-051 | 2026-06-07 | **REPORT_CREATE refund on pipeline failure** | Charge at report create (`report:create:{id}`); on any terminal `report_jobs.status = failed`, insert idempotent `REPORT_CREATE_REFUND` (`report:refund:{id}`). Net used = creates − refunds. List API exposes `latest_job_status` for failed UX. | J |
+| D-052 | 2026-06-07 | **REPORT_CREATE charge at first COMPLETE (D6 / P8)** | Charge `REPORT_CREATE` exactly once when `donor_reports.status` first becomes `COMPLETE` in `export_and_persist` (export stage). Idempotency key `report:create:{donor_report_id}`. Create-time charge and `mark_job_failed` refund path **removed**. Never-completed reports are never charged. **Supersedes D-051.** | J |
 
 ---
 
@@ -80,6 +81,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | ID | Date | Supersedes | New decision | Why |
 |----|------|------------|--------------|-----|
 | D-048 | 2026-06-06 | D-004, D-005 | Two-plan model; M&E on Impact $79; enum FREE\|GROWTH\|IMPACT | A-00 contract reset |
+| D-052 | 2026-06-07 | D-051 | REPORT_CREATE at first COMPLETE; remove create charge + failure refund | P8 / locked D6 |
 
 ---
 

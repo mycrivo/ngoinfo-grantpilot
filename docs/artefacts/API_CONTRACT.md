@@ -1239,9 +1239,10 @@ Errors:
 - 404 `TEMPLATE_NOT_FOUND`
 - 404 `PROPOSAL_NOT_FOUND` (when linked_proposal_id invalid)
 - 409 `PROFILE_INCOMPLETE` (same semantics as proposals — NGO profile required)
-- 429 `QUOTA_EXCEEDED` (`details.entitlement`: `reports`)
 - 422 `VALIDATION_ERROR`
 - 500 `INTERNAL_SERVER_ERROR`
+
+**Quota:** Report creation is **not** metered at this endpoint (D6). `REPORT_CREATE` is charged once when the report first reaches `status: COMPLETE` (see §12.8 / export stage).
 
 ---
 
@@ -1521,7 +1522,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
 Purpose: enqueue async report pipeline (classify → extract → reconcile → gap → synthesise → critique → export stage).
 
-Auth: REQUIRED · Owner only · Report quota enforced on successful pipeline completion (Stage J)
+Auth: REQUIRED · Owner only · Impact plan required (§10.3)
 
 Response 200:
 
@@ -1537,10 +1538,10 @@ Response 200:
 **Rules:**
 - Poll status via `GET /api/reports/{id}/job` (§12.12).
 - Requires prior gate preconditions per pipeline stage (Gate 1 before gap advance, etc.).
-- `REPORT_CREATE` quota decremented on successful report generation completion (exact trigger at implementation).
+- `REPORT_CREATE` quota is decremented **once** when the report first reaches `status: COMPLETE` at the export stage (D6). Create and enqueue are not metered. Idempotency key: `report:create:{donor_report_id}`. Re-completion/regeneration does not re-charge.
 - Reclaim of failed jobs at gate stages: implementation-defined (A-03).
 
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `JOB_ALREADY_ACTIVE` · 429 `QUOTA_EXCEEDED` · 500
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `JOB_ALREADY_ACTIVE` · 429 `QUOTA_EXCEEDED` (at export completion when quota exhausted) · 500
 
 ---
 

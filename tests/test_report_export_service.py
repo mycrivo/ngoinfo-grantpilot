@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,6 +12,7 @@ from types import SimpleNamespace
 import pytest
 from docx import Document
 from fastapi.testclient import TestClient
+from sqlalchemy import func, select
 
 import app.core.security as security
 from app.core.config import get_settings
@@ -21,7 +22,9 @@ from app.db.session import get_db
 from app.main import create_app
 from app.models.user import User
 from app.models.ngo_profile import NGOProfile
-from app.services.quota_service import PLAN_IMPACT
+from app.core.errors import ForbiddenError
+from app.models.usage_ledger import UsageActionType, UsageLedger
+from app.services.quota_service import PLAN_IMPACT, get_entitlements, report_create_idempotency_key
 from app.reports.export.docx_renderer import render_donor_report_docx
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
@@ -227,6 +230,116 @@ def test_export_and_persist_happy_path(export_db):
     assert export_meta["filename"].endswith(".docx")
     assert export_meta["template_version"] == 1
     assert storage.fetch_bytes(export_meta["storage_ref"])
+
+    ledger = final.execute(
+        select(func.count())
+        .select_from(UsageLedger)
+        .where(
+            UsageLedger.user_id == _user_id,
+            UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
+            UsageLedger.idempotency_key == report_create_idempotency_key(report_id),
+        )
+    ).scalar_one()
+    entitlements = get_entitlements(final, _user_id)
+    assert ledger == 1
+    assert entitlements["entitlements"]["reports"]["used"] == 1
+
+
+def test_export_recomplete_does_not_recharge(export_db):
+    session = export_db()
+    report_id, user_id, storage = _seed_gate3_ready_report(session)
+    session.close()
+
+    export_and_persist(export_db(), report_id, storage=storage)
+    export_and_persist(export_db(), report_id, storage=storage)
+
+    final = export_db()
+    ledger = final.execute(
+        select(func.count())
+        .select_from(UsageLedger)
+        .where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
+            UsageLedger.idempotency_key == report_create_idempotency_key(report_id),
+        )
+    ).scalar_one()
+    entitlements = get_entitlements(final, user_id)
+    final.close()
+    assert ledger == 1
+    assert entitlements["entitlements"]["reports"]["used"] == 1
+
+
+def test_export_cutover_idempotent_when_create_charge_already_exists(export_db):
+    session = export_db()
+    report_id, user_id, storage = _seed_gate3_ready_report(session)
+    session.add(
+        UsageLedger(
+            id=uuid.uuid4(),
+            user_id=user_id,
+            event_type=UsageActionType.REPORT_CREATE.value,
+            occurred_at=datetime.now(timezone.utc),
+            idempotency_key=report_create_idempotency_key(report_id),
+            metadata_json={},
+        )
+    )
+    session.commit()
+    session.close()
+
+    export_and_persist(export_db(), report_id, storage=storage)
+
+    final = export_db()
+    ledger = final.execute(
+        select(func.count())
+        .select_from(UsageLedger)
+        .where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
+            UsageLedger.idempotency_key == report_create_idempotency_key(report_id),
+        )
+    ).scalar_one()
+    entitlements = get_entitlements(final, user_id)
+    final.close()
+    assert ledger == 1
+    assert entitlements["entitlements"]["reports"]["used"] == 1
+
+
+def test_export_quota_exceeded_does_not_complete_or_degrade(export_db):
+    session = export_db()
+    report_id, user_id, storage = _seed_gate3_ready_report(session)
+    for index in range(2):
+        session.add(
+            UsageLedger(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                event_type=UsageActionType.REPORT_CREATE.value,
+                occurred_at=datetime.now(timezone.utc) + timedelta(hours=index),
+                idempotency_key=f"report:create:seed:{index}",
+                metadata_json={},
+            )
+        )
+    session.commit()
+    session.close()
+
+    with pytest.raises(ForbiddenError):
+        export_and_persist(export_db(), report_id, storage=storage)
+
+    final = export_db()
+    report = final.get(DonorReport, report_id)
+    ledger = final.execute(
+        select(func.count())
+        .select_from(UsageLedger)
+        .where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
+            UsageLedger.idempotency_key == report_create_idempotency_key(report_id),
+        )
+    ).scalar_one()
+    final.close()
+    assert report.status == DonorReportStatus.GENERATING.value
+    assert report.status != DonorReportStatus.DEGRADED.value
+    assert report.status != DonorReportStatus.COMPLETE.value
+    assert ledger == 0
+    assert "export" not in (report.content_json or {})
 
 
 def test_export_failure_sets_degraded(export_db):

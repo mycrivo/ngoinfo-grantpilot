@@ -24,7 +24,6 @@ from app.services.quota_service import (
     PLAN_GROWTH,
     PLAN_IMPACT,
     get_entitlements,
-    release_report_create_quota,
 )
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
@@ -245,7 +244,7 @@ def test_impact_user_passes_plan_gate_on_create_and_upload():
     assert upload_resp.status_code == 200
 
 
-def test_impact_create_decrements_reports_used():
+def test_impact_create_does_not_decrement_reports_used():
     api = _me_api(plan_name=PLAN_IMPACT)
     response = api.client.post(
         "/api/reports",
@@ -258,57 +257,8 @@ def test_impact_create_decrements_reports_used():
     entitlements = get_entitlements(db, api.user_id)
     reports = entitlements["entitlements"]["reports"]
     assert reports["limit"] == 2
-    assert reports["used"] == 1
-    assert reports["remaining"] == 1
-    db.close()
-
-
-def test_impact_third_create_returns_quota_exceeded():
-    api = _me_api(plan_name=PLAN_IMPACT)
-    _seed_report_create_rows(api.session_factory, api.user_id, count=2)
-
-    response = api.client.post(
-        "/api/reports",
-        headers=api.auth_header,
-        json=_create_payload(api.template_id),
-    )
-    assert response.status_code == 429
-    body = response.json()
-    assert body["error_code"] == "QUOTA_EXCEEDED"
-    assert body["message"] == "You have used all M&E reports for this billing period."
-    details = body["details"]
-    assert details["entitlement"] == "reports"
-    assert details["limit"] == 2
-    assert details["used"] == 2
-    assert details["remaining"] == 0
-    assert details["period"] == "BILLING_CYCLE"
-    assert details["reset_at"] is not None
-    assert "required_plan" not in details
-    assert "upgrade" not in body["message"].lower()
-
-
-def test_second_create_returns_429_when_one_slot_remains():
-    api = _me_api(plan_name=PLAN_IMPACT)
-    _seed_report_create_rows(api.session_factory, api.user_id, count=1)
-
-    first = api.client.post(
-        "/api/reports",
-        headers=api.auth_header,
-        json=_create_payload(api.template_id),
-    )
-    second = api.client.post(
-        "/api/reports",
-        headers=api.auth_header,
-        json={
-            "funder_report_template_id": str(api.template_id),
-            "reporting_period_start": "2024-01-01",
-            "reporting_period_end": "2024-12-31",
-        },
-    )
-    assert first.status_code == 200
-    assert second.status_code == 429
-
-    db = api.session_factory()
+    assert reports["used"] == 0
+    assert reports["remaining"] == 2
     ledger_count = db.execute(
         select(func.count())
         .select_from(UsageLedger)
@@ -317,36 +267,42 @@ def test_second_create_returns_429_when_one_slot_remains():
             UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
         )
     ).scalar_one()
+    db.close()
+    assert ledger_count == 0
+
+
+def test_impact_multiple_creates_allowed_before_complete():
+    """D6 — quota is not enforced at create; only at first COMPLETE."""
+    api = _me_api(plan_name=PLAN_IMPACT)
+    _seed_report_create_rows(api.session_factory, api.user_id, count=2)
+
+    response = api.client.post(
+        "/api/reports",
+        headers=api.auth_header,
+        json=_create_payload(api.template_id),
+    )
+    assert response.status_code == 200
+
+    db = api.session_factory()
     report_count = db.execute(
         select(func.count())
         .select_from(DonorReport)
         .where(DonorReport.user_id == api.user_id)
     ).scalar_one()
     db.close()
-    assert ledger_count == 2
     assert report_count == 1
 
 
-def test_record_usage_quota_check_rolls_back_report():
-    """When quota is exhausted at record_usage time, no report or ledger row persists."""
+def test_create_persists_report_without_quota_enforcement():
     api = _me_api(plan_name=PLAN_IMPACT)
     _seed_report_create_rows(api.session_factory, api.user_id, count=1)
 
-    call_count = {"n": 0}
-
-    def _fake_usage_count(*_args, **_kwargs):
-        call_count["n"] += 1
-        return 1 if call_count["n"] == 1 else 2
-
-    with patch("app.services.quota_service._usage_count", side_effect=_fake_usage_count):
-        response = api.client.post(
-            "/api/reports",
-            headers=api.auth_header,
-            json=_create_payload(api.template_id),
-        )
-
-    assert response.status_code == 429
-    assert response.json()["error_code"] == "QUOTA_EXCEEDED"
+    response = api.client.post(
+        "/api/reports",
+        headers=api.auth_header,
+        json=_create_payload(api.template_id),
+    )
+    assert response.status_code == 200
 
     db = api.session_factory()
     ledger_count = db.execute(
@@ -364,43 +320,10 @@ def test_record_usage_quota_check_rolls_back_report():
     ).scalar_one()
     db.close()
     assert ledger_count == 1
-    assert report_count == 0
+    assert report_count == 1
 
 
-def test_create_failure_no_ledger_row():
-    api = _me_api(plan_name=PLAN_IMPACT)
-    client = TestClient(api.client.app, raise_server_exceptions=False)
-    with patch(
-        "app.reports.services.donor_report_lifecycle_service.record_usage",
-        side_effect=RuntimeError("simulated persistence failure"),
-    ):
-        response = client.post(
-            "/api/reports",
-            headers=api.auth_header,
-            json=_create_payload(api.template_id),
-        )
-    assert response.status_code == 500
-
-    db = api.session_factory()
-    ledger_count = db.execute(
-        select(func.count())
-        .select_from(UsageLedger)
-        .where(
-            UsageLedger.user_id == api.user_id,
-            UsageLedger.event_type == UsageActionType.REPORT_CREATE.value,
-        )
-    ).scalar_one()
-    report_count = db.execute(
-        select(func.count())
-        .select_from(DonorReport)
-        .where(DonorReport.user_id == api.user_id)
-    ).scalar_one()
-    db.close()
-    assert ledger_count == 0
-    assert report_count == 0
-
-
-def test_export_does_not_change_reports_used():
+def test_export_download_does_not_change_reports_used():
     api = _me_api(plan_name=PLAN_IMPACT)
     create_resp = api.client.post(
         "/api/reports",
@@ -423,10 +346,10 @@ def test_export_does_not_change_reports_used():
     db = api.session_factory()
     after = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
     db.close()
-    assert after == before == 1
+    assert after == before == 0
 
 
-def test_job_failure_refunds_report_create_quota():
+def test_job_failure_does_not_refund_report_create_quota():
     from app.reports.models.enums import ReportJobStage, ReportJobStatus
     from app.reports.models.report_job import ReportJob
     from app.reports.worker.job_failure import FAILURE_EVENT_EXCEPTION, mark_job_failed
@@ -469,18 +392,6 @@ def test_job_failure_refunds_report_create_quota():
     ).scalar_one()
     db.close()
 
-    assert before == 1
+    assert before == 0
     assert after == 0
-    assert refund_count == 1
-
-    db = api.session_factory()
-    refund_again = release_report_create_quota(
-        db,
-        api.user_id,
-        report_id,
-        commit=True,
-    )
-    after_repeat = get_entitlements(db, api.user_id)["entitlements"]["reports"]["used"]
-    db.close()
-    assert refund_again is False
-    assert after_repeat == 0
+    assert refund_count == 0

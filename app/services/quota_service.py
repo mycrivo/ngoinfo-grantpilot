@@ -227,6 +227,46 @@ def _lock_user_plan_row(db: Session, user_id: uuid.UUID) -> UserPlan | None:
     ).scalar_one_or_none()
 
 
+def report_create_idempotency_key(donor_report_id: uuid.UUID) -> str:
+    return f"report:create:{donor_report_id}"
+
+
+def has_report_create_charge(
+    db: Session,
+    user_id: uuid.UUID,
+    donor_report_id: uuid.UUID,
+) -> bool:
+    key = report_create_idempotency_key(donor_report_id)
+    existing = db.execute(
+        select(UsageLedger).where(
+            UsageLedger.user_id == user_id,
+            UsageLedger.event_type == EVENT_REPORT_CREATE,
+            UsageLedger.idempotency_key == key,
+        )
+    ).scalar_one_or_none()
+    return existing is not None
+
+
+def charge_report_on_first_complete(
+    db: Session,
+    user_id: uuid.UUID,
+    donor_report_id: uuid.UUID,
+    *,
+    commit: bool = True,
+) -> UsageLedger:
+    """Record REPORT_CREATE once when a report first reaches COMPLETE (D6)."""
+    key = report_create_idempotency_key(donor_report_id)
+    if not has_report_create_charge(db, user_id, donor_report_id):
+        enforce_report_create_quota(db, user_id, commit=False, lock=True)
+    return record_usage(
+        db,
+        user_id,
+        EVENT_REPORT_CREATE,
+        idempotency_key=key,
+        commit=commit,
+    )
+
+
 def enforce_report_create_quota(
     db: Session,
     user_id: uuid.UUID,
@@ -422,7 +462,7 @@ def release_report_create_quota(
     *,
     commit: bool = True,
 ) -> bool:
-    """Restore one REPORT_CREATE slot when a pipeline job fails (idempotent per report)."""
+    """Legacy P8 reconciliation helper — not called from production paths after D6."""
     refund_key = f"report:refund:{donor_report_id}"
     existing_refund = db.execute(
         select(UsageLedger).where(

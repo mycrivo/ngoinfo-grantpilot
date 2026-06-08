@@ -9,8 +9,9 @@ from typing import Any, Protocol
 
 from sqlalchemy.orm import Session
 
-from app.core.errors import DomainError
+from app.core.errors import DomainError, ForbiddenError
 from app.models.ngo_profile import NGOProfile
+from app.services.quota_service import charge_report_on_first_complete
 from app.reports.export.docx_renderer import build_export_filename, render_donor_report_docx
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
@@ -132,6 +133,9 @@ def export_and_persist(
             "render_mode": render_mode,
         }
         report.content_json = content_json
+        charge_report_on_first_complete(
+            db, report.user_id, report.id, commit=False
+        )
         report.status = DonorReportStatus.COMPLETE.value
         db.add(report)
         db.commit()
@@ -151,6 +155,14 @@ def export_and_persist(
             template_version=int(template.version or 1),
             bytes_written=len(docx_bytes),
         )
+    except ForbiddenError:
+        db.rollback()
+        report = db.get(DonorReport, donor_report_id)
+        if report is not None:
+            report.status = DonorReportStatus.GENERATING.value
+            db.add(report)
+            db.commit()
+        raise
     except Exception as exc:
         report.status = DonorReportStatus.DEGRADED.value
         db.add(report)

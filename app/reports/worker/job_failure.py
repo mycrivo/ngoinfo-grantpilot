@@ -9,10 +9,8 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
-from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import ReportJobStatus
 from app.reports.models.report_job import ReportJob
-from app.services.quota_service import release_report_create_quota
 
 logger = logging.getLogger("reports.worker")
 
@@ -55,14 +53,6 @@ def mark_job_failed(
     job.finished_at = now
     append_failure_trace(job, event=event, message=error)
     session.add(job)
-    report = session.get(DonorReport, job.donor_report_id)
-    if report is not None:
-        release_report_create_quota(
-            session,
-            report.user_id,
-            job.donor_report_id,
-            commit=False,
-        )
     session.commit()
     logger.warning(
         "report_job failed job_id=%s event=%s error=%s",
