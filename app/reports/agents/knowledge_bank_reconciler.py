@@ -34,6 +34,7 @@ from pydantic import BaseModel, ValidationError
 
 
 
+from app.reports.parsing.json_from_text import parse_json_object_from_text
 from app.reports.reconciliation.degrade_resilience import (
     ReconcilerFailureContext,
     apply_failure_observability_to_trace,
@@ -92,7 +93,7 @@ DEGRADED_RECONCILIATION_TIMEOUT = "DEGRADED_RECONCILIATION_TIMEOUT"
 
 MAX_INPUT_CHARS = 120_000
 
-MAX_OUTPUT_TOKENS = 16384
+MAX_OUTPUT_TOKENS = int(os.getenv("ME_RECONCILER_MAX_OUTPUT_TOKENS", "32768"))
 
 
 
@@ -331,19 +332,11 @@ def _parse_json_from_text(text: str) -> dict[str, Any]:
 
     stripped = text.strip()
 
-    if stripped.startswith("```"):
-
-        match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?```\s*$", stripped, re.DOTALL | re.IGNORECASE)
-
-        if match:
-
-            stripped = match.group(1).strip()
-
     try:
 
-        parsed = json.loads(stripped)
+        return parse_json_object_from_text(text)
 
-    except json.JSONDecodeError as exc:
+    except ValueError as exc:
 
         raise KnowledgeBankReconcilerError(
 
@@ -352,18 +345,6 @@ def _parse_json_from_text(text: str) -> dict[str, Any]:
             f"Reconciler response is not valid JSON: {exc}",
 
         ) from exc
-
-    if not isinstance(parsed, dict):
-
-        raise KnowledgeBankReconcilerError(
-
-            "STOP_PARSE_FAILED",
-
-            "Reconciler response must be a JSON object",
-
-        )
-
-    return parsed
 
 
 

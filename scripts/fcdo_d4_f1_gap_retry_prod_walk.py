@@ -33,20 +33,39 @@ from scripts.fcdo_d4_f1_fresh_prod_walk import (  # noqa: E402
     poll_job,
 )
 
-REPORT_ID = os.environ.get("REPORT_ID", "cabb8796-195b-4089-afab-94d6fe841d50")
-JOB_ID = os.environ.get("JOB_ID", "cc879453-653f-4953-8619-d7c6e28634bb")
+REPORT_ID = os.environ.get("REPORT_ID", "230290ce-d28a-4138-ae08-901cf1ad69c0")
+JOB_ID = os.environ.get("JOB_ID", "")
 
 
 def main() -> int:
     _bootstrap_db_env()
     engine = create_engine(os.environ["DATABASE_URL"])
+    job_id = JOB_ID
+    if not job_id:
+        with engine.connect() as conn:
+            job_id = conn.execute(
+                text(
+                    """
+                    SELECT id FROM report_jobs
+                    WHERE donor_report_id = CAST(:r AS uuid)
+                      AND stage = 'gap'
+                    ORDER BY started_at DESC NULLS LAST, id DESC
+                    LIMIT 1
+                    """
+                ),
+                {"r": REPORT_ID},
+            ).scalar()
+        if not job_id:
+            print("No gap-stage job found for report", REPORT_ID, file=sys.stderr)
+            return 1
+        print(f"Resolved gap job_id={job_id}", flush=True)
     with engine.begin() as conn:
         conn.execute(
             text(
                 "UPDATE report_jobs SET status='queued', error=NULL "
                 "WHERE id = CAST(:j AS uuid)"
             ),
-            {"j": JOB_ID},
+            {"j": job_id},
         )
     print("REQUEUED gap job", flush=True)
 

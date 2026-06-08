@@ -14,6 +14,7 @@ from app.main import create_app
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     KNOWLEDGE_BANK_RECONCILIATION_VERSION,
     RECONCILER_AGENT_NAME,
+    validate_gate1_confirm_payload,
 )
 from app.reports.services.gate1_confirmation_service import confirm_gate1
 from app.reports.services.gate_preconditions import require_gate1_confirmed
@@ -80,8 +81,42 @@ def test_confirm_gate1_sets_stamp_and_persists_kb():
 
     assert persisted.get("gate1_confirmed_at")
     assert persisted["facts"]["budget_total"]["value"] == 100
+    assert persisted["facts"]["budget_total"]["confirmed"] is True
+    assert persisted["facts"]["budget_total"]["confirmed_by_user"] is True
+    assert persisted["facts"]["budget_total"]["confirmed_at"] == persisted["gate1_confirmed_at"]
     assert report.knowledge_bank_json == persisted
     db.commit.assert_called_once()
+
+
+def test_gate1_confirm_blocks_unresolved_conflicts():
+    kb = _minimal_reconciled_kb()
+    kb["conflicts"] = [
+        {
+            "fact_key": "budget_total",
+            "conflict_type": "VALUE_MISMATCH",
+            "values": [
+                {
+                    "value": 100,
+                    "unit": None,
+                    "source_document_id": str(uuid.uuid4()),
+                    "source_label": "doc_a",
+                    "provenance": {"excerpt": "100"},
+                },
+                {
+                    "value": 200,
+                    "unit": None,
+                    "source_document_id": str(uuid.uuid4()),
+                    "source_label": "doc_b",
+                    "provenance": {"excerpt": "200"},
+                },
+            ],
+            "annotation": None,
+            "resolved_value": None,
+            "resolved_at": None,
+        }
+    ]
+    errors = validate_gate1_confirm_payload(kb)
+    assert any("unresolved" in err for err in errors)
 
 
 def test_require_gate1_confirmed_fails_without_stamp():

@@ -166,3 +166,12 @@ Context: M_E_Module/P4 plan; owner approved build including sentinel filter poli
 7. Export client uses GET to match live backend. Gate 3 display polish only — §12.11 PATCH out of scope.
 8. `UNSUPPORTED_DOCUMENT_FORMAT` passes through server lane-specific message on upload (`me-error-messages.ts`).
 ---
+DECISION (2026-06-08) — E3 deterministic-first gap identification (D-049).
+Context: Report `230290ce-d28a-4138-ae08-901cf1ad69c0` failed at gap stage when Anthropic returned prose instead of JSON after degraded E1 reconcile.
+
+1. **Gap identification is deterministic by default** — `unsatisfied_requirements()` + logframe merge in `deterministic_gaps.py`; `run_gap_compliance` skips LLM unless `ME_GAP_COMPLIANCE_USE_LLM=1` or tests inject `query_fn`.
+2. **LLM parse failure is non-fatal** when LLM path is enabled — after retries, fall back to deterministic output (same contract shape).
+3. **JSON extraction fallback** — shared `app/reports/parsing/json_from_text.py` for gap + reconciler prose/preamble responses.
+4. **Gate 1 confirm** stamps `confirmed: true` on all facts; unresolved conflicts block confirm.
+5. **E1 reconciler** default `MAX_OUTPUT_TOKENS` raised to 32768 via `ME_RECONCILER_MAX_OUTPUT_TOKENS`.
+---

@@ -6,7 +6,6 @@ import asyncio
 import json
 import logging
 import os
-import re
 import time
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass
@@ -16,11 +15,13 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from app.reports.gap.deterministic_gaps import build_deterministic_gap_compliance_output
 from app.reports.gap.logframe_completeness import (
     derive_missing_logframe_actuals,
     missing_to_gap_items,
     missing_to_template_requirements,
 )
+from app.reports.parsing.json_from_text import parse_json_object_from_text
 from app.reports.gap.template_requirements import (
     TemplateRequirement,
     enumerate_template_requirements,
@@ -44,6 +45,7 @@ TIMEOUT_SECONDS = int(os.getenv("ME_GAP_COMPLIANCE_TIMEOUT_SECONDS", "180"))
 MAX_GAP_COMPLIANCE_ATTEMPTS = 2
 MAX_INPUT_CHARS = 120_000
 MAX_OUTPUT_TOKENS = 8192
+DETERMINISTIC_MODEL = "deterministic"
 _RETRYABLE_GAP_ERROR_CODES = frozenset({"STOP_PARSE_FAILED", "STOP_NO_RESULT"})
 _RAW_RESPONSE_SNIPPET_CHARS = 500
 
@@ -137,29 +139,24 @@ def _extract_token_counts(usage: Any) -> tuple[int | None, int | None]:
     )
 
 
+def _gap_llm_enabled() -> bool:
+    return os.getenv("ME_GAP_COMPLIANCE_USE_LLM", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
 def _parse_json_from_text(text: str) -> dict[str, Any]:
     stripped = text.strip()
-    if stripped.startswith("```"):
-        match = re.match(
-            r"^```(?:json)?\s*\n?(.*?)\n?```\s*$", stripped, re.DOTALL | re.IGNORECASE
-        )
-        if match:
-            stripped = match.group(1).strip()
     try:
-        parsed = json.loads(stripped)
-    except json.JSONDecodeError as exc:
+        return parse_json_object_from_text(text)
+    except ValueError as exc:
         raise GapComplianceAgentError(
             "STOP_PARSE_FAILED",
             f"Gap agent response is not valid JSON: {exc}",
             raw_response=stripped,
         ) from exc
-    if not isinstance(parsed, dict):
-        raise GapComplianceAgentError(
-            "STOP_PARSE_FAILED",
-            "Gap agent response must be a JSON object",
-            raw_response=stripped,
-        )
-    return parsed
 
 
 def _format_persistent_parse_failure(raw_responses: list[str]) -> str:
@@ -384,6 +381,40 @@ async def _run_gap_query(
     return structured_output, resolved_model, latency_ms, input_tokens, output_tokens
 
 
+def _build_gap_result(
+    structured: GapComplianceOutput,
+    *,
+    ctx: dict[str, Any],
+    resolved_model: str,
+    latency_ms: int | None,
+    input_tokens: int | None,
+    output_tokens: int | None,
+    attempt_count: int,
+) -> GapComplianceAgentResult:
+    now = datetime.now(timezone.utc)
+    trace = GapComplianceAgentTrace(
+        model_used=resolved_model,
+        latency_ms=latency_ms,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        attempt_count=attempt_count,
+    )
+    envelope = GapCompliancePersistedEnvelope(
+        gap_agent=AGENT_NAME,
+        analyzed_at=now,
+        report_context=ctx,
+        structured=structured,
+        agent_trace=trace,
+    )
+    return GapComplianceAgentResult(
+        envelope=envelope,
+        model_used=resolved_model,
+        latency_ms=latency_ms,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+    )
+
+
 async def run_gap_compliance(
     *,
     knowledge_bank_json: dict[str, Any],
@@ -407,6 +438,38 @@ async def run_gap_compliance(
     allowed_item_keys = {req.item_key for req in requirements}
     checklist_non_section = len([r for r in requirements if r.required_item_type != "section"])
     deterministic_gaps = missing_to_gap_items(logframe_missing)
+    deterministic_output = build_deterministic_gap_compliance_output(
+        requirements=requirements,
+        knowledge_bank_json=knowledge_bank_json,
+        logframe_gaps=deterministic_gaps,
+        checklist_non_section_count=checklist_non_section,
+    )
+    det_errors = validate_gap_compliance_output(
+        deterministic_output, allowed_item_keys=allowed_item_keys
+    )
+    if det_errors:
+        raise GapComplianceAgentError(
+            "STOP_VALIDATION_FAILED",
+            f"Deterministic gap output invalid: {'; '.join(det_errors)}",
+        )
+
+    use_llm = query_fn is not None or (_gap_llm_enabled() and query_fn is None)
+    if not use_llm:
+        logger.info(
+            "gap_compliance_agent deterministic checklist=%d gaps=%d",
+            checklist_non_section,
+            len(deterministic_output.gaps),
+        )
+        return _build_gap_result(
+            deterministic_output,
+            ctx=ctx,
+            resolved_model=DETERMINISTIC_MODEL,
+            latency_ms=None,
+            input_tokens=None,
+            output_tokens=None,
+            attempt_count=1,
+        )
+
     prompt = build_gap_compliance_prompt(
         knowledge_bank_json=knowledge_bank_json,
         template_payload=template_payload,
@@ -416,13 +479,17 @@ async def run_gap_compliance(
     )
 
     logger.info(
-        "gap_compliance_agent start checklist=%d logframe_missing=%d model=%s",
+        "gap_compliance_agent llm_path checklist=%d logframe_missing=%d model=%s",
         checklist_non_section,
         len(logframe_missing),
         model or DEFAULT_MODEL,
     )
 
     raw_responses: list[str] = []
+    resolved_model = model or DEFAULT_MODEL
+    latency_ms: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
 
     for attempt in range(1, MAX_GAP_COMPLIANCE_ATTEMPTS + 1):
         try:
@@ -440,17 +507,23 @@ async def run_gap_compliance(
         except GapComplianceAgentError as exc:
             if exc.raw_response is not None:
                 raw_responses.append(exc.raw_response)
-            if (
-                exc.code not in _RETRYABLE_GAP_ERROR_CODES
-                or attempt >= MAX_GAP_COMPLIANCE_ATTEMPTS
-            ):
-                if exc.code in _RETRYABLE_GAP_ERROR_CODES:
-                    raise GapComplianceAgentError(
-                        exc.code,
-                        f"Gap compliance stage: {exc.message}{_format_persistent_parse_failure(raw_responses)}",
-                        raw_response=exc.raw_response,
-                    ) from exc
+            if exc.code not in _RETRYABLE_GAP_ERROR_CODES:
                 raise
+            if attempt >= MAX_GAP_COMPLIANCE_ATTEMPTS:
+                logger.warning(
+                    "gap_compliance_agent llm exhausted attempts=%d; using deterministic gaps=%d",
+                    MAX_GAP_COMPLIANCE_ATTEMPTS,
+                    len(deterministic_output.gaps),
+                )
+                return _build_gap_result(
+                    deterministic_output,
+                    ctx=ctx,
+                    resolved_model=resolved_model,
+                    latency_ms=latency_ms,
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                    attempt_count=attempt,
+                )
             logger.warning(
                 "gap_compliance_agent failure attempt=%d/%d error=%s",
                 attempt,
@@ -459,48 +532,66 @@ async def run_gap_compliance(
             )
             continue
 
-        structured = _validate_llm_output(
-            structured_output, allowed_item_keys=allowed_item_keys
-        )
-        structured = _merge_deterministic_logframe_gaps(
-            structured,
-            deterministic_gaps,
-            checklist_non_section_count=checklist_non_section,
-        )
-        merge_errors = validate_gap_compliance_output(
-            structured, allowed_item_keys=allowed_item_keys
-        )
-        if merge_errors:
-            raise GapComplianceAgentError(
-                "STOP_VALIDATION_FAILED",
-                "; ".join(merge_errors),
+        try:
+            structured = _validate_llm_output(
+                structured_output, allowed_item_keys=allowed_item_keys
             )
-        now = datetime.now(timezone.utc)
-        trace = GapComplianceAgentTrace(
-            model_used=resolved_model,
+            structured = _merge_deterministic_logframe_gaps(
+                structured,
+                deterministic_gaps,
+                checklist_non_section_count=checklist_non_section,
+            )
+            merge_errors = validate_gap_compliance_output(
+                structured, allowed_item_keys=allowed_item_keys
+            )
+            if merge_errors:
+                raise GapComplianceAgentError(
+                    "STOP_VALIDATION_FAILED",
+                    "; ".join(merge_errors),
+                )
+        except GapComplianceAgentError as exc:
+            if exc.code not in _RETRYABLE_GAP_ERROR_CODES:
+                raise
+            if attempt >= MAX_GAP_COMPLIANCE_ATTEMPTS:
+                logger.warning(
+                    "gap_compliance_agent llm validation failed; using deterministic gaps=%d",
+                    len(deterministic_output.gaps),
+                )
+                return _build_gap_result(
+                    deterministic_output,
+                    ctx=ctx,
+                    resolved_model=resolved_model,
+                    latency_ms=latency_ms,
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                    attempt_count=attempt,
+                )
+            logger.warning(
+                "gap_compliance_agent validation failure attempt=%d/%d error=%s",
+                attempt,
+                MAX_GAP_COMPLIANCE_ATTEMPTS,
+                exc,
+            )
+            continue
+
+        return _build_gap_result(
+            structured,
+            ctx=ctx,
+            resolved_model=resolved_model,
             latency_ms=latency_ms,
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             attempt_count=attempt,
         )
-        envelope = GapCompliancePersistedEnvelope(
-            gap_agent=AGENT_NAME,
-            analyzed_at=now,
-            report_context=ctx,
-            structured=structured,
-            agent_trace=trace,
-        )
-        return GapComplianceAgentResult(
-            envelope=envelope,
-            model_used=resolved_model,
-            latency_ms=latency_ms,
-            input_tokens=input_tokens,
-            output_tokens=output_tokens,
-        )
 
-    raise GapComplianceAgentError(
-        "STOP_NO_RESULT",
-        f"Gap compliance stage: no result after {MAX_GAP_COMPLIANCE_ATTEMPTS} attempts",
+    return _build_gap_result(
+        deterministic_output,
+        ctx=ctx,
+        resolved_model=resolved_model,
+        latency_ms=latency_ms,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        attempt_count=MAX_GAP_COMPLIANCE_ATTEMPTS,
     )
 
 

@@ -1,0 +1,29 @@
+{
+  "report_id": "230290ce-d28a-4138-ae08-901cf1ad69c0",
+  "captured_at": "2026-06-08",
+  "failure": {
+    "stage": "gap",
+    "error_class": "STOP_PARSE_FAILED",
+    "error_summary": "Gap agent response is not valid JSON — prose chain-of-thought on both attempts",
+    "prior_reconcile": "degraded (JSON truncated at 16384 output tokens)"
+  },
+  "prod_kb_observed": {
+    "fact_count_after_dedup": 84,
+    "degraded_pass_through_key_pct": "100%",
+    "conflicts_after_dedup": 12,
+    "gate1_confirmed_at": "2026-06-08T14:31:40Z",
+    "reconciliation_outcome": "degraded"
+  },
+  "fixture_reconstruction_fcdo_bridgelight": {
+    "prompt_chars": 84669,
+    "max_input_chars": 120000,
+    "prompt_truncated": false,
+    "checklist_non_section_count": 53,
+    "logframe_missing_count": 9,
+    "deterministic_unsatisfied_count": 53,
+    "deterministic_gap_count": 53,
+    "deterministic_readiness_score": 0,
+    "note": "Full recorded KB fixture; prod degraded KB had fewer satisfied items after partial facts"
+  },
+  "remediation": "D-049 deterministic-first gap path; re-queue via scripts/fcdo_d4_f1_gap_retry_prod_walk.py after deploy"
+}

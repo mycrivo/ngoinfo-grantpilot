@@ -133,6 +133,10 @@ def validate_gate1_knowledge_bank(output: KnowledgeBankReconciliationOutput) -> 
         if not fact.provenance or not fact.provenance.excerpt:
             errors.append(f"fact {fact_key!r} missing provenance excerpt")
     for conflict in output.conflicts:
+        if conflict.resolved_value is None:
+            errors.append(
+                f"conflict {conflict.fact_key!r} is unresolved — set resolved_value before Gate 1 confirm"
+            )
         if len(conflict.values) < 2:
             errors.append(f"conflict {conflict.fact_key!r} requires >= 2 values")
         for entry in conflict.values:

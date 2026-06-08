@@ -72,7 +72,13 @@ def confirm_gate1(
         )
 
     confirmed_at = datetime.now(timezone.utc)
-    payload["gate1_confirmed_at"] = confirmed_at.isoformat()
+    confirmed_at_iso = confirmed_at.isoformat()
+    for fact in payload.get("facts", {}).values():
+        if isinstance(fact, dict):
+            fact["confirmed"] = True
+            fact["confirmed_by_user"] = True
+            fact["confirmed_at"] = confirmed_at_iso
+    payload["gate1_confirmed_at"] = confirmed_at_iso
     report.knowledge_bank_json = payload
     db.add(report)
     re_enqueue_gate1_job(db, donor_report_id=donor_report_id)

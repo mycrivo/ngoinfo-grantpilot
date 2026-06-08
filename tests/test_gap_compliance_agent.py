@@ -12,6 +12,7 @@ from app.core.errors import DomainError
 from app.reports.agents.gap_compliance_agent import (
     AGENT_NAME,
     DEFAULT_MODEL,
+    DETERMINISTIC_MODEL,
     GapComplianceAgentError,
     build_gap_compliance_prompt,
     run_gap_compliance,
@@ -521,7 +522,7 @@ async def test_gap_compliance_retries_once_on_empty_structured_output():
 
 
 @pytest.mark.asyncio
-async def test_gap_compliance_fails_loudly_after_two_unparseable_responses():
+async def test_gap_compliance_falls_back_to_deterministic_after_llm_failures():
     kb, template_payload = _dispatch_minimal_e3_inputs()
 
     async def _always_empty(*, prompt, options=None):
@@ -529,17 +530,67 @@ async def test_gap_compliance_fails_loudly_after_two_unparseable_responses():
         _ = options
         yield SimpleNamespace(is_error=False, structured_output=None)
 
-    with pytest.raises(GapComplianceAgentError) as exc_info:
-        await run_gap_compliance(
-            knowledge_bank_json=kb,
-            template_payload=template_payload,
-            query_fn=_always_empty,
-        )
-    assert exc_info.value.code == "STOP_NO_RESULT"
-    assert "Gap compliance stage:" in exc_info.value.message
-    assert "after 2 attempts" in exc_info.value.message
-    assert "attempt_1_raw=" in exc_info.value.message
-    assert "attempt_2_raw=" in exc_info.value.message
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template_payload,
+        query_fn=_always_empty,
+    )
+    assert result.envelope.agent_trace.attempt_count == 2
+    assert result.envelope.structured.readiness_score == 100
+    assert result.envelope.structured.gaps == []
+    assert result.model_used != DETERMINISTIC_MODEL
+
+
+@pytest.mark.asyncio
+async def test_gap_compliance_deterministic_path_without_llm():
+    template = _load_json(FCDO_TEMPLATE)
+    kb = _build_incomplete_fcdo_kb()
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template,
+        report_context=REPORT_CONTEXT,
+    )
+    assert result.model_used == DETERMINISTIC_MODEL
+    assert result.envelope.structured.gaps
+    persisted = envelope_to_gap_analysis_json(result.envelope)
+    errors = grade_gap_compliance(
+        persisted,
+        template_sections=template["report_sections_json"],
+        knowledge_bank_json=kb,
+        answer_key=_load_key("fcdo_incomplete_answer_key.json"),
+        report_context=REPORT_CONTEXT,
+        format_rules_json=template.get("format_rules_json"),
+    )
+    assert errors == [], f"grading errors: {errors}"
+
+
+@pytest.mark.asyncio
+async def test_gap_compliance_degraded_pass_through_kb():
+    template = _load_json(FCDO_TEMPLATE)
+    base = _build_incomplete_fcdo_kb()
+    facts = {
+        f"degraded_pass_through:{key}": value
+        for key, value in base["facts"].items()
+    }
+    kb = _confirmed_kb(facts=facts)
+    kb["reconciliation_outcome"] = "degraded"
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template,
+        report_context=REPORT_CONTEXT,
+    )
+    assert result.model_used == DETERMINISTIC_MODEL
+    assert result.envelope.structured.gaps
+    persisted = envelope_to_gap_analysis_json(result.envelope)
+    errors = grade_gap_compliance(
+        persisted,
+        template_sections=template["report_sections_json"],
+        knowledge_bank_json=kb,
+        answer_key=_load_key("fcdo_incomplete_answer_key.json"),
+        report_context=REPORT_CONTEXT,
+        format_rules_json=template.get("format_rules_json"),
+    )
+    assert errors == [], f"grading errors: {errors}"
 
 
 @pytest.mark.asyncio
