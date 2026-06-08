@@ -18,6 +18,7 @@ from app.reports.worker.job_failure import (
     FAILURE_EVENT_TIMEOUT,
     mark_job_failed_by_id,
 )
+from app.reports.worker.orphan_reaper import reap_stale_running_jobs
 from app.reports.worker.run_pipeline import run_pipeline
 
 logger = logging.getLogger("reports.worker")
@@ -113,12 +114,32 @@ def poll_once(*, job_timeout_seconds: float | None = None) -> int:
     return 1
 
 
+def _reap_stale_jobs_once() -> int:
+    if SessionLocal is None:
+        raise RuntimeError("DATABASE_URL is not set")
+
+    session = SessionLocal()
+    try:
+        return reap_stale_running_jobs(session)
+    finally:
+        session.close()
+
+
 def run_forever() -> None:
     logger.info("M&E worker started")
+    reaped = _reap_stale_jobs_once()
+    if reaped:
+        logger.warning("Startup orphan reaper failed %d stale running job(s)", reaped)
     while True:
         try:
             count = poll_once()
             if count == 0:
+                reaped = _reap_stale_jobs_once()
+                if reaped:
+                    logger.warning(
+                        "Idle-cycle orphan reaper failed %d stale running job(s)",
+                        reaped,
+                    )
                 time.sleep(POLL_INTERVAL_SECONDS)
         except Exception:
             logger.exception("Worker poll cycle failed")

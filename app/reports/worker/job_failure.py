@@ -18,6 +18,7 @@ logger = logging.getLogger("reports.worker")
 
 FAILURE_EVENT_EXCEPTION = "pipeline_exception"
 FAILURE_EVENT_TIMEOUT = "pipeline_timeout"
+FAILURE_EVENT_ORPHAN_REAPED = "orphan_reaped"
 
 _TERMINAL_STATUSES = frozenset(
     {

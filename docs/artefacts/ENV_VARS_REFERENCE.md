@@ -125,6 +125,9 @@ Future (post-MVP):
 | ME_CLASSIFIER_MODEL | Optional | haiku | Selects classifier model class; default `haiku` when omitted. |
 | ME_RECONCILER_MODEL | Optional | opus | E1 knowledge-bank reconciler model class; default `opus` when omitted. |
 | ME_RECONCILER_TIMEOUT_SECONDS | Optional | 180 | Per-attempt wall timeout for reconciler agent (D-035: 2 attempts then degraded). |
+| ME_ORPHAN_REAPER_MARGIN_SECONDS | Optional | 900 | Safety margin `M` added to stage-aware orphan reaper thresholds (P3). |
+| ME_ORPHAN_REAPER_DOCLING_DOC_SECONDS | Optional | 300 | Per-document Docling budget used in classify/extract reaper formulas. |
+| ME_ORPHAN_REAPER_MAX_SECONDS | Optional | 7200 | Absolute ceiling for `running` jobs with empty stage trace (pathological backstop). |
 
 **Namespace rule:** M&E document uploads use `ME_DOCUMENTS_S3_*` only. Generic `S3_*` names are **reserved** for a future core exports bucket (see GUARDRAILS_RUNTIME_AND_SECURITY.md) and must not be used by M&E.
 

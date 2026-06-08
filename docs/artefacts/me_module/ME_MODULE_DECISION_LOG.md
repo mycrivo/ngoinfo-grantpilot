@@ -125,3 +125,12 @@ Context: ME_DB_FUTUREPROOF_AUDIT_2026-06-04.md.
 
 5. echo_blocks / header_fields / section guidance / table max_rows remain unexercised by NLCF/FCDO. Validate against a real EU/ECHO funder profile before claiming support. No action now.
 ---
+DECISION (2026-06-08) — P3 orphan reaper (D3 Route A, D4).
+Context: M_E_Module/P3_ORPHAN_REAPER_PLAN.md; owner approved build.
+
+1. Liveness from `started_at` + `agent_trace_json.stages.*.completed_at` only — no migration, no heartbeat column.
+2. Stage-aware silence thresholds with default margin `ME_ORPHAN_REAPER_MARGIN_SECONDS=900`; absolute backstop `ME_ORPHAN_REAPER_MAX_SECONDS=7200` for empty-trace pathological runs.
+3. Recovery via existing `mark_job_failed` with `failure.event = orphan_reaped` — same refund/UX as other failures; no requeue.
+4. Worker triggers: startup sweep + idle-cycle sweep in `job_runner.run_forever()` when `poll_once()` returns 0.
+5. Out of scope: worker stability/OOM/Railway restart policy; dead worker with no process restart stays orphaned until infra restarts worker.
+---
