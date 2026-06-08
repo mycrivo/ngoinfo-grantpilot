@@ -4,26 +4,30 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Query, Response, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.auth import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.reports.models.donor_report import DonorReport
+from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.schemas.report_lifecycle import (
     CreateDonorReportRequest,
     DonorReportSummaryResponse,
     EnqueueReportJobResponse,
     KnowledgeBankResponse,
     ReportJobStatusResponse,
+    UploadedDocumentListResponse,
     UploadedDocumentResponse,
 )
 from app.reports.services.donor_report_lifecycle_service import (
     create_donor_report,
+    delete_document,
     enqueue_report_job,
     get_knowledge_bank,
     get_report_job_status,
+    list_documents,
     upload_document,
 )
 
@@ -44,6 +48,19 @@ def _report_summary(report: DonorReport) -> DonorReportSummaryResponse:
         version=report.version,
         created_at=report.created_at,
         updated_at=report.updated_at,
+    )
+
+
+def _document_response(document: UploadedDocument) -> UploadedDocumentResponse:
+    return UploadedDocumentResponse(
+        id=document.id,
+        donor_report_id=document.donor_report_id,
+        original_filename=document.original_filename,
+        mime_type=document.mime_type,
+        size_bytes=document.size_bytes,
+        classification=document.classification,
+        extraction_status=document.extraction_status,
+        created_at=document.created_at,
     )
 
 
@@ -86,16 +103,45 @@ async def upload_report_document(
         mime_type=mime_type,
         data=data,
     )
-    return UploadedDocumentResponse(
-        id=document.id,
-        donor_report_id=document.donor_report_id,
-        original_filename=document.original_filename,
-        mime_type=document.mime_type,
-        size_bytes=document.size_bytes,
-        classification=document.classification,
-        extraction_status=document.extraction_status,
-        created_at=document.created_at,
+    return _document_response(document)
+
+
+@router.get(
+    "/api/reports/{donor_report_id}/documents",
+    response_model=UploadedDocumentListResponse,
+)
+def list_report_documents(
+    donor_report_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UploadedDocumentListResponse:
+    documents = list_documents(
+        db,
+        donor_report_id=donor_report_id,
+        user_id=current_user.id,
     )
+    return UploadedDocumentListResponse(
+        documents=[_document_response(document) for document in documents]
+    )
+
+
+@router.delete(
+    "/api/reports/{donor_report_id}/documents/{document_id}",
+    status_code=204,
+)
+def delete_report_document(
+    donor_report_id: uuid.UUID,
+    document_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    delete_document(
+        db,
+        donor_report_id=donor_report_id,
+        document_id=document_id,
+        user_id=current_user.id,
+    )
+    return Response(status_code=204)
 
 
 @router.post(

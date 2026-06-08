@@ -503,3 +503,195 @@ def test_service_upload_unit_with_mock_storage():
     assert doc.extraction_status == ExtractionStatus.PENDING.value
     mock_storage.upload_bytes.assert_called_once()
     session.close()
+
+
+def _seed_report_with_document(lifecycle_api):
+    session = lifecycle_api.session_factory()
+    report = create_donor_report(
+        session,
+        user_id=lifecycle_api.user_id,
+        reporting_period_start=date(2025, 1, 1),
+        reporting_period_end=date(2025, 12, 31),
+        funder_report_template_id=lifecycle_api.template_id,
+    )
+    mock_storage = MagicMock()
+    document = upload_document(
+        session,
+        donor_report_id=report.id,
+        user_id=lifecycle_api.user_id,
+        filename="proposal.pdf",
+        mime_type="application/pdf",
+        data=b"%PDF-sample",
+        storage=mock_storage,
+    )
+    report_id = report.id
+    document_id = document.id
+    storage_ref = document.storage_ref
+    session.close()
+    return report_id, document_id, storage_ref, mock_storage
+
+
+def test_list_documents_returns_owner_uploads(lifecycle_api):
+    report_id, document_id, _, _ = _seed_report_with_document(lifecycle_api)
+
+    response = lifecycle_api.client.get(
+        f"/api/reports/{report_id}/documents",
+        headers=lifecycle_api.auth_header,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["documents"]) == 1
+    assert body["documents"][0]["id"] == str(document_id)
+    assert body["documents"][0]["original_filename"] == "proposal.pdf"
+
+
+def test_delete_document_removes_db_row_and_storage_object(lifecycle_api):
+    report_id, document_id, storage_ref, mock_storage = _seed_report_with_document(
+        lifecycle_api
+    )
+
+    with patch(
+        "app.reports.services.donor_report_lifecycle_service.DocumentStorageService",
+    ) as mock_svc_cls:
+        mock_svc_cls.return_value = mock_storage
+        response = lifecycle_api.client.delete(
+            f"/api/reports/{report_id}/documents/{document_id}",
+            headers=lifecycle_api.auth_header,
+        )
+
+    assert response.status_code == 204
+    mock_storage.delete_object.assert_called_once_with(storage_ref)
+
+    verify = lifecycle_api.session_factory()
+    remaining = (
+        verify.query(UploadedDocument)
+        .filter_by(donor_report_id=report_id, id=document_id)
+        .first()
+    )
+    verify.close()
+    assert remaining is None
+
+
+def test_delete_document_rejects_non_owner(lifecycle_api):
+    report_id, document_id, _, _ = _seed_report_with_document(lifecycle_api)
+
+    session = lifecycle_api.session_factory()
+    other_id = uuid.uuid4()
+    now = datetime.now(timezone.utc)
+    session.add(
+        User(
+            id=other_id,
+            email=f"other-del-{other_id.hex[:8]}@example.org",
+            auth_provider="email",
+            created_at=now,
+            updated_at=now,
+        )
+    )
+    seed_user_plan(session, other_id, plan_name=PLAN_IMPACT)
+    session.commit()
+    session.close()
+
+    other_token, _ = create_access_token(str(other_id), "other@example.org", "free")
+    response = lifecycle_api.client.delete(
+        f"/api/reports/{report_id}/documents/{document_id}",
+        headers={"Authorization": f"Bearer {other_token}"},
+    )
+    assert response.status_code == 404
+    assert response.json()["error_code"] == "DONOR_REPORT_NOT_FOUND"
+
+
+def test_delete_document_returns_not_found_for_missing_document(lifecycle_api):
+    report_id, _, _, _ = _seed_report_with_document(lifecycle_api)
+    missing_id = uuid.uuid4()
+
+    response = lifecycle_api.client.delete(
+        f"/api/reports/{report_id}/documents/{missing_id}",
+        headers=lifecycle_api.auth_header,
+    )
+    assert response.status_code == 404
+    assert response.json()["error_code"] == "DOCUMENT_NOT_FOUND"
+
+
+def test_delete_document_rejects_active_job(lifecycle_api):
+    report_id, document_id, _, _ = _seed_report_with_document(lifecycle_api)
+
+    session = lifecycle_api.session_factory()
+    session.add(
+        ReportJob(
+            id=uuid.uuid4(),
+            donor_report_id=report_id,
+            stage=ReportJobStage.CLASSIFY.value,
+            status=ReportJobStatus.RUNNING.value,
+            agent_trace_json={},
+            started_at=datetime.now(timezone.utc),
+        )
+    )
+    session.commit()
+    session.close()
+
+    response = lifecycle_api.client.delete(
+        f"/api/reports/{report_id}/documents/{document_id}",
+        headers=lifecycle_api.auth_header,
+    )
+    assert response.status_code == 409
+    assert response.json()["error_code"] == "ACTIVE_JOB_EXISTS"
+
+
+def test_delete_document_rejects_completed_run(lifecycle_api):
+    report_id, document_id, _, _ = _seed_report_with_document(lifecycle_api)
+
+    session = lifecycle_api.session_factory()
+    session.add(
+        ReportJob(
+            id=uuid.uuid4(),
+            donor_report_id=report_id,
+            stage=ReportJobStage.EXPORT.value,
+            status=ReportJobStatus.DONE.value,
+            agent_trace_json={},
+            started_at=datetime.now(timezone.utc),
+            finished_at=datetime.now(timezone.utc),
+        )
+    )
+    session.commit()
+    session.close()
+
+    response = lifecycle_api.client.delete(
+        f"/api/reports/{report_id}/documents/{document_id}",
+        headers=lifecycle_api.auth_header,
+    )
+    assert response.status_code == 409
+    assert response.json()["error_code"] == "REPORT_HAS_COMPLETED_RUN"
+
+
+def test_delete_document_allowed_after_failed_job_only(lifecycle_api):
+    report_id, document_id, storage_ref, mock_storage = _seed_report_with_document(
+        lifecycle_api
+    )
+
+    session = lifecycle_api.session_factory()
+    session.add(
+        ReportJob(
+            id=uuid.uuid4(),
+            donor_report_id=report_id,
+            stage=ReportJobStage.EXTRACT.value,
+            status=ReportJobStatus.FAILED.value,
+            agent_trace_json={"failure": {"message": "extract failed"}},
+            error="extract failed",
+            started_at=datetime.now(timezone.utc),
+            finished_at=datetime.now(timezone.utc),
+        )
+    )
+    session.commit()
+    session.close()
+
+    with patch(
+        "app.reports.services.donor_report_lifecycle_service.DocumentStorageService",
+    ) as mock_svc_cls:
+        mock_svc_cls.return_value = mock_storage
+        response = lifecycle_api.client.delete(
+            f"/api/reports/{report_id}/documents/{document_id}",
+            headers=lifecycle_api.auth_header,
+        )
+
+    assert response.status_code == 204
+    mock_storage.delete_object.assert_called_once_with(storage_ref)

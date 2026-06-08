@@ -41,6 +41,10 @@ class UploadedDocumentResponse(BaseModel):
     created_at: datetime
 
 
+class UploadedDocumentListResponse(BaseModel):
+    documents: list[UploadedDocumentResponse]
+
+
 class EnqueueReportJobResponse(BaseModel):
     job_id: uuid.UUID
     donor_report_id: uuid.UUID

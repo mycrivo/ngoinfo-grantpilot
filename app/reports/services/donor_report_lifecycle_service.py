@@ -193,6 +193,93 @@ def upload_document(
     return document
 
 
+def _assert_documents_mutable(db: Session, *, donor_report_id: uuid.UUID) -> None:
+    """Job-state guard for document delete — not gated on donor_reports.status (D5)."""
+    active = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status.in_(_ACTIVE_JOB_STATUSES),
+        )
+        .first()
+    )
+    if active is not None:
+        raise ConflictError(
+            error_code="ACTIVE_JOB_EXISTS",
+            message="Documents cannot be removed while a report job is in progress",
+            status_code=409,
+            details={"job_id": str(active.id), "status": active.status},
+        )
+
+    completed = (
+        db.query(ReportJob)
+        .filter(
+            ReportJob.donor_report_id == donor_report_id,
+            ReportJob.status == ReportJobStatus.DONE.value,
+        )
+        .first()
+    )
+    if completed is not None:
+        raise ConflictError(
+            error_code="REPORT_HAS_COMPLETED_RUN",
+            message="Documents cannot be removed after a report run has completed",
+            status_code=409,
+            details={"job_id": str(completed.id), "status": completed.status},
+        )
+
+
+def list_documents(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    user_id: uuid.UUID,
+) -> list[UploadedDocument]:
+    get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+    return (
+        db.query(UploadedDocument)
+        .filter(UploadedDocument.donor_report_id == donor_report_id)
+        .order_by(UploadedDocument.created_at.asc())
+        .all()
+    )
+
+
+def delete_document(
+    db: Session,
+    *,
+    donor_report_id: uuid.UUID,
+    document_id: uuid.UUID,
+    user_id: uuid.UUID,
+    storage: DocumentStorageService | None = None,
+) -> None:
+    get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+    _assert_documents_mutable(db, donor_report_id=donor_report_id)
+
+    document = (
+        db.query(UploadedDocument)
+        .filter(
+            UploadedDocument.id == document_id,
+            UploadedDocument.donor_report_id == donor_report_id,
+        )
+        .first()
+    )
+    if document is None:
+        raise NotFoundError(
+            error_code="DOCUMENT_NOT_FOUND",
+            message=f"Document {document_id} not found",
+            status_code=404,
+        )
+
+    store = storage or DocumentStorageService()
+    store.delete_object(document.storage_ref)
+    db.delete(document)
+    db.commit()
+    logger.info(
+        "document_deleted donor_report_id=%s document_id=%s",
+        donor_report_id,
+        document_id,
+    )
+
+
 def _try_reclaim_failed_job(
     db: Session,
     *,

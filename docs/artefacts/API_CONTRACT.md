@@ -1292,6 +1292,72 @@ Errors:
 
 ---
 
+### 12.3.1 GET /api/reports/{id}/documents
+
+Purpose: list uploaded documents for a report (upload UI hydration, Start-over retry).
+
+Auth: REQUIRED · Owner only
+
+Response 200:
+
+```json
+{
+  "documents": [
+    {
+      "id": "uuid",
+      "donor_report_id": "uuid",
+      "original_filename": "string",
+      "mime_type": "string",
+      "size_bytes": 0,
+      "classification": "proposal | grant_letter | mou | indicator_data | photo | deck | other | null",
+      "extraction_status": "PENDING | PROCESSING | COMPLETE | FAILED",
+      "created_at": "ISO-8601 timestamp"
+    }
+  ]
+}
+```
+
+**Notes:**
+- `storage_ref` is NEVER returned to clients.
+- Ordered by `created_at` ascending.
+
+Errors:
+
+- 401 `UNAUTHORIZED`
+- 403 `FORBIDDEN`
+- 404 `REPORT_NOT_FOUND` (invalid id or not owned)
+- 500 `INTERNAL_SERVER_ERROR`
+
+---
+
+### 12.3.2 DELETE /api/reports/{id}/documents/{document_id}
+
+Purpose: remove one uploaded document so the owner can swap a bad file before re-enqueue.
+
+Auth: REQUIRED · Owner only
+
+Response 204: empty body.
+
+**Safe-state guard (job state only — not gated on `donor_reports.status`, per D5):**
+
+Allow delete only when BOTH hold for the report:
+1. No `report_jobs` row in `{queued, running, awaiting_human}`.
+2. No `report_jobs` row with `status = done` (report has never completed a run).
+
+On success: removes the DB row and the stored object from document storage (R2).
+
+Errors:
+
+- 401 `UNAUTHORIZED`
+- 403 `FORBIDDEN`
+- 404 `REPORT_NOT_FOUND` (invalid report id or not owned)
+- 404 `DOCUMENT_NOT_FOUND` (document id invalid for this report)
+- 409 `ACTIVE_JOB_EXISTS` (mid-pipeline or human gate)
+- 409 `REPORT_HAS_COMPLETED_RUN` (a completed run exists)
+- 500 `INTERNAL_SERVER_ERROR`
+
+---
+
 ### 12.4 GET /api/reports/{id}/knowledge-bank
 
 Purpose: Gate 1 — reconciled picture + conflicts.
@@ -1723,6 +1789,9 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` 
 | `FILE_TOO_LARGE` | 413 | Upload exceeds limit |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | MIME not allowed |
 | `UPGRADE_REQUIRED` | 403 | Free/Growth M&E entry (§10.3) |
+| `DOCUMENT_NOT_FOUND` | 404 | Document id invalid for this report |
+| `ACTIVE_JOB_EXISTS` | 409 | Report job in progress or awaiting human gate |
+| `REPORT_HAS_COMPLETED_RUN` | 409 | Document delete blocked after a completed run |
 
 Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports` | `report_exports`.
 
