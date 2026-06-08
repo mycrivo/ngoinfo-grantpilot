@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass
 
 from app.reports.reconciliation.input_builder import FactCandidate, ReconciliationInputBundle
+from app.reports.reconciliation.degrade_dedup import optimize_degraded_pass_through
 from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     KnowledgeBankFact,
     KnowledgeBankReconciliationOutput,
@@ -102,9 +103,12 @@ def build_degraded_structured_output(
 ) -> KnowledgeBankReconciliationOutput:
     if bundle is None or not bundle.fact_candidates:
         return KnowledgeBankReconciliationOutput(reconciliation_outcome="degraded")
+    raw_facts = pass_through_facts_from_candidates(bundle)
+    facts, conflicts = optimize_degraded_pass_through(raw_facts)
     return KnowledgeBankReconciliationOutput(
         reconciliation_outcome="degraded",
-        facts=pass_through_facts_from_candidates(bundle),
+        facts=facts,
+        conflicts=conflicts,
         unreadable_sources=unreadable_sources_from_bundle(bundle),
     )
 
