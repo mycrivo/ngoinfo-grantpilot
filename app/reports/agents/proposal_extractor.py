@@ -434,6 +434,40 @@ def _build_degraded_timeout_result(
     )
 
 
+def build_degraded_extraction_stop_result(
+    *,
+    content_hash: str,
+    stop_code: str,
+) -> ProposalExtractorResult:
+    """Typed terminal degrade for bounded agent STOP codes — never raises."""
+    structured = ProposalExtractionOutput(
+        schema_version=PROPOSAL_EXTRACTION_SCHEMA_VERSION,
+        objectives=[],
+        activities=[],
+        indicators=[],
+        extraction_outcome="degraded",
+        summary=ProposalExtractionSummary(),
+    )
+    now = datetime.now(timezone.utc)
+    trace = ProposalAgentTrace(
+        content_hash=content_hash,
+        degraded_code=stop_code,
+    )
+    envelope = ProposalExtractedEnvelope(
+        extractor_agent=AGENT_NAME,
+        extracted_at=now,
+        structured=structured,
+        confidence=None,
+        error=stop_code,
+        agent_trace=trace,
+    )
+    return ProposalExtractorResult(
+        envelope=envelope,
+        timestamp=now,
+        content_hash=content_hash,
+    )
+
+
 async def extract_proposal_text(
     text: str,
     *,

@@ -198,6 +198,48 @@ def minimal_proposal_query_fn():
     return _query
 
 
+def agent_stop_error_query_fn():
+    """Non-infra agent error for Table C per-document / consecutive tests."""
+
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=50,
+            duration_api_ms=40,
+            is_error=True,
+            num_turns=1,
+            session_id="orch-test",
+            stop_reason="error",
+            structured_output=None,
+            usage={"input_tokens": 1, "output_tokens": 0},
+        )
+
+    return _query
+
+
+def infra_agent_stop_query_fn():
+    """Infra-class agent error — must hard-fail via shared systemic classifier."""
+
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=50,
+            duration_api_ms=40,
+            is_error=True,
+            num_turns=1,
+            session_id="orch-test",
+            stop_reason="authentication_error",
+            structured_output=None,
+            usage={"input_tokens": 1, "output_tokens": 0},
+        )
+
+    return _query
+
+
 def _grant_field(raw: str, normalized: str) -> dict:
     return {
         "absent": False,

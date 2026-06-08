@@ -13,6 +13,7 @@ from app.reports.agents.indicator_data_extractor import (
     AGENT_NAME,
     IndicatorDataExtractorError,
     IndicatorDataExtractorResult,
+    build_degraded_extraction_stop_result,
     build_degraded_unparseable_result,
     compute_content_hash,
     extract_indicator_data_text,
@@ -119,6 +120,36 @@ async def extract_and_persist_indicator_data(
         document.extraction_status = ExtractionStatus.COMPLETE.value
         document.extracted_json = _envelope_to_json(envelope)
 
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+    return result
+
+
+async def persist_degraded_indicator_data_extraction(
+    db: Session,
+    document_id: uuid.UUID,
+    *,
+    degraded_code: str,
+    content_hash: str | None = None,
+) -> IndicatorDataExtractorResult:
+    """Persist typed terminal degrade on uploaded_documents — never raises."""
+    document = db.get(UploadedDocument, document_id)
+    if document is None:
+        raise IndicatorDataExtractionServiceError(
+            "STOP_DOCUMENT_NOT_FOUND",
+            f"Uploaded document {document_id} not found",
+        )
+    _require_indicator_data_document(document)
+    resolved_hash = content_hash or compute_content_hash(
+        f"degraded:{document.original_filename}"
+    )
+    result = build_degraded_extraction_stop_result(
+        content_hash=resolved_hash,
+        stop_code=degraded_code,
+    )
+    document.extraction_status = ExtractionStatus.FAILED.value
+    document.extracted_json = _envelope_to_json(result.envelope)
     db.add(document)
     db.commit()
     db.refresh(document)

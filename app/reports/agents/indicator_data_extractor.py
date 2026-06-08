@@ -596,6 +596,18 @@ async def extract_indicator_data_text(
     )
 
 
+def build_degraded_extraction_stop_result(
+    *,
+    content_hash: str,
+    stop_code: str,
+) -> IndicatorDataExtractorResult:
+    """Typed terminal degrade for bounded agent STOP codes — never raises."""
+    return _build_degraded_result(
+        content_hash=content_hash,
+        degraded_code=stop_code,
+    )
+
+
 async def extract_indicator_data_from_path(
     path: Path,
     *,

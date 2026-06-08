@@ -13,6 +13,7 @@ from app.reports.agents.proposal_extractor import (
     AGENT_NAME,
     ProposalExtractorError,
     ProposalExtractorResult,
+    build_degraded_extraction_stop_result,
     compute_content_hash,
     extract_proposal_text,
 )
@@ -114,6 +115,36 @@ async def extract_and_persist_proposal(
         document.extraction_status = ExtractionStatus.COMPLETE.value
         document.extracted_json = _envelope_to_json(envelope)
 
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+    return result
+
+
+async def persist_degraded_proposal_extraction(
+    db: Session,
+    document_id: uuid.UUID,
+    *,
+    degraded_code: str,
+    content_hash: str | None = None,
+) -> ProposalExtractorResult:
+    """Persist typed terminal degrade on uploaded_documents — never raises."""
+    document = db.get(UploadedDocument, document_id)
+    if document is None:
+        raise ProposalExtractionServiceError(
+            "STOP_DOCUMENT_NOT_FOUND",
+            f"Uploaded document {document_id} not found",
+        )
+    _require_proposal_document(document)
+    resolved_hash = content_hash or compute_content_hash(
+        f"degraded:{document.original_filename}"
+    )
+    result = build_degraded_extraction_stop_result(
+        content_hash=resolved_hash,
+        stop_code=degraded_code,
+    )
+    document.extraction_status = ExtractionStatus.FAILED.value
+    document.extracted_json = _envelope_to_json(result.envelope)
     db.add(document)
     db.commit()
     db.refresh(document)

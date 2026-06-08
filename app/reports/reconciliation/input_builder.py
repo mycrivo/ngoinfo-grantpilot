@@ -296,6 +296,26 @@ def _is_unreadable_extraction(extracted_json: dict) -> bool:
     return False
 
 
+def _degraded_source_from_extracted_json(
+    doc_id: str,
+    source_label: str,
+    extracted_json: dict,
+) -> UnreadableSourceInput:
+    structured = extracted_json.get("structured") or {}
+    code = (
+        extracted_json.get("error")
+        or structured.get("degraded_code")
+        or "DEGRADED_EXTRACTION"
+    )
+    message = extracted_json.get("error") or "Could not extract usable data from this upload."
+    return UnreadableSourceInput(
+        document_id=doc_id,
+        source_label=source_label,
+        code=str(code),
+        message=str(message),
+    )
+
+
 def document_dict_to_input(doc: dict[str, Any]) -> ReconciliationInputBundle:
     """Build candidates from a fixture manifest document entry."""
     doc_id = str(doc["id"])
@@ -321,7 +341,13 @@ def document_dict_to_input(doc: dict[str, Any]) -> ReconciliationInputBundle:
         )
 
     structured = extracted_json.get("structured") or {}
-    if structured.get("extraction_outcome") in ("failed", "degraded", "unreadable"):
+    if structured.get("extraction_outcome") == "degraded":
+        return ReconciliationInputBundle(
+            unreadable_sources=[
+                _degraded_source_from_extracted_json(doc_id, source_label, extracted_json)
+            ]
+        )
+    if structured.get("extraction_outcome") in ("failed", "unreadable"):
         return ReconciliationInputBundle()
 
     candidates: list[FactCandidate] = []

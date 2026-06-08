@@ -349,6 +349,49 @@ def _build_degraded_timeout_result(
     )
 
 
+def build_degraded_extraction_stop_result(
+    *,
+    content_hash: str,
+    stop_code: str,
+) -> GrantTermsExtractorResult:
+    """Typed terminal degrade for bounded agent STOP codes — never raises."""
+    absent = _absent_grant_term_field()
+    structured = GrantTermsExtractionOutput(
+        schema_version=GRANT_TERMS_EXTRACTION_SCHEMA_VERSION,
+        funder=absent,
+        grant_reference=absent,
+        award_budget=AwardBudgetTerms(
+            amount=absent,
+            currency=absent,
+            tranches=[],
+        ),
+        grant_period=DateRangeTerms(start=absent, end=absent),
+        reporting_period=DateRangeTerms(start=absent, end=absent),
+        reporting_obligations=[],
+        reporting_deadlines=[],
+        extraction_outcome="degraded",
+        summary=GrantTermsExtractionSummary(),
+    )
+    now = datetime.now(timezone.utc)
+    trace = GrantTermsAgentTrace(
+        content_hash=content_hash,
+        degraded_code=stop_code,
+    )
+    envelope = GrantTermsExtractedEnvelope(
+        extractor_agent=AGENT_NAME,
+        extracted_at=now,
+        structured=structured,
+        confidence=None,
+        error=stop_code,
+        agent_trace=trace,
+    )
+    return GrantTermsExtractorResult(
+        envelope=envelope,
+        timestamp=now,
+        content_hash=content_hash,
+    )
+
+
 def _build_unreadable_result(
     *,
     content_hash: str,

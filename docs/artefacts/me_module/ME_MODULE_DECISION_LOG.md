@@ -134,3 +134,12 @@ Context: M_E_Module/P3_ORPHAN_REAPER_PLAN.md; owner approved build.
 4. Worker triggers: startup sweep + idle-cycle sweep in `job_runner.run_forever()` when `poll_once()` returns 0.
 5. Out of scope: worker stability/OOM/Railway restart policy; dead worker with no process restart stays orphaned until infra restarts worker.
 ---
+DECISION (2026-06-08) — P2 extract isolation (engine survives bad input).
+Context: M_E_Module/P2_ENGINE_SURVIVES_BAD_INPUT_PLAN.md; owner approved classification + build.
+
+1. Per-document degrade (Table A): proposal/grant/indicator extract paths and `load_document_text` / `load_spreadsheet_json` intake errors inside extract isolation — one bad document does not fail the job; completed siblings persist.
+2. Hard fail (Table B): preflight `*ExtractionServiceError`, infra-signature agent stops, and explicit systemic stop codes route via `ExtractHardFailure` → `StageFailure` unchanged.
+3. Table C fail-closed (non-optional): first ambiguous `STOP_AGENT_ERROR` (no infra signature) degrades; second consecutive ambiguous stop with no intervening extract success hard-fails; any prior extract success resets the consecutive counter. Single classifier: `is_systemic_extraction_failure()` in `systemic_extraction_failure.py` — shared by Table B and Table C.
+4. Option B (no schema change): `extraction_outcome: degraded` on `extracted_json` maps to existing `unreadable_sources[]` in `input_builder.py` only; degraded payloads never enter reconciler fact candidates (zero-hallucination fence unchanged).
+5. Out of scope: synthesis/gap/critic prompts; classify-stage intake (extract-stage only for P2 intake wrap).
+---

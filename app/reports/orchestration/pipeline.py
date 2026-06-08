@@ -19,27 +19,15 @@ from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.orchestration.dispatch import DispatchOutcome, StageFailure, dispatch_stage
+from app.reports.orchestration.extract_isolation import ExtractHardFailure, process_extract_document
+from app.reports.orchestration.extract_stage_state import ExtractStageRunState
 from app.reports.orchestration.document_intake import (
     classification_from_mime,
     load_document_text,
-    load_spreadsheet_json,
-)
-from app.reports.services.grant_terms_extraction_service import (
-    GrantTermsExtractionServiceError,
-    extract_and_persist_grant_terms,
-)
-from app.reports.services.indicator_data_extraction_service import (
-    IndicatorDataExtractionServiceError,
-    extract_and_persist_indicator_data,
-    persist_degraded_indicator_unparseable,
 )
 from app.reports.services.knowledge_bank_reconciliation_service import (
     KnowledgeBankReconciliationServiceError,
     reconcile_and_persist,
-)
-from app.reports.services.proposal_extraction_service import (
-    ProposalExtractionServiceError,
-    extract_and_persist_proposal,
 )
 from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
 from app.reports.services.gate_preconditions import (
@@ -61,14 +49,6 @@ from app.reports.services.report_synthesis_service import (
 )
 
 logger = logging.getLogger("reports.orchestration.pipeline")
-
-_EXTRACT_SKIP_CLASSIFICATIONS = frozenset(
-    {
-        DocumentClassification.PHOTO.value,
-        DocumentClassification.DECK.value,
-        DocumentClassification.OTHER.value,
-    }
-)
 
 
 @dataclass
@@ -485,84 +465,19 @@ async def _run_extract_stage(
         hook(session=session, job=job, documents=documents)
 
     degraded_documents: list[str] = []
+    run_state = ExtractStageRunState()
     for document in documents:
-        classification = document.classification
-        if not classification or classification in _EXTRACT_SKIP_CLASSIFICATIONS:
-            continue
-
-        if classification == DocumentClassification.PROPOSAL.value:
-            text = load_document_text(document, loader_override=ctx.text_loader)
-            try:
-                outcome = await dispatch_stage(
-                    extract_and_persist_proposal(
-                        session,
-                        document.id,
-                        text,
-                        query_fn=ctx.query_fn_proposal,
-                        per_attempt_timeout_seconds=ctx.proposal_timeout_seconds,
-                    ),
-                    stage=stage,
-                )
-            except ProposalExtractionServiceError as exc:
-                raise StageFailure(stage, exc.message) from exc
-            if outcome.degraded:
+        try:
+            if await process_extract_document(
+                session,
+                document,
+                ctx,
+                run_state,
+                stage=stage,
+            ):
                 degraded_documents.append(str(document.id))
-
-        elif classification in (
-            DocumentClassification.GRANT_LETTER.value,
-            DocumentClassification.MOU.value,
-        ):
-            text = load_document_text(document, loader_override=ctx.text_loader)
-            try:
-                outcome = await dispatch_stage(
-                    extract_and_persist_grant_terms(
-                        session,
-                        document.id,
-                        text,
-                        query_fn=ctx.query_fn_grant_terms,
-                        per_attempt_timeout_seconds=ctx.grant_terms_timeout_seconds,
-                    ),
-                    stage=stage,
-                )
-            except GrantTermsExtractionServiceError as exc:
-                raise StageFailure(stage, exc.message) from exc
-            if outcome.degraded:
-                degraded_documents.append(str(document.id))
-
-        elif classification == DocumentClassification.INDICATOR_DATA.value:
-            try:
-                spreadsheet_json, content_hash = load_spreadsheet_json(
-                    document,
-                    loader_override=ctx.spreadsheet_loader,
-                )
-            except ValueError:
-                try:
-                    outcome = await dispatch_stage(
-                        persist_degraded_indicator_unparseable(
-                            session,
-                            document.id,
-                        ),
-                        stage=stage,
-                    )
-                except IndicatorDataExtractionServiceError as exc:
-                    raise StageFailure(stage, exc.message) from exc
-            else:
-                try:
-                    outcome = await dispatch_stage(
-                        extract_and_persist_indicator_data(
-                            session,
-                            document.id,
-                            spreadsheet_json,
-                            content_hash=content_hash,
-                            query_fn=ctx.query_fn_indicator_data,
-                            per_attempt_timeout_seconds=ctx.indicator_timeout_seconds,
-                        ),
-                        stage=stage,
-                    )
-                except IndicatorDataExtractionServiceError as exc:
-                    raise StageFailure(stage, exc.message) from exc
-            if outcome.degraded:
-                degraded_documents.append(str(document.id))
+        except ExtractHardFailure as exc:
+            raise StageFailure(stage, exc.message) from exc
 
     _commit_checkpoint(
         session,
