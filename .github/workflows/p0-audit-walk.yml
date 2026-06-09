@@ -17,6 +17,53 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt reportlab
 
+      - name: Install Railway CLI (live probe env bootstrap)
+        continue-on-error: true
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+
+      - name: Bootstrap Anthropic and DB env from Railway
+        continue-on-error: true
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "RAILWAY_TOKEN not set — live qualitative probe bootstrap may fail"
+            exit 0
+          fi
+          export RAILWAY_TOKEN
+          BACKEND="${BACKEND_SERVICE:-ngoinfo-grantpilot}"
+          railway variables --json --service "$BACKEND" > /tmp/railway_backend.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("/tmp/railway_backend.json").read_text())
+          for key in (
+              "ANTHROPIC_API_KEY",
+              "ME_FACT_SAFETY_CRITIC_MODEL",
+              "ME_RECONCILER_MODEL",
+          ):
+              if data.get(key):
+                  os.environ[key] = str(data[key])
+                  print(f"bootstrapped {key}=present")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:
+              for key in ("ANTHROPIC_API_KEY", "ME_FACT_SAFETY_CRITIC_MODEL", "ME_RECONCILER_MODEL"):
+                  if os.environ.get(key):
+                      fh.write(f"{key}={os.environ[key]}\n")
+          PY
+          railway variables --json --service Postgres > /tmp/railway_pg.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = json.loads(Path("/tmp/railway_pg.json").read_text())
+          url = data.get("DATABASE_PUBLIC_URL") or data.get("DATABASE_URL")
+          if url:
+              with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as fh:
+                  fh.write(f"DATABASE_URL={url}\n")
+              print("bootstrapped DATABASE_URL=present")
+          PY
+
       - name: Generate PDF award letter fixture
         run: |
           python - <<'PY'
@@ -61,7 +108,7 @@ jobs:
           set -o pipefail
           python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p1_clean_docset.log
 
-      - name: Run degraded PDF walk (gate1)
+      - name: Run degraded PDF walk (gate1 — DEGRADED-PDF tier)
         env:
           PYTHONPATH: ${{ github.workspace }}
           BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
@@ -75,7 +122,7 @@ jobs:
           set -o pipefail
           python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_degraded_pdf.log
 
-      - name: Run FCDO PDF full walk (export)
+      - name: Run FCDO PDF full walk (export — P0 regression tier)
         env:
           PYTHONPATH: ${{ github.workspace }}
           BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
@@ -94,12 +141,32 @@ jobs:
           set -o pipefail
           python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_fcdo_pdf_full.log
 
+      - name: E1/P0 unit regression (fence + harness exit codes)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest tests/test_p1_fence_eval.py tests/test_confirmed_kb.py tests/test_full_walk_exit_codes.py -q
+
+      - name: Phase 1 sign-off gate (faithfulness + DYN-02 + live adversarial probes)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
+          TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
+          SIGNOFF_WALK_RUN: p1_clean_docset
+        run: |
+          set -o pipefail
+          python scripts/audit/phase1_signoff_gate.py | tee docs/artefacts/me_module/audits/dynamic_run/phase1_signoff_gate.log
+
       - name: Upload audit artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: p0-audit-walk-${{ github.run_id }}
           path: |
             docs/artefacts/me_module/audits/dynamic_run/walk_*.json
             docs/artefacts/me_module/audits/dynamic_run/p0_*.log
+            docs/artefacts/me_module/audits/dynamic_run/p1_*.log
+            docs/artefacts/me_module/audits/dynamic_run/phase1_*.json
+            docs/artefacts/me_module/audits/dynamic_run/phase1_*.log
             docs/artefacts/me_module/audits/dynamic_run/export_*.docx
           if-no-files-found: warn

@@ -74,6 +74,7 @@ def main() -> int:
         email = C.owner_email_for_report(resume_id)
         session = C.mint_session(email, plan=plan, full_name=f"Audit {run}")
         report_id = resume_id
+        snapshots["owner_email"] = email
         print(f"RESUME report_id={report_id} owner={email}", flush=True)
         snapshots["after_reconcile"] = C.db_capture(report_id)
     else:
@@ -81,6 +82,7 @@ def main() -> int:
         session = C.mint_session(email, plan=plan, full_name=f"Audit {run}")
         report = C.create_report(session, template_id=template_id)
         report_id = report["id"]
+        snapshots["owner_email"] = email
         print(f"CREATE report_id={report_id} status={report.get('status')}", flush=True)
 
         for name in names:
@@ -218,6 +220,7 @@ def main() -> int:
                         until_status={"awaiting_human", "failed"}, until_stage={"export"},
                         max_seconds=MAX_CRITIQUE)
     snapshots["after_critique"] = C.db_capture(report_id)
+    snapshots["after_critique_detail"] = C.report_detail(session, report_id)
     if g3park.get("status") == "failed":
         return exit_code_for_verdict(
             _finish(run, report_id, snapshots, verdict="failed_at_critique", job=g3park)
@@ -268,6 +271,8 @@ def _finish(run: str, report_id: str, snapshots: dict, *, verdict: str,
         "cost": C.cost_summary(final),
         "snapshots": snapshots,
     }
+    if snapshots.get("owner_email"):
+        artifact["owner_email"] = snapshots["owner_email"]
     if extra:
         artifact["extra"] = extra
     C.write_artifact(f"walk_{run}_{report_id[:8]}.json", artifact)
