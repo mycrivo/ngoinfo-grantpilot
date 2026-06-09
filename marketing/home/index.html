@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NGOInfo — The grant lifecycle platform for NGOs</title>
+
+  <!--
+    ============================================================================
+    NGOInfo.org — Home page body content (clean rebuild, no page builder)
+    ============================================================================
+    WHAT THIS IS
+      A self-contained, framework-free rebuild of the home-page BODY content.
+      It is designed to drop in BETWEEN the existing site header and footer.
+
+    HOW TO INTEGRATE
+      • Lift the single <div class="ngoinfo-home"> … </div> from <body> and the
+        <style id="ngoinfo-home-styles"> block from <head> into your template.
+      • All CSS is scoped under ".ngoinfo-home" so it cannot collide with the
+        theme. There is NO global reset and NO styling of header/nav/footer.
+      • Font: DM Sans. The <link> in this file loads it from Google Fonts. If the
+        theme already loads DM Sans you can drop the link; the CSS has system
+        fallbacks either way.
+      • No JavaScript required. The FAQ uses native <details>/<summary>.
+
+    PLACEHOLDERS TO WIRE (search the markers below)
+      • CTA links — every action button uses href="#" plus a greppable
+        data-cta="…". Replace the href values with your real GrantPilot / site
+        URLs. data-cta values in use:
+          browse-funding, try-free, fit-scan, draft-proposal, donor-reporting,
+          start-growth, start-impact, funding-opportunity (per-card), privacy
+        ("View Impact pricing" is a real in-page anchor to #ngi-pricing, not a
+        placeholder.)
+      • Funding cards  — data-placeholder="funding-card" (Section: Funding
+        Opportunities). Replace with live data; each opportunity should be its
+        own indexable page (SEO).
+      • Stats band     — data-placeholder="stat" (Section: Stats). Set real
+        numbers from live data; do not overstate.
+      • FAQ data answer — data-placeholder="faq-privacy". Confirm exact
+        data-handling wording before publishing.
+
+    NOTE ON HERO
+      The balanced hero (copy deck §1) is built below. The M&E-forward variant
+      (§1-ALT) is an alternative; swap the headline/subhead/CTAs if you prefer to
+      lead on donor reporting.
+    ============================================================================
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+  <style id="ngoinfo-home-styles">
+  /* ==========================================================================
+     0. Design tokens  (scoped to the page wrapper only)
+     ========================================================================== */
+  .ngoinfo-home {
+    --ngi-navy:        #16163a;   /* deep indigo — dark bands, structure        */
+    --ngi-navy-2:      #20204e;   /* lighter navy — cards on dark               */
+    --ngi-navy-3:      #2b2b63;   /* hairline borders on dark                   */
+    --ngi-violet:      #6d28d9;   /* product accent — pills, numbers            */
+    --ngi-violet-2:    #7c3aed;
+    --ngi-violet-300:  #c4b5fd;   /* accent on dark backgrounds                 */
+    --ngi-violet-soft: #f2ecfd;   /* tinted blocks / pills                      */
+    --ngi-green:       #15803d;   /* action CTAs (AA white text)                */
+    --ngi-green-2:     #166534;   /* CTA hover                                  */
+    --ngi-green-soft:  #e8f5ed;
+    --ngi-ink:         #1c1c34;   /* primary text                              */
+    --ngi-muted:       #54546d;   /* secondary text (AA on white & alt bg)      */
+    --ngi-bg:          #ffffff;
+    --ngi-bg-alt:      #f6f7f9;   /* light grey sections                        */
+    --ngi-border:      #e6e7ec;
+    --ngi-shadow:      0 1px 2px rgba(16,16,40,.04), 0 10px 28px rgba(16,16,40,.06);
+    --ngi-shadow-lg:   0 6px 18px rgba(16,16,40,.08), 0 24px 60px rgba(16,16,40,.12);
+    --ngi-radius:      16px;
+    --ngi-radius-sm:   10px;
+    --ngi-radius-pill: 999px;
+    --ngi-maxw:        1140px;
+    --ngi-gap:         24px;
+
+    font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ngi-ink);
+    line-height: 1.62;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ==========================================================================
+     1. Scoped base / reset  (only ever touches elements inside .ngoinfo-home)
+     ========================================================================== */
+  .ngoinfo-home *,
+  .ngoinfo-home *::before,
+  .ngoinfo-home *::after { box-sizing: border-box; }
+
+  .ngoinfo-home h1,
+  .ngoinfo-home h2,
+  .ngoinfo-home h3,
+  .ngoinfo-home h4,
+  .ngoinfo-home p,
+  .ngoinfo-home ul,
+  .ngoinfo-home figure { margin: 0; }
+
+  .ngoinfo-home ul { list-style: none; padding: 0; }
+  .ngoinfo-home img,
+  .ngoinfo-home svg { max-width: 100%; display: block; }
+  .ngoinfo-home a { color: inherit; text-decoration: none; }
+  .ngoinfo-home p { overflow-wrap: break-word; }
+
+  /* Screen-reader-only (gives a section a heading without showing it) */
+  .ngoinfo-home .ngi-sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Visible keyboard focus for every interactive element */
+  .ngoinfo-home a:focus-visible,
+  .ngoinfo-home button:focus-visible,
+  .ngoinfo-home summary:focus-visible {
+    outline: 3px solid var(--ngi-violet-2);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .ngoinfo-home .ngi-dark a:focus-visible,
+  .ngoinfo-home .ngi-dark summary:focus-visible { outline-color: var(--ngi-violet-300); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ngoinfo-home * { transition: none !important; }
+  }
+
+  /* ==========================================================================
+     2. Layout primitives
+     ========================================================================== */
+  .ngoinfo-home .ngi-section { padding: clamp(52px, 7vw, 92px) 20px; }
+  .ngoinfo-home .ngi-container { width: 100%; max-width: var(--ngi-maxw); margin-inline: auto; }
+  .ngoinfo-home .ngi-alt  { background: var(--ngi-bg-alt); }
+  .ngoinfo-home .ngi-dark { background: var(--ngi-navy); color: #fff; }
+  .ngoinfo-home [id] { scroll-margin-top: 96px; }
+
+  /* Section header block */
+  .ngoinfo-home .ngi-head { max-width: 740px; margin: 0 auto clamp(34px, 5vw, 56px); text-align: center; }
+  .ngoinfo-home .ngi-head--left { margin-inline: 0; text-align: left; }
+
+  .ngoinfo-home .ngi-eyebrow {
+    display: inline-block;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ngi-violet);
+    margin-bottom: 14px;
+  }
+  .ngoinfo-home .ngi-dark .ngi-eyebrow { color: var(--ngi-violet-300); }
+
+  .ngoinfo-home .ngi-title {
+    font-size: clamp(1.7rem, 1.05rem + 2.6vw, 2.5rem);
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -.015em;
+    color: var(--ngi-ink);
+  }
+  .ngoinfo-home .ngi-dark .ngi-title { color: #fff; }
+
+  .ngoinfo-home .ngi-subhead {
+    margin-top: 18px;
+    font-size: 1.12rem;
+    color: var(--ngi-muted);
+  }
+  .ngoinfo-home .ngi-dark .ngi-subhead { color: rgba(255,255,255,.78); }
+
+  /* ==========================================================================
+     3. Buttons
+     ========================================================================== */
+  .ngoinfo-home .ngi-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    font: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    padding: 15px 26px;
+    border-radius: var(--ngi-radius-sm);
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+  }
+  .ngoinfo-home .ngi-btn:hover { transform: translateY(-1px); }
+
+  .ngoinfo-home .ngi-btn--primary { background: var(--ngi-green); color: #fff; }
+  .ngoinfo-home .ngi-btn--primary:hover { background: var(--ngi-green-2); }
+
+  .ngoinfo-home .ngi-btn--secondary {
+    background: #fff;
+    color: var(--ngi-ink);
+    border-color: var(--ngi-border);
+  }
+  .ngoinfo-home .ngi-btn--secondary:hover { border-color: var(--ngi-violet); color: var(--ngi-violet); }
+
+  /* Ghost button for dark sections */
+  .ngoinfo-home .ngi-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255,255,255,.45);
+  }
+  .ngoinfo-home .ngi-btn--ghost:hover { background: rgba(255,255,255,.1); border-color: #fff; }
+
+  .ngoinfo-home .ngi-btn--full { width: 100%; }
+
+  .ngoinfo-home .ngi-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 30px;
+  }
+  .ngoinfo-home .ngi-head .ngi-cta-row { justify-content: center; }
+  .ngoinfo-home .ngi-head--left .ngi-cta-row { justify-content: flex-start; }
+
+  .ngoinfo-home .ngi-microcopy { margin-top: 16px; font-size: .92rem; color: var(--ngi-muted); }
+  .ngoinfo-home .ngi-dark .ngi-microcopy { color: rgba(255,255,255,.74); }
+
+  /* ==========================================================================
+     4. Shared components — cards, pills, badges, checklist, icon tiles
+     ========================================================================== */
+  .ngoinfo-home .ngi-grid { display: grid; gap: var(--ngi-gap); }
+  .ngoinfo-home .ngi-grid--auto { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .ngoinfo-home .ngi-grid--3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .ngoinfo-home .ngi-grid--2 { grid-template-columns: repeat(2, 1fr); }
+
+  .ngoinfo-home .ngi-card {
+    background: #fff;
+    border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius);
+    padding: clamp(22px, 3vw, 30px);
+    box-shadow: var(--ngi-shadow);
+  }
+
+  .ngoinfo-home .ngi-pill {
+    display: inline-block;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: var(--ngi-radius-pill);
+    background: var(--ngi-violet-soft);
+    color: var(--ngi-violet);
+  }
+  .ngoinfo-home .ngi-pill--green { background: var(--ngi-green-soft); color: var(--ngi-green); }
+
+  /* Icon tile (rounded square holding an svg glyph) */
+  .ngoinfo-home .ngi-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    background: var(--ngi-violet-soft);
+    color: var(--ngi-violet);
+    margin-bottom: 18px;
+  }
+  .ngoinfo-home .ngi-tile--green { background: var(--ngi-green-soft); color: var(--ngi-green); }
+  .ngoinfo-home .ngi-tile svg { width: 24px; height: 24px; }
+
+  .ngoinfo-home .ngi-card h3,
+  .ngoinfo-home .ngi-feature h3 { font-size: 1.18rem; font-weight: 600; letter-spacing: -.01em; }
+  .ngoinfo-home .ngi-card p { margin-top: 10px; color: var(--ngi-muted); }
+
+  /* Checklist */
+  .ngoinfo-home .ngi-check { margin-top: 20px; display: grid; gap: 12px; }
+  .ngoinfo-home .ngi-check li { display: flex; gap: 11px; align-items: flex-start; font-size: .98rem; }
+  .ngoinfo-home .ngi-check svg {
+    flex: 0 0 auto;
+    width: 21px; height: 21px;
+    margin-top: 1px;
+    color: var(--ngi-green);
+  }
+
+  /* Placeholder marker tag */
+  .ngoinfo-home .ngi-ph-tag {
+    display: inline-block;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: #9a6a00;
+    background: #fff4d6;
+    border: 1px dashed #e2b65c;
+    padding: 3px 9px;
+    border-radius: var(--ngi-radius-pill);
+    vertical-align: middle;
+  }
+
+  /* ==========================================================================
+     5. Hero  (copy deck §1)
+     ========================================================================== */
+  .ngoinfo-home .ngi-hero {
+    color: #fff;
+    background:
+      radial-gradient(1100px 520px at 82% -10%, rgba(124,58,237,.42), transparent 60%),
+      radial-gradient(760px 460px at 8% 110%, rgba(21,128,61,.20), transparent 55%),
+      linear-gradient(160deg, #1b1b46 0%, #16163a 55%, #131330 100%);
+  }
+  .ngoinfo-home .ngi-hero__inner {
+    display: grid;
+    grid-template-columns: 1.08fr .92fr;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+  }
+  .ngoinfo-home .ngi-hero h1 {
+    font-size: clamp(2.1rem, 1.2rem + 3.8vw, 3.4rem);
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -.02em;
+  }
+  .ngoinfo-home .ngi-hero__subhead {
+    margin-top: 22px;
+    font-size: 1.18rem;
+    color: rgba(255,255,255,.82);
+    max-width: 36em;
+  }
+
+  /* Hero decorative three-stage panel */
+  .ngoinfo-home .ngi-hero__visual {
+    background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.35);
+    backdrop-filter: blur(2px);
+  }
+  .ngoinfo-home .ngi-hero__visual-head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .82rem; color: rgba(255,255,255,.6);
+    padding-bottom: 16px; margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .ngoinfo-home .ngi-hero__dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.3); }
+  .ngoinfo-home .ngi-stage {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 4px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+  }
+  .ngoinfo-home .ngi-stage:last-child { border-bottom: 0; }
+  .ngoinfo-home .ngi-stage__num {
+    flex: 0 0 auto;
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 11px;
+    background: rgba(124,58,237,.22);
+    color: var(--ngi-violet-300);
+    font-weight: 700; font-size: .9rem;
+  }
+  .ngoinfo-home .ngi-stage__label { font-weight: 600; }
+  .ngoinfo-home .ngi-stage__meta { font-size: .85rem; color: rgba(255,255,255,.6); }
+  .ngoinfo-home .ngi-stage:last-child .ngi-stage__num { background: rgba(21,128,61,.3); color: #86efac; }
+
+  /* ==========================================================================
+     6. Trust strip  (§2)
+     ========================================================================== */
+  .ngoinfo-home .ngi-trust { padding: clamp(36px, 5vw, 52px) 20px; text-align: center; }
+  .ngoinfo-home .ngi-trust__label {
+    font-size: .8rem; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--ngi-muted);
+  }
+  .ngoinfo-home .ngi-chips {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 12px; margin: 22px auto 16px; max-width: 920px;
+  }
+  .ngoinfo-home .ngi-chip {
+    font-weight: 600; font-size: .95rem; color: var(--ngi-ink);
+    background: #fff; border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius-pill); padding: 9px 18px;
+  }
+  .ngoinfo-home .ngi-trust__note { font-size: .85rem; color: var(--ngi-muted); max-width: 620px; margin: 0 auto; }
+
+  /* ==========================================================================
+     7. Lifecycle band  (§3)
+     ========================================================================== */
+  .ngoinfo-home .ngi-stage-card {
+    background: #fff; border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius); padding: 26px 24px;
+    box-shadow: var(--ngi-shadow);
+  }
+  .ngoinfo-home .ngi-stage-card__top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .ngoinfo-home .ngi-stage-card__num {
+    width: 34px; height: 34px; flex: 0 0 auto;
+    display: grid; place-items: center; border-radius: 9px;
+    background: var(--ngi-violet-soft); color: var(--ngi-violet);
+    font-weight: 700; font-size: .92rem;
+  }
+  .ngoinfo-home .ngi-stage-card h3 { font-size: 1.16rem; font-weight: 700; }
+  .ngoinfo-home .ngi-stage-card p { margin-top: 8px; color: var(--ngi-muted); font-size: .97rem; }
+
+  /* ==========================================================================
+     8. Funding opportunities  (§4)
+     ========================================================================== */
+  .ngoinfo-home .ngi-opp {
+    display: flex; flex-direction: column;
+    background: #fff; border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius); overflow: hidden;
+    box-shadow: var(--ngi-shadow);
+    transition: box-shadow .18s ease, transform .18s ease;
+  }
+  .ngoinfo-home .ngi-opp:hover { transform: translateY(-3px); box-shadow: var(--ngi-shadow-lg); }
+  .ngoinfo-home .ngi-opp__banner {
+    height: 96px;
+    background: linear-gradient(135deg, #ece9fb, #e7eef8);
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 14px;
+  }
+  .ngoinfo-home .ngi-opp__tag {
+    font-size: .72rem; font-weight: 600; letter-spacing: .05em;
+    text-transform: uppercase; color: var(--ngi-violet);
+    background: #fff; border-radius: var(--ngi-radius-pill); padding: 5px 11px;
+  }
+  .ngoinfo-home .ngi-opp__body { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .ngoinfo-home .ngi-opp__body h3 { font-size: 1.14rem; font-weight: 700; }
+  .ngoinfo-home .ngi-opp__meta { font-size: .92rem; color: var(--ngi-muted); }
+  .ngoinfo-home .ngi-opp__meta strong { color: var(--ngi-ink); font-weight: 600; }
+  .ngoinfo-home .ngi-opp__link {
+    margin-top: auto; padding-top: 12px;
+    font-weight: 600; color: var(--ngi-violet);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .ngoinfo-home .ngi-opp__link:hover { gap: 9px; }
+  .ngoinfo-home .ngi-funding__foot { margin-top: 38px; text-align: center; }
+  .ngoinfo-home .ngi-funding__support { margin-top: 16px; color: var(--ngi-muted); font-size: .96rem; }
+
+  /* ==========================================================================
+     9. Problem section  (§5)
+     ========================================================================== */
+  .ngoinfo-home .ngi-problem-card { background: #fff; }
+
+  /* ==========================================================================
+     10. Fit Scan + Proposal  (§6)
+     ========================================================================== */
+  .ngoinfo-home .ngi-duo { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--ngi-gap); }
+  .ngoinfo-home .ngi-duo .ngi-card { display: flex; flex-direction: column; }
+  .ngoinfo-home .ngi-duo h3 { margin-top: 14px; font-size: 1.4rem; font-weight: 700; }
+  .ngoinfo-home .ngi-duo p { margin-top: 12px; }
+  .ngoinfo-home .ngi-duo .ngi-btn { margin-top: 26px; align-self: flex-start; }
+
+  /* ==========================================================================
+     11. Donor Report Writer — the moat / spotlight  (§7)
+     ========================================================================== */
+  .ngoinfo-home .ngi-moat {
+    color: #fff;
+    background:
+      radial-gradient(900px 480px at 88% 0%, rgba(124,58,237,.4), transparent 60%),
+      radial-gradient(700px 420px at 0% 100%, rgba(21,128,61,.18), transparent 55%),
+      linear-gradient(165deg, #1d1d4c 0%, #16163a 60%, #14132f 100%);
+  }
+  .ngoinfo-home .ngi-moat__lead { max-width: 760px; margin: 0 auto; text-align: center; }
+  .ngoinfo-home .ngi-moat__lead p { margin-top: 18px; font-size: 1.1rem; color: rgba(255,255,255,.82); }
+
+  .ngoinfo-home .ngi-callout {
+    max-width: 880px;
+    margin: 38px auto 0;
+    background: rgba(124,58,237,.14);
+    border: 1px solid rgba(196,181,253,.4);
+    border-left: 4px solid var(--ngi-violet-2);
+    border-radius: var(--ngi-radius);
+    padding: 24px 26px;
+  }
+  .ngoinfo-home .ngi-callout__label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .78rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ngi-violet-300); margin-bottom: 10px;
+  }
+  .ngoinfo-home .ngi-callout p { font-size: 1.05rem; color: #fff; }
+
+  .ngoinfo-home .ngi-honest {
+    max-width: 880px; margin: 18px auto 0;
+    text-align: center; font-size: .98rem; color: rgba(255,255,255,.7);
+  }
+  .ngoinfo-home .ngi-honest strong { color: #fff; font-weight: 600; }
+
+  .ngoinfo-home .ngi-moat__features {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--ngi-gap); margin-top: 44px;
+  }
+  .ngoinfo-home .ngi-feature {
+    background: var(--ngi-navy-2);
+    border: 1px solid var(--ngi-navy-3);
+    border-radius: var(--ngi-radius); padding: 26px 24px;
+  }
+  .ngoinfo-home .ngi-feature .ngi-tile { background: rgba(124,58,237,.2); color: var(--ngi-violet-300); }
+  .ngoinfo-home .ngi-feature h3 { color: #fff; }
+  .ngoinfo-home .ngi-feature p { margin-top: 9px; color: rgba(255,255,255,.74); font-size: .97rem; }
+  .ngoinfo-home .ngi-moat .ngi-cta-row { justify-content: center; margin-top: 40px; }
+
+  /* ==========================================================================
+     12. How it works  (§8)
+     ========================================================================== */
+  .ngoinfo-home .ngi-step { padding: 6px 4px; }
+  .ngoinfo-home .ngi-step__num {
+    font-size: 2.6rem; font-weight: 700; line-height: 1;
+    color: var(--ngi-violet); letter-spacing: -.02em;
+    margin-bottom: 12px;
+  }
+  .ngoinfo-home .ngi-step h3 { font-size: 1.16rem; font-weight: 700; }
+  .ngoinfo-home .ngi-step p { margin-top: 9px; color: var(--ngi-muted); font-size: .97rem; }
+
+  /* ==========================================================================
+     13. Why NGOInfo  (§9)
+     ========================================================================== */
+  .ngoinfo-home .ngi-why-point { display: flex; gap: 16px; align-items: flex-start; }
+  .ngoinfo-home .ngi-why-point .ngi-tile { margin-bottom: 0; width: 46px; height: 46px; }
+  .ngoinfo-home .ngi-why-point h3 { font-size: 1.1rem; font-weight: 700; }
+  .ngoinfo-home .ngi-why-point p { margin-top: 7px; color: var(--ngi-muted); font-size: .97rem; }
+
+  /* ==========================================================================
+     14. Pricing  (§10)
+     ========================================================================== */
+  .ngoinfo-home .ngi-pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: var(--ngi-gap); align-items: stretch;
+  }
+  .ngoinfo-home .ngi-plan {
+    display: flex; flex-direction: column;
+    background: #fff; border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius); padding: 30px 26px;
+    box-shadow: var(--ngi-shadow);
+  }
+  .ngoinfo-home .ngi-plan--featured {
+    border: 2px solid var(--ngi-violet);
+    box-shadow: var(--ngi-shadow-lg);
+    position: relative;
+  }
+  .ngoinfo-home .ngi-plan__badge {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--ngi-violet); color: #fff;
+    font-size: .74rem; font-weight: 700; letter-spacing: .05em;
+    padding: 6px 16px; border-radius: var(--ngi-radius-pill);
+    white-space: nowrap;
+  }
+  .ngoinfo-home .ngi-plan__name { font-size: 1.3rem; font-weight: 700; }
+  .ngoinfo-home .ngi-plan__tagline { color: var(--ngi-muted); font-size: .94rem; margin-top: 4px; }
+  .ngoinfo-home .ngi-plan__price { margin: 18px 0 4px; display: flex; align-items: baseline; gap: 6px; }
+  .ngoinfo-home .ngi-plan__amount { font-size: 2.5rem; font-weight: 700; letter-spacing: -.02em; }
+  .ngoinfo-home .ngi-plan__cycle { color: var(--ngi-muted); font-weight: 500; }
+  .ngoinfo-home .ngi-plan hr { border: 0; border-top: 1px solid var(--ngi-border); margin: 22px 0; }
+  .ngoinfo-home .ngi-plan__features { display: grid; gap: 13px; }
+  .ngoinfo-home .ngi-plan__features li { display: flex; gap: 11px; align-items: flex-start; font-size: .97rem; }
+  .ngoinfo-home .ngi-plan__features svg { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 2px; color: var(--ngi-green); }
+  .ngoinfo-home .ngi-plan__value {
+    margin-top: 18px; padding: 12px 14px;
+    background: var(--ngi-violet-soft); color: var(--ngi-violet);
+    border-radius: var(--ngi-radius-sm); font-size: .92rem; font-weight: 600;
+  }
+  .ngoinfo-home .ngi-plan .ngi-btn { margin-top: 24px; }
+  .ngoinfo-home .ngi-plan__cta-wrap { margin-top: auto; }
+  .ngoinfo-home .ngi-pricing__note { text-align: center; margin-top: 28px; color: var(--ngi-muted); font-size: .9rem; }
+
+  /* ==========================================================================
+     15. FAQ  (§11) — native <details>/<summary>, no JS
+     ========================================================================== */
+  .ngoinfo-home .ngi-faq { max-width: 820px; margin: 0 auto; display: grid; gap: 14px; }
+  .ngoinfo-home .ngi-faq details {
+    background: #fff; border: 1px solid var(--ngi-border);
+    border-radius: var(--ngi-radius-sm); overflow: hidden;
+  }
+  .ngoinfo-home .ngi-faq details[open] { border-color: var(--ngi-violet); box-shadow: var(--ngi-shadow); }
+  .ngoinfo-home .ngi-faq summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 20px 22px;
+    font-weight: 600; font-size: 1.04rem; color: var(--ngi-ink);
+  }
+  .ngoinfo-home .ngi-faq summary::-webkit-details-marker { display: none; }
+  .ngoinfo-home .ngi-faq summary::after {
+    content: ""; flex: 0 0 auto;
+    width: 13px; height: 13px;
+    border-right: 2px solid var(--ngi-violet);
+    border-bottom: 2px solid var(--ngi-violet);
+    transform: rotate(45deg); transform-origin: center;
+    transition: transform .2s ease; margin-right: 4px;
+  }
+  .ngoinfo-home .ngi-faq details[open] summary::after { transform: rotate(-135deg); }
+  .ngoinfo-home .ngi-faq__answer { padding: 0 22px 22px; color: var(--ngi-muted); }
+  .ngoinfo-home .ngi-faq__answer p + p { margin-top: 12px; }
+  .ngoinfo-home .ngi-faq__answer a { color: var(--ngi-violet); font-weight: 600; text-decoration: underline; }
+
+  /* ==========================================================================
+     16. Stats band + Final CTA  (§12)
+     ========================================================================== */
+  .ngoinfo-home .ngi-stats { text-align: center; }
+  .ngoinfo-home .ngi-stats__grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .ngoinfo-home .ngi-stat__num { font-size: clamp(2.4rem, 1.4rem + 3vw, 3.4rem); font-weight: 700; line-height: 1; color: #fff; }
+  .ngoinfo-home .ngi-stat__num span { color: var(--ngi-violet-300); }
+  .ngoinfo-home .ngi-stat__label { margin-top: 12px; color: rgba(255,255,255,.78); font-size: 1rem; }
+  .ngoinfo-home .ngi-stats__ph { margin-top: 30px; }
+  .ngoinfo-home .ngi-stats__ph .ngi-ph-tag { color: #ffe2a6; background: rgba(255,196,84,.12); border-color: rgba(255,196,84,.5); }
+
+  .ngoinfo-home .ngi-final {
+    text-align: center;
+    background:
+      radial-gradient(700px 360px at 50% -20%, rgba(124,58,237,.4), transparent 60%),
+      linear-gradient(160deg, #1c1c4a, #15153a);
+    color: #fff;
+  }
+  .ngoinfo-home .ngi-final h2 { font-size: clamp(1.8rem, 1.1rem + 2.8vw, 2.7rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.12; }
+  .ngoinfo-home .ngi-final p { margin: 18px auto 0; max-width: 600px; font-size: 1.12rem; color: rgba(255,255,255,.82); }
+  .ngoinfo-home .ngi-final .ngi-cta-row { justify-content: center; }
+
+  /* ==========================================================================
+     17. Responsive
+     ========================================================================== */
+  @media (max-width: 900px) {
+    .ngoinfo-home .ngi-hero__inner { grid-template-columns: 1fr; }
+    .ngoinfo-home .ngi-hero__visual { max-width: 460px; margin-inline: auto; }
+    .ngoinfo-home .ngi-pricing-grid { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; }
+  }
+  @media (max-width: 760px) {
+    .ngoinfo-home .ngi-duo { grid-template-columns: 1fr; }
+    .ngoinfo-home .ngi-grid--2 { grid-template-columns: 1fr; }
+    .ngoinfo-home .ngi-stats__grid { grid-template-columns: 1fr; gap: 36px; }
+  }
+  @media (max-width: 560px) {
+    .ngoinfo-home { font-size: 16px; }
+    .ngoinfo-home .ngi-cta-row { flex-direction: column; }
+    .ngoinfo-home .ngi-cta-row .ngi-btn { width: 100%; }
+    .ngoinfo-home .ngi-chip { font-size: .88rem; padding: 8px 14px; }
+  }
+  </style>
+</head>
+
+<body>
+
+<div class="ngoinfo-home">
+
+  <!-- ====================================================================
+       HERO — copy deck §1 (balanced). H1 is the page's single top heading.
+       ==================================================================== -->
+  <section class="ngi-hero ngi-dark ngi-section" aria-labelledby="ngi-hero-title">
+    <div class="ngi-container ngi-hero__inner">
+      <div class="ngi-hero__copy">
+        <span class="ngi-eyebrow">The grant lifecycle platform for NGOs</span>
+        <h1 id="ngi-hero-title">Discover funding. Draft proposals. Deliver donor reports.</h1>
+        <p class="ngi-hero__subhead">Browse live funding opportunities for free. When you're ready, GrantPilot AI helps you check fit, draft a structured proposal, and produce a donor-ready report — grounded in your own evidence, in the funder's format, with you in control of every line.</p>
+        <div class="ngi-cta-row">
+          <a class="ngi-btn ngi-btn--primary" href="#" data-cta="browse-funding">Browse Funding Opportunities</a>
+          <a class="ngi-btn ngi-btn--ghost" href="#" data-cta="try-free">Try GrantPilot Free</a>
+        </div>
+        <p class="ngi-microcopy">Free to browse. No card required to start.</p>
+      </div>
+
+      <!-- Decorative product preview: the three stages (illustrative only) -->
+      <div class="ngi-hero__visual" aria-hidden="true">
+        <div class="ngi-hero__visual-head">
+          <span class="ngi-hero__dot"></span><span class="ngi-hero__dot"></span><span class="ngi-hero__dot"></span>
+          <span>GrantPilot · grant lifecycle</span>
+        </div>
+        <div class="ngi-stage">
+          <span class="ngi-stage__num">01</span>
+          <span><span class="ngi-stage__label">Fit Scan</span><br><span class="ngi-stage__meta">Is this opportunity worth your time?</span></span>
+        </div>
+        <div class="ngi-stage">
+          <span class="ngi-stage__num">02</span>
+          <span><span class="ngi-stage__label">Proposal</span><br><span class="ngi-stage__meta">A structured, donor-aware draft</span></span>
+        </div>
+        <div class="ngi-stage">
+          <span class="ngi-stage__num">03</span>
+          <span><span class="ngi-stage__label">Donor Report</span><br><span class="ngi-stage__meta">In the funder's own format</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       TRUST STRIP — §2
+       ==================================================================== -->
+  <section class="ngi-trust" aria-label="Funders we cover">
+    <div class="ngi-container">
+      <p class="ngi-trust__label">Funders we cover</p>
+      <ul class="ngi-chips">
+        <li class="ngi-chip">FCDO</li>
+        <li class="ngi-chip">National Lottery Community Fund</li>
+        <li class="ngi-chip">EU</li>
+        <li class="ngi-chip">UNDP</li>
+        <li class="ngi-chip">World Bank</li>
+        <li class="ngi-chip">Comic Relief</li>
+      </ul>
+      <p class="ngi-trust__note">Logos indicate funders we list opportunities for and report formats we support — not partnership or endorsement.</p>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       LIFECYCLE BAND — §3
+       ==================================================================== -->
+  <section class="ngi-section ngi-alt" aria-labelledby="ngi-lifecycle-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">The whole grant cycle, one platform</span>
+        <h2 class="ngi-title" id="ngi-lifecycle-title">From finding the grant to reporting on it</h2>
+        <p class="ngi-subhead">Most tools help with one step. NGOInfo covers all four.</p>
+      </div>
+      <div class="ngi-grid ngi-grid--auto">
+        <article class="ngi-stage-card">
+          <div class="ngi-stage-card__top"><span class="ngi-stage-card__num">1</span><h3>Discover</h3></div>
+          <p>Find institutional and foundation grants that fit your work.</p>
+        </article>
+        <article class="ngi-stage-card">
+          <div class="ngi-stage-card__top"><span class="ngi-stage-card__num">2</span><h3>Decide</h3></div>
+          <p>Run a Fit Scan to see if an opportunity is worth your time.</p>
+        </article>
+        <article class="ngi-stage-card">
+          <div class="ngi-stage-card__top"><span class="ngi-stage-card__num">3</span><h3>Apply</h3></div>
+          <p>Draft a structured, donor-aware proposal and export it.</p>
+        </article>
+        <article class="ngi-stage-card">
+          <div class="ngi-stage-card__top"><span class="ngi-stage-card__num">4</span><h3>Report</h3></div>
+          <p>After you win, produce the donor report the funder actually asked for.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       FUNDING OPPORTUNITIES — §4  (the free hook)
+       PLACEHOLDER: cards below are example shapes. Render from the live
+       funding-opportunity query. Each opportunity must be its own indexable
+       page (SEO). Replace title / donor / deadline / href per card.
+       ==================================================================== -->
+  <section class="ngi-section" id="ngi-funding" aria-labelledby="ngi-funding-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">Free funding discovery</span>
+        <h2 class="ngi-title" id="ngi-funding-title">Live funding opportunities, free to browse</h2>
+        <p class="ngi-subhead">No account needed. New institutional and foundation grants, with deadlines and eligibility at a glance — updated as they open.</p>
+      </div>
+
+      <div class="ngi-grid ngi-grid--3">
+        <!-- PLACEHOLDER card 1 -->
+        <article class="ngi-opp" data-placeholder="funding-card">
+          <div class="ngi-opp__banner">
+            <span class="ngi-opp__tag">Funding opportunity</span>
+            <span class="ngi-ph-tag">Placeholder</span>
+          </div>
+          <div class="ngi-opp__body">
+            <h3>[ Opportunity title ]</h3>
+            <p class="ngi-opp__meta"><strong>Donor:</strong> [ Donor ]</p>
+            <p class="ngi-opp__meta"><strong>Deadline:</strong> [ date ]</p>
+            <a class="ngi-opp__link" href="#" data-cta="funding-opportunity">View Details <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <!-- PLACEHOLDER card 2 -->
+        <article class="ngi-opp" data-placeholder="funding-card">
+          <div class="ngi-opp__banner">
+            <span class="ngi-opp__tag">Funding opportunity</span>
+            <span class="ngi-ph-tag">Placeholder</span>
+          </div>
+          <div class="ngi-opp__body">
+            <h3>[ Opportunity title ]</h3>
+            <p class="ngi-opp__meta"><strong>Donor:</strong> [ Donor ]</p>
+            <p class="ngi-opp__meta"><strong>Deadline:</strong> [ date ]</p>
+            <a class="ngi-opp__link" href="#" data-cta="funding-opportunity">View Details <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+        <!-- PLACEHOLDER card 3 -->
+        <article class="ngi-opp" data-placeholder="funding-card">
+          <div class="ngi-opp__banner">
+            <span class="ngi-opp__tag">Funding opportunity</span>
+            <span class="ngi-ph-tag">Placeholder</span>
+          </div>
+          <div class="ngi-opp__body">
+            <h3>[ Opportunity title ]</h3>
+            <p class="ngi-opp__meta"><strong>Donor:</strong> [ Donor ]</p>
+            <p class="ngi-opp__meta"><strong>Deadline:</strong> [ date ]</p>
+            <a class="ngi-opp__link" href="#" data-cta="funding-opportunity">View Details <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </article>
+      </div>
+
+      <div class="ngi-funding__foot">
+        <a class="ngi-btn ngi-btn--primary" href="#" data-cta="browse-funding">Browse all opportunities</a>
+        <p class="ngi-funding__support">Find one that fits, then check it with a free Fit Scan.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       PROBLEM SECTION — §5
+       ==================================================================== -->
+  <section class="ngi-section ngi-alt" aria-labelledby="ngi-problem-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">The reality of NGO fundraising</span>
+        <h2 class="ngi-title" id="ngi-problem-title">Grant funding takes more out of your team than it should</h2>
+        <p class="ngi-subhead">The work doesn't end when you hit submit — and it often starts before you should have applied at all.</p>
+      </div>
+      <div class="ngi-grid ngi-grid--3">
+        <article class="ngi-card ngi-problem-card">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <h3>Time lost on the wrong grants</h3>
+          <p>Teams spend days writing for opportunities they were never eligible for — funding they could have ruled out in minutes.</p>
+        </article>
+        <article class="ngi-card ngi-problem-card">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>
+          </span>
+          <h3>Proposals that miss the mark</h3>
+          <p>A strong project can read poorly when the proposal doesn't speak the donor's language or follow their structure.</p>
+        </article>
+        <article class="ngi-card ngi-problem-card">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13.5h6M9 16.5h6"/></svg>
+          </span>
+          <h3>The report nobody warned you about</h3>
+          <p>Win the grant and a new deadline appears — a donor report in the funder's exact format, tied to your indicators and evidence. It's the work that quietly consumes weeks.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       FIT SCAN + PROPOSAL — §6  (Decide & Apply)
+       ==================================================================== -->
+  <section class="ngi-section" aria-labelledby="ngi-decide-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">Before you apply</span>
+        <h2 class="ngi-title" id="ngi-decide-title">Know if it's worth it. Then write it well.</h2>
+      </div>
+      <div class="ngi-duo">
+        <!-- Card A — Fit Scan -->
+        <article class="ngi-card">
+          <span class="ngi-pill">Decide</span>
+          <h3>Fit Scan</h3>
+          <p>Before you spend a day writing, check an opportunity against your organisation — eligibility, alignment, readiness and risk. If it isn't a fit, the Fit Scan tells you plainly, so you can move on to one that is.</p>
+          <ul class="ngi-check">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Eligibility and alignment, assessed against your profile</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Readiness gaps flagged before you start</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Honest risk notes — including when an opportunity isn't worth your time</span></li>
+          </ul>
+          <a class="ngi-btn ngi-btn--primary" href="#" data-cta="fit-scan">Start Your Free Fit Scan</a>
+        </article>
+        <!-- Card B — Structured proposal drafting -->
+        <article class="ngi-card">
+          <span class="ngi-pill ngi-pill--green">Apply</span>
+          <h3>Structured proposal drafting</h3>
+          <p>Turn a good fit into a structured first draft that follows a clear, donor-aware shape. Edit it, refine it, and export a DOCX you can finish in your own words. It's a strong starting point — not a hands-off submission.</p>
+          <ul class="ngi-check">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Donor-aware structure out of the box</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>An editable draft you stay in control of</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Export a DOCX draft</span></li>
+          </ul>
+          <a class="ngi-btn ngi-btn--primary" href="#" data-cta="draft-proposal">Draft Proposal with GrantPilot AI</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       DONOR REPORT WRITER — §7  ⭐ the moat / spotlight
+       Built in the page's visual language, given extra weight (dark band).
+       ==================================================================== -->
+  <section class="ngi-moat ngi-dark ngi-section" id="ngi-donor-reporting" aria-labelledby="ngi-moat-title">
+    <div class="ngi-container">
+      <div class="ngi-moat__lead">
+        <span class="ngi-eyebrow">The part most tools ignore</span>
+        <h2 class="ngi-title" id="ngi-moat-title">You secured the funding. Now comes the reporting.</h2>
+        <p>Every funder wants their report their way — their template, their indicators, their evidence, their deadline. It's the work that quietly eats forty hours of a program manager's time, or gets sent to a consultant at a price most NGOs can't easily absorb.</p>
+        <p>The Donor Report Writer takes your project documents and your indicator data and drafts the narrative in the funder's own format. Every figure traces back to something you provided — it doesn't invent numbers to fill a gap. And it moves through review stages, so nothing reaches the donor until you've read it and approved it.</p>
+      </div>
+
+      <div class="ngi-callout">
+        <span class="ngi-callout__label"><span aria-hidden="true">&#9733;</span> Why this is different</span>
+        <p>This is what sets NGOInfo apart from a general-purpose AI writer. Donor reporting is specific, format-bound and evidence-heavy — exactly where generic tools invent figures and miss the funder's structure.</p>
+      </div>
+
+      <p class="ngi-honest"><strong>It drafts and structures. You review and approve. Nothing is auto-submitted.</strong></p>
+
+      <div class="ngi-moat__features">
+        <article class="ngi-feature">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+          </span>
+          <h3>In the funder's format</h3>
+          <p>Reports follow the donor's own template and reporting structure.</p>
+        </article>
+        <article class="ngi-feature">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-7"/></svg>
+          </span>
+          <h3>Grounded in your evidence</h3>
+          <p>Figures and claims trace back to your documents and data.</p>
+        </article>
+        <article class="ngi-feature">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <h3>You stay in control</h3>
+          <p>Review and sign off at every stage before anything is sent.</p>
+        </article>
+      </div>
+
+      <div class="ngi-cta-row">
+        <a class="ngi-btn ngi-btn--primary" href="#" data-cta="donor-reporting">See how donor reporting works</a>
+        <a class="ngi-btn ngi-btn--ghost" href="#ngi-pricing">View Impact pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       HOW IT WORKS — §8  (purple numbers)
+       ==================================================================== -->
+  <section class="ngi-section" aria-labelledby="ngi-how-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">How NGOInfo works</span>
+        <h2 class="ngi-title" id="ngi-how-title">From profile to funded report, in four steps</h2>
+      </div>
+      <div class="ngi-grid ngi-grid--auto">
+        <article class="ngi-step">
+          <div class="ngi-step__num">1</div>
+          <h3>Set up your NGO profile</h3>
+          <p>Tell us about your organisation once. It powers every Fit Scan, proposal and report.</p>
+        </article>
+        <article class="ngi-step">
+          <div class="ngi-step__num">2</div>
+          <h3>Find an opportunity and check the fit</h3>
+          <p>Browse live opportunities and run a Fit Scan to see if it's worth applying.</p>
+        </article>
+        <article class="ngi-step">
+          <div class="ngi-step__num">3</div>
+          <h3>Draft your proposal</h3>
+          <p>Generate a structured draft, refine it, and export a DOCX.</p>
+        </article>
+        <article class="ngi-step">
+          <div class="ngi-step__num">4</div>
+          <h3>Report after you win</h3>
+          <p>When the grant is funded, produce the donor report in the funder's format. The cycle closes where most tools stop.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       WHY NGOINFO — §9
+       ==================================================================== -->
+  <section class="ngi-section ngi-alt" aria-labelledby="ngi-why-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">Why NGOInfo</span>
+        <h2 class="ngi-title" id="ngi-why-title">Built for NGO grant work — not a generic chatbot</h2>
+        <p class="ngi-subhead">General AI tools don't know your donors, your formats, or the difference between a claim you can evidence and one you can't. NGOInfo does.</p>
+      </div>
+      <div class="ngi-grid ngi-grid--2">
+        <article class="ngi-why-point">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          </span>
+          <div>
+            <h3>Built for NGO grant workflows</h3>
+            <p>Discovery, fit, drafting and donor reporting in one place, shaped around how NGOs actually work.</p>
+          </div>
+        </article>
+        <article class="ngi-why-point">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.5 8.5 0 0 1-.9-3.8A8.38 8.38 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg>
+          </span>
+          <div>
+            <h3>Speaks donor language</h3>
+            <p>Proposals and reports follow funders' structures and expectations, not a generic template.</p>
+          </div>
+        </article>
+        <article class="ngi-why-point">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <div>
+            <h3>Grounded in your evidence</h3>
+            <p>Especially in reporting, figures trace back to what you provided. It won't invent numbers.</p>
+          </div>
+        </article>
+        <article class="ngi-why-point">
+          <span class="ngi-tile" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+          </span>
+          <div>
+            <h3>Honest about its limits</h3>
+            <p>It drafts and assists. It doesn't promise outcomes, and it never submits on your behalf.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       PRICING — §10
+       ==================================================================== -->
+  <section class="ngi-section" id="ngi-pricing" aria-labelledby="ngi-pricing-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">Simple pricing for NGOs</span>
+        <h2 class="ngi-title" id="ngi-pricing-title">Start free. Upgrade when it's paying off.</h2>
+        <p class="ngi-subhead">Every plan is AI-assisted, not auto-submitted. You stay in control of everything that reaches a funder.</p>
+      </div>
+
+      <div class="ngi-pricing-grid">
+        <!-- Free -->
+        <article class="ngi-plan">
+          <h3 class="ngi-plan__name">Free</h3>
+          <p class="ngi-plan__tagline">Try it on a real opportunity</p>
+          <p class="ngi-plan__price"><span class="ngi-plan__amount">$0</span></p>
+          <hr>
+          <ul class="ngi-plan__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>1 Fit Scan</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>1 proposal draft</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Manual NGO profile</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>For evaluation, not active pipelines</span></li>
+          </ul>
+          <div class="ngi-plan__cta-wrap">
+            <a class="ngi-btn ngi-btn--secondary ngi-btn--full" href="#" data-cta="try-free">Try GrantPilot Free</a>
+          </div>
+        </article>
+
+        <!-- Growth -->
+        <article class="ngi-plan">
+          <h3 class="ngi-plan__name">Growth</h3>
+          <p class="ngi-plan__tagline">For active grant pipelines</p>
+          <p class="ngi-plan__price"><span class="ngi-plan__amount">$39</span><span class="ngi-plan__cycle">/ month</span></p>
+          <hr>
+          <ul class="ngi-plan__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>10 Fit Scans / month</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>3 proposals / month (up to 3 regenerations each)</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>DOCX export</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Standard support</span></li>
+          </ul>
+          <div class="ngi-plan__cta-wrap">
+            <a class="ngi-btn ngi-btn--primary ngi-btn--full" href="#" data-cta="start-growth">Start with Growth</a>
+          </div>
+        </article>
+
+        <!-- Impact (featured) -->
+        <article class="ngi-plan ngi-plan--featured">
+          <span class="ngi-plan__badge">&#9733; Recommended</span>
+          <h3 class="ngi-plan__name">Impact</h3>
+          <p class="ngi-plan__tagline">For NGOs managing funded grants</p>
+          <p class="ngi-plan__price"><span class="ngi-plan__amount">$79</span><span class="ngi-plan__cycle">/ month</span></p>
+          <hr>
+          <ul class="ngi-plan__features">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Everything in Growth</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>5 proposals / month</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span><strong>2 donor reports / month (Donor Report Writer)</strong></span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Stronger reasoning + report-source document uploads</span></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Priority support</span></li>
+          </ul>
+          <p class="ngi-plan__value">One donor report can replace around forty hours of staff time.</p>
+          <div class="ngi-plan__cta-wrap">
+            <a class="ngi-btn ngi-btn--primary ngi-btn--full" href="#" data-cta="start-impact">Start with Impact</a>
+          </div>
+        </article>
+      </div>
+
+      <p class="ngi-pricing__note">Plans renew monthly. Cancel anytime. Prices in USD.</p>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       FAQ — §11  (native accordion, no JS)
+       ==================================================================== -->
+  <section class="ngi-section ngi-alt" aria-labelledby="ngi-faq-title">
+    <div class="ngi-container">
+      <div class="ngi-head">
+        <span class="ngi-eyebrow">Questions, answered honestly</span>
+        <h2 class="ngi-title" id="ngi-faq-title">What NGOInfo does — and what it doesn't</h2>
+      </div>
+
+      <div class="ngi-faq">
+        <details>
+          <summary>Is this just ChatGPT with a wrapper?</summary>
+          <div class="ngi-faq__answer"><p>No. ChatGPT is a blank box. NGOInfo is built around the NGO grant cycle — discovery, fit, drafting and donor reporting — and it knows funders' structures and expectations. In reporting especially, it works from your own documents and data and grounds figures in what you provide, rather than generating plausible-sounding text from nothing.</p></div>
+        </details>
+        <details>
+          <summary>Will GrantPilot write my entire proposal for me?</summary>
+          <div class="ngi-faq__answer"><p>It writes a structured first draft you then edit and finish in your own words. Think of it as a strong starting point that handles structure and donor-aware framing — not a hands-off service. The judgment, the local knowledge and the final words are yours.</p></div>
+        </details>
+        <details>
+          <summary>What if the Fit Scan says "Not Recommended"?</summary>
+          <div class="ngi-faq__answer"><p>Then it's done its job. The point of a Fit Scan is to save you from spending days on an opportunity you were never going to be eligible for. A clear "not worth your time" is as valuable as a green light — it frees you to focus on grants that fit.</p></div>
+        </details>
+        <details>
+          <summary>Does the Donor Report Writer make up numbers?</summary>
+          <div class="ngi-faq__answer"><p>No. Every figure and claim in a report traces back to the documents and indicator data you upload. If the evidence for something isn't there, it won't invent it to fill the gap — it surfaces the gap instead, so you can decide what to do.</p></div>
+        </details>
+        <details>
+          <summary>Do I stay in control of what the funder sees?</summary>
+          <div class="ngi-faq__answer"><p>Always. Reports move through review stages, and nothing is finalised or sent until you've read it and signed off. NGOInfo is AI-assisted, not auto-submitted — it never sends anything to a funder on your behalf.</p></div>
+        </details>
+        <details>
+          <summary>Which funders and report formats do you support?</summary>
+          <div class="ngi-faq__answer"><p>We list opportunities from major institutional and foundation funders, and the Donor Report Writer produces reports in funders' own formats — starting with funders such as FCDO and the National Lottery Community Fund, with more added regularly. If you need a specific funder's format, get in touch and we'll tell you where it is on our roadmap.</p></div>
+        </details>
+        <details data-placeholder="faq-privacy">
+          <summary>Is my organisation's data safe?</summary>
+          <div class="ngi-faq__answer">
+            <p><span class="ngi-ph-tag">Placeholder</span> Needs your exact data-handling wording before publishing.</p>
+            <p>Draft to confirm: Your documents and data are used only to power your own Fit Scans, proposals and reports. They're stored securely, aren't shared with funders, and aren't used to train public AI models. See our <a href="#" data-cta="privacy">Privacy Policy</a> for details.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Who is NGOInfo for?</summary>
+          <div class="ngi-faq__answer"><p>Small and mid-sized NGOs with limited grant-writing capacity, applying to competitive institutional and foundation funders — particularly teams that win grants and then face donor reporting without a dedicated M&amp;E person. We work with NGOs across the UK, US, India and the wider Global South.</p></div>
+        </details>
+        <details>
+          <summary>Do you guarantee we'll win funding?</summary>
+          <div class="ngi-faq__answer"><p>No, and we'd be wary of anyone who does. NGOInfo helps you spend your time on the right opportunities and put your work forward clearly and in the right format. Funding decisions sit entirely with funders.</p></div>
+        </details>
+        <details>
+          <summary>Can I browse funding opportunities without paying?</summary>
+          <div class="ngi-faq__answer"><p>Yes. Browsing opportunities is free and doesn't require an account. You only need an account when you want to run a Fit Scan, draft a proposal or generate a report.</p></div>
+        </details>
+        <details>
+          <summary>What can I export?</summary>
+          <div class="ngi-faq__answer"><p>Proposals and reports export as DOCX, so you can finish and format them in your own tools. (PDF export isn't supported yet.)</p></div>
+        </details>
+        <details>
+          <summary>How is Impact different from Growth?</summary>
+          <div class="ngi-faq__answer"><p>Growth covers discovery, fit and proposal drafting for an active pipeline. Impact adds the Donor Report Writer — donor-formatted, evidence-grounded reporting — plus higher proposal limits, stronger reasoning, report-source uploads and priority support. If you're managing grants you've already won, Impact is the plan built for you.</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       STATS BAND — §12  (dark navy)
+       PLACEHOLDER: set real numbers from live data; do not overstate.
+       ==================================================================== -->
+  <section class="ngi-stats ngi-dark ngi-section" aria-labelledby="ngi-stats-title">
+    <h2 id="ngi-stats-title" class="ngi-sr-only">By the numbers</h2>
+    <div class="ngi-container">
+      <div class="ngi-stats__grid">
+        <div class="ngi-stat" data-placeholder="stat">
+          <div class="ngi-stat__num">##<span>+</span></div>
+          <div class="ngi-stat__label">funding opportunities listed</div>
+        </div>
+        <div class="ngi-stat" data-placeholder="stat">
+          <div class="ngi-stat__num">#<span>+</span></div>
+          <div class="ngi-stat__label">donor organisations covered</div>
+        </div>
+        <div class="ngi-stat" data-placeholder="stat">
+          <div class="ngi-stat__num">#</div>
+          <div class="ngi-stat__label">funder report formats supported</div>
+        </div>
+      </div>
+      <p class="ngi-stats__ph"><span class="ngi-ph-tag">Placeholder</span> Set numbers from live data before publishing.</p>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       FINAL CTA — §12
+       ==================================================================== -->
+  <section class="ngi-final ngi-dark ngi-section" aria-labelledby="ngi-final-title">
+    <div class="ngi-container">
+      <h2 id="ngi-final-title">Wherever you are in the grant cycle, start here.</h2>
+      <p>Browse opportunities free, or set up your NGO profile and run your first Fit Scan in minutes.</p>
+      <div class="ngi-cta-row">
+        <a class="ngi-btn ngi-btn--primary" href="#" data-cta="browse-funding">Browse Funding Opportunities</a>
+        <a class="ngi-btn ngi-btn--ghost" href="#" data-cta="try-free">Try GrantPilot Free</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.ngoinfo-home -->
+
+</body>
+</html>
