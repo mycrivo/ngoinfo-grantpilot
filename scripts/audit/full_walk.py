@@ -41,6 +41,19 @@ DEFAULT_DOCSETS = {
     ]),
 }
 
+# Genuine pass verdicts — anything else fails the process (CI must go red).
+PASSING_VERDICTS = frozenset({"completed", "stopped_at_gate1"})
+
+
+def exit_code_for_verdict(verdict: str) -> int:
+    if verdict in PASSING_VERDICTS:
+        return 0
+    print(
+        f"WALK_FAIL verdict={verdict} (non-passing — step exit 1 for CI)",
+        flush=True,
+    )
+    return 1
+
 
 def main() -> int:
     run = os.environ.get("AUDIT_RUN", "fcdo_full")
@@ -93,14 +106,17 @@ def main() -> int:
                            max_seconds=MAX_TO_GATE1)
         snapshots["after_reconcile"] = C.db_capture(report_id)
         if g1job.get("status") == "failed":
-            _finish(run, report_id, snapshots, verdict="failed_before_gate1", job=g1job)
-            return 0
+            return exit_code_for_verdict(
+                _finish(run, report_id, snapshots, verdict="failed_before_gate1", job=g1job)
+            )
         if g1job.get("_timeout"):
-            _finish(run, report_id, snapshots, verdict="timeout_before_gate1", job=g1job)
-            return 0
+            return exit_code_for_verdict(
+                _finish(run, report_id, snapshots, verdict="timeout_before_gate1", job=g1job)
+            )
         if stop_at == "gate1":
-            _finish(run, report_id, snapshots, verdict="stopped_at_gate1", job=g1job)
-            return 0
+            return exit_code_for_verdict(
+                _finish(run, report_id, snapshots, verdict="stopped_at_gate1", job=g1job)
+            )
 
     kb = C.get_kb(session, report_id)
     n_resolved = C.resolve_conflicts(kb)
@@ -108,8 +124,9 @@ def main() -> int:
     g1 = C.confirm_gate1(session, report_id, kb)
     print(f"GATE1_CONFIRM {g1['status_code']}", flush=True)
     if g1["status_code"] != 200:
-        _finish(run, report_id, snapshots, verdict="gate1_confirm_failed", extra={"gate1": g1})
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="gate1_confirm_failed", extra={"gate1": g1})
+        )
 
     g2park = C.poll_job(session, report_id, label="to-gate2",
                         until_status={"awaiting_human", "failed"}, until_stage={"synthesise"},
@@ -121,8 +138,9 @@ def main() -> int:
           flush=True)
     snapshots["gap_check_endpoint"] = gc
     if g2park.get("status") == "failed":
-        _finish(run, report_id, snapshots, verdict="failed_at_gap", job=g2park)
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="failed_at_gap", job=g2park)
+        )
 
     after_gap = snapshots.get("after_gap") or {}
     if isinstance(after_gap.get("report"), dict):
@@ -144,58 +162,81 @@ def main() -> int:
     print(f"GATE2 gaps={len(gaps)} answered={answered} skipped={skipped}", flush=True)
 
     if stop_at == "gate2":
-        _finish(run, report_id, snapshots, verdict="stopped_at_gate2",
-                extra={"gaps": len(gaps), "answered": answered, "skipped": skipped,
-                       "gap_list": gaps})
-        return 0
+        return exit_code_for_verdict(
+            _finish(
+                run,
+                report_id,
+                snapshots,
+                verdict="stopped_at_gate2",
+                extra={
+                    "gaps": len(gaps),
+                    "answered": answered,
+                    "skipped": skipped,
+                    "gap_list": gaps,
+                },
+            )
+        )
 
     g2 = C.submit_gate2(session, report_id, responses)
     print(f"GATE2_SUBMIT status={g2['status_code']} "
           f"unlocked={g2['body'].get('gate2_unlocked') if isinstance(g2['body'], dict) else 'n/a'}",
           flush=True)
     if g2["status_code"] != 200 or not (isinstance(g2["body"], dict) and g2["body"].get("gate2_unlocked")):
-        _finish(run, report_id, snapshots, verdict="gate2_not_unlocked", extra={"gate2": g2})
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="gate2_not_unlocked", extra={"gate2": g2})
+        )
 
     synthjob = C.poll_job(session, report_id, label="synth",
                           until_status={"awaiting_human", "failed"}, until_stage={"critique"},
                           max_seconds=MAX_SYNTH)
     snapshots["after_synthesis"] = C.db_capture(report_id)
     if synthjob.get("status") == "failed":
-        _finish(run, report_id, snapshots, verdict="failed_at_synthesis", job=synthjob)
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="failed_at_synthesis", job=synthjob)
+        )
     if stop_at == "critique" or synthjob.get("_timeout"):
-        _finish(run, report_id, snapshots,
-                verdict="stopped_at_critique_boundary" if not synthjob.get("_timeout") else "timeout_synth",
-                job=synthjob)
-        return 0
+        return exit_code_for_verdict(
+            _finish(
+                run,
+                report_id,
+                snapshots,
+                verdict="stopped_at_critique_boundary"
+                if not synthjob.get("_timeout")
+                else "timeout_synth",
+                job=synthjob,
+            )
+        )
 
     resume = C.resume_critique(session, report_id)
     print(f"RESUME_CRITIQUE {resume['status_code']}", flush=True)
     if resume["status_code"] != 200:
-        _finish(run, report_id, snapshots, verdict="resume_critique_failed", extra={"resume": resume})
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="resume_critique_failed", extra={"resume": resume})
+        )
 
     g3park = C.poll_job(session, report_id, label="critique",
                         until_status={"awaiting_human", "failed"}, until_stage={"export"},
                         max_seconds=MAX_CRITIQUE)
     snapshots["after_critique"] = C.db_capture(report_id)
     if g3park.get("status") == "failed":
-        _finish(run, report_id, snapshots, verdict="failed_at_critique", job=g3park)
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="failed_at_critique", job=g3park)
+        )
 
     accept = C.accept_all_sections(session, report_id)
     print(f"ACCEPT_ALL {accept['status_code']}", flush=True)
     if accept["status_code"] != 200:
-        _finish(run, report_id, snapshots, verdict="accept_all_failed", extra={"accept": accept})
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="accept_all_failed", extra={"accept": accept})
+        )
     snapshots["accept_all"] = accept
 
     g3 = C.confirm_gate3(session, report_id)
     print(f"GATE3_CONFIRM {g3['status_code']}", flush=True)
     if g3["status_code"] != 200:
-        _finish(run, report_id, snapshots, verdict="gate3_confirm_failed", extra={"gate3": g3})
-        return 0
+        return exit_code_for_verdict(
+            _finish(run, report_id, snapshots, verdict="gate3_confirm_failed", extra={"gate3": g3})
+        )
 
     expjob = C.poll_job(session, report_id, label="export",
                         until_status={"done", "failed"}, max_seconds=MAX_EXPORT)
@@ -204,14 +245,20 @@ def main() -> int:
     print(f"EXPORT_DOWNLOAD {dl}", flush=True)
     detail = C.report_detail(session, report_id)
 
-    _finish(run, report_id, snapshots,
+    return exit_code_for_verdict(
+        _finish(
+            run,
+            report_id,
+            snapshots,
             verdict="completed" if expjob.get("status") == "done" else "export_incomplete",
-            job=expjob, extra={"download": dl, "report_detail": detail.get("body")})
-    return 0
+            job=expjob,
+            extra={"download": dl, "report_detail": detail.get("body")},
+        )
+    )
 
 
 def _finish(run: str, report_id: str, snapshots: dict, *, verdict: str,
-            job: dict | None = None, extra: dict | None = None) -> None:
+            job: dict | None = None, extra: dict | None = None) -> str:
     final = snapshots.get("after_export") or C.db_capture(report_id)
     artifact = {
         "run": run,
@@ -226,6 +273,7 @@ def _finish(run: str, report_id: str, snapshots: dict, *, verdict: str,
     C.write_artifact(f"walk_{run}_{report_id[:8]}.json", artifact)
     print(f"VERDICT={verdict} report_id={report_id}", flush=True)
     print(f"COST={artifact['cost']}", flush=True)
+    return verdict
 
 
 if __name__ == "__main__":

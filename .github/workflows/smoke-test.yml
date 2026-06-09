@@ -20,7 +20,7 @@ jobs:
       - name: Run P0 M&E unit smoke
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest tests/test_p0_me_smoke.py tests/test_classify_isolation.py tests/test_review_routes.py tests/test_confirmed_kb.py tests/test_p1_fence_eval.py tests/test_gate1_confirmation.py -q
+        run: pytest tests/test_p0_me_smoke.py tests/test_classify_isolation.py tests/test_review_routes.py tests/test_confirmed_kb.py tests/test_p1_fence_eval.py tests/test_gate1_confirmation.py tests/test_full_walk_exit_codes.py -q
       - name: Run smoke tests
         env:
           SMOKE_BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
