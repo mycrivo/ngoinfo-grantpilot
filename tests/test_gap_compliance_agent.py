@@ -73,6 +73,7 @@ def _fact(fact_key: str, label: str, excerpt: str) -> dict:
         "source_label": "uploaded_doc",
         "provenance": {"excerpt": excerpt},
         "interpretation_note": None,
+        "verification_status": "reconciled",
         "confirmed": True,
         "confirmed_at": None,
         "confirmed_by_user": True,
@@ -569,7 +570,11 @@ async def test_gap_compliance_degraded_pass_through_kb():
     template = _load_json(FCDO_TEMPLATE)
     base = _build_incomplete_fcdo_kb()
     facts = {
-        f"degraded_pass_through:{key}": value
+        f"degraded_pass_through:{key}": {
+            **value,
+            "verification_status": "unverified",
+            "confirmed_by_user": False,
+        }
         for key, value in base["facts"].items()
     }
     kb = _confirmed_kb(facts=facts)

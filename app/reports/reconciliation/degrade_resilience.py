@@ -78,6 +78,7 @@ def pass_through_facts_from_candidates(
             source_label=candidate.source_label,
             provenance=_provenance_from_candidate(candidate),
             interpretation_note=DEGRADED_PASS_THROUGH_NOTE,
+            verification_status="unverified",
             confirmed=False,
             confirmed_by_user=False,
         )

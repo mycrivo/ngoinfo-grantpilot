@@ -42,6 +42,25 @@ jobs:
       - name: Prepare artifact directory
         run: mkdir -p docs/artefacts/me_module/audits/dynamic_run
 
+      - name: Run CLEAN docset walk (export — 8/8 target)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
+          TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
+          AUDIT_RUN: p1_clean_docset
+          TEMPLATE: fcdo
+          STOP_AT: export
+          PLAN: IMPACT
+          MAX_TO_GATE1: "7200"
+          MAX_TO_GATE2: "3600"
+          MAX_SYNTH: "3600"
+          MAX_CRITIQUE: "3600"
+          MAX_EXPORT: "1200"
+          DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,02_FCDO_BridgeLight_Award_Letter.docx,BridgeLight Logframe and Finance AR1 Export.xlsx
+        run: |
+          set -o pipefail
+          python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p1_clean_docset.log
+
       - name: Run degraded PDF walk (gate1)
         env:
           PYTHONPATH: ${{ github.workspace }}

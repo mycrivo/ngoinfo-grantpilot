@@ -13,15 +13,15 @@ from app.reports.gap.logframe_completeness import (
     logframe_indicator_id_from_ref,
 )
 from app.reports.gap.template_requirements import TemplateRequirement
+from app.reports.knowledge.confirmed_kb import is_fact_citable
 
 
 def _normalize_token(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
 
 
-def _fact_from_uploaded_documents(fact: dict[str, Any]) -> bool:
-    source_id = fact.get("source_document_id")
-    return bool(source_id and str(source_id).strip())
+def _fact_is_citable(fact: dict[str, Any], *, gate1_confirmed_at: str | None) -> bool:
+    return is_fact_citable(fact, gate1_confirmed_at=gate1_confirmed_at)
 
 
 def _indicator_satisfied(
@@ -29,6 +29,7 @@ def _indicator_satisfied(
     *,
     facts: dict[str, Any],
     gap_answers: dict[str, Any],
+    gate1_confirmed_at: str | None,
 ) -> bool:
     if requirement.item_key in gap_answers:
         if is_gap_answer_resolved(gap_answers[requirement.item_key]):
@@ -42,7 +43,7 @@ def _indicator_satisfied(
     for fact_key, fact in facts.items():
         if not isinstance(fact, dict):
             continue
-        if not _fact_from_uploaded_documents(fact):
+        if not _fact_is_citable(fact, gate1_confirmed_at=gate1_confirmed_at):
             continue
         if is_proposal_target_fact(str(fact_key), fact):
             continue
@@ -58,6 +59,7 @@ def _table_satisfied(
     *,
     facts: dict[str, Any],
     gap_answers: dict[str, Any],
+    gate1_confirmed_at: str | None,
 ) -> bool:
     if requirement.item_key in gap_answers:
         if is_gap_answer_resolved(gap_answers[requirement.item_key]):
@@ -66,7 +68,7 @@ def _table_satisfied(
     for fact_key, fact in facts.items():
         if not isinstance(fact, dict):
             continue
-        if not _fact_from_uploaded_documents(fact):
+        if not _fact_is_citable(fact, gate1_confirmed_at=gate1_confirmed_at):
             continue
         key_token = _normalize_token(str(fact_key))
         label_token = _normalize_token(str(fact.get("semantic_label") or ""))
@@ -81,6 +83,7 @@ def _section_satisfied(
     facts: dict[str, Any],
     gap_answers: dict[str, Any],
     child_requirements: list[TemplateRequirement],
+    gate1_confirmed_at: str | None,
 ) -> bool:
     if requirement.item_key in gap_answers:
         if is_gap_answer_resolved(gap_answers[requirement.item_key]):
@@ -96,13 +99,18 @@ def _section_satisfied(
         for fact_key, fact in facts.items():
             if not isinstance(fact, dict):
                 continue
-            if not _fact_from_uploaded_documents(fact):
+            if not _fact_is_citable(fact, gate1_confirmed_at=gate1_confirmed_at):
                 continue
             if section_token in _normalize_token(str(fact_key)):
                 return True
         return False
     return all(
-        is_requirement_satisfied(child, facts=facts, gap_answers=gap_answers)
+        is_requirement_satisfied(
+            child,
+            facts=facts,
+            gap_answers=gap_answers,
+            gate1_confirmed_at=gate1_confirmed_at,
+        )
         for child in children
     )
 
@@ -113,17 +121,29 @@ def is_requirement_satisfied(
     facts: dict[str, Any],
     gap_answers: dict[str, Any],
     all_requirements: list[TemplateRequirement] | None = None,
+    gate1_confirmed_at: str | None = None,
 ) -> bool:
-    """Satisfied only via allowed sources: uploaded_documents facts or gap_answers."""
+    """Satisfied via citable KB facts or resolved gap_answers."""
     if requirement.required_item_type == "indicator":
-        return _indicator_satisfied(requirement, facts=facts, gap_answers=gap_answers)
+        return _indicator_satisfied(
+            requirement,
+            facts=facts,
+            gap_answers=gap_answers,
+            gate1_confirmed_at=gate1_confirmed_at,
+        )
     if requirement.required_item_type == "table":
-        return _table_satisfied(requirement, facts=facts, gap_answers=gap_answers)
+        return _table_satisfied(
+            requirement,
+            facts=facts,
+            gap_answers=gap_answers,
+            gate1_confirmed_at=gate1_confirmed_at,
+        )
     return _section_satisfied(
         requirement,
         facts=facts,
         gap_answers=gap_answers,
         child_requirements=all_requirements or [],
+        gate1_confirmed_at=gate1_confirmed_at,
     )
 
 
@@ -133,6 +153,7 @@ def unsatisfied_requirements(
 ) -> list[TemplateRequirement]:
     facts = knowledge_bank_json.get("facts") or {}
     gap_answers = knowledge_bank_json.get("gap_answers") or {}
+    gate1_at = knowledge_bank_json.get("gate1_confirmed_at")
     missing: list[TemplateRequirement] = []
     for requirement in requirements:
         if requirement.required_item_type == "section":
@@ -142,6 +163,7 @@ def unsatisfied_requirements(
             facts=facts,
             gap_answers=gap_answers,
             all_requirements=requirements,
+            gate1_confirmed_at=gate1_at,
         ):
             missing.append(requirement)
     return missing

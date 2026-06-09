@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError
 from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_ANSWERED
+from app.reports.knowledge.confirmed_kb import (
+    filter_citable_facts,
+    filter_citable_gap_answers,
+)
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.services.profile_service import get_profile
@@ -76,8 +80,8 @@ def _ngo_payload(db: Session, user_id) -> dict[str, Any]:
 def build_knowledge_bank_inputs(knowledge_bank_json: dict[str, Any]) -> dict[str, Any]:
     kb = knowledge_bank_json or {}
     return {
-        "facts": dict(kb.get("facts") or {}),
-        "gap_answers": _answered_gap_answers(kb.get("gap_answers") or {}),
+        "facts": filter_citable_facts(kb),
+        "gap_answers": filter_citable_gap_answers(kb),
         "conflicts_resolved": _resolved_conflicts(kb.get("conflicts") or []),
         "gate1_confirmed_at": kb.get("gate1_confirmed_at"),
         "gate2_confirmed_at": kb.get("gate2_confirmed_at"),
@@ -128,12 +132,12 @@ def build_knowledge_bank_inputs_for_section(
     knowledge_bank_json: dict[str, Any],
     section: dict[str, Any],
 ) -> dict[str, Any]:
-    """Section-scoped KB inputs: trimmed facts, all answered gaps (cross-section citations)."""
+    """Section-scoped KB inputs: citable trimmed facts, all citable answered gaps."""
     kb = knowledge_bank_json or {}
-    full_facts = dict(kb.get("facts") or {})
+    citable_facts = filter_citable_facts(kb)
     return {
-        "facts": subset_facts_for_section(full_facts, section),
-        "gap_answers": _answered_gap_answers(kb.get("gap_answers") or {}),
+        "facts": subset_facts_for_section(citable_facts, section),
+        "gap_answers": filter_citable_gap_answers(kb),
         "conflicts_resolved": _resolved_conflicts(kb.get("conflicts") or []),
         "gate1_confirmed_at": kb.get("gate1_confirmed_at"),
         "gate2_confirmed_at": kb.get("gate2_confirmed_at"),

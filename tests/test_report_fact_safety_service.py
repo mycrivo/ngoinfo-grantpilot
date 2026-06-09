@@ -50,6 +50,17 @@ def _seed_report_with_content(session) -> uuid.UUID:
     )
     kb = _build_incomplete_fcdo_kb()
     kb["gate2_confirmed_at"] = now.isoformat()
+    kb["facts"]["indicators.OP1.1.actual"] = {
+        "value": 684,
+        "unit": None,
+        "semantic_label": "OP1.1 actual",
+        "coverage": "single_source",
+        "verification_status": "reconciled",
+        "source_document_id": str(uuid.uuid4()),
+        "source_label": "AR1 export",
+        "provenance": {"excerpt": "684 girls re-enrolled"},
+        "confirmed_by_user": False,
+    }
     report = DonorReport(
         id=uuid.uuid4(),
         user_id=user.id,

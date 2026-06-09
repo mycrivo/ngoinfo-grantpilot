@@ -406,6 +406,8 @@ def _llm_to_structured(
 
             interpretation_note=fact.interpretation_note,
 
+            verification_status="reconciled",
+
         )
 
     conflicts: list[KnowledgeBankConflict] = []

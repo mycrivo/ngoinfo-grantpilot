@@ -46,12 +46,31 @@ def fcdo_sections() -> dict[str, dict]:
 def bridgelight_facts_and_cited() -> tuple[dict, dict[str, list[str]]]:
     data = json.loads(CITED_FIXTURE_PATH.read_text(encoding="utf-8"))
     facts = dict(data["facts"])
+    for fact in facts.values():
+        if isinstance(fact, dict):
+            fact.setdefault("verification_status", "reconciled")
+            fact.setdefault("source_document_id", "fixture-doc")
+            fact.setdefault("source_label", "fixture")
+            fact.setdefault("semantic_label", "fixture")
+            fact.setdefault("provenance", {"excerpt": "fixture"})
     facts["noise.unrelated_safeguarding_only"] = {
         "value": "should not appear in VfM trim",
         "unit": None,
         "semantic_label": "noise",
+        "verification_status": "reconciled",
+        "source_document_id": "fixture-doc",
+        "source_label": "fixture",
+        "provenance": {"excerpt": "noise"},
     }
     return facts, data["cited_by_section"]
+
+
+def _kb_with_gate1(facts: dict, gap_answers: dict | None = None) -> dict:
+    return {
+        "facts": facts,
+        "gap_answers": gap_answers or {},
+        "gate1_confirmed_at": "2026-01-01T00:00:00+00:00",
+    }
 
 
 def test_value_for_money_excludes_unrelated_facts_includes_financials(
@@ -64,19 +83,27 @@ def test_value_for_money_excludes_unrelated_facts_includes_financials(
     assert any(k.startswith("financials.") for k in trimmed)
     assert any(k.startswith("grant.") for k in trimmed)
     kb = build_knowledge_bank_inputs_for_section(
-        {
-            "facts": facts,
-            "gap_answers": {
+        _kb_with_gate1(
+            facts,
+            {
                 "value_for_money:indicator:economy": {
                     "disposition": "answered",
                     "answer_text": "Economy note",
+                    "provenance": {
+                        "source": "human_confirmed_gap_answer",
+                        "excerpt": "Economy note",
+                    },
                 },
                 "risk_and_safeguarding:indicator:new_risks": {
                     "disposition": "answered",
                     "answer_text": "Risk note",
+                    "provenance": {
+                        "source": "human_confirmed_gap_answer",
+                        "excerpt": "Risk note",
+                    },
                 },
             },
-        },
+        ),
         section,
     )
     assert "value_for_money:indicator:economy" in kb["gap_answers"]
@@ -92,15 +119,19 @@ def test_detailed_output_scoring_includes_indicators_and_output_scores_gap(
     assert any(k.startswith("indicators.") for k in trimmed)
     assert "indicators.op1_1_girls_reenrolled_retained.y1_actual" in trimmed
     kb = build_knowledge_bank_inputs_for_section(
-        {
-            "facts": facts,
-            "gap_answers": {
+        _kb_with_gate1(
+            facts,
+            {
                 "detailed_output_scoring:indicator:output_scores": {
                     "disposition": "answered",
                     "answer_text": "Scores A–C from AR1 export",
-                }
+                    "provenance": {
+                        "source": "human_confirmed_gap_answer",
+                        "excerpt": "Scores A–C from AR1 export",
+                    },
+                },
             },
-        },
+        ),
         section,
     )
     assert "detailed_output_scoring:indicator:output_scores" in kb["gap_answers"]

@@ -105,6 +105,7 @@ No other table may store generated report content or knowledge-bank state.
       "unit": "string or null",
       "source_document_id": "uuid or null",
       "source_label": "string or null",
+      "verification_status": "reconciled | unverified",
       "confirmed": false,
       "confirmed_at": "ISO-8601 or null",
       "confirmed_by_user": true
@@ -131,6 +132,8 @@ No other table may store generated report content or knowledge-bank state.
 ```
 
 Full synthesis mapping: `REPORT_INPUTS_FIELD_MAPPING.md`.
+
+**Citability (P1-3):** `app/reports/knowledge/confirmed_kb.py` — citable iff `gate1_confirmed_at` set and (`verification_status=reconciled` OR promoted unverified with `confirmed_by_user=true`). Never inferred from key prefix.
 
 ---
 

@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "reconciliation_outcome": "degraded",
+  "reconciliation_version": "1.0.0",
+  "reconciler_agent": "knowledge_bank_reconciler",
+  "gate1_confirmed_at": null,
+  "facts": {
+    "degraded_pass_through:doc1:indicators.op1_1.ar1_actual": {
+      "value": 684,
+      "unit": null,
+      "semantic_label": "OP1.1 actual",
+      "coverage": "single_source",
+      "verification_status": "unverified",
+      "source_document_id": "doc1",
+      "source_label": "AR1 Export.xlsx",
+      "provenance": {"excerpt": "684 girls re-enrolled"},
+      "interpretation_note": "Degraded reconciliation pass-through from extractor candidate; not reconciled — human confirmation required at Gate 1.",
+      "confirmed": false,
+      "confirmed_by_user": false
+    },
+    "degraded_pass_through:doc1:indicators.op1_1.ar1_target": {
+      "value": 650,
+      "unit": null,
+      "semantic_label": "OP1.1 target",
+      "coverage": "single_source",
+      "verification_status": "unverified",
+      "source_document_id": "doc1",
+      "source_label": "AR1 Export.xlsx",
+      "provenance": {"excerpt": "650 target"},
+      "confirmed": false,
+      "confirmed_by_user": false
+    }
+  },
+  "conflicts": [],
+  "unreadable_sources": [],
+  "gap_answers": {}
+}

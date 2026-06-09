@@ -15,6 +15,10 @@ from app.reports.agents.fact_safety_critic import (
     run_fact_safety_critic,
 )
 from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_ANSWERED
+from app.reports.knowledge.confirmed_kb import (
+    build_confirmed_kb_view,
+    non_citable_evidence_refs,
+)
 from app.reports.models.donor_report import DonorReport
 from app.reports.schemas.fact_safety_critic_v1 import (
     critic_flag_from_specific,
@@ -111,8 +115,9 @@ async def critique_and_persist(
         )
 
     kb = report.knowledge_bank_json or {}
-    facts = dict(kb.get("facts") or {})
-    gap_answers = _answered_gap_answers(kb.get("gap_answers") or {})
+    kb_view = build_confirmed_kb_view(kb)
+    facts = kb_view.facts
+    gap_answers = kb_view.gap_answers
 
     verified = flagged = unverified = skipped = 0
 
@@ -136,18 +141,40 @@ async def critique_and_persist(
             continue
 
         evidence_used = list(content.get("evidence_used") or [])
+        fence_blocked = non_citable_evidence_refs(evidence_used, kb)
+        fence_flags = [
+            {
+                "claim_text": ref,
+                "severity": "BLOCK",
+                "reason": "Reference is not citable under verification_status fence (P1-3)",
+                "source_ref": ref,
+                "accepted": False,
+                "verification_path": "deterministic",
+            }
+            for ref in fence_blocked
+        ]
+        admissible_evidence = [ref for ref in evidence_used if ref not in fence_blocked]
         cited_sources = resolve_cited_sources(
-            evidence_used=evidence_used,
+            evidence_used=admissible_evidence,
             facts=facts,
             gap_answers=gap_answers,
         )
+
+        if fence_flags and not admissible_evidence:
+            _apply_critic_result_to_section(
+                section,
+                flags=fence_flags,
+                fact_safety_status="FLAGGED",
+            )
+            flagged += 1
+            continue
 
         try:
             result = await run_fact_safety_critic(
                 section_key=section_key,
                 section_label=section_label,
                 section_text=section_text,
-                evidence_used=evidence_used,
+                evidence_used=admissible_evidence,
                 cited_sources=cited_sources,
                 query_fn=query_fn_critic,
             )
@@ -166,7 +193,7 @@ async def critique_and_persist(
             continue
 
         output = result.output
-        flags = [
+        flags = list(fence_flags) + [
             critic_flag_from_specific(item)
             for item in output.specifics
             if item.status == "FLAGGED"

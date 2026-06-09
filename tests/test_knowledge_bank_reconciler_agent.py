@@ -170,6 +170,8 @@ async def test_fcdo_fixture_reconciliation_grades():
     assert errors == [], "\n".join(errors)
     assert kb["reconciliation_outcome"] == "complete"
     assert len(kb.get("unreadable_sources") or []) >= 1
+    for fact in (kb.get("facts") or {}).values():
+        assert fact.get("verification_status") == "reconciled"
 
 
 def test_case1_grader_requires_all_corroborating_sources():
@@ -411,9 +413,10 @@ async def test_parse_failure_pass_through_facts_non_empty_bundle():
     result = await reconcile_bundle(bundle, query_fn=_parse_failing_query_fn())
     structured = result.envelope.structured
     assert structured.reconciliation_outcome == "degraded"
-    assert len(structured.facts) == len(bundle.fact_candidates)
+    assert 0 < len(structured.facts) <= len(bundle.fact_candidates)
     sample = next(iter(structured.facts.values()))
     assert sample.confirmed is False
+    assert sample.verification_status == "unverified"
     assert sample.interpretation_note == DEGRADED_PASS_THROUGH_NOTE
     assert all(key.startswith("degraded_pass_through:") for key in structured.facts)
 

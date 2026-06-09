@@ -13,6 +13,7 @@ RECONCILER_AGENT_NAME = "knowledge_bank_reconciler"
 ReconciliationOutcome = Literal["complete", "degraded"]
 ConflictType = Literal["VALUE_MISMATCH", "UNIT_GRANULARITY"]
 FactCoverage = Literal["agreed", "single_source"]
+FactVerificationStatus = Literal["reconciled", "unverified"]
 
 
 class KnowledgeProvenance(BaseModel):
@@ -33,6 +34,7 @@ class KnowledgeBankFact(BaseModel):
     source_label: str = Field(min_length=1)
     provenance: KnowledgeProvenance
     interpretation_note: str | None = None
+    verification_status: FactVerificationStatus = "unverified"
     confirmed: bool = False
     confirmed_at: datetime | None = None
     confirmed_by_user: bool = False
