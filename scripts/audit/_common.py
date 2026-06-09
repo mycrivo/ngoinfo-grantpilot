@@ -99,6 +99,41 @@ def ensure_plan(user_id: str, plan_name: str = "IMPACT") -> None:
             """), {"uid": user_id, "plan": plan_name})
 
 
+def _apply_tokens(session: requests.Session, body: dict) -> None:
+    session.headers["Authorization"] = f"Bearer {body['access_token']}"
+    session.refresh_token = body.get("refresh_token")  # type: ignore[attr-defined]
+    ttl = int(body.get("expires_in") or 900)
+    session.token_expires_at = time.time() + ttl  # type: ignore[attr-defined]
+
+
+def refresh_session_tokens(session: requests.Session) -> None:
+    refresh_token = getattr(session, "refresh_token", None)
+    if not refresh_token:
+        raise RuntimeError("audit session has no refresh_token")
+    r = requests.post(
+        f"{BASE_URL}/api/auth/refresh",
+        json={"refresh_token": refresh_token},
+        timeout=60,
+    )
+    r.raise_for_status()
+    _apply_tokens(session, r.json())
+
+
+def ensure_fresh_token(session: requests.Session) -> None:
+    expires_at = getattr(session, "token_expires_at", 0)
+    if time.time() >= expires_at - 90 and getattr(session, "refresh_token", None):
+        refresh_session_tokens(session)
+
+
+def auth_request(session: requests.Session, method: str, url: str, **kwargs) -> requests.Response:
+    ensure_fresh_token(session)
+    r = session.request(method, url, **kwargs)
+    if r.status_code == 401 and getattr(session, "refresh_token", None):
+        refresh_session_tokens(session)
+        r = session.request(method, url, **kwargs)
+    return r
+
+
 def mint_session(email: str, *, plan: str = "IMPACT", full_name: str = "Audit Walk") -> requests.Session:
     session = requests.Session()
     r = session.post(
@@ -109,7 +144,7 @@ def mint_session(email: str, *, plan: str = "IMPACT", full_name: str = "Audit Wa
     )
     r.raise_for_status()
     body = r.json()
-    session.headers["Authorization"] = f"Bearer {body['access_token']}"
+    _apply_tokens(session, body)
     session.user_id = body["user"]["id"]  # type: ignore[attr-defined]
     session.user_email = body["user"]["email"]  # type: ignore[attr-defined]
     if plan and os.environ.get("DATABASE_URL"):
@@ -119,7 +154,9 @@ def mint_session(email: str, *, plan: str = "IMPACT", full_name: str = "Audit Wa
 
 def create_report(session: requests.Session, *, template_id: str,
                   start: str = "2025-04-01", end: str = "2026-03-31") -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports",
         json={
             "reporting_period_start": start,
@@ -134,7 +171,9 @@ def create_report(session: requests.Session, *, template_id: str,
 
 def upload(session: requests.Session, report_id: str, path: Path) -> dict:
     with path.open("rb") as fh:
-        r = session.post(
+        r = auth_request(
+            session,
+            "POST",
             f"{BASE_URL}/api/reports/{report_id}/documents",
             files={"file": (path.name, fh, mime_for(path.name))},
             timeout=180,
@@ -149,7 +188,7 @@ def upload(session: requests.Session, report_id: str, path: Path) -> dict:
 
 
 def enqueue(session: requests.Session, report_id: str) -> dict:
-    r = session.post(f"{BASE_URL}/api/reports/{report_id}/job", timeout=60)
+    r = auth_request(session, "POST", f"{BASE_URL}/api/reports/{report_id}/job", timeout=60)
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
@@ -166,7 +205,7 @@ def poll_job(session: requests.Session, report_id: str, *, label: str,
     deadline = time.time() + max_seconds
     last: dict = {}
     while time.time() < deadline:
-        r = session.get(f"{BASE_URL}/api/reports/{report_id}/job", timeout=60)
+        r = auth_request(session, "GET", f"{BASE_URL}/api/reports/{report_id}/job", timeout=60)
         r.raise_for_status()
         last = r.json()
         st, stage = last.get("status"), last.get("stage")
@@ -182,7 +221,7 @@ def poll_job(session: requests.Session, report_id: str, *, label: str,
 
 
 def get_kb(session: requests.Session, report_id: str) -> dict:
-    r = session.get(f"{BASE_URL}/api/reports/{report_id}/knowledge-bank", timeout=60)
+    r = auth_request(session, "GET", f"{BASE_URL}/api/reports/{report_id}/knowledge-bank", timeout=60)
     r.raise_for_status()
     body = r.json()
     return body.get("knowledge_bank_json") or body
@@ -225,28 +264,36 @@ def owner_email_for_report(report_id: str) -> str:
 
 
 def confirm_gate1(session: requests.Session, report_id: str, kb: dict) -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports/{report_id}/knowledge-bank/gate1/confirm",
-        json={"knowledge_bank_json": kb}, timeout=60,
+        json={"knowledge_bank_json": kb},
+        timeout=60,
     )
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
 def gap_check(session: requests.Session, report_id: str) -> dict:
-    r = session.get(f"{BASE_URL}/api/reports/{report_id}/gap-check", timeout=60)
+    r = auth_request(session, "GET", f"{BASE_URL}/api/reports/{report_id}/gap-check", timeout=60)
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
 def submit_gate2(session: requests.Session, report_id: str, responses: dict) -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports/{report_id}/knowledge-bank/gate2/gap-responses",
-        json={"responses": responses}, timeout=180,
+        json={"responses": responses},
+        timeout=180,
     )
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
 def resume_critique(session: requests.Session, report_id: str) -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports/{report_id}/job/resume-critique",
         json={},
         timeout=60,
@@ -255,7 +302,9 @@ def resume_critique(session: requests.Session, report_id: str) -> dict:
 
 
 def accept_all_sections(session: requests.Session, report_id: str) -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports/{report_id}/sections/accept-all",
         json={},
         timeout=60,
@@ -264,15 +313,18 @@ def accept_all_sections(session: requests.Session, report_id: str) -> dict:
 
 
 def confirm_gate3(session: requests.Session, report_id: str) -> dict:
-    r = session.post(
+    r = auth_request(
+        session,
+        "POST",
         f"{BASE_URL}/api/reports/{report_id}/knowledge-bank/gate3/confirm",
-        json={}, timeout=60,
+        json={},
+        timeout=60,
     )
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
 def download_export(session: requests.Session, report_id: str) -> dict:
-    r = session.get(f"{BASE_URL}/api/reports/{report_id}/export", timeout=120)
+    r = auth_request(session, "GET", f"{BASE_URL}/api/reports/{report_id}/export", timeout=120)
     info = {"status_code": r.status_code,
             "content_type": r.headers.get("content-type"),
             "content_length": len(r.content) if r.status_code == 200 else 0}
@@ -287,7 +339,7 @@ def download_export(session: requests.Session, report_id: str) -> dict:
 
 
 def report_detail(session: requests.Session, report_id: str) -> dict:
-    r = session.get(f"{BASE_URL}/api/reports/{report_id}", timeout=60)
+    r = auth_request(session, "GET", f"{BASE_URL}/api/reports/{report_id}", timeout=60)
     return {"status_code": r.status_code, "body": _safe_json(r)}
 
 
