@@ -696,6 +696,13 @@ def test_mode_mint(
         _log_test_mode_event(request, "user_id_missing")
         return error_response(request, 500, "TEST_MODE_ERROR", "Test mode mint failed")
 
+    requested_plan = (payload.plan.strip().upper() if payload and payload.plan else None)
+    if requested_plan in {"FREE", "GROWTH", "IMPACT"}:
+        from app.services.quota_service import get_or_create_user_plan
+
+        user_plan = get_or_create_user_plan(db, user.id, commit=False)
+        user_plan.plan_name = requested_plan
+
     _revoke_active_refresh_tokens(db, user.id)
     refresh_token, _ = _issue_refresh_token(db, user.id)
     access_token, expires_in, plan = issue_access_token(db, user)

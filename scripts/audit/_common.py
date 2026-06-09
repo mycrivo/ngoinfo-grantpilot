@@ -112,7 +112,7 @@ def mint_session(email: str, *, plan: str = "IMPACT", full_name: str = "Audit Wa
     session.headers["Authorization"] = f"Bearer {body['access_token']}"
     session.user_id = body["user"]["id"]  # type: ignore[attr-defined]
     session.user_email = body["user"]["email"]  # type: ignore[attr-defined]
-    if plan:
+    if plan and os.environ.get("DATABASE_URL"):
         ensure_plan(body["user"]["id"], plan)
     return session
 
@@ -288,7 +288,13 @@ def report_detail(session: requests.Session, report_id: str) -> dict:
 
 def db_capture(report_id: str) -> dict:
     """Read-only snapshot of all engine-owned rows for a report."""
-    bootstrap_db_env()
+    if not os.environ.get("DATABASE_URL"):
+        try:
+            bootstrap_db_env()
+        except Exception:
+            return {"report_id": report_id, "db_capture": "skipped_no_database_url"}
+    if not os.environ.get("DATABASE_URL"):
+        return {"report_id": report_id, "db_capture": "skipped_no_database_url"}
     import app.models  # noqa: F401
     from sqlalchemy import create_engine, text
 

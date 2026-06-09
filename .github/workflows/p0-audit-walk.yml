@@ -1,0 +1,74 @@
+name: P0 Audit Walk
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt reportlab
+
+      - name: Generate PDF award letter fixture
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from reportlab.lib.pagesizes import letter
+          from reportlab.pdfgen import canvas
+          out = Path("M_E_Module/Sample_docs/FCDO_Test_Set/02_FCDO_BridgeLight_Award_Letter.pdf")
+          c = canvas.Canvas(str(out), pagesize=letter)
+          text = c.beginText(72, 720)
+          for line in [
+              "Foreign Commonwealth and Development Office",
+              "Grant Award Letter — BridgeLight Programme",
+              "This letter confirms the award of GBP 1,250,000 to BridgeLight NGO",
+              "for the period 1 April 2025 to 31 March 2026.",
+              "Reporting requirements include annual review and logframe milestones.",
+          ]:
+              text.textLine(line)
+          c.drawText(text)
+          c.save()
+          print("wrote", out)
+          PY
+
+      - name: Run degraded PDF walk (gate1)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
+          TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
+          AUDIT_RUN: p0_degraded_pdf
+          TEMPLATE: fcdo
+          STOP_AT: gate1
+          PLAN: IMPACT
+          DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,BridgeLight Logframe and Finance AR1 Export.xlsx,tests/fixtures/docling_intake/image_only_no_text_layer.pdf
+        run: python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_degraded_pdf.log
+
+      - name: Run FCDO PDF full walk (export)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
+          TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
+          AUDIT_RUN: p0_fcdo_pdf_full
+          TEMPLATE: fcdo
+          STOP_AT: export
+          PLAN: IMPACT
+          DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,02_FCDO_BridgeLight_Award_Letter.pdf,BridgeLight Logframe and Finance AR1 Export.xlsx
+        run: python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_fcdo_pdf_full.log
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: p0-audit-walk-${{ github.run_id }}
+          path: |
+            docs/artefacts/me_module/audits/dynamic_run/walk_*.json
+            docs/artefacts/me_module/audits/dynamic_run/p0_*.log
+            docs/artefacts/me_module/audits/dynamic_run/export_*.docx
+          if-no-files-found: warn
