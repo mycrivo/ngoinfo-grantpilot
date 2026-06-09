@@ -32,7 +32,10 @@ from app.reports.schemas.content_json_v1 import (
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
-from app.reports.services.synthesis_output_hygiene import sanitize_generated_content
+from app.reports.services.synthesis_output_hygiene import (
+    sanitize_generated_content,
+    sanitize_json_for_postgres,
+)
 
 logger = logging.getLogger("reports.services.report_synthesis")
 
@@ -370,10 +373,12 @@ async def synthesise_and_persist(
         existing_by_key=existing_by_key,
         new_results_by_key=new_results_by_key,
     )
-    content_json = merge_content_json_after_synthesis(
-        existing_content,
-        merged_sections,
-        warnings=warnings,
+    content_json = sanitize_json_for_postgres(
+        merge_content_json_after_synthesis(
+            existing_content,
+            merged_sections,
+            warnings=warnings,
+        )
     )
     report.content_json = content_json
 

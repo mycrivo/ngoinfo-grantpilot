@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from app.reports.services.synthesis_output_hygiene import (
     enrich_evidence_from_kb,
     fact_key_signature,
@@ -212,6 +214,34 @@ def test_backfill_date_without_identifier_attaches_nothing():
         kb_fact_keys=date_kb,
     )
     assert auto == []
+
+
+def test_sanitize_evidence_used_strips_null_bytes_from_dropped_citations():
+    kept, dropped, remapped = sanitize_evidence_used(
+        ["fact:indicators.OP1.\x00bad"],
+        kb_fact_keys=KB_FACTS,
+    )
+    assert kept == []
+    assert dropped == ["fact:indicators.OP1.bad"]
+    assert remapped == []
+
+
+def test_sanitize_json_for_postgres_strips_null_bytes_recursively():
+    from app.reports.services.synthesis_output_hygiene import sanitize_json_for_postgres
+
+    dirty = {
+        "sections": [
+            {
+                "content": {
+                    "text": "ok",
+                    "dropped_citations": ["fact:indicators.OP1.\x00x"],
+                }
+            }
+        ]
+    }
+    clean = sanitize_json_for_postgres(dirty)
+    assert "\x00" not in json.dumps(clean)
+    assert clean["sections"][0]["content"]["dropped_citations"] == ["fact:indicators.OP1.x"]
 
 
 def test_sanitize_generated_content_idempotent_on_clean_input():

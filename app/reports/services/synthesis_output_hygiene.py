@@ -39,9 +39,16 @@ class SanitizedSectionContent:
     auto_citations: list[str]
 
 
+def _strip_null_bytes(text: str) -> str:
+    """PostgreSQL JSON/text rejects U+0000; strip from all persisted strings."""
+    if not text:
+        return text
+    return text.replace("\x00", "")
+
+
 def normalize_identifier(key: str) -> str:
     """NFKC plus map Unicode decimal digits to ASCII for identifier matching."""
-    normalized = unicodedata.normalize("NFKC", key)
+    normalized = unicodedata.normalize("NFKC", _strip_null_bytes(key))
     out: list[str] = []
     for ch in normalized:
         if ch.isdigit():
@@ -203,8 +210,10 @@ def sanitize_evidence_used(
 
     for ref in evidence_used:
         if not isinstance(ref, str) or not ref.strip():
-            dropped.append(str(ref))
+            dropped.append(_strip_null_bytes(str(ref)))
             continue
+
+        ref = _strip_null_bytes(ref)
 
         if ref.startswith("fact:"):
             resolved = _resolve_citation(
@@ -496,6 +505,17 @@ def enrich_evidence_from_kb(
             merged.append(ref)
             merged_seen.add(ref)
     return merged, auto_sorted
+
+
+def sanitize_json_for_postgres(value: Any) -> Any:
+    """Recursively strip U+0000 from strings before JSONB persistence."""
+    if isinstance(value, str):
+        return _strip_null_bytes(value)
+    if isinstance(value, dict):
+        return {sanitize_json_for_postgres(k): sanitize_json_for_postgres(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [sanitize_json_for_postgres(item) for item in value]
+    return value
 
 
 def sanitize_generated_content(

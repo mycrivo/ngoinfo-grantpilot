@@ -65,6 +65,11 @@ jobs:
           TEMPLATE: fcdo
           STOP_AT: export
           PLAN: IMPACT
+          MAX_TO_GATE1: "7200"
+          MAX_TO_GATE2: "3600"
+          MAX_SYNTH: "3600"
+          MAX_CRITIQUE: "3600"
+          MAX_EXPORT: "1200"
           DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,02_FCDO_BridgeLight_Award_Letter.pdf,BridgeLight Logframe and Finance AR1 Export.xlsx
         run: |
           set -o pipefail
