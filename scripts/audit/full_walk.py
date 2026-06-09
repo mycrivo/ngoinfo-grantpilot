@@ -124,7 +124,14 @@ def main() -> int:
         _finish(run, report_id, snapshots, verdict="failed_at_gap", job=g2park)
         return 0
 
-    gaps = ((snapshots["after_gap"]["report"].get("gap_analysis_json") or {}).get("gaps") or [])
+    after_gap = snapshots.get("after_gap") or {}
+    if isinstance(after_gap.get("report"), dict):
+        gaps = ((after_gap["report"].get("gap_analysis_json") or {}).get("gaps") or [])
+    else:
+        detail = C.report_detail(session, report_id)
+        body = detail.get("body") if isinstance(detail.get("body"), dict) else {}
+        gaps = ((body.get("gap_analysis_json") or {}).get("gaps") or [])
+        snapshots["after_gap_report_api"] = detail
     responses = {}
     answered = skipped = 0
     for g in gaps:

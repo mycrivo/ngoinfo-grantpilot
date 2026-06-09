@@ -52,7 +52,9 @@ jobs:
           STOP_AT: gate1
           PLAN: IMPACT
           DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,BridgeLight Logframe and Finance AR1 Export.xlsx,tests/fixtures/docling_intake/image_only_no_text_layer.pdf
-        run: python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_degraded_pdf.log
+        run: |
+          set -o pipefail
+          python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_degraded_pdf.log
 
       - name: Run FCDO PDF full walk (export)
         env:
@@ -64,7 +66,9 @@ jobs:
           STOP_AT: export
           PLAN: IMPACT
           DOCSET: 01_FCDO_BridgeLight_Winning_Proposal.docx,02_FCDO_BridgeLight_Award_Letter.pdf,BridgeLight Logframe and Finance AR1 Export.xlsx
-        run: python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_fcdo_pdf_full.log
+        run: |
+          set -o pipefail
+          python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p0_fcdo_pdf_full.log
 
       - name: Upload audit artifacts
         uses: actions/upload-artifact@v4
