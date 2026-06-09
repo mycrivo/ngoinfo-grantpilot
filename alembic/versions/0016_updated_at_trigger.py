@@ -1,6 +1,6 @@
 """Ensure donor_reports.updated_at bumps on every row update (P0-4).
 
-Revision ID: 0016_donor_reports_updated_at_trigger
+Revision ID: 0016_updated_at_trigger
 Revises: 0015_gap_analysis_json
 Create Date: 2026-06-08
 
@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-revision: str = "0016_donor_reports_updated_at_trigger"
+revision: str = "0016_updated_at_trigger"
 down_revision: Union[str, Sequence[str], None] = "0015_gap_analysis_json"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
