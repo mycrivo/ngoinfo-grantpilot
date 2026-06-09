@@ -39,6 +39,9 @@ jobs:
           print("wrote", out)
           PY
 
+      - name: Prepare artifact directory
+        run: mkdir -p docs/artefacts/me_module/audits/dynamic_run
+
       - name: Run degraded PDF walk (gate1)
         env:
           PYTHONPATH: ${{ github.workspace }}

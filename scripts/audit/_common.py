@@ -139,7 +139,12 @@ def upload(session: requests.Session, report_id: str, path: Path) -> dict:
             files={"file": (path.name, fh, mime_for(path.name))},
             timeout=180,
         )
-    r.raise_for_status()
+    if r.status_code >= 400:
+        detail = _safe_json(r)
+        raise requests.HTTPError(
+            f"{r.status_code} uploading {path.name}: {detail}",
+            response=r,
+        )
     return r.json()
 
 
