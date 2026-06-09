@@ -1,0 +1,136 @@
+{
+  "description": "DYN-02 regression slice — historically false-positive BLOCK scenarios from analysis_3347590c",
+  "knowledge_bank_json": {
+    "gate1_confirmed_at": "2026-01-01T00:00:00+00:00",
+    "gate2_confirmed_at": "2026-01-02T00:00:00+00:00",
+    "facts": {
+      "grant.programme_name": {
+        "value": "BridgeLight Girls Education Programme",
+        "verification_status": "reconciled",
+        "confirmed_by_user": false,
+        "source_document_id": "doc-proposal",
+        "source_label": "Proposal",
+        "semantic_label": "Programme name",
+        "provenance": {
+          "excerpt": "BridgeLight Girls Education Programme operates in Machinga and Mangochi districts."
+        }
+      },
+      "grant.intervention_districts": {
+        "value": "Machinga, Mangochi",
+        "verification_status": "reconciled",
+        "confirmed_by_user": false,
+        "source_document_id": "doc-proposal",
+        "source_label": "Proposal",
+        "semantic_label": "Intervention districts",
+        "provenance": {
+          "excerpt": "Implementation districts: Machinga and Mangochi."
+        }
+      },
+      "indicators.OP3.3.ar1_actual": {
+        "value": 0.68,
+        "verification_status": "reconciled",
+        "confirmed_by_user": false,
+        "source_document_id": "doc-ar1",
+        "source_label": "AR1 export",
+        "semantic_label": "OP3.3 actual",
+        "provenance": {
+          "excerpt": "OP3.3 achievement rate 0.68"
+        }
+      },
+      "indicators.OP3.3.ar1_milestone_target": {
+        "value": 0.75,
+        "verification_status": "reconciled",
+        "confirmed_by_user": false,
+        "source_document_id": "doc-ar1",
+        "source_label": "AR1 export",
+        "semantic_label": "OP3.3 milestone target",
+        "provenance": {
+          "excerpt": "OP3.3 milestone target 0.75"
+        }
+      },
+      "indicators.OP1.1.ar1_actual": {
+        "value": 684,
+        "verification_status": "reconciled",
+        "confirmed_by_user": false,
+        "source_document_id": "doc-ar1",
+        "source_label": "AR1 export",
+        "semantic_label": "OP1.1 actual",
+        "provenance": {
+          "excerpt": "684 girls re-enrolled"
+        }
+      }
+    },
+    "gap_answers": {
+      "evidence:records_reviewed_count": {
+        "disposition": "answered",
+        "answer_text": "16 beneficiary records were reviewed during the spot check.",
+        "provenance": {
+          "source": "human_confirmed_gap_answer",
+          "excerpt": "16 beneficiary records were reviewed during the spot check."
+        }
+      }
+    }
+  },
+  "sections": [
+    {
+      "section_key": "summary_and_overview",
+      "label": "Summary and Overview",
+      "generation_status": "GENERATED",
+      "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
+      "content": {
+        "citation_mode": "structured",
+        "text": "BridgeLight delivered across Machinga and Mangochi districts during the reporting period.",
+        "evidence_used": ["fact:indicators.OP1.1.ar1_actual"],
+        "claims": [
+          {
+            "text": "684 girls re-enrolled.",
+            "source_refs": ["fact:indicators.OP1.1.ar1_actual"],
+            "value_tokens": ["684"],
+            "bind_status": "bound"
+          }
+        ]
+      }
+    },
+    {
+      "section_key": "detailed_output_scoring",
+      "label": "Detailed Output Scoring",
+      "generation_status": "GENERATED",
+      "archetype": "ARCH_OUTPUT_SCORING_TABLE",
+      "content": {
+        "citation_mode": "structured",
+        "text": "OP3.3 achieved 0.68 against a milestone target of 0.75 for the period.",
+        "evidence_used": [],
+        "claims": [
+          {
+            "text": "OP3.3 achieved 0.68 against target 0.75.",
+            "source_refs": [
+              "fact:indicators.OP3.3.ar1_actual",
+              "fact:indicators.OP3.3.ar1_milestone_target"
+            ],
+            "value_tokens": ["0.68", "0.75"],
+            "bind_status": "bound"
+          }
+        ]
+      }
+    },
+    {
+      "section_key": "evidence_and_evaluation",
+      "label": "Evidence and Evaluation",
+      "generation_status": "GENERATED",
+      "archetype": "ARCH_EVIDENCE_AND_EVALUATION_REVIEW",
+      "content": {
+        "citation_mode": "structured",
+        "text": "The review covered 16 beneficiary records during the spot check.",
+        "evidence_used": [],
+        "claims": [
+          {
+            "text": "Sixteen beneficiary records reviewed.",
+            "source_refs": ["gap:evidence:records_reviewed_count"],
+            "value_tokens": ["16"],
+            "bind_status": "bound"
+          }
+        ]
+      }
+    }
+  ]
+}

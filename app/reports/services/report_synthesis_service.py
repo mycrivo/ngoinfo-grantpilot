@@ -31,6 +31,7 @@ from app.reports.schemas.content_json_v1 import (
 )
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
+from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
 from app.reports.services.synthesis_output_hygiene import (
     sanitize_generated_content,
@@ -184,47 +185,84 @@ def _generate_one_section(
     generated = raw.get("generated_content") or {}
     constraints = raw.get("constraints_applied") or {}
     kb = report_inputs.get("knowledge_bank") or {}
-    emitted_evidence = emit_claim_granular_evidence(
+
+    if get_settings().SYNTHESIS_CITATION_FALLBACK:
+        logger.info(
+            "report_synthesis section=%s citation_mode=legacy_fallback",
+            section_key,
+        )
+        emitted_evidence = emit_claim_granular_evidence(
+            text=str(generated.get("text") or ""),
+            evidence_used=list(generated.get("evidence_used") or []),
+            kb_fact_keys=dict(kb.get("facts") or {}),
+            kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
+            section_key=section_key,
+        )
+        cleaned = sanitize_generated_content(
+            text=str(generated.get("text") or ""),
+            evidence_used=emitted_evidence,
+            kb_fact_keys=dict(kb.get("facts") or {}),
+            kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
+        )
+        if cleaned.dropped_citations:
+            logger.info(
+                "report_synthesis section=%s dropped_citations=%d",
+                section_key,
+                len(cleaned.dropped_citations),
+            )
+        if cleaned.remapped_citations:
+            logger.info(
+                "report_synthesis section=%s remapped_citations=%d",
+                section_key,
+                len(cleaned.remapped_citations),
+            )
+        if cleaned.auto_citations:
+            logger.info(
+                "report_synthesis section=%s auto_citations=%d",
+                section_key,
+                len(cleaned.auto_citations),
+            )
+        return build_generated_section(
+            section_key=section_key,
+            label=label,
+            archetype=raw.get("archetype") or section.get("archetype"),
+            text=cleaned.text,
+            assumptions=list(generated.get("assumptions") or []),
+            evidence_used=cleaned.evidence_used,
+            citation_mode="legacy_fallback",
+            dropped_citations=cleaned.dropped_citations,
+            remapped_citations=cleaned.remapped_citations,
+            auto_citations=cleaned.auto_citations,
+            word_limit=word_limit,
+            word_limit_respected=bool(constraints.get("word_limit_respected", True)),
+        )
+
+    bind_outcome = resolve_structured_synthesis(
+        claims=list(generated.get("claims") or []),
         text=str(generated.get("text") or ""),
-        evidence_used=list(generated.get("evidence_used") or []),
-        kb_fact_keys=dict(kb.get("facts") or {}),
-        kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
-        section_key=section_key,
+        knowledge_bank=kb,
     )
-    cleaned = sanitize_generated_content(
-        text=str(generated.get("text") or ""),
-        evidence_used=emitted_evidence,
-        kb_fact_keys=dict(kb.get("facts") or {}),
-        kb_gap_answer_keys=dict(kb.get("gap_answers") or {}),
-    )
-    if cleaned.dropped_citations:
-        logger.info(
-            "report_synthesis section=%s dropped_citations=%d",
-            section_key,
-            len(cleaned.dropped_citations),
+    if not bind_outcome.ok:
+        return build_failed_section(
+            section_key=section_key,
+            label=label,
+            word_limit=word_limit,
+            failure_reason=str(bind_outcome.failure_reason or "BIND_FAILED"),
         )
-    if cleaned.remapped_citations:
-        logger.info(
-            "report_synthesis section=%s remapped_citations=%d",
-            section_key,
-            len(cleaned.remapped_citations),
-        )
-    if cleaned.auto_citations:
-        logger.info(
-            "report_synthesis section=%s auto_citations=%d",
-            section_key,
-            len(cleaned.auto_citations),
-        )
+
+    bound = bind_outcome.content
+    assert bound is not None
     return build_generated_section(
         section_key=section_key,
         label=label,
         archetype=raw.get("archetype") or section.get("archetype"),
-        text=cleaned.text,
+        text=bound.text,
         assumptions=list(generated.get("assumptions") or []),
-        evidence_used=cleaned.evidence_used,
-        dropped_citations=cleaned.dropped_citations,
-        remapped_citations=cleaned.remapped_citations,
-        auto_citations=cleaned.auto_citations,
+        evidence_used=bound.evidence_used,
+        claims=bound.claims,
+        citation_mode="structured",
+        omitted_claims=bound.omitted_claims or None,
+        structured_bind_status=bound.structured_bind_status,
         word_limit=word_limit,
         word_limit_respected=bool(constraints.get("word_limit_respected", True)),
     )

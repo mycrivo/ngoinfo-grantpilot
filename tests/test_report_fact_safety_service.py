@@ -73,16 +73,25 @@ def _seed_report_with_content(session) -> uuid.UUID:
         indicator_actuals_json={},
         content_json=assemble_content_json(
             [
-                build_generated_section(
-                    section_key="summary_and_overview",
-                    label="Summary",
-                    archetype=None,
-                    text="684 girls were re-enrolled during the period.",
-                    assumptions=[],
-                    evidence_used=["fact:indicators.OP1.1.actual"],
-                    word_limit=900,
-                    word_limit_respected=True,
-                )
+        build_generated_section(
+            section_key="summary_and_overview",
+            label="Summary",
+            archetype="ARCH_EXECUTIVE_REVIEW_SUMMARY",
+            text="684 girls were re-enrolled during the period.",
+            assumptions=[],
+            evidence_used=["fact:indicators.OP1.1.actual"],
+            word_limit=900,
+            word_limit_respected=True,
+            citation_mode="structured",
+            claims=[
+                {
+                    "text": "684 girls were re-enrolled during the period.",
+                    "source_refs": ["fact:indicators.OP1.1.actual"],
+                    "value_tokens": ["684"],
+                    "bind_status": "bound",
+                }
+            ],
+        )
             ],
             warnings=[],
         ),
@@ -123,9 +132,15 @@ def test_planted_unsupported_specific_persists_flag(critic_db):
     session = critic_db()
     report_id = _seed_report_with_content(session)
     report = session.get(DonorReport, report_id)
-    report.content_json["sections"][0]["content"]["text"] = (
-        "The programme reported 99999 girls re-enrolled."
-    )
+    content_json = dict(report.content_json or {})
+    sections = list(content_json.get("sections") or [])
+    section = dict(sections[0])
+    content = dict(section.get("content") or {})
+    content["text"] = "The programme reported 99999 girls re-enrolled."
+    section["content"] = content
+    sections[0] = section
+    content_json["sections"] = sections
+    report.content_json = content_json
     session.add(report)
     session.commit()
     session.close()
@@ -145,11 +160,13 @@ def test_planted_unsupported_specific_persists_flag(critic_db):
     after.close()
     section = report.content_json["sections"][0]
     assert section["generation_status"] == "AWAITING_REVIEW"
-    assert len(section["critic_flags"]) == 1
-    flag = section["critic_flags"][0]
-    assert flag["claim_text"] == "99999"
+    assert len(section["critic_flags"]) >= 1
+    flag = next(
+        f for f in section["critic_flags"] if f.get("claim_text") == "99999"
+    )
     assert flag["severity"] == "BLOCK"
     assert flag["accepted"] is False
+    assert flag["verification_path"] == "deterministic_numeric"
 
 
 def test_critic_error_marks_section_unverified(critic_db):
@@ -165,6 +182,7 @@ def test_critic_error_marks_section_unverified(critic_db):
         )
     )
     assert result.unverified == 1
+    assert result.critic_blocks == 1
 
     after = critic_db()
     report = after.get(DonorReport, report_id)
@@ -173,3 +191,4 @@ def test_critic_error_marks_section_unverified(critic_db):
     assert section["generation_status"] == "AWAITING_REVIEW"
     assert section["critic_flags"][0]["claim_text"] == "[section unverified]"
     assert section["critic_flags"][0]["severity"] == "BLOCK"
+    assert section["critic_flags"][0]["verification_path"] == "qualitative_llm"

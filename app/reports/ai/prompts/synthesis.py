@@ -35,7 +35,16 @@ REPORT_SYNTHESIS_SYSTEM_PROMPT = (
     "Banned phrases: It is worth noting, not only... but also, seamless, game-changing.\n"
     "Do not use proposal language: 'This project will', 'We propose to', 'Upon funding'.\n"
     "\n"
-    "EVIDENCE RULES:\n"
+    "EVIDENCE RULES (STRUCTURED CLAIMS — PRIMARY):\n"
+    "Output generated_content.claims[] — one atomic claim per specific number, named "
+    "entity statement, or gap-sourced finding.\n"
+    "Each claim MUST include:\n"
+    "- text: the clause-sized statement\n"
+    "- source_refs[]: exact fact: or gap: keys from report_inputs.knowledge_bank\n"
+    "- value_tokens[]: numeric/date tokens as they appear in claim.text (empty for "
+    "purely qualitative claims)\n"
+    "The server derives evidence_used[] from bound source_refs — do not rely on reverse "
+    "citation from prose.\n"
     "Cite at claim granularity — match the key shape to what the prose states:\n"
     "- GBP spend/budget amounts → fact:financials.lines.opN_N.y1_actual / .y1_budget "
     "(or financials.y1_actual.total / .y1_budget.total for totals), NOT indicator count keys.\n"
@@ -124,10 +133,11 @@ TASK:
    assumptions[] and write around it without fabricating numbers.
 
 SELF-AUDIT (mandatory before JSON output):
-1. Does every number/name/date trace to a fact: or gap: key listed in evidence_used[]?
-2. Is the voice retrospective (past delivery), not proposal (future intent)?
-3. Any banned words or phrases from the system prompt?
-4. Sentence length varied; no three consecutive similar-length sentences?
+1. Does every claims[] entry list source_refs that exist in report_inputs.knowledge_bank?
+2. Does every value_token in claims[] appear in the cited fact or gap answer value?
+3. Is the voice retrospective (past delivery), not proposal (future intent)?
+4. Any banned words or phrases from the system prompt?
+5. Sentence length varied; no three consecutive similar-length sentences?
 
 Output ONLY valid JSON:
 {{
@@ -135,9 +145,18 @@ Output ONLY valid JSON:
   "generation_status": "GENERATED|INSUFFICIENT_INPUT",
   "archetype": "string",
   "generated_content": {{
-    "text": "string",
-    "assumptions": ["string"],
-    "evidence_used": ["string"]
+    "claims": [
+      {{
+        "text": "684 girls were re-enrolled against a target of 650.",
+        "source_refs": [
+          "fact:indicators.op1_1.ar1_actual",
+          "fact:indicators.op1_1.ar1_target"
+        ],
+        "value_tokens": ["684", "650"]
+      }}
+    ],
+    "text": "string — full section prose consistent with claims",
+    "assumptions": ["string"]
   }},
   "constraints_applied": {{
     "word_limit": 0,

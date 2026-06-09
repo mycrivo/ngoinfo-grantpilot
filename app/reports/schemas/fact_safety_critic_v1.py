@@ -55,11 +55,13 @@ def critic_flag_from_specific(item: FactSafetySpecificResult) -> dict[str, Any]:
 
 
 def unverified_section_flag(*, reason: str) -> dict[str, Any]:
-    return CriticFlagEntry(
-        claim_text="[section unverified]",
-        severity="BLOCK",
-        reason=reason,
-        source_required=True,
-        accepted=False,
-        accepted_at=None,
-    ).model_dump(mode="json")
+    return {
+        "claim_text": "[section unverified]",
+        "severity": "BLOCK",
+        "reason": reason,
+        "source_required": True,
+        "accepted": False,
+        "accepted_at": None,
+        "source_ref": None,
+        "verification_path": "qualitative_llm",
+    }

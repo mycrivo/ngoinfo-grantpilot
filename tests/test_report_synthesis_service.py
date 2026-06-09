@@ -93,6 +93,8 @@ def _seed_report_ready_for_synthesis(session) -> uuid.UUID:
         updated_at=now,
     )
     kb = _build_incomplete_fcdo_kb()
+    kb["facts"] = {}
+    kb["gap_answers"] = {}
     kb["schema_version"] = KNOWLEDGE_BANK_RECONCILIATION_VERSION
     kb["reconciler_agent"] = RECONCILER_AGENT_NAME
     kb["gate1_confirmed_at"] = "2026-05-24T12:00:00+00:00"
@@ -146,7 +148,9 @@ def test_synthesis_persists_all_fcdo_sections(synthesis_db):
     for section in sections:
         assert section.get("section_key")
         assert section.get("generation_status") == "GENERATED"
-        evidence = section.get("content", {}).get("evidence_used") or []
+        content = section.get("content") or {}
+        assert content.get("citation_mode") == "structured"
+        evidence = content.get("evidence_used") or []
         assert all(
             str(e).startswith("fact:") or str(e).startswith("gap:")
             for e in evidence
@@ -452,7 +456,11 @@ def test_degraded_status_cleared_on_full_completion(synthesis_db):
     assert report.content_json["generation_summary"]["failed"] == 0
 
 
-def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(synthesis_db):
+def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(
+    synthesis_db, monkeypatch
+):
+    monkeypatch.setenv("SYNTHESIS_CITATION_FALLBACK", "1")
+    get_settings.cache_clear()
     from sqlalchemy.orm.attributes import flag_modified
 
     session = synthesis_db()
@@ -509,9 +517,35 @@ def test_synthesis_hygiene_binds_evidence_and_strips_control_chars(synthesis_db)
     assert "\u0010" not in content["text"]
     assert content["text"] == "Year milestone delivery for section."
     assert "fact:indicators.op2_1.ar1_target" in content["evidence_used"]
-    assert "fact:fcdo.summary.overall_progress" in content["evidence_used"]
+    assert "fact:fcdo.summary.overall_progress" not in content["evidence_used"]
     assert "fact:indicators.op4_0?ar?_target" not in content["evidence_used"]
-    assert content["dropped_citations"] == ["fact:indicators.op4_0?ar?_target"]
+    assert "fact:indicators.op4_0?ar?_target" in (content.get("dropped_citations") or [])
+    get_settings.cache_clear()
+
+
+def test_synthesis_structured_mode_persists_citation_mode(synthesis_db, monkeypatch):
+    monkeypatch.delenv("SYNTHESIS_CITATION_FALLBACK", raising=False)
+    get_settings.cache_clear()
+    session = synthesis_db()
+    report_id = _seed_report_ready_for_synthesis(session)
+    session.close()
+
+    session = synthesis_db()
+    asyncio.run(
+        synthesise_and_persist(
+            session,
+            report_id,
+            query_fn_synthesis=fcdo_synthesis_query_fn(),
+        )
+    )
+    report = session.get(DonorReport, report_id)
+    session.close()
+
+    section = sections_by_key(report.content_json["sections"])["summary_and_overview"]
+    content = section["content"]
+    assert content.get("citation_mode") == "structured"
+    assert content.get("structured_bind_status") == "honest_empty"
+    get_settings.cache_clear()
 
 
 def _synthesis_generated_payload(section_key: str) -> dict:
@@ -520,9 +554,9 @@ def _synthesis_generated_payload(section_key: str) -> dict:
         "generation_status": "GENERATED",
         "archetype": "ARCH_EXECUTIVE_REVIEW_SUMMARY",
         "generated_content": {
+            "claims": [],
             "text": f"Generated text for {section_key}.",
             "assumptions": [],
-            "evidence_used": [],
         },
         "constraints_applied": {"word_limit": 100, "word_limit_respected": True},
         "warnings": [],

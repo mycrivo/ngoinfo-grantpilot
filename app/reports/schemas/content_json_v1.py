@@ -15,6 +15,10 @@ def build_generated_section(
     evidence_used: list[str],
     word_limit: int,
     word_limit_respected: bool,
+    claims: list[dict[str, Any]] | None = None,
+    citation_mode: str | None = None,
+    omitted_claims: list[dict[str, Any]] | None = None,
+    structured_bind_status: str | None = None,
     dropped_citations: list[str] | None = None,
     remapped_citations: list[dict[str, str]] | None = None,
     auto_citations: list[str] | None = None,
@@ -24,6 +28,14 @@ def build_generated_section(
         "assumptions": assumptions,
         "evidence_used": evidence_used,
     }
+    if claims is not None:
+        content["claims"] = claims
+    if citation_mode:
+        content["citation_mode"] = citation_mode
+    if omitted_claims:
+        content["omitted_claims"] = omitted_claims
+    if structured_bind_status:
+        content["structured_bind_status"] = structured_bind_status
     if dropped_citations:
         content["dropped_citations"] = dropped_citations
     if remapped_citations:

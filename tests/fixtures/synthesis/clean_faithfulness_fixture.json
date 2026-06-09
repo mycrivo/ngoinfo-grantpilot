@@ -1,0 +1,103 @@
+{
+  "description": "CLEAN docset faithfulness fixture — distilled from walk 491fc230 (FCDO BridgeLight AR1).",
+  "content_json": {
+    "sections": [
+      {
+        "section_key": "summary_and_overview",
+        "label": "A. Summary and Overview",
+        "generation_status": "GENERATED",
+        "content": {
+          "citation_mode": "structured",
+          "structured_bind_status": "bound",
+          "text": "Re-enrolment exceeded the AR1 milestone, with 684 girls re-enrolled against a target of 650. Remedial learning reached 438 girls completing sessions against a target of 420.",
+          "claims": [
+            {
+              "text": "684 girls were re-enrolled against a target of 650.",
+              "source_refs": [
+                "fact:indicators.op1_1.ar1_actual",
+                "fact:indicators.op1_1.ar1_target"
+              ],
+              "value_tokens": ["684", "650"],
+              "bind_status": "bound"
+            },
+            {
+              "text": "438 girls completed remedial sessions against a target of 420.",
+              "source_refs": [
+                "fact:indicators.op1_3.ar1_actual",
+                "fact:indicators.op1_3.ar1_target"
+              ],
+              "value_tokens": ["438", "420"],
+              "bind_status": "bound"
+            }
+          ],
+          "evidence_used": [
+            "fact:indicators.op1_1.ar1_actual",
+            "fact:indicators.op1_1.ar1_target",
+            "fact:indicators.op1_3.ar1_actual",
+            "fact:indicators.op1_3.ar1_target"
+          ],
+          "assumptions": [],
+          "omitted_claims": []
+        }
+      },
+      {
+        "section_key": "detailed_output_scoring",
+        "label": "C. Detailed Output Scoring",
+        "generation_status": "GENERATED",
+        "content": {
+          "citation_mode": "structured",
+          "structured_bind_status": "bound",
+          "text": "Latrine delivery reached 31 stances against a target of 24. Attendance reached 472 girls against a target of 500.",
+          "claims": [
+            {
+              "text": "31 lockable latrine stances were delivered against a target of 24.",
+              "source_refs": [
+                "fact:indicators.op2_1.ar1_actual",
+                "fact:indicators.op2_1.ar1_target"
+              ],
+              "value_tokens": ["31", "24"],
+              "bind_status": "bound"
+            },
+            {
+              "text": "472 girls attended at least 80% of school days against a target of 500.",
+              "source_refs": [
+                "fact:indicators.op1_2.ar1_actual",
+                "fact:indicators.op1_2.ar1_target"
+              ],
+              "value_tokens": ["472", "500"],
+              "bind_status": "bound"
+            }
+          ],
+          "evidence_used": [
+            "fact:indicators.op2_1.ar1_actual",
+            "fact:indicators.op2_1.ar1_target",
+            "fact:indicators.op1_2.ar1_actual",
+            "fact:indicators.op1_2.ar1_target"
+          ],
+          "assumptions": [],
+          "omitted_claims": []
+        }
+      },
+      {
+        "section_key": "recommendations_and_actions",
+        "label": "H. Recommendations",
+        "generation_status": "GENERATED",
+        "content": {
+          "citation_mode": "structured",
+          "structured_bind_status": "honest_empty",
+          "text": "Specific recommendations for the next period were not available in submitted citable records for this review.",
+          "claims": [],
+          "evidence_used": [],
+          "assumptions": [
+            "No citable gap answers supplied recommendations for this section."
+          ],
+          "omitted_claims": []
+        }
+      }
+    ]
+  },
+  "expected_presence": {
+    "summary_and_overview": ["684", "650", "438", "420"],
+    "detailed_output_scoring": ["31", "24", "472", "500"]
+  }
+}

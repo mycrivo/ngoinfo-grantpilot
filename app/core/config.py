@@ -59,6 +59,7 @@ class Settings(BaseSettings):
 
     ME_MODULE_ENABLED: bool = False
     ME_SYNTHESIS_MAX_CONCURRENCY: int = 2
+    SYNTHESIS_CITATION_FALLBACK: bool = False
     ME_DOCUMENTS_S3_ENDPOINT: str = ""
     ME_DOCUMENTS_S3_ACCESS_KEY: str = ""
     ME_DOCUMENTS_S3_SECRET: str = ""

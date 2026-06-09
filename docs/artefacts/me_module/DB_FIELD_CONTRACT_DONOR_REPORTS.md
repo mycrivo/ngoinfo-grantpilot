@@ -183,7 +183,24 @@ Mirrors proposal `content_json` section pattern with critic extensions:
       "content": {
         "text": "string",
         "assumptions": ["string"],
-        "evidence_used": ["string"]
+        "evidence_used": ["string — server-derived from bound claims when structured"],
+        "claims": [
+          {
+            "text": "string",
+            "source_refs": ["fact:key"],
+            "value_tokens": ["string"],
+            "bind_status": "bound | omitted_numeric | dropped_refs"
+          }
+        ],
+        "citation_mode": "structured | legacy_fallback",
+        "structured_bind_status": "bound | honest_empty",
+        "omitted_claims": [
+          {
+            "original_text": "string",
+            "reason": "string",
+            "value_tokens": ["string"]
+          }
+        ]
       },
       "critic_flags": [
         {
@@ -192,7 +209,9 @@ Mirrors proposal `content_json` section pattern with critic extensions:
           "reason": "string",
           "source_required": true,
           "accepted": false,
-          "accepted_at": "ISO-8601 or null"
+          "accepted_at": "ISO-8601 or null",
+          "source_ref": "fact:key or gap:key or null (optional)",
+          "verification_path": "deterministic_numeric | qualitative_llm | p1_3_fence (optional, P1-2+)"
         }
       ],
       "failure_reason": "string or null",
