@@ -1,8 +1,8 @@
 # P3 Phase exit — owner session pack
 
 **Plan:** Phase 3 — Durable and Excellent (Plan v2)  
-**Status:** Phase B **B1 complete** — STOP for `GO MUTATION` (B2/B3/B4 pending)  
-**Baseline after Phase 3:** `6ff999a` (hold-clearance) + Phase B commits pending push
+**Status:** Phase B **B1 re-staged** — [`P3_B1_RESTAGE_PACK.md`](P3_B1_RESTAGE_PACK.md); **`GO MUTATION` withheld** (prior staging superseded)  
+**Baseline after Phase 3:** `300b430` + re-stage commit pending push
 
 ---
 
@@ -144,7 +144,7 @@ python scripts/audit/offline_replay.py --fixture
 | R1 RED cleanup | Done | distill → committed fixture; `_probe_leak.py` removed |
 | NLCF regression pin | Active in CI | `nlcf_regression_pin_e7fa9bee.json`, `G-nlcf-gap-regression-pin` |
 | H5 fence note | Ratified | `ME_MODULE_DECISION_LOG.md` 2026-06-11 entry |
-| B1 snapshot + staging | Done | [`P3_B1_MUTATION_STAGING.md`](P3_B1_MUTATION_STAGING.md) |
-| B2 mutation | **Awaiting `GO MUTATION`** | — |
-| B3 live walks | Pending B2 | Test account: `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org` |
+| B1 snapshot + staging | **Superseded** → re-staged | [`P3_B1_RESTAGE_PACK.md`](P3_B1_RESTAGE_PACK.md) — one-op + two-step artefacts |
+| B2 mutation | **Awaiting `GO MUTATION`** (withheld) | Bind `fcdo_55f891ac_intended_post_mutation_2026-06-11.json` for one-op |
+| B3 live walks | Pending B2 | FCDO account: `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org`; **NLCF: default docset** (proposal + award + monitoring) per regression pin basis |
 | B4 evidence bundle | Pending B3 | — |

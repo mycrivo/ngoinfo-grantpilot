@@ -1,5 +1,7 @@
 # P3 Phase B — B1 mutation staging (STOP: await GO MUTATION)
 
+> **SUPERSEDED** by [`P3_B1_RESTAGE_PACK.md`](P3_B1_RESTAGE_PACK.md) (2026-06-11). Prior staging applied tag-overlay model (8 sections unchanged) — **does not match** owner decision of record. Do not use for mutation.
+
 **Date:** 2026-06-11  
 **Owner tokens received:** `GO PHASE B` · NLCF regression pin ratified · Holds 1/2/5/6 cleared  
 **Phase:** B1 complete (read-only prod) — **B2 not executed**

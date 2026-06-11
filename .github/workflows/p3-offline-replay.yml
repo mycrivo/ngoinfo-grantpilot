@@ -35,6 +35,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/grantpilot_test
         run: alembic upgrade head
+      - name: B1 rollback proof (scratch Postgres)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/grantpilot_test
+          PYTHONPATH: ${{ github.workspace }}
+        run: python scripts/audit/b1_rollback_execute.py --proof
 
   offline-replay:
     runs-on: ubuntu-latest
