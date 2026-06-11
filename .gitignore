@@ -15,3 +15,11 @@ htmlcov/
 dist/
 build/
 ~$*
+
+# P3 hold-clearance — local-only residues (see P3_CLOSURE_AUDIT_PACK.md H6)
+docs/artefacts/me_module/audits/dynamic_run/
+me_capture/
+scripts/_audit_out.txt
+scripts/_check_report_status.py
+scripts/_poll_report_job.py
+scripts/audit/_probe_leak.py
