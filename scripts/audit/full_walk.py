@@ -78,7 +78,9 @@ def main() -> int:
         print(f"RESUME report_id={report_id} owner={email}", flush=True)
         snapshots["after_reconcile"] = C.db_capture(report_id)
     else:
-        email = f"audit-{run}-{int(time.time())}@grantpilot-test.org"
+        email = os.environ.get("AUDIT_EMAIL") or (
+            f"audit-{run}-{int(time.time())}@grantpilot-test.org"
+        )
         session = C.mint_session(email, plan=plan, full_name=f"Audit {run}")
         report = C.create_report(session, template_id=template_id)
         report_id = report["id"]

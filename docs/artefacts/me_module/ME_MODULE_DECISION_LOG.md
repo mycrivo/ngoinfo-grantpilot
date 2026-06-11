@@ -199,3 +199,11 @@ Context: walk `e7fa9bee`; owner line `NLCF RATIFIED: regression pin`.
 3. **Typing parity queued** — `budget_vs_actual` table vs indicator typing not enforced in pin gate until follow-up.
 4. **Fixture** — `tests/fixtures/gap/keys/nlcf_regression_pin_e7fa9bee.json`; offline replay `--nlcf-pin`.
 ---
+DECISION (2026-06-11) — Phase B exec: purge in-flight test reports + one-op template replace.
+Context: Owner exec 2026-06-11; supersedes M1–M4 re-stage order and staged 8-delta intent.
+
+1. **B2a authorized** — delete all `donor_reports` + `report_jobs` (+ FK children) referencing template `55f891ac` at execution time; guard stops on any owner email outside audit-mint `@grantpilot-test.org` or `pranabksingh@gmail.com`; pre-delete JSON dump; usage_ledger untouched; R2 objects deleted via storage lifecycle path with failures listed.
+2. **B2b authorized** — full JSONB replace from committed `tests/fixtures/templates/fcdo_55f891ac_post_deletion_v1.2.0.json` (6 sections, kill-list absent, 30/30 v1.2.0 tags); rollback from snapshot `aa6c9926…` ready before UPDATE; in-transaction read-back verification.
+3. **Rationale** — all in-flight rows are owner test data; funder-owned template rows leave the DB ahead of multi-funder scaling.
+4. **Artefacts** — `scripts/audit/b2_phase_exec.py`, `scripts/audit/build_fcdo_post_deletion_template.py`.
+---
