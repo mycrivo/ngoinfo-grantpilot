@@ -1,8 +1,9 @@
 # P3-1 package report — Eval harness + FCDO gates
 
 **Package:** P3-1  
-**Status:** Shipped (pending CI run ID after push)  
-**Baseline:** `ab66dd9` → this commit
+**Status:** Shipped  
+**Commit:** `bd72572`  
+**CI:** smoke [27342062753](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27342062753), offline-replay [27342064122](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27342064122)
 
 ## Shipped
 

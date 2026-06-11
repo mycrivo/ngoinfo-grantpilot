@@ -99,7 +99,7 @@ python scripts/audit/offline_replay.py --fixture
 | Package | Run ID | Notes |
 |---------|--------|-------|
 | P3-0 | 27341189633 | Closure smoke @ `ab66dd9` |
-| P3-1..6 | _pending_ | smoke-test + p3-offline-replay on push |
+| P3-1..6 | 27342062753 (smoke), 27342064122 (offline-replay) | @ `bd72572` |
 
 ---
 
