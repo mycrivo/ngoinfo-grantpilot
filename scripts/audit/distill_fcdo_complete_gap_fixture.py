@@ -16,30 +16,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-WALK_PATH = (
-    ROOT
-    / "docs"
-    / "artefacts"
-    / "me_module"
-    / "audits"
-    / "dynamic_run"
-    / "walk_fcdo_full_3347590c.json"
-)
-FCDO_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_FCDO.json"
-OUTPUT_PATH = (
+COMMITTED_KB_FIXTURE = (
     ROOT / "tests" / "fixtures" / "gap" / "fcdo_complete_3347590c_knowledge_bank.json"
 )
+FCDO_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_FCDO.json"
+OUTPUT_PATH = COMMITTED_KB_FIXTURE
 EXPECTED_GAPS_PATH = (
     ROOT / "tests" / "fixtures" / "gap" / "fcdo_complete_3347590c_expected_gaps.json"
 )
 
 SOURCE_REPORT_ID = "3347590c-5b4f-4443-8a3d-a5ae455932e2"
-SOURCE_WALK = "walk_fcdo_full_3347590c.json"
+SOURCE_FIXTURE = "tests/fixtures/gap/fcdo_complete_3347590c_knowledge_bank.json"
 
 
-def _load_kb_slice() -> dict:
-    walk = json.loads(WALK_PATH.read_text(encoding="utf-8"))
-    return walk["snapshots"]["after_gap"]["report"]["knowledge_bank_json"]
+def _load_kb_slice(*, walk_path: Path | None = None) -> dict:
+    if walk_path is not None and walk_path.exists():
+        walk = json.loads(walk_path.read_text(encoding="utf-8"))
+        return walk["snapshots"]["after_gap"]["report"]["knowledge_bank_json"]
+    fixture = json.loads(COMMITTED_KB_FIXTURE.read_text(encoding="utf-8"))
+    return fixture["knowledge_bank_json"]
 
 
 def _build_fixture(kb: dict) -> dict:
@@ -50,7 +45,7 @@ def _build_fixture(kb: dict) -> dict:
             "(Gate-1 confirmed, empty gap_answers). No synthetic backfill."
         ),
         "source_report_id": SOURCE_REPORT_ID,
-        "source_walk": SOURCE_WALK,
+        "source_walk": SOURCE_FIXTURE,
         "distilled_at": datetime.now(timezone.utc).isoformat(),
         "fact_count": len(facts),
         "knowledge_bank_json": kb,
@@ -90,16 +85,22 @@ def main() -> int:
         action="store_true",
         help="Print fixture JSON to stdout instead of writing file",
     )
+    parser.add_argument(
+        "--walk",
+        type=Path,
+        default=None,
+        help="Optional local walk JSON (default: committed KB fixture)",
+    )
     args = parser.parse_args()
 
-    kb = _load_kb_slice()
+    kb = _load_kb_slice(walk_path=args.walk)
     fixture = _build_fixture(kb)
 
     if args.probe_gaps:
         gaps = asyncio.run(_probe_gaps(kb))
         sidecar = {
             "source_report_id": SOURCE_REPORT_ID,
-            "source_walk": SOURCE_WALK,
+            "source_walk": SOURCE_FIXTURE,
             "probed_at": datetime.now(timezone.utc).isoformat(),
             "open_items_count": len(gaps),
             "expected_missing": [

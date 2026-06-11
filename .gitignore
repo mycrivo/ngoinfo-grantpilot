@@ -22,4 +22,3 @@ me_capture/
 scripts/_audit_out.txt
 scripts/_check_report_status.py
 scripts/_poll_report_job.py
-scripts/audit/_probe_leak.py
