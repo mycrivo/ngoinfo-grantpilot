@@ -460,5 +460,5 @@ EXIT=1
 
 | Workflow | Run ID | Notes |
 |----------|--------|-------|
-| smoke-test | *(fill after push)* | must show `P3-4 hard_red faithfulness gates (blocking)` step |
-| p3-offline-replay | *(fill after push)* | same hard_red step |
+| smoke-test | [27348215767](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215767) | push @ `e29c89e`; includes `P3-4 hard_red faithfulness gates (blocking)` step |
+| p3-offline-replay | [27348215676](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215676) | push @ `e29c89e`; same hard_red step |
