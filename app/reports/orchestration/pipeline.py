@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass, field
+import os
 from datetime import datetime, timezone
 from typing import Any, Callable
 
@@ -33,7 +34,12 @@ from app.reports.services.knowledge_bank_reconciliation_service import (
     KnowledgeBankReconciliationServiceError,
     reconcile_and_persist,
 )
-from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
+from app.reports.gap.post_draft_gaps import run_post_draft_gap_analysis
+from app.reports.schemas.gap_compliance_v1 import (
+    GapComplianceAgentTrace,
+    GapCompliancePersistedEnvelope,
+    envelope_to_gap_analysis_json,
+)
 from app.reports.services.gate_preconditions import (
     require_gate1_confirmed,
     require_gate2_confirmed,
@@ -53,6 +59,10 @@ from app.reports.services.report_synthesis_service import (
 )
 
 logger = logging.getLogger("reports.orchestration.pipeline")
+
+
+def _draft_first_gap_enabled() -> bool:
+    return os.getenv("ME_DRAFT_FIRST_GAP", "").strip().lower() in {"1", "true", "yes"}
 
 
 @dataclass
@@ -176,6 +186,52 @@ async def _run_gap_stage(
         "format_rules_json": template.format_rules_json,
         "terminology_map_json": template.terminology_map_json,
     }
+    report_context = (report.gap_analysis_json or {}).get("report_context") or {
+        "report_type": "annual"
+    }
+
+    if _draft_first_gap_enabled():
+        try:
+            synth_outcome = await dispatch_stage(
+                synthesise_and_persist(
+                    session,
+                    job.donor_report_id,
+                    query_fn_synthesis=ctx.query_fn_synthesis,
+                    synthesis_mode="draft",
+                ),
+                stage=ReportJobStage.SYNTHESISE.value,
+            )
+        except ReportSynthesisServiceError as exc:
+            raise StageFailure(stage, exc.message) from exc
+        synth_result = synth_outcome.result
+        session.refresh(report)
+        structured = run_post_draft_gap_analysis(
+            content_json=report.content_json or {},
+            knowledge_bank_json=report.knowledge_bank_json or {},
+            template_payload=template_payload,
+            report_context=report_context,
+        )
+        now = datetime.now(timezone.utc)
+        envelope = GapCompliancePersistedEnvelope(
+            analyzed_at=now,
+            report_context=report_context,
+            structured=structured,
+            agent_trace=GapComplianceAgentTrace(
+                model_used="post_draft_deterministic",
+                attempt_count=1,
+            ),
+        )
+        report.gap_analysis_json = envelope_to_gap_analysis_json(envelope)
+        gap_trace = {
+            "completed_at": now.isoformat(),
+            "open_items_count": structured.open_items_count,
+            "gap_count": len(structured.gaps),
+            "degraded": synth_result.degraded if synth_result else False,
+            "draft_first": True,
+            "readiness_basis": structured.readiness_basis,
+        }
+        _halt_gate2(session, job, report, gap_trace=gap_trace)
+        return
 
     outcome = await dispatch_stage(
         run_gap_compliance(
@@ -189,7 +245,7 @@ async def _run_gap_stage(
     report.gap_analysis_json = envelope_to_gap_analysis_json(result.envelope)
     gap_trace = {
         "completed_at": datetime.now(timezone.utc).isoformat(),
-        "readiness_score": result.envelope.structured.readiness_score,
+        "open_items_count": result.envelope.structured.open_items_count,
         "gap_count": len(result.envelope.structured.gaps),
         "degraded": outcome.degraded,
     }

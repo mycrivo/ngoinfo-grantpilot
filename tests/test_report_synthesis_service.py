@@ -136,13 +136,13 @@ def test_synthesis_persists_all_fcdo_sections(synthesis_db):
     report = session.get(DonorReport, report_id)
     session.close()
 
-    assert result.section_count == 8
-    assert result.generated == 8
+    assert result.section_count == 6
+    assert result.generated == 6
     assert result.failed == 0
     assert report is not None
     assert report.status != "DEGRADED"
     sections = report.content_json.get("sections") or []
-    assert len(sections) == 8
+    assert len(sections) == 6
     by_key = sections_by_key(sections)
     assert "summary_and_overview" in by_key
     for section in sections:
@@ -175,7 +175,7 @@ def test_single_section_failure_degrades_others_persist(synthesis_db):
     report = session.get(DonorReport, report_id)
     session.close()
 
-    assert result.generated == 7
+    assert result.generated == 5
     assert result.failed == 1
     assert result.degraded is True
     assert report.status == "DEGRADED"
@@ -241,7 +241,7 @@ def test_synthesis_resume_skips_already_generated(synthesis_db):
 
 
 def test_synthesis_resume_regenerates_only_failed_sections(synthesis_db):
-    fail_keys = {"performance_and_conclusions", "value_for_money"}
+    fail_keys = {"performance_and_conclusions"}
     base = fcdo_synthesis_query_fn()
 
     session = synthesis_db()
@@ -280,7 +280,7 @@ def test_synthesis_resume_regenerates_only_failed_sections(synthesis_db):
     session.close()
 
     assert set(called_keys) == fail_keys
-    assert len(second_by_key) == 8
+    assert len(second_by_key) == 6
     for key, text in preserved_texts.items():
         assert second_by_key[key]["content"]["text"] == text
     for key in fail_keys:
@@ -438,7 +438,7 @@ def test_degraded_status_cleared_on_full_completion(synthesis_db):
         synthesise_and_persist(
             session,
             report_id,
-            query_fn_synthesis=_fail_sections_query_fn(base, {"value_for_money"}),
+            query_fn_synthesis=_fail_sections_query_fn(base, {"performance_and_conclusions"}),
         )
     )
     report = session.get(DonorReport, report_id)

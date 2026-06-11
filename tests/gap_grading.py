@@ -20,6 +20,16 @@ def _gap_identity(gap: dict[str, Any]) -> tuple[str, str, str]:
     )
 
 
+def _data_gap_count(gaps: list[Any]) -> int:
+    count = 0
+    for gap in gaps:
+        if not isinstance(gap, dict):
+            continue
+        if (gap.get("requirement_type") or "data") == "data":
+            count += 1
+    return count
+
+
 def grade_gap_compliance(
     gap_analysis: dict[str, Any],
     *,
@@ -40,11 +50,16 @@ def grade_gap_compliance(
     if not isinstance(gaps, list):
         return ["gaps must be a list"]
 
-    readiness = gap_analysis.get("readiness_score")
-    if readiness is None:
-        errors.append("missing readiness_score")
-    elif not isinstance(readiness, int) or readiness < 0 or readiness > 100:
-        errors.append(f"invalid readiness_score: {readiness!r}")
+    open_items = gap_analysis.get("open_items_count")
+    data_gap_count = _data_gap_count(gaps)
+    if open_items is None:
+        errors.append("missing open_items_count")
+    elif not isinstance(open_items, int) or open_items < 0:
+        errors.append(f"invalid open_items_count: {open_items!r}")
+    elif open_items != data_gap_count:
+        errors.append(
+            f"open_items_count {open_items} != data gap count {data_gap_count}"
+        )
 
     expected_identities = {
         (
@@ -76,7 +91,7 @@ def grade_gap_compliance(
         errors.append(f"too many gaps: {len(gaps)} > {max_gaps}")
 
     derived_missing = unsatisfied_requirements(requirements, knowledge_bank_json)
-    derived_identities = {req.identity for req in derived_missing}
+    derived_identities = {req.identity for req in derived_missing if req.requirement_type == "data"}
     logframe_missing = derive_missing_logframe_actuals(
         knowledge_bank_json,
         format_rules_json=format_rules_json,
@@ -91,8 +106,8 @@ def grade_gap_compliance(
         if gid not in derived_identities and gid not in expected_identities:
             errors.append(f"gap {gid!r} not derivable as unsatisfied from KB")
 
-    if expected_identities and readiness == 100:
-        errors.append("readiness_score 100 with expected missing items")
+    if expected_identities and open_items == 0:
+        errors.append("open_items_count 0 with expected missing items")
 
     if not expected_identities and gaps and max_gaps == 0:
         errors.append(f"complete bank should have no gaps, got {len(gaps)}")

@@ -23,7 +23,44 @@ from app.reports.services.gate_preconditions import (
 from app.reports.services.report_access import get_owned_donor_report
 
 
-def _missing_item_from_gap(gap: dict[str, Any]) -> GapCheckMissingItemResponse:
+def _confirm_existing_excerpt(
+    gap: dict[str, Any],
+    facts: dict[str, Any],
+) -> str | None:
+    if gap.get("suggested_action") != "confirm_existing":
+        return None
+    ref = str(gap.get("required_item_ref") or "")
+    ref_token = ref.replace("_", "").lower()
+    for fact_key, fact in facts.items():
+        if not isinstance(fact, dict):
+            continue
+        key_lower = str(fact_key).lower()
+        if ref_token and ref_token in key_lower.replace("_", ""):
+            excerpt = (fact.get("provenance") or {}).get("excerpt") or fact.get("value")
+            if excerpt:
+                return str(excerpt)[:500]
+    return None
+
+
+def _readiness_message(readiness_basis: str | None, unanswered: int) -> str:
+    if readiness_basis == "post_draft":
+        if unanswered == 0:
+            return "Your draft is ready to finalize."
+        if unanswered == 1:
+            return "1 item needs your input before we finalize the draft."
+        return f"{unanswered} items need your input before we finalize the draft."
+    if unanswered == 0:
+        return "All required data items are on file."
+    if unanswered == 1:
+        return "1 item needs your input before we can draft your report."
+    return f"{unanswered} items need your input before we can draft your report."
+
+
+def _missing_item_from_gap(
+    gap: dict[str, Any],
+    *,
+    facts: dict[str, Any] | None = None,
+) -> GapCheckMissingItemResponse:
     section_label = str(gap.get("section_label") or gap.get("section_key") or "")
     question = str(gap.get("question") or "")
     return GapCheckMissingItemResponse(
@@ -35,6 +72,10 @@ def _missing_item_from_gap(gap: dict[str, Any]) -> GapCheckMissingItemResponse:
         section_label=gap.get("section_label"),
         question=gap.get("question"),
         rationale=gap.get("rationale"),
+        owner=gap.get("owner"),
+        requirement_type=gap.get("requirement_type"),
+        suggested_action=gap.get("suggested_action"),
+        confirm_existing_excerpt=_confirm_existing_excerpt(gap, facts or {}),
     )
 
 
@@ -50,15 +91,21 @@ def get_gap_check(
     require_gate1_confirmed(report.knowledge_bank_json)
     surfaced = require_gap_analysis(report.gap_analysis_json)
     kb = report.knowledge_bank_json or {}
+    facts = kb.get("facts") or {}
     gap_answers = kb.get("gap_answers") or {}
     remaining = _remaining_gaps(surfaced, gap_answers)
     ga = report.gap_analysis_json or {}
+    readiness_basis = ga.get("readiness_basis")
     return {
         "donor_report_id": donor_report_id,
-        "readiness_score": int(ga.get("readiness_score") or 0),
+        "open_items_count": len(remaining),
         "ready_for_gate2": bool(ga.get("ready_for_gate2")),
-        "missing_items": [_missing_item_from_gap(gap).model_dump() for gap in remaining],
+        "missing_items": [
+            _missing_item_from_gap(gap, facts=facts).model_dump() for gap in remaining
+        ],
         "gate2_confirmed_at": kb.get("gate2_confirmed_at"),
+        "readiness_basis": readiness_basis,
+        "readiness_message": _readiness_message(readiness_basis, len(remaining)),
     }
 
 

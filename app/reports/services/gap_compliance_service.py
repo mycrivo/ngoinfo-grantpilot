@@ -86,9 +86,9 @@ async def run_gap_compliance_and_persist(
     db.refresh(report)
 
     logger.info(
-        "gap_compliance_persisted donor_report_id=%s readiness=%s gaps=%d",
+        "gap_compliance_persisted donor_report_id=%s open_items=%s gaps=%d",
         donor_report_id,
-        result.envelope.structured.readiness_score,
+        result.envelope.structured.open_items_count,
         len(result.envelope.structured.gaps),
     )
     return result

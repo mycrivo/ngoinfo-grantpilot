@@ -19,14 +19,20 @@ class GapCheckMissingItemResponse(BaseModel):
     section_label: str | None = None
     question: str | None = None
     rationale: str | None = None
+    owner: str | None = None
+    requirement_type: str | None = None
+    suggested_action: str | None = None
+    confirm_existing_excerpt: str | None = None
 
 
 class GapCheckResponse(BaseModel):
     donor_report_id: uuid.UUID
-    readiness_score: int = Field(ge=0, le=100)
+    open_items_count: int = Field(ge=0, default=0)
     ready_for_gate2: bool = False
     missing_items: list[GapCheckMissingItemResponse] = Field(default_factory=list)
     gate2_confirmed_at: str | None = None
+    readiness_basis: str | None = None
+    readiness_message: str | None = None
 
 
 class GapAnswerPatchInput(BaseModel):

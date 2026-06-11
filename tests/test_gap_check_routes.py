@@ -31,7 +31,7 @@ def _gap_analysis(*, gaps: list[dict]) -> dict:
         "schema_version": "1.0.0",
         "gap_agent": GAP_AGENT_NAME,
         "analyzed_at": "2026-05-24T12:00:00+00:00",
-        "readiness_score": 2,
+        "open_items_count": len(gaps),
         "ready_for_gate2": False,
         "gaps": gaps,
     }
@@ -68,7 +68,7 @@ def test_get_gap_check_returns_unanswered_gaps(monkeypatch):
     )
 
     payload = get_gap_check(db, donor_report_id=report_id, user_id=user_id)
-    assert payload["readiness_score"] == 2
+    assert payload["open_items_count"] == 1
     assert len(payload["missing_items"]) == 1
     assert payload["missing_items"][0]["item_key"] == gap_key
     assert payload["missing_items"][0]["question"] == "Please provide overall_progress"

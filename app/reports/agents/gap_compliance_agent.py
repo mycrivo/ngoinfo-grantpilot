@@ -26,6 +26,7 @@ from app.reports.gap.template_requirements import (
     TemplateRequirement,
     enumerate_template_requirements,
     merge_template_requirements,
+    ngo_data_gap_denominator,
 )
 from app.reports.schemas.gap_compliance_v1 import (
     GAP_AGENT_NAME,
@@ -74,7 +75,9 @@ CARDINAL RULES:
    the template JSON — do not use generic wording when the template supplies labels).
 6. Use the exact item_key, section_key, required_item_type, and required_item_ref from
    the checklist for every gap. Do not invent alternate keys.
-7. When derived.logframe_missing_actuals is non-empty, each listed indicator MUST appear
+7. NEVER emit gaps for narrative requirements or funder-owned/funder_supplied items —
+   those are excluded from the checklist.
+8. When derived.logframe_missing_actuals is non-empty, each listed indicator MUST appear
    as a gap using the supplied item_key and required_item_ref (logframe_row:opN_N). Name
    the OP indicator id (e.g. OP2.3) in the question and rationale.
 
@@ -237,9 +240,11 @@ def _validate_llm_output(
             f"Gap agent LLM output invalid: {exc}",
         ) from exc
     gaps = [GapComplianceGapItem.model_validate(g.model_dump()) for g in llm.gaps]
-    ready_for_gate2 = llm.readiness_score == 100 and not gaps
+    data_gaps = [g for g in gaps if (g.requirement_type or "data") == "data"]
+    open_items_count = len(data_gaps)
+    ready_for_gate2 = open_items_count == 0 and not gaps
     structured = GapComplianceOutput(
-        readiness_score=llm.readiness_score,
+        open_items_count=open_items_count,
         ready_for_gate2=ready_for_gate2,
         gaps=gaps,
     )
@@ -283,22 +288,14 @@ def _merge_deterministic_logframe_gaps(
         if gap.item_key not in by_key:
             by_key[gap.item_key] = gap
     merged = list(by_key.values())
-    readiness = structured.readiness_score
-    ready = structured.ready_for_gate2
-    if merged:
-        ready = False
-        if readiness == 100:
-            satisfied = max(0, checklist_non_section_count - len(merged))
-            readiness = max(
-                0,
-                int(round(100 * satisfied / max(checklist_non_section_count, 1))),
-            )
-    elif readiness == 100:
-        ready = True
+    data_gaps = [g for g in merged if (g.requirement_type or "data") == "data"]
+    open_items_count = len(data_gaps)
+    ready = open_items_count == 0 and not merged
     return GapComplianceOutput(
-        readiness_score=readiness,
+        open_items_count=open_items_count,
         ready_for_gate2=ready,
         gaps=merged,
+        readiness_basis=structured.readiness_basis,
     )
 
 
@@ -436,7 +433,7 @@ async def run_gap_compliance(
     logframe_requirements = missing_to_template_requirements(logframe_missing)
     requirements = merge_template_requirements(base_requirements, logframe_requirements)
     allowed_item_keys = {req.item_key for req in requirements}
-    checklist_non_section = len([r for r in requirements if r.required_item_type != "section"])
+    checklist_non_section = ngo_data_gap_denominator(requirements)
     deterministic_gaps = missing_to_gap_items(logframe_missing)
     deterministic_output = build_deterministic_gap_compliance_output(
         requirements=requirements,

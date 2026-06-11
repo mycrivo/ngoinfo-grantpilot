@@ -185,6 +185,8 @@ def missing_to_template_requirements(
             section_label=entry.section_label,
             required_item_type="indicator",
             required_item_ref=entry.required_item_ref,
+            owner="ngo",
+            requirement_type="data",
         )
         for entry in missing
     ]
@@ -226,6 +228,9 @@ def missing_to_gap_items(
             severity="required",
             question=_default_question(entry),
             rationale=_default_rationale(entry),
+            owner="ngo",
+            requirement_type="data",
+            suggested_action="provide",
         )
         for entry in missing
     ]

@@ -1,0 +1,17 @@
+{
+  "fixture": "fcdo_owner_tagged_slice",
+  "report_sections_json": [
+    {
+      "section_key": "detailed_output_scoring",
+      "label": "C. Detailed Output Scoring",
+      "required": true,
+      "owner": "funder",
+      "required_indicators": ["actual_results", "output_scores"],
+      "indicator_requirements": {
+        "actual_results": {"owner": "ngo", "requirement_type": "data"},
+        "output_scores": {"requirement_type": "funder_supplied"}
+      },
+      "required_tables": []
+    }
+  ]
+}

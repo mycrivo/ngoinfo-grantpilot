@@ -1445,7 +1445,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
 
 **PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
 
-Purpose: Gate 2 — readiness score + funder-aware missing items.
+Purpose: Gate 2 — open item count + funder-aware missing items.
 
 Auth: REQUIRED · Owner only
 
@@ -1454,7 +1454,7 @@ Response 200 (top-level):
 ```json
 {
   "donor_report_id": "uuid",
-  "readiness_score": 0,
+  "open_items_count": 0,
   "ready_for_gate2": false,
   "missing_items": [
     {
@@ -1465,7 +1465,9 @@ Response 200 (top-level):
       "section_key": "string or null"
     }
   ],
-  "gate2_confirmed_at": "ISO-8601 or null"
+  "gate2_confirmed_at": "ISO-8601 or null",
+  "readiness_basis": "ngo_data | post_draft or null",
+  "readiness_message": "string or null"
 }
 ```
 

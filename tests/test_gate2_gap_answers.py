@@ -51,7 +51,7 @@ def _gap_analysis(*, gaps: list[dict]) -> dict:
         "schema_version": "1.0.0",
         "gap_agent": GAP_AGENT_NAME,
         "analyzed_at": "2026-05-24T12:00:00+00:00",
-        "readiness_score": 50,
+        "open_items_count": 1,
         "gaps": gaps,
     }
 

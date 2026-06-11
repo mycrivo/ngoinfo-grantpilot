@@ -740,7 +740,9 @@ async def _call_anthropic_messages(
 
     input_tokens, output_tokens = _extract_token_counts(response.usage)
 
-    return "".join(text_parts), latency_ms, input_tokens, output_tokens
+    stop_reason = getattr(response, "stop_reason", None)
+
+    return "".join(text_parts), latency_ms, input_tokens, output_tokens, stop_reason
 
 
 
@@ -774,6 +776,8 @@ async def _run_reconciler_query(
 
     output_tokens: int | None = None
 
+    api_stop_reason: str | None = None
+
 
 
     if query_fn is not None:
@@ -787,6 +791,8 @@ async def _run_reconciler_query(
             is_error = bool(getattr(message, "is_error", False))
 
             stop_reason = getattr(message, "stop_reason", stop_reason)
+
+            api_stop_reason = stop_reason
 
             latency_ms = getattr(message, "duration_ms", latency_ms)
 
@@ -830,7 +836,7 @@ async def _run_reconciler_query(
 
     else:
 
-        text, latency_ms, input_tokens, output_tokens = await _call_anthropic_messages(
+        text, latency_ms, input_tokens, output_tokens, api_stop_reason = await _call_anthropic_messages(
 
             prompt,
 
@@ -934,7 +940,13 @@ async def _run_reconciler_query(
 
         conflicts_surfaced_count=len(structured.conflicts),
 
+        degraded_code="OUTPUT_TRUNCATED" if api_stop_reason == "max_tokens" else None,
+
     )
+
+    if api_stop_reason == "max_tokens":
+
+        structured.reconciliation_outcome = "degraded"
 
     envelope = KnowledgeBankReconciledEnvelope(
 
@@ -1120,7 +1132,9 @@ async def reconcile_documents(
 
     bundle = build_reconciliation_bundle(documents)
 
-    return await reconcile_bundle(
+    from app.reports.reconciliation.chunked_reconcile import reconcile_bundle_chunked
+
+    return await reconcile_bundle_chunked(
         bundle,
         query_fn=query_fn,
         model=model,

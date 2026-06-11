@@ -29,7 +29,8 @@ from app.reports.schemas.content_json_v1 import (
     section_needs_synthesis,
     sections_by_key,
 )
-from app.reports.services.gate_preconditions import require_gate2_confirmed
+from app.reports.gap.section_visibility import visible_sections_for_context
+from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
 from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
@@ -268,17 +269,6 @@ def _generate_one_section(
     )
 
 
-def _visible_sections(sections: list[Any]) -> list[dict[str, Any]]:
-    visible: list[dict[str, Any]] = []
-    for item in sections or []:
-        if not isinstance(item, dict):
-            continue
-        if not item.get("section_key"):
-            continue
-        visible.append(item)
-    return visible
-
-
 def _generate_all_sections(
     *,
     sections: list[dict[str, Any]],
@@ -354,6 +344,7 @@ async def synthesise_and_persist(
     donor_report_id,
     *,
     query_fn_synthesis: QueryFnSynthesis | None = None,
+    synthesis_mode: str = "final",
 ) -> ReportSynthesisStageResult:
     """Generate missing/failed template sections and merge into donor_reports.content_json."""
     report = db.get(DonorReport, donor_report_id)
@@ -363,10 +354,16 @@ async def synthesise_and_persist(
             f"Donor report {donor_report_id} not found",
         )
 
-    try:
-        require_gate2_confirmed(report.knowledge_bank_json)
-    except DomainError as exc:
-        raise ReportSynthesisServiceError("STOP_GATE2", exc.message) from exc
+    if synthesis_mode == "draft":
+        try:
+            require_gate1_confirmed(report.knowledge_bank_json)
+        except DomainError as exc:
+            raise ReportSynthesisServiceError("STOP_GATE1", exc.message) from exc
+    else:
+        try:
+            require_gate2_confirmed(report.knowledge_bank_json)
+        except DomainError as exc:
+            raise ReportSynthesisServiceError("STOP_GATE2", exc.message) from exc
 
     template = db.get(FunderReportTemplate, report.funder_report_template_id)
     if template is None:
@@ -375,7 +372,14 @@ async def synthesise_and_persist(
             "Funder template not found",
         )
 
-    template_sections = _visible_sections(template.report_sections_json or [])
+    report_context = (report.gap_analysis_json or {}).get("report_context") or {
+        "report_type": "annual"
+    }
+    template_sections = visible_sections_for_context(
+        template.report_sections_json or [],
+        report_context=report_context,
+        include_funder_owned=False,
+    )
     if not template_sections:
         raise ReportSynthesisServiceError(
             "STOP_NO_SECTIONS",
@@ -418,6 +422,10 @@ async def synthesise_and_persist(
             warnings=warnings,
         )
     )
+    if synthesis_mode == "draft":
+        content_json["synthesis_mode"] = "draft"
+    elif content_json.get("synthesis_mode") == "draft":
+        content_json["synthesis_mode"] = "final"
     report.content_json = content_json
 
     summary = content_json.get("generation_summary") or {}

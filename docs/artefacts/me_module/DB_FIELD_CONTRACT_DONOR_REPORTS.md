@@ -244,7 +244,7 @@ Written by E3 gap/compliance (`app/reports/schemas/gap_compliance_v1.py`). The p
 ```json
 {
   "schema_version": "1.0.0",
-  "readiness_score": 0,
+  "open_items_count": 0,
   "ready_for_gate2": false,
   "gaps": [
     {

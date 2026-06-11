@@ -11,6 +11,10 @@ GAP_COMPLIANCE_VERSION = "1.0.0"
 GAP_AGENT_NAME = "gap_compliance_agent"
 
 GapSeverity = Literal["required", "recommended"]
+RequirementOwner = Literal["ngo", "funder"]
+RequirementType = Literal["data", "narrative", "funder_supplied"]
+SuggestedAction = Literal["confirm_existing", "provide", "skip"]
+ReadinessBasis = Literal["ngo_data", "post_draft"]
 
 
 class GapComplianceGapItem(BaseModel):
@@ -22,6 +26,9 @@ class GapComplianceGapItem(BaseModel):
     severity: GapSeverity = "required"
     question: str = Field(min_length=1)
     rationale: str = Field(min_length=1)
+    owner: RequirementOwner | None = "ngo"
+    requirement_type: RequirementType | None = "data"
+    suggested_action: SuggestedAction | None = None
 
 
 class GapComplianceAgentTrace(BaseModel):
@@ -34,9 +41,10 @@ class GapComplianceAgentTrace(BaseModel):
 
 class GapComplianceOutput(BaseModel):
     schema_version: str = GAP_COMPLIANCE_VERSION
-    readiness_score: int = Field(ge=0, le=100)
+    open_items_count: int = Field(ge=0, default=0)
     ready_for_gate2: bool = False
     gaps: list[GapComplianceGapItem] = Field(default_factory=list)
+    readiness_basis: ReadinessBasis = "ngo_data"
 
 
 class GapCompliancePersistedEnvelope(BaseModel):
@@ -98,6 +106,11 @@ def validate_gap_compliance_output(
         seen.add(identity)
         if not gap.question.strip():
             errors.append(f"gap {gap.item_key!r} missing question")
-    if output.readiness_score == 100 and output.gaps:
-        errors.append("readiness_score 100 incompatible with non-empty gaps")
+    data_gaps = [g for g in output.gaps if (g.requirement_type or "data") == "data"]
+    if output.open_items_count != len(data_gaps):
+        errors.append(
+            f"open_items_count {output.open_items_count} != data gap count {len(data_gaps)}"
+        )
+    if output.open_items_count == 0 and output.gaps:
+        errors.append("open_items_count 0 incompatible with non-empty gaps")
     return errors

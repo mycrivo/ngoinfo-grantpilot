@@ -5,6 +5,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from app.reports.gap.requirement_metadata import (
+    RequirementOwner,
+    RequirementType,
+    is_ngo_checklist_item,
+    resolve_owner,
+    resolve_requirement_type,
+)
+from app.reports.gap.section_visibility import section_visible
+
 RequiredItemType = Literal["indicator", "table", "section"]
 
 
@@ -16,6 +25,8 @@ class TemplateRequirement:
     required_item_type: RequiredItemType
     required_item_ref: str
     severity: str = "required"
+    owner: RequirementOwner = "ngo"
+    requirement_type: RequirementType = "data"
 
     @property
     def identity(self) -> tuple[str, str, str]:
@@ -27,24 +38,14 @@ def _item_key(section_key: str, item_type: str, item_ref: str) -> str:
 
 
 def _section_visible(section: dict[str, Any], report_context: dict[str, Any]) -> bool:
-    if not section.get("required", True):
-        return False
-    conditional = section.get("conditional_display") or {}
-    if not conditional.get("enabled"):
-        return True
-    condition = conditional.get("condition")
-    if not condition:
-        return True
-    report_type = str(report_context.get("report_type", "annual"))
-    if condition.strip() == "report_type == 'final'":
-        return report_type == "final"
-    return True
+    return section_visible(section, report_context)
 
 
 def enumerate_template_requirements(
     report_sections_json: list[dict[str, Any]],
     *,
     report_context: dict[str, Any] | None = None,
+    ngo_checklist_only: bool = True,
 ) -> list[TemplateRequirement]:
     """Build the checklist E3 must evaluate (required sections, indicators, tables)."""
     ctx = report_context or {"report_type": "annual"}
@@ -56,6 +57,7 @@ def enumerate_template_requirements(
         section_label = section.get("label") or section_key
         if not section_key:
             continue
+        section_owner = resolve_owner(section)
         requirements.append(
             TemplateRequirement(
                 item_key=_item_key(section_key, "section", section_key),
@@ -63,9 +65,17 @@ def enumerate_template_requirements(
                 section_label=section_label,
                 required_item_type="section",
                 required_item_ref=section_key,
+                owner=section_owner,
+                requirement_type="narrative",
             )
         )
         for indicator_key in section.get("required_indicators") or []:
+            owner = resolve_owner(section, item_ref=indicator_key, item_type="indicator")
+            req_type = resolve_requirement_type(
+                section, item_ref=indicator_key, item_type="indicator"
+            )
+            if ngo_checklist_only and not is_ngo_checklist_item(owner, req_type):
+                continue
             requirements.append(
                 TemplateRequirement(
                     item_key=_item_key(section_key, "indicator", indicator_key),
@@ -73,6 +83,8 @@ def enumerate_template_requirements(
                     section_label=section_label,
                     required_item_type="indicator",
                     required_item_ref=indicator_key,
+                    owner=owner,
+                    requirement_type=req_type,
                 )
             )
         for table in section.get("required_tables") or []:
@@ -82,6 +94,12 @@ def enumerate_template_requirements(
             min_rows = table.get("min_rows") or 0
             if min_rows < 1:
                 continue
+            owner = resolve_owner(section, item_ref=table_key, item_type="table")
+            req_type = resolve_requirement_type(
+                section, item_ref=table_key, item_type="table"
+            )
+            if ngo_checklist_only and not is_ngo_checklist_item(owner, req_type):
+                continue
             requirements.append(
                 TemplateRequirement(
                     item_key=_item_key(section_key, "table", table_key),
@@ -89,6 +107,8 @@ def enumerate_template_requirements(
                     section_label=section_label,
                     required_item_type="table",
                     required_item_ref=table_key,
+                    owner=owner,
+                    requirement_type=req_type,
                 )
             )
     return requirements
@@ -107,3 +127,16 @@ def merge_template_requirements(
         merged.append(req)
         seen.add(req.item_key)
     return merged
+
+
+def ngo_data_gap_denominator(requirements: list[TemplateRequirement]) -> int:
+    """Count checklist items that contribute to NGO data-gap readiness."""
+    from app.reports.gap.requirement_metadata import is_ngo_data_gap_item
+
+    return len(
+        [
+            req
+            for req in requirements
+            if req.required_item_type != "section" and is_ngo_data_gap_item(req.requirement_type)
+        ]
+    )

@@ -77,6 +77,8 @@ class ReconciliationAgentTrace(BaseModel):
     parse_failure_response_length: int | None = None
     parse_failure_response_head: str | None = None
     parse_failure_response_tail: str | None = None
+    reconciliation_truncated_input: bool | None = None
+    truncated_candidate_ids: list[str] | None = None
 
 
 class KnowledgeBankReconciliationOutput(BaseModel):
