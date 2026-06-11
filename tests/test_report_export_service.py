@@ -196,8 +196,8 @@ def test_render_docx_follows_template_order_and_surface_labels(export_db):
     text = _docx_plaintext(docx_bytes)
     assert "A. Summary and Overview" in text
     assert "C. Detailed Output Scoring" in text
-    assert "A++" in text
-    assert "684" in text
+    assert "920,420" in text
+    assert "steady progress" in text
     assert "summary_and_overview" not in text
     assert "detailed_output_scoring" not in text
     assert "fact:" not in text
@@ -417,7 +417,7 @@ def test_download_route_returns_docx_for_owner(export_api):
         == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
     assert response.content.startswith(b"PK")
-    assert "684" in _docx_plaintext(response.content)
+    assert "920,420" in _docx_plaintext(response.content)
 
 
 def test_download_route_404_when_export_missing(export_api):

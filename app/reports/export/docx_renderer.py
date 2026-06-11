@@ -17,6 +17,10 @@ from app.core.docx_presentation import (
     apply_house_styles,
     strip_markdown_heading_prefix,
 )
+from app.reports.export.kb_table_renderer import (
+    table_headers_for_definition,
+    table_rows_for_definition,
+)
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -153,6 +157,8 @@ def render_donor_report_docx(
     template_name: str,
     ngo_name: str = "",
     generated_at: datetime | None = None,
+    knowledge_bank_json: dict[str, Any] | None = None,
+    gap_analysis_json: dict[str, Any] | None = None,
 ) -> tuple[bytes, str]:
     """
     Build export bytes and report which template path was used.
@@ -192,6 +198,7 @@ def render_donor_report_docx(
 
     subs = _terminology_substitutions(terminology_map_json)
     collected_assumptions: list[str] = []
+    kb_facts = dict((knowledge_bank_json or {}).get("facts") or {})
 
     for template_section in template_sections:
         if not isinstance(template_section, dict):
@@ -208,6 +215,16 @@ def render_donor_report_docx(
             table_label = strip_markdown_heading_prefix(str(table_def.get("label") or ""))
             if table_label:
                 document.add_heading(_apply_terminology(table_label, subs), level=2)
+            kb_rows = table_rows_for_definition(
+                table_def=table_def,
+                facts=kb_facts,
+                format_rules_json=format_rules_json,
+                gap_analysis=gap_analysis_json,
+            )
+            if kb_rows:
+                header = table_headers_for_definition(table_def)
+                if header:
+                    _add_word_table(document, header, kb_rows)
 
         section = sections_by_key.get(section_key)
         if section is None:

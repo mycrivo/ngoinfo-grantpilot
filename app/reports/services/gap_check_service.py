@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError
-from app.reports.schemas.gap_check import GapAnswerPatchInput, GapCheckMissingItemResponse
+from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_SKIPPED
 from app.reports.schemas.gate2_gap_answers import Gate2GapResponseInput
 from app.reports.services.gate2_gap_answer_service import (
     _persisted_answer,
@@ -42,7 +42,16 @@ def _confirm_existing_excerpt(
     return None
 
 
-def _readiness_message(readiness_basis: str | None, unanswered: int) -> str:
+def _readiness_message(
+    readiness_basis: str | None,
+    unanswered: int,
+    *,
+    skipped: int = 0,
+) -> str:
+    if unanswered == 0 and skipped > 0:
+        if skipped == 1:
+            return "Complete — 1 item skipped."
+        return f"Complete — {skipped} items skipped."
     if readiness_basis == "post_draft":
         if unanswered == 0:
             return "Your draft is ready to finalize."
@@ -54,6 +63,17 @@ def _readiness_message(readiness_basis: str | None, unanswered: int) -> str:
     if unanswered == 1:
         return "1 item needs your input before we can draft your report."
     return f"{unanswered} items need your input before we can draft your report."
+
+
+def _skipped_gap_count(gap_answers: dict[str, Any]) -> int:
+    count = 0
+    for entry in gap_answers.values():
+        if (
+            isinstance(entry, dict)
+            and entry.get("disposition") == GAP_ANSWER_DISPOSITION_SKIPPED
+        ):
+            count += 1
+    return count
 
 
 def _missing_item_from_gap(
@@ -96,6 +116,7 @@ def get_gap_check(
     remaining = _remaining_gaps(surfaced, gap_answers)
     ga = report.gap_analysis_json or {}
     readiness_basis = ga.get("readiness_basis")
+    skipped = _skipped_gap_count(gap_answers)
     return {
         "donor_report_id": donor_report_id,
         "open_items_count": len(remaining),
@@ -105,7 +126,10 @@ def get_gap_check(
         ],
         "gate2_confirmed_at": kb.get("gate2_confirmed_at"),
         "readiness_basis": readiness_basis,
-        "readiness_message": _readiness_message(readiness_basis, len(remaining)),
+        "readiness_message": _readiness_message(
+            readiness_basis, len(remaining), skipped=skipped
+        ),
+        "skipped_items_count": skipped,
     }
 
 

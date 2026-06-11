@@ -609,7 +609,7 @@ def _run_generate_all_with_tracking(
         "app.reports.services.report_synthesis_service.get_synthesis_max_concurrency",
         return_value=cap,
     ):
-        ordered, _ = _generate_all_sections(
+        ordered, _, _, _ = _generate_all_sections(
             sections=sections,
             report=report,
             template=template,

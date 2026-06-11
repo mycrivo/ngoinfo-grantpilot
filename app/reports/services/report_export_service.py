@@ -112,6 +112,8 @@ def export_and_persist(
             template_name=template.template_name,
             ngo_name=ngo_name,
             generated_at=generated_at,
+            knowledge_bank_json=report.knowledge_bank_json or {},
+            gap_analysis_json=report.gap_analysis_json or {},
         )
         filename = build_export_filename(
             funder_name=template.funder_name,

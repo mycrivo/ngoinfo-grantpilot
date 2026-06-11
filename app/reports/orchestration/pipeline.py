@@ -345,12 +345,17 @@ async def _run_critique_stage(
 
     critique_trace = {
         "completed_at": datetime.now(timezone.utc).isoformat(),
-        "action": "critique_completed",
+        "action": (
+            "critique_completed"
+            if result.empty_content_skipped == 0
+            else "critique_incomplete"
+        ),
         "section_count": result.section_count,
         "verified": result.verified,
         "flagged": result.flagged,
         "unverified": result.unverified,
         "skipped": result.skipped,
+        "empty_content_skipped": result.empty_content_skipped,
         "critic_blocks": result.critic_blocks,
         "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
     }
@@ -461,6 +466,8 @@ async def _run_synthesise_stage(
         "failed": result.failed,
         "degraded": result.degraded,
         "gate2_confirmed_at": report.knowledge_bank_json.get("gate2_confirmed_at"),
+        "openai_input_tokens": result.openai_input_tokens,
+        "openai_output_tokens": result.openai_output_tokens,
     }
     _append_stage_trace(job, stage, synthesise_trace)
     session.add(job)

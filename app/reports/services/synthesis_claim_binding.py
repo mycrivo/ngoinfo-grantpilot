@@ -15,6 +15,11 @@ from app.reports.knowledge.confirmed_kb import (
     is_fact_citable,
     is_gap_answer_citable,
 )
+from app.reports.services.section_prose import (
+    FAILURE_EMPTY_PROSE,
+    assemble_prose_from_bound_claims,
+    has_non_empty_prose,
+)
 from app.reports.services.synthesis_output_hygiene import (
     normalize_identifier,
     sanitize_prose,
@@ -26,6 +31,16 @@ from app.reports.services.numeric_fact_verifier import (  # noqa: E402
 )
 
 FAILURE_MISSING_STRUCTURED_CLAIMS = "MISSING_STRUCTURED_CLAIMS"
+
+__all__ = [
+    "FAILURE_EMPTY_PROSE",
+    "FAILURE_MISSING_STRUCTURED_CLAIMS",
+    "BoundSectionContent",
+    "StructuredBindOutcome",
+    "bind_structured_claims",
+    "resolve_structured_synthesis",
+    "section_has_citable_inputs",
+]
 
 StructuredBindStatus = Literal["bound", "honest_empty", "omitted_numeric", "dropped_refs"]
 ClaimBindStatus = Literal["bound", "omitted_numeric", "dropped_refs", "empty"]
@@ -287,6 +302,8 @@ def bind_structured_claims(
         )
 
     cleaned_text = sanitize_prose(working_text)
+    if not cleaned_text.strip():
+        cleaned_text = sanitize_prose(assemble_prose_from_bound_claims(bound_claims))
     bound_count = sum(1 for c in bound_claims if c.get("bind_status") == "bound")
     structured_bind_status: Literal["bound", "honest_empty"] = (
         "bound" if bound_count > 0 else "honest_empty"
@@ -343,4 +360,11 @@ def resolve_structured_synthesis(
             ok=False,
             failure_reason=FAILURE_MISSING_STRUCTURED_CLAIMS,
         )
+    if has_citable and bound_count > 0:
+        probe = {"content": {"text": bound.text}}
+        if not has_non_empty_prose(probe):
+            return StructuredBindOutcome(
+                ok=False,
+                failure_reason=FAILURE_EMPTY_PROSE,
+            )
     return StructuredBindOutcome(ok=True, content=bound)

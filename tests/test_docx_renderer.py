@@ -122,7 +122,45 @@ def test_body_removes_whole_citation_markers_without_orphan_brackets():
     assert "[ ]" not in text
 
 
-def test_section_heading_receives_funder_terminology():
+def test_kb_logframe_table_renders_in_docx():
+    fcdo = _load_fcdo_template_fields()
+    template_sections = fcdo["report_sections_json"]
+    facts = {
+        "indicators.OP1.1.logframe_ar1_actual": {"value": 684, "semantic_label": "Re-enrolled girls"},
+        "indicators.OP1.1.logframe_ar1_target": {"value": 650},
+    }
+    content_json = {
+        "sections": [
+            {
+                "section_key": "detailed_output_scoring",
+                "generation_status": "ACCEPTED",
+                "content": {"text": "Output scoring narrative for the review period."},
+            }
+        ]
+    }
+    docx_bytes, _ = render_donor_report_docx(
+        content_json=content_json,
+        template_sections=template_sections,
+        format_rules_json=fcdo.get("format_rules_json") or {},
+        terminology_map_json=fcdo.get("terminology_map_json") or {},
+        docx_template_ref=None,
+        reporting_period_start="2024-10-15",
+        reporting_period_end="2025-10-14",
+        funder_name="FCDO",
+        template_name="Annual Review",
+        knowledge_bank_json={"facts": facts},
+        gap_analysis_json={
+            "gaps": [
+                {"required_item_ref": "logframe_row:op2_3"},
+                {"required_item_ref": "logframe_row:op4_2"},
+            ]
+        },
+    )
+    document = Document(BytesIO(docx_bytes))
+    assert len(document.tables) >= 1
+    table_text = document.tables[0].rows[1].cells[6].text
+    assert "684" in table_text or "684" in _docx_plaintext(docx_bytes)
+
     terminology_map_json = {
         "canonical_to_funder": {
             "risk": "Risk rating / assumptions / controls",

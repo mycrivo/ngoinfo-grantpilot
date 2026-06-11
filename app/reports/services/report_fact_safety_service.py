@@ -31,6 +31,7 @@ from app.reports.services.numeric_fact_verifier import (
     numeric_flag_to_critic_dict,
     verify_section_numerics,
 )
+from app.reports.services.section_prose import has_non_empty_prose
 
 logger = logging.getLogger("reports.services.report_fact_safety")
 
@@ -50,6 +51,7 @@ class ReportFactSafetyStageResult:
     unverified: int
     skipped: int
     critic_blocks: int
+    empty_content_skipped: int = 0
 
 
 def _apply_critic_result_to_section(
@@ -149,7 +151,7 @@ async def critique_and_persist(
     kb = report.knowledge_bank_json or {}
     kb_view = build_confirmed_kb_view(kb)
 
-    verified = flagged = unverified = skipped = 0
+    verified = flagged = unverified = skipped = empty_content_skipped = 0
 
     for section in sections:
         if not isinstance(section, dict):
@@ -165,9 +167,18 @@ async def critique_and_persist(
             skipped += 1
             continue
 
-        if gen_status != "GENERATED" or not section_text.strip():
+        if gen_status != "GENERATED":
             section["critic_flags"] = []
             skipped += 1
+            continue
+
+        if not has_non_empty_prose(section):
+            section["critic_flags"] = [
+                _unverified_section_flag(reason="section_prose_empty")
+            ]
+            section["generation_status"] = "AWAITING_REVIEW"
+            empty_content_skipped += 1
+            unverified += 1
             continue
 
         evidence_used = list(content.get("evidence_used") or [])
@@ -277,4 +288,5 @@ async def critique_and_persist(
         unverified=unverified,
         skipped=skipped,
         critic_blocks=critic_blocks,
+        empty_content_skipped=empty_content_skipped,
     )

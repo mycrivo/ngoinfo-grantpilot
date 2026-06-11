@@ -13,6 +13,7 @@ from app.reports.eval.output_rubric import (
     count_generated_ngo_sections,
     evaluate_gap_rubric,
 )
+from app.reports.services.section_prose import has_non_empty_prose
 from app.reports.gap.section_visibility import visible_sections_for_context
 from scripts.audit.full_walk import PASSING_VERDICTS, exit_code_for_verdict
 
@@ -216,6 +217,35 @@ def gate_honest_exit(verdict: str | None) -> GateResult:
     )
 
 
+def gate_section_prose(
+    content_json: dict[str, Any],
+    *,
+    template_sections: list[dict[str, Any]],
+    report_context: dict[str, Any],
+) -> GateResult:
+    visible = visible_sections_for_context(
+        template_sections,
+        report_context=report_context,
+        include_funder_owned=False,
+    )
+    visible_keys = {str(s.get("section_key") or "") for s in visible}
+    empty: list[str] = []
+    for section in content_json.get("sections") or []:
+        if not isinstance(section, dict):
+            continue
+        key = str(section.get("section_key") or "")
+        if key not in visible_keys:
+            continue
+        if section.get("generation_status") in ("GENERATED", "AWAITING_REVIEW", "ACCEPTED"):
+            if not has_non_empty_prose(section):
+                empty.append(key)
+    return GateResult(
+        name="G-section-prose",
+        passed=not empty,
+        summary={"empty_prose_sections": sorted(empty)},
+    )
+
+
 def run_fcdo_gates(
     *,
     content_json: dict[str, Any],
@@ -233,6 +263,11 @@ def run_fcdo_gates(
             gate_fcdo_gap_exact(gap_analysis),
             gate_forbidden(gap_analysis),
             gate_section_count(
+                content_json,
+                template_sections=template_sections,
+                report_context=ctx,
+            ),
+            gate_section_prose(
                 content_json,
                 template_sections=template_sections,
                 report_context=ctx,

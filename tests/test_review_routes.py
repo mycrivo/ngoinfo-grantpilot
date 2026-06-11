@@ -24,6 +24,9 @@ def _report_with_sections() -> SimpleNamespace:
                 {
                     "section_key": "summary",
                     "generation_status": "AWAITING_REVIEW",
+                    "content": {
+                        "text": "Summary prose with enough substance for acceptance gate checks.",
+                    },
                     "critic_flags": [
                         {
                             "claim_text": "42 beneficiaries",

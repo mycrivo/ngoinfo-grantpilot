@@ -45,6 +45,8 @@ REPORT_SYNTHESIS_SYSTEM_PROMPT = (
     "purely qualitative claims)\n"
     "The server derives evidence_used[] from bound source_refs — do not rely on reverse "
     "citation from prose.\n"
+    "generated_content.text is REQUIRED: non-empty narrative prose weaving claims into "
+    "paragraphs. claims[] alone is not sufficient.\n"
     "Cite at claim granularity — match the key shape to what the prose states:\n"
     "- GBP spend/budget amounts → fact:financials.lines.opN_N.y1_actual / .y1_budget "
     "(or financials.y1_actual.total / .y1_budget.total for totals), NOT indicator count keys.\n"
@@ -148,6 +150,7 @@ SELF-AUDIT (mandatory before JSON output):
 4. Any banned words or phrases from the system prompt?
 5. Sentence length varied; no three consecutive similar-length sentences?
 6. Does tone match the section and funder constraints without adding unsupported specifics?
+7. Is generated_content.text non-empty and consistent with claims[]?
 
 Output ONLY valid JSON:
 {{
@@ -165,7 +168,7 @@ Output ONLY valid JSON:
         "value_tokens": ["684", "650"]
       }}
     ],
-    "text": "string — full section prose consistent with claims",
+    "text": "string — REQUIRED non-empty section prose weaving claims into narrative paragraphs",
     "assumptions": ["string"]
   }},
   "constraints_applied": {{

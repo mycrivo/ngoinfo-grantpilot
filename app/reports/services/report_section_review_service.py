@@ -16,6 +16,8 @@ from app.reports.schemas.content_json_v1 import compute_generation_summary_from_
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_access import get_owned_donor_report
 
+from app.reports.services.section_prose import has_non_empty_prose
+
 logger = logging.getLogger("reports.services.report_section_review")
 
 
@@ -155,6 +157,18 @@ def patch_report_section(
         section["last_edited_at"] = datetime.now(timezone.utc).isoformat()
 
     if accept_section:
+        if section.get("generation_status") == "FAILED":
+            raise DomainError(
+                error_code="GATE3_SECTION_NOT_ACCEPTABLE",
+                message="Cannot accept a FAILED section",
+                status_code=422,
+            )
+        if not has_non_empty_prose(section):
+            raise DomainError(
+                error_code="GATE3_SECTION_EMPTY_PROSE",
+                message="Cannot accept a section with empty prose",
+                status_code=422,
+            )
         if _section_has_unaccepted_blocks(section):
             raise DomainError(
                 error_code="GATE3_UNACCEPTED_BLOCKS",
@@ -199,6 +213,21 @@ def accept_all_sections_for_gate3(
     for section in content_json.get("sections") or []:
         if not isinstance(section, dict):
             continue
+        status = section.get("generation_status")
+        if status == "FAILED":
+            raise DomainError(
+                error_code="GATE3_SECTION_NOT_ACCEPTABLE",
+                message="Cannot accept all while FAILED sections remain",
+                status_code=422,
+                details={"section_key": section.get("section_key")},
+            )
+        if not has_non_empty_prose(section):
+            raise DomainError(
+                error_code="GATE3_SECTION_EMPTY_PROSE",
+                message="Cannot accept all while sections have empty prose",
+                status_code=422,
+                details={"section_key": section.get("section_key")},
+            )
         section["generation_status"] = "ACCEPTED"
         for flag in section.get("critic_flags") or []:
             if isinstance(flag, dict):

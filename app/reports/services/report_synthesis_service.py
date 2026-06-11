@@ -33,6 +33,7 @@ from app.reports.schemas.content_json_v1 import (
 from app.reports.gap.section_visibility import visible_sections_for_context
 from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
 from app.reports.services.report_inputs_builder import build_report_inputs_for_section
+from app.reports.services.section_prose import FAILURE_EMPTY_PROSE, has_non_empty_prose
 from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
 from app.reports.services.synthesis_output_hygiene import (
@@ -71,6 +72,17 @@ class ReportSynthesisStageResult:
     failed: int
     degraded: bool
     warnings: list[str]
+    openai_input_tokens: int = 0
+    openai_output_tokens: int = 0
+
+
+def _extract_usage_counts(response: dict[str, Any]) -> tuple[int, int]:
+    usage = response.get("usage") or {}
+    if not isinstance(usage, dict):
+        return 0, 0
+    inp = usage.get("prompt_tokens") or usage.get("input_tokens") or 0
+    out = usage.get("completion_tokens") or usage.get("output_tokens") or 0
+    return int(inp or 0), int(out or 0)
 
 
 def _max_tokens_for_section(word_limit: int | None) -> int:
@@ -100,7 +112,7 @@ def _call_openai_section(
     user_prompt: str,
     word_limit: int,
     user_id: str | None,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], int, int]:
     settings = get_settings()
     client = OpenAIClient()
     response = client.create_chat_completion(
@@ -119,7 +131,7 @@ def _call_openai_section(
         feature="report_synthesis",
         user_id=user_id,
     )
-    return _extract_json_payload(response)
+    return _extract_json_payload(response), *_extract_usage_counts(response)
 
 
 def _generate_one_section(
@@ -128,7 +140,7 @@ def _generate_one_section(
     report_inputs: dict[str, Any],
     query_fn_synthesis: QueryFnSynthesis | None,
     user_id: str | None,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], int, int]:
     section_key = str(section.get("section_key") or "")
     label = str(section.get("label") or section_key)
     word_limit = int(section.get("word_limit") or 0)
@@ -136,6 +148,7 @@ def _generate_one_section(
         report_inputs=report_inputs,
         section=section,
     )
+    input_tokens = output_tokens = 0
     try:
         if query_fn_synthesis is not None:
             raw = query_fn_synthesis(
@@ -144,7 +157,7 @@ def _generate_one_section(
                 user_prompt,
             )
         else:
-            raw = _call_openai_section(
+            raw, input_tokens, output_tokens = _call_openai_section(
                 section_key=section_key,
                 system_prompt=REPORT_SYNTHESIS_SYSTEM_PROMPT,
                 user_prompt=user_prompt,
@@ -161,7 +174,7 @@ def _generate_one_section(
             "section_key": section_key,
             "generation_status": "FAILED",
             "failure_reason": exc.category,
-        }
+        }, input_tokens, output_tokens
     except Exception as exc:
         logger.warning(
             "report_synthesis section=%s error=%s",
@@ -172,7 +185,7 @@ def _generate_one_section(
             "section_key": section_key,
             "generation_status": "FAILED",
             "failure_reason": str(exc),
-        }
+        }, input_tokens, output_tokens
 
     status = raw.get("generation_status")
     if status != "GENERATED":
@@ -182,7 +195,7 @@ def _generate_one_section(
             "section_key": section_key,
             "generation_status": "FAILED",
             "failure_reason": reason,
-        }
+        }, input_tokens, output_tokens
 
     generated = raw.get("generated_content") or {}
     constraints = raw.get("constraints_applied") or {}
@@ -230,6 +243,13 @@ def _generate_one_section(
                 section_key,
                 cleaned.humaniser_violations,
             )
+        if not has_non_empty_prose({"content": {"text": cleaned.text}}):
+            return build_failed_section(
+                section_key=section_key,
+                label=label,
+                word_limit=word_limit,
+                failure_reason=FAILURE_EMPTY_PROSE,
+            ), input_tokens, output_tokens
         return build_generated_section(
             section_key=section_key,
             label=label,
@@ -243,7 +263,7 @@ def _generate_one_section(
             auto_citations=cleaned.auto_citations,
             word_limit=word_limit,
             word_limit_respected=bool(constraints.get("word_limit_respected", True)),
-        )
+        ), input_tokens, output_tokens
 
     bind_outcome = resolve_structured_synthesis(
         claims=list(generated.get("claims") or []),
@@ -256,10 +276,17 @@ def _generate_one_section(
             label=label,
             word_limit=word_limit,
             failure_reason=str(bind_outcome.failure_reason or "BIND_FAILED"),
-        )
+        ), input_tokens, output_tokens
 
     bound = bind_outcome.content
     assert bound is not None
+    if not has_non_empty_prose({"content": {"text": bound.text}}):
+        return build_failed_section(
+            section_key=section_key,
+            label=label,
+            word_limit=word_limit,
+            failure_reason=FAILURE_EMPTY_PROSE,
+        ), input_tokens, output_tokens
     return build_generated_section(
         section_key=section_key,
         label=label,
@@ -273,7 +300,7 @@ def _generate_one_section(
         structured_bind_status=bound.structured_bind_status,
         word_limit=word_limit,
         word_limit_respected=bool(constraints.get("word_limit_respected", True)),
-    )
+    ), input_tokens, output_tokens
 
 
 def _generate_all_sections(
@@ -283,9 +310,9 @@ def _generate_all_sections(
     template: FunderReportTemplate,
     db: Session,
     query_fn_synthesis: QueryFnSynthesis | None,
-) -> tuple[list[dict[str, Any]], list[str]]:
+) -> tuple[list[dict[str, Any]], list[str], int, int]:
     if not sections:
-        return [], []
+        return [], [], 0, 0
 
     inputs_by_key: dict[str, dict[str, Any]] = {}
     for section in sections:
@@ -300,6 +327,8 @@ def _generate_all_sections(
     results_by_key: dict[str, dict[str, Any]] = {}
     user_id = str(report.user_id)
     max_workers = min(len(sections), get_synthesis_max_concurrency())
+    total_input_tokens = 0
+    total_output_tokens = 0
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_map = {
@@ -318,7 +347,7 @@ def _generate_all_sections(
             label = str(section.get("label") or section_key)
             word_limit = int(section.get("word_limit") or 0)
             try:
-                result = future.result()
+                result, in_tok, out_tok = future.result()
             except Exception as exc:  # pragma: no cover
                 result = build_failed_section(
                     section_key=section_key,
@@ -326,6 +355,9 @@ def _generate_all_sections(
                     word_limit=word_limit,
                     failure_reason=str(exc),
                 )
+                in_tok = out_tok = 0
+            total_input_tokens += in_tok
+            total_output_tokens += out_tok
             if result.get("generation_status") == "FAILED" and "label" not in result:
                 result = build_failed_section(
                     section_key=section_key,
@@ -343,7 +375,7 @@ def _generate_all_sections(
         if results_by_key[key].get("generation_status") == "FAILED":
             warnings.append(f"section {key} failed")
 
-    return ordered, warnings
+    return ordered, warnings, total_input_tokens, total_output_tokens
 
 
 def _acquire_synthesis_lock(db: Session, donor_report_id) -> None:
@@ -413,8 +445,10 @@ async def synthesise_and_persist(
         if section_needs_synthesis(existing_by_key.get(str(section["section_key"])))
     ]
 
+    total_input_tokens = 0
+    total_output_tokens = 0
     if to_generate:
-        ordered_new, warnings = await asyncio.to_thread(
+        ordered_new, warnings, total_input_tokens, total_output_tokens = await asyncio.to_thread(
             _generate_all_sections,
             sections=to_generate,
             report=report,
@@ -476,4 +510,6 @@ async def synthesise_and_persist(
         failed=failed,
         degraded=failed > 0,
         warnings=warnings,
+        openai_input_tokens=total_input_tokens,
+        openai_output_tokens=total_output_tokens,
     )

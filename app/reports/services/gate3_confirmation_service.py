@@ -13,7 +13,33 @@ from app.core.errors import DomainError
 from app.reports.services.gate_preconditions import require_gate2_confirmed
 from app.reports.services.report_access import get_owned_donor_report
 
+from app.reports.services.section_prose import has_non_empty_prose
+
 logger = logging.getLogger("reports.services.gate3_confirmation")
+
+
+def _sections_not_export_ready(content_json: dict[str, Any]) -> list[str]:
+    """Required sections missing non-empty prose or structured bind status."""
+    blocked: list[str] = []
+    for section in content_json.get("sections") or []:
+        if not isinstance(section, dict):
+            continue
+        key = str(section.get("section_key") or "")
+        status = section.get("generation_status")
+        if status == "FAILED":
+            blocked.append(key)
+            continue
+        if status != "ACCEPTED":
+            continue
+        if not has_non_empty_prose(section):
+            blocked.append(key)
+            continue
+        content = section.get("content") or {}
+        if content.get("citation_mode") == "structured":
+            bind_status = content.get("structured_bind_status")
+            if bind_status not in ("bound", "honest_empty"):
+                blocked.append(key)
+    return blocked
 
 
 def re_enqueue_gate3_job(db: Session, *, donor_report_id: uuid.UUID) -> ReportJob | None:
@@ -122,6 +148,15 @@ def confirm_gate3(
             message="All sections must be ACCEPTED before Gate 3 confirmation",
             status_code=422,
             details={"pending_section_keys": pending},
+        )
+
+    not_ready = _sections_not_export_ready(content_json)
+    if not_ready:
+        raise DomainError(
+            error_code="GATE3_SECTIONS_NOT_READY",
+            message="Every accepted section must have non-empty prose and bind status",
+            status_code=422,
+            details={"section_keys": not_ready},
         )
 
     kb = dict(report.knowledge_bank_json or {})
