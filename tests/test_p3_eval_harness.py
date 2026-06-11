@@ -23,7 +23,10 @@ from app.reports.eval.gates import (
 )
 from app.reports.eval.fixtures import pad_fcdo_ngo_sections
 from app.reports.eval.offline_replay import replay_clean_fixture
-from app.reports.eval.output_rubric import FCDO_FORBIDDEN_GAP_REFS
+from app.reports.eval.output_rubric import (
+    FCDO_FORBIDDEN_GAP_REFS,
+    FCDO_LITERAL_FORBIDDEN_GAP_REFS,
+)
 from app.reports.gap.section_visibility import visible_sections_for_context
 from scripts.audit.full_walk import PASSING_VERDICTS, exit_code_for_verdict
 
@@ -90,26 +93,49 @@ def test_g_fcdo_gap_exact_two_ref(fcdo_complete_gap_analysis):
 def test_g_forbidden_no_rss_oa_funder_narrative(fcdo_complete_gap_analysis):
     result = gate_forbidden(fcdo_complete_gap_analysis)
     assert result.passed
+    assert result.summary["literal_forbidden_count"] == 0
     assert result.summary["forbidden_rss_oa"] == 0
     assert result.summary["funder_owned"] == 0
     assert result.summary["narrative_data"] == 0
-
-
-def test_g_forbidden_detects_rss_oa():
-    gap_analysis = {
-        "gaps": [
-            {
-                "section_key": "performance_and_conclusions",
-                "required_item_type": "indicator",
-                "required_item_ref": "outcome_indicators",
-                "requirement_type": "data",
-                "owner": "ngo",
-            }
-        ]
+    gap_refs = {
+        g["required_item_ref"]
+        for g in fcdo_complete_gap_analysis["gaps"]
     }
+    assert FCDO_LITERAL_FORBIDDEN_GAP_REFS.isdisjoint(gap_refs)
+
+
+@pytest.mark.parametrize(
+    "forbidden_ref,section_key,required_item_type",
+    [
+        ("review_summary_sheet", "summary_and_overview", "table"),
+        ("outcome_assessment", "performance_and_conclusions", "table"),
+        ("outcome_indicators", "performance_and_conclusions", "indicator"),
+        (
+            "progress_against_expected_results",
+            "performance_and_conclusions",
+            "indicator",
+        ),
+    ],
+)
+def test_g_forbidden_negative_control_literal_ref_injected(
+    fcdo_complete_gap_analysis,
+    forbidden_ref,
+    section_key,
+    required_item_type,
+):
+    gap_analysis = json.loads(json.dumps(fcdo_complete_gap_analysis))
+    gap_analysis["gaps"].append(
+        {
+            "section_key": section_key,
+            "required_item_type": required_item_type,
+            "required_item_ref": forbidden_ref,
+            "requirement_type": "data",
+            "owner": "ngo",
+        }
+    )
     result = gate_forbidden(gap_analysis)
     assert not result.passed
-    assert "outcome_indicators" in FCDO_FORBIDDEN_GAP_REFS
+    assert forbidden_ref in result.summary["literal_forbidden_refs"]
 
 
 def test_g_section_count_fcdo_six(fcdo_template_sections, clean_fixture):

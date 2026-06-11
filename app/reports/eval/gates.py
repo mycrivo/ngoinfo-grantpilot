@@ -90,6 +90,9 @@ def gate_fcdo_gap_exact(gap_analysis: dict[str, Any]) -> GateResult:
 
 def gate_forbidden(gap_analysis: dict[str, Any]) -> GateResult:
     rubric = evaluate_gap_rubric(gap_analysis)
+    literal_hits = [
+        v for v in rubric.violations if v.startswith("literal_forbidden_gap_ref:")
+    ]
     forbidden_hits = [
         v for v in rubric.violations if v.startswith("forbidden_gap_ref:")
     ]
@@ -99,11 +102,15 @@ def gate_forbidden(gap_analysis: dict[str, Any]) -> GateResult:
     narrative_hits = [
         v for v in rubric.violations if v.startswith("narrative_data_gap:")
     ]
-    passed = not forbidden_hits and not funder_hits and not narrative_hits
+    passed = not literal_hits and not forbidden_hits and not funder_hits and not narrative_hits
     return GateResult(
         name="G-forbidden",
         passed=passed,
         summary={
+            "literal_forbidden_refs": sorted(
+                v.split(":", 1)[1] for v in literal_hits
+            ),
+            "literal_forbidden_count": len(literal_hits),
             "forbidden_rss_oa": len(forbidden_hits),
             "funder_owned": len(funder_hits),
             "narrative_data": len(narrative_hits),

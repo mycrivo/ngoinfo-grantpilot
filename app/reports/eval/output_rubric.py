@@ -14,6 +14,16 @@ FCDO_FORBIDDEN_GAP_REFS = frozenset(
     }
 )
 
+# Literal refs observed in walk 3347590c gap output namespace — must be absent on complete KB.
+FCDO_LITERAL_FORBIDDEN_GAP_REFS = frozenset(
+    {
+        "review_summary_sheet",
+        "outcome_assessment",
+        "outcome_indicators",
+        "progress_against_expected_results",
+    }
+)
+
 
 @dataclass(frozen=True)
 class OutputRubricReport:
@@ -37,6 +47,8 @@ def evaluate_gap_rubric(gap_analysis: dict[str, Any]) -> OutputRubricReport:
         if not isinstance(gap, dict):
             continue
         ref = str(gap.get("required_item_ref") or "")
+        if ref in FCDO_LITERAL_FORBIDDEN_GAP_REFS:
+            violations.append(f"literal_forbidden_gap_ref:{ref}")
         if ref in FCDO_FORBIDDEN_GAP_REFS:
             violations.append(f"forbidden_gap_ref:{ref}")
         owner = str(gap.get("owner") or "")

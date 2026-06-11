@@ -49,6 +49,10 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest tests/test_p3_eval_harness.py -q
+      - name: P3-4 hard_red faithfulness gates (blocking)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -m hard_red tests/test_p3_4_output_quality.py -q
       - name: Offline replay — CLEAN faithfulness fixture
         env:
           PYTHONPATH: ${{ github.workspace }}
