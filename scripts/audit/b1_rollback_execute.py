@@ -61,29 +61,62 @@ def rollback_from_snapshot(conn, snapshot: dict) -> int:
     return int(result.rowcount or 0)
 
 
-def seed_post_mutation(conn, intended: dict) -> None:
+def ensure_baseline_row(conn, snapshot: dict) -> None:
+    tid = TEMPLATE_ID
+    existing = conn.execute(
+        text("SELECT id FROM funder_report_templates WHERE id = CAST(:tid AS uuid)"),
+        {"tid": tid},
+    ).first()
+    if existing:
+        return
     conn.execute(
         text(
             """
             INSERT INTO funder_report_templates
-              (id, funder_name, template_name, version,
+              (id, funder_name, template_name, region, reporting_frequency,
+               docx_template_ref, is_active, version,
                report_sections_json, format_rules_json, terminology_map_json)
             VALUES
-              (CAST(:tid AS uuid), 'FCDO', 'FCDO Annual Review', 2,
-               CAST(:sections AS jsonb), CAST(:format AS jsonb), CAST(:term AS jsonb))
-            ON CONFLICT (id) DO UPDATE SET
-              report_sections_json = EXCLUDED.report_sections_json,
-              format_rules_json = EXCLUDED.format_rules_json,
-              terminology_map_json = EXCLUDED.terminology_map_json,
-              version = EXCLUDED.version,
-              updated_at = now()
+              (CAST(:tid AS uuid), :funder_name, :template_name, :region, :reporting_frequency,
+               :docx_template_ref, :is_active, :version,
+               CAST(:sections AS jsonb), CAST(:format_rules AS jsonb), CAST(:terminology AS jsonb))
+            """
+        ),
+        {
+            "tid": tid,
+            "funder_name": snapshot.get("funder_name") or "FCDO",
+            "template_name": snapshot.get("template_name") or "FCDO Annual Review",
+            "region": snapshot.get("region") or "UK",
+            "reporting_frequency": snapshot.get("reporting_frequency") or "annual",
+            "docx_template_ref": snapshot.get("docx_template_ref")
+            or "app/reports/templates/docx/fcdo-annual-review.docx",
+            "is_active": bool(snapshot.get("is_active", True)),
+            "version": int(snapshot.get("version") or 1),
+            "sections": json.dumps(snapshot["report_sections_json"]),
+            "format_rules": json.dumps(snapshot.get("format_rules_json") or {}),
+            "terminology": json.dumps(snapshot.get("terminology_map_json") or {}),
+        },
+    )
+
+
+def apply_post_mutation(conn, intended: dict) -> None:
+    conn.execute(
+        text(
+            """
+            UPDATE funder_report_templates
+            SET report_sections_json = CAST(:sections AS jsonb),
+                format_rules_json = CAST(:format_rules AS jsonb),
+                terminology_map_json = CAST(:terminology AS jsonb),
+                version = version + 1,
+                updated_at = now()
+            WHERE id = CAST(:tid AS uuid)
             """
         ),
         {
             "tid": TEMPLATE_ID,
             "sections": json.dumps(intended["report_sections_json"]),
-            "format": json.dumps(intended.get("format_rules_json") or {}),
-            "term": json.dumps(intended.get("terminology_map_json") or {}),
+            "format_rules": json.dumps(intended.get("format_rules_json") or {}),
+            "terminology": json.dumps(intended.get("terminology_map_json") or {}),
         },
     )
 
@@ -100,23 +133,8 @@ def run_proof(db_url: str) -> int:
     engine = create_engine(db_url)
 
     with engine.begin() as conn:
-        conn.execute(
-            text(
-                """
-                CREATE TABLE IF NOT EXISTS funder_report_templates (
-                  id uuid PRIMARY KEY,
-                  funder_name text,
-                  template_name text,
-                  version int,
-                  report_sections_json jsonb,
-                  format_rules_json jsonb,
-                  terminology_map_json jsonb,
-                  updated_at timestamptz default now()
-                )
-                """
-            )
-        )
-        seed_post_mutation(conn, intended)
+        ensure_baseline_row(conn, snapshot)
+        apply_post_mutation(conn, intended)
         affected = rollback_from_snapshot(conn, snapshot)
         row = conn.execute(
             text(

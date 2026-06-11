@@ -215,7 +215,7 @@ Same UPDATE shape; bind from tags-only artefact. Step B (deletion) would bind on
 | Ref | Owner-adjudicated class (P2_GAP_SET_ADJUDICATION §Owner-confirmed) | In literal-forbidden list? | Evidence |
 |-----|-------------------------------------------------------------------|---------------------------|----------|
 | `outcome_indicators` | **Not listed** in owner-confirmed table | Yes (`FCDO_LITERAL_FORBIDDEN_GAP_REFS`) | Walk `3347590c` emitted as `performance_and_conclusions:indicator:outcome_indicators` in pre-complete gap wall; **complete-docset probe** (`fcdo_complete_3347590c_expected_gaps.json`) emits **zero** gaps for this ref (exact set `{logframe_row:op2_3, logframe_row:op4_2}` only). Template: indicator in `performance_and_conclusions` without `indicator_requirements` override → default data/ngo. **Classification:** typing-or-mapping miss **not owner-adjudicated**; retained in literal-forbidden as **walk-namespace regression pin** (must not reappear on complete KB). **Not reclassified out** per R4 rule (no adjudicated (a)/(b) verdict). |
-| `progress_against_expected_results` | **Not listed** in owner-confconfirmed table | Yes | Same pattern as `outcome_indicators`; walk namespace ref exact string; absent from complete-docset probe; `fcdo_incomplete_answer_key.json` lists as expected on **incomplete** docset only. Regression pin retained. |
+| `progress_against_expected_results` | **Not listed** in owner-confirmed table | Yes | Same pattern as `outcome_indicators`; walk namespace ref exact string; absent from complete-docset probe; `fcdo_incomplete_answer_key.json` lists as expected on **incomplete** docset only. Regression pin retained. |
 
 **Contrast (adjudicated refs in same walk namespace):**
 
