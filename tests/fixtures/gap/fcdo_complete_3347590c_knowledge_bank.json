@@ -1,0 +1,1554 @@
+{
+  "description": "FCDO BridgeLight complete-gap KB — distilled from walk 3347590c (Gate-1 confirmed, empty gap_answers). No synthetic backfill.",
+  "source_report_id": "3347590c-5b4f-4443-8a3d-a5ae455932e2",
+  "source_walk": "walk_fcdo_full_3347590c.json",
+  "distilled_at": "2026-06-11T07:41:34.166176+00:00",
+  "fact_count": 74,
+  "knowledge_bank_json": {
+    "facts": {
+      "funder": {
+        "unit": null,
+        "value": "FCDO",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Foreign, Commonwealth & Development Office has approved funding",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Funder (Foreign, Commonwealth & Development Office)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "grant_reference": {
+        "unit": null,
+        "value": "MWI-EDU-AR-4471",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Programme code: MWI-EDU-AR-4471",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Grant/programme reference code",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "grant_period.end": {
+        "unit": null,
+        "value": "2026-10-14",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "the programme end date is 14 October 2026",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Programme end date",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "grant_period.start": {
+        "unit": null,
+        "value": "2024-10-15",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "The programme start date is 15 October 2024",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Programme start date",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "award_budget.amount": {
+        "unit": "GBP",
+        "value": 1240000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "approved FCDO contribution is GBP 1,240,000",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Total approved FCDO contribution (award letter)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "financials.currency": {
+        "unit": null,
+        "value": "GBP",
+        "coverage": "agreed",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "GBP",
+          "cell_ref": "Sheet1!V9",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "Financials currency (AR1 logframe/finance export)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": "Also corroborated by 17c94da6-5733-4a82-8fee-96e213970181 (02_FCDO_BridgeLight_Award_Letter.docx), excerpt: 'approved FCDO contribution is GBP 1,240,000'."
+      },
+      "award_budget.currency": {
+        "unit": null,
+        "value": "GBP",
+        "coverage": "agreed",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "approved FCDO contribution is GBP 1,240,000",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Award budget currency",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": "Also corroborated by 93bf8caa-e613-4536-899f-29b02fde6aad (BridgeLight Logframe and Finance AR1 Export.xlsx), excerpt: 'GBP', cell_ref: Sheet1!V9."
+      },
+      "indicators.OP1.1.ar1_actual": {
+        "unit": null,
+        "value": 684,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "684",
+          "cell_ref": "Sheet1!I10",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP1.1 (girls re-enrolled)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP1.2.ar1_actual": {
+        "unit": null,
+        "value": 472,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "472",
+          "cell_ref": "Sheet1!I11",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP1.2 (girls attending ≥80%)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP1.3.ar1_actual": {
+        "unit": null,
+        "value": 438,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "438",
+          "cell_ref": "Sheet1!I12",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP1.3 (girls completing ≥20 remedial sessions)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP2.1.ar1_actual": {
+        "unit": null,
+        "value": 31,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "31",
+          "cell_ref": "Sheet1!I13",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP2.1 (latrine stances)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP2.2.ar1_actual": {
+        "unit": null,
+        "value": 17,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "17",
+          "cell_ref": "Sheet1!I14",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP2.2 (schools with menstrual health supplies and trained focal teachers)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.1.ar1_actual": {
+        "unit": null,
+        "value": 392,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "392",
+          "cell_ref": "Sheet1!I15",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP3.1 (caregivers receiving hardship grant)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.2.ar1_actual": {
+        "unit": null,
+        "value": 571,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "571",
+          "cell_ref": "Sheet1!I16",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP3.2 (girls receiving school re-entry kit)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.3.ar1_actual": {
+        "unit": "proportion (0–1)",
+        "value": 0.68,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "0.68",
+          "cell_ref": "Sheet1!I17",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP3.3 (proportion of hardship grant households with verified attendance follow-up)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP4.1.ar1_actual": {
+        "unit": null,
+        "value": 3,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "3",
+          "cell_ref": "Sheet1!I18",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP4.1 (district learning meetings held)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP4.3.ar1_actual": {
+        "unit": null,
+        "value": 136,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "136",
+          "cell_ref": "Sheet1!I19",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual — OP4.3 (school/community actors trained)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.1.actual": {
+        "unit": "GBP",
+        "value": 174850,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "174850",
+          "cell_ref": "Sheet1!W10",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP1.1 (girls re-enrolled)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.1.budget": {
+        "unit": "GBP",
+        "value": 162000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "162000",
+          "cell_ref": "Sheet1!V10",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP1.1 (girls re-enrolled)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.2.actual": {
+        "unit": "GBP",
+        "value": 98740,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "98740",
+          "cell_ref": "Sheet1!W11",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP1.2 (girls attending ≥80%)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.2.budget": {
+        "unit": "GBP",
+        "value": 94000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "94000",
+          "cell_ref": "Sheet1!V11",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP1.2 (girls attending ≥80%)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.3.actual": {
+        "unit": "GBP",
+        "value": 81330,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "81330",
+          "cell_ref": "Sheet1!W12",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP1.3 (girls completing ≥20 remedial sessions)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP1.3.budget": {
+        "unit": "GBP",
+        "value": 88000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "88000",
+          "cell_ref": "Sheet1!V12",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP1.3 (girls completing ≥20 remedial sessions)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP2.1.actual": {
+        "unit": "GBP",
+        "value": 148900,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "148900",
+          "cell_ref": "Sheet1!W13",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP2.1 (latrine stances)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP2.1.budget": {
+        "unit": "GBP",
+        "value": 121000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "121000",
+          "cell_ref": "Sheet1!V13",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP2.1 (latrine stances)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP2.2.actual": {
+        "unit": "GBP",
+        "value": 39600,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "39600",
+          "cell_ref": "Sheet1!W14",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP2.2 (schools with menstrual health supplies and trained focal teachers)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP2.2.budget": {
+        "unit": "GBP",
+        "value": 42000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "42000",
+          "cell_ref": "Sheet1!V14",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP2.2 (schools with menstrual health supplies and trained focal teachers)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.1.actual": {
+        "unit": "GBP",
+        "value": 151440,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "151440",
+          "cell_ref": "Sheet1!W15",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP3.1 (caregivers receiving hardship grant)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.1.budget": {
+        "unit": "GBP",
+        "value": 146000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "146000",
+          "cell_ref": "Sheet1!V15",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP3.1 (caregivers receiving hardship grant)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.2.actual": {
+        "unit": "GBP",
+        "value": 109250,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "109250",
+          "cell_ref": "Sheet1!W16",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP3.2 (girls receiving school re-entry kit)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.2.budget": {
+        "unit": "GBP",
+        "value": 103000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "103000",
+          "cell_ref": "Sheet1!V16",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP3.2 (girls receiving school re-entry kit)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.3.actual": {
+        "unit": "GBP",
+        "value": 24980,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "24980",
+          "cell_ref": "Sheet1!W17",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP3.3 (hardship grant attendance follow-up)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP3.3.budget": {
+        "unit": "GBP",
+        "value": 31000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "31000",
+          "cell_ref": "Sheet1!V17",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP3.3 (hardship grant attendance follow-up)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP4.1.actual": {
+        "unit": "GBP",
+        "value": 32700,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "32700",
+          "cell_ref": "Sheet1!W18",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP4.1 (district learning meetings)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP4.1.budget": {
+        "unit": "GBP",
+        "value": 39000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "39000",
+          "cell_ref": "Sheet1!V18",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP4.1 (district learning meetings)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP4.3.actual": {
+        "unit": "GBP",
+        "value": 58630,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "58630",
+          "cell_ref": "Sheet1!W19",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 actual spend — OP4.3 (school/community actors trained)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "financials.lines.OP4.3.budget": {
+        "unit": "GBP",
+        "value": 54000,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "54000",
+          "cell_ref": "Sheet1!V19",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 budget — OP4.3 (school/community actors trained)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "objectives.impact_objective_1": {
+        "unit": null,
+        "value": "Adolescent girls in Machinga and Mangochi complete basic education in safer, more supportive learning environments",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 4, Impact statement",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Impact objective statement",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": null
+      },
+      "objectives.outcome_objective_1": {
+        "unit": null,
+        "value": "Adolescent girls demonstrate improved school retention, attendance and learning continuity, with reduced practical and safeguarding barriers to education",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 4, Outcome statement by September 2026",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Outcome objective statement (by September 2026)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": null
+      },
+      "indicators.OP1.1.proposal_target": {
+        "unit": null,
+        "value": 1200,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 1, OP1.1—girls re-enrolled",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP1.1 (girls re-enrolled)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 650 for OP1.1, which is a distinct semantic quantity (annual milestone vs. full-programme target) and is therefore filed separately."
+      },
+      "indicators.OP1.2.proposal_target": {
+        "unit": null,
+        "value": 900,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 1, OP1.2—girls attending 80%",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP1.2 (girls attending ≥80%)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 500 for OP1.2, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP1.3.proposal_target": {
+        "unit": null,
+        "value": 850,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 1, OP1.3—girls remedial sessions",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP1.3 (girls completing ≥20 remedial sessions)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 420 for OP1.3, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP2.1.proposal_target": {
+        "unit": null,
+        "value": 40,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 2, OP2.1—latrine stances",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP2.1 (girls latrine stances rehabilitated/functional)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 24 for OP2.1, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP2.2.proposal_target": {
+        "unit": null,
+        "value": 40,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 2, OP2.2—menstrual health",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP2.2 (schools with menstrual health supplies and trained focal teachers)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 20 for OP2.2, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP2.3.proposal_target": {
+        "unit": null,
+        "value": 40,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 2, OP2.3—safeguarding pathway",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP2.3 (schools with safeguarding referral pathway)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "No AR1 logframe target or actual was supplied for OP2.3."
+      },
+      "indicators.OP3.1.proposal_target": {
+        "unit": null,
+        "value": 800,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 3, OP3.1—caregivers hardship",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP3.1 (caregivers receiving hardship grant)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 400 for OP3.1, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP3.2.proposal_target": {
+        "unit": null,
+        "value": 1100,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 3, OP3.2—girls re-entry kit",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP3.2 (girls receiving school re-entry kit)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 550 for OP3.2, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP3.3.proposal_target": {
+        "unit": "%",
+        "value": 85,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 3, OP3.3—hardship grant followup",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP3.3 (% hardship grant households with verified attendance follow-up)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 0.75 (proportion) for OP3.3. These are distinct semantic quantities (full-programme % target vs. Year-1 proportion milestone) and are filed separately. A unit/representation conflict also exists — see conflicts."
+      },
+      "indicators.OP4.1.proposal_target": {
+        "unit": null,
+        "value": 8,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 4, OP4.1—district meetings",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP4.1 (district learning meetings held)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 4 for OP4.1, filed separately as a distinct semantic quantity."
+      },
+      "indicators.OP4.2.proposal_target": {
+        "unit": null,
+        "value": 5,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 4, OP4.2—learning briefs",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP4.2 (learning briefs produced)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "No AR1 logframe target or actual was supplied for OP4.2."
+      },
+      "indicators.OP4.3.proposal_target": {
+        "unit": null,
+        "value": 240,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 5 Output 4, OP4.3—actors trained",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OP4.3 (school/community actors trained)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": "The AR1 logframe (93bf8caa) records a Year-1 milestone target of 120 for OP4.3, filed separately as a distinct semantic quantity."
+      },
+      "reporting_obligations.annual_review": {
+        "unit": null,
+        "value": "Annual Review narrative against the agreed results framework; Updated logframe with milestones, actuals, output scores and variance explanations; Forecast versus actual expenditure statement; Value for Money assessment, including economy, efficiency, effectiveness and equity; Risk, safeguarding and assumptions update; Recommendations and action plan for the next review period; Any evaluation or learning outputs produced during the year.",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "The review pack should include Annual Review narrative...",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Annual Review reporting obligation (required pack contents)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "indicators.OP1.1.ar1_milestone_target": {
+        "unit": null,
+        "value": 650,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "650",
+          "cell_ref": "Sheet1!G10",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP1.1 (girls re-enrolled)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP1.2.ar1_milestone_target": {
+        "unit": null,
+        "value": 500,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "500",
+          "cell_ref": "Sheet1!G11",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP1.2 (girls attending ≥80%)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP1.3.ar1_milestone_target": {
+        "unit": null,
+        "value": 420,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "420",
+          "cell_ref": "Sheet1!G12",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP1.3 (girls completing ≥20 remedial sessions)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP2.1.ar1_milestone_target": {
+        "unit": null,
+        "value": 24,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "24",
+          "cell_ref": "Sheet1!G13",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP2.1 (latrine stances)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP2.2.ar1_milestone_target": {
+        "unit": null,
+        "value": 20,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "20",
+          "cell_ref": "Sheet1!G14",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP2.2 (schools with menstrual health supplies and trained focal teachers)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.1.ar1_milestone_target": {
+        "unit": null,
+        "value": 400,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "400",
+          "cell_ref": "Sheet1!G15",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP3.1 (caregivers receiving hardship grant)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.2.ar1_milestone_target": {
+        "unit": null,
+        "value": 550,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "550",
+          "cell_ref": "Sheet1!G16",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP3.2 (girls receiving school re-entry kit)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP3.3.ar1_milestone_target": {
+        "unit": "proportion (0–1)",
+        "value": 0.75,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "0.75",
+          "cell_ref": "Sheet1!G17",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP3.3 (proportion of hardship grant households with verified attendance follow-up)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP4.1.ar1_milestone_target": {
+        "unit": null,
+        "value": 4,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "4",
+          "cell_ref": "Sheet1!G18",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP4.1 (district learning meetings held)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "indicators.OP4.3.ar1_milestone_target": {
+        "unit": null,
+        "value": 120,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "120",
+          "cell_ref": "Sheet1!G19",
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+        "semantic_label": "AR1 logframe Year-1 milestone target — OP4.3 (school/community actors trained)",
+        "confirmed_by_user": true,
+        "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad",
+        "interpretation_note": null
+      },
+      "reporting_deadlines.acceptance_form_due": {
+        "unit": null,
+        "value": "2024-10-04",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Please sign and return acceptance form by 4 October 2024",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Award acceptance form return deadline",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "reporting_period.annual_cycle_convention": {
+        "unit": null,
+        "value": "October to September",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "project team discussed 'October to September' in inception call",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Recurring annual reporting cycle convention (discussed at inception call)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": "Normalization is ambiguous; this is a cycle description, not a specific date. Distinct from the formal first-period start date of 2024-10-15."
+      },
+      "reporting_period.first_annual_review.end": {
+        "unit": null,
+        "value": "2025-10-14",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "The first Annual Review will cover period to 14 October 2025",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "First Annual Review reporting period end date (award letter formal statement)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": "A second value 'October to September' (recurring annual cycle, ambiguous normalization) is also mentioned in the same document in the context of an inception call discussion and is filed under reporting_period.annual_cycle_convention."
+      },
+      "reporting_deadlines.annual_review_pack_due": {
+        "unit": null,
+        "value": "2025-11-21",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "The review pack is due to FCDO by 21 November 2025",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Annual Review pack submission deadline",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "reporting_period.first_annual_review.start": {
+        "unit": null,
+        "value": "2024-10-15",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "The first Annual Review will cover period 15 October 2024",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "First Annual Review reporting period start date (award letter formal statement)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": "A second value 'October to September' (recurring annual cycle, ambiguous normalization) is also mentioned in the same document in the context of an inception call discussion. That value answers a different question (recurring cycle convention vs. specific first-period start date) and is filed separately."
+      },
+      "reporting_obligations.supporting_documentation": {
+        "unit": null,
+        "value": "FCDO reserves the right to request supporting documents, including attendance registers, payment records, procurement files, safeguarding incident logs, training attendance sheets, and WASH completion records.",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "FCDO reserves the right to request supporting documents including...",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Supporting documentation obligation (FCDO right to request)",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "indicators.ocm1_attendance_80pct.proposal_target": {
+        "unit": null,
+        "value": 70,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 4, OCM1 outcome indicator—girls 80% school days",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OCM1 (girls attending ≥80% school days)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": null
+      },
+      "reporting_obligations.logframe_results_framework": {
+        "unit": null,
+        "value": "BridgeLight is required to maintain a logframe or equivalent results framework showing outputs, indicators, baselines, milestones, targets and achieved results.",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "maintain a logframe or equivalent results framework showing outputs",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Logframe/Results Framework maintenance obligation",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "reporting_obligations.evidence_for_numeric_claims": {
+        "unit": null,
+        "value": "BridgeLight must provide evidence for each numeric claim included in the review.",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "BridgeLight must provide evidence for each numeric claim in review",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Evidence requirement for numeric claims in review",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "reporting_obligations.monitoring_data_disaggregation": {
+        "unit": null,
+        "value": "Monitoring data must be disaggregated where relevant by gender, age and vulnerability group.",
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Monitoring data must be disaggregated by gender, age and vulnerability",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+        "semantic_label": "Monitoring data disaggregation requirement",
+        "confirmed_by_user": true,
+        "source_document_id": "17c94da6-5733-4a82-8fee-96e213970181",
+        "interpretation_note": null
+      },
+      "indicators.ocm2_progression_next_grade.proposal_target": {
+        "unit": null,
+        "value": 65,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 4, OCM2 outcome indicator—girls progression",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OCM2 (girls progression to next grade)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": null
+      },
+      "indicators.ocm3_school_safe_menstruation_travel.proposal_target": {
+        "unit": null,
+        "value": 72,
+        "coverage": "single_source",
+        "confirmed": true,
+        "provenance": {
+          "page": null,
+          "excerpt": "Section 4, OCM3 outcome indicator—safe menstruation",
+          "cell_ref": null,
+          "char_end": null,
+          "char_start": null,
+          "section_label": null
+        },
+        "confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+        "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+        "semantic_label": "Proposal end-of-programme target — OCM3 (schools safe for menstruation/travel)",
+        "confirmed_by_user": true,
+        "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929",
+        "interpretation_note": null
+      }
+    },
+    "conflicts": [
+      {
+        "values": [
+          {
+            "unit": "percentage (0–100 scale)",
+            "value": 85,
+            "provenance": {
+              "page": null,
+              "excerpt": "Section 5 Output 3, OP3.3—hardship grant followup",
+              "cell_ref": null,
+              "char_end": null,
+              "char_start": null,
+              "section_label": "Section 5 Output 3"
+            },
+            "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+            "source_document_id": "98606dc9-7dd2-43df-bab6-6282349c0929"
+          },
+          {
+            "unit": "proportion (0–1 scale)",
+            "value": 0.75,
+            "provenance": {
+              "page": null,
+              "excerpt": "0.75",
+              "cell_ref": "Sheet1!G17",
+              "char_end": null,
+              "char_start": null,
+              "section_label": null
+            },
+            "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+            "source_document_id": "93bf8caa-e613-4536-899f-29b02fde6aad"
+          }
+        ],
+        "fact_key": "indicators.OP3.3.target_unit_representation",
+        "annotation": "Both values represent a target for the same indicator (% of hardship grant households with verified attendance follow-up within 45 days) but use different scales and different time horizons (proposal = full-programme target of 85%; AR1 logframe = Year-1 milestone of 0.75). The unit/scale inconsistency should be resolved by the programme team: confirm whether the logframe should express this indicator as a percentage (e.g. 75%) or a proportion (e.g. 0.85), and align across all documents.",
+        "resolved_at": "2026-06-08T19:58:42.982117+00:00",
+        "conflict_type": "UNIT_GRANULARITY",
+        "resolved_value": 85
+      }
+    ],
+    "agent_trace": {
+      "max_turns": null,
+      "num_turns": null,
+      "latency_ms": 153088,
+      "model_used": "claude-sonnet-4-6",
+      "input_tokens": 21748,
+      "attempt_count": 1,
+      "degraded_code": null,
+      "output_tokens": 14697,
+      "conflicts_surfaced_count": 1,
+      "parse_failure_response_head": null,
+      "parse_failure_response_tail": null,
+      "parse_failure_response_length": null
+    },
+    "gap_answers": {},
+    "reconciled_at": "2026-06-08T19:54:14.627243+00:00",
+    "schema_version": "1.0.0",
+    "reconciler_agent": "knowledge_bank_reconciler",
+    "gate1_confirmed_at": "2026-06-08T19:58:43.185100+00:00",
+    "gate2_confirmed_at": null,
+    "gate3_confirmed_at": null,
+    "unreadable_sources": [],
+    "reconciliation_outcome": "complete",
+    "reconciliation_version": "1.0.0"
+  }
+}

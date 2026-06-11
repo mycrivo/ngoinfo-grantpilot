@@ -583,7 +583,7 @@ def main() -> int:
         d4_outcome == "complete"
         and len(actual_facts) > 0
         and final_db["job"].get("stage") == "critique"
-        and len(sections) == 8
+        and len(sections) == 6
     )
     print(f"STRUCTURAL_OK={ok}", flush=True)
     return 0 if ok else 3

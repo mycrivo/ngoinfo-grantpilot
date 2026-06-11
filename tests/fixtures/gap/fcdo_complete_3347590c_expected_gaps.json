@@ -1,8 +1,8 @@
 {
-  "fixture": "fcdo_complete",
-  "report_context": {
-    "report_type": "annual"
-  },
+  "source_report_id": "3347590c-5b4f-4443-8a3d-a5ae455932e2",
+  "source_walk": "walk_fcdo_full_3347590c.json",
+  "probed_at": "2026-06-11T07:41:34.796835+00:00",
+  "open_items_count": 2,
   "expected_missing": [
     {
       "section_key": "performance_and_conclusions",
@@ -15,6 +15,8 @@
       "required_item_ref": "logframe_row:op4_2"
     }
   ],
-  "forbidden_gaps": [],
-  "max_gaps": 2
+  "required_item_refs": [
+    "logframe_row:op2_3",
+    "logframe_row:op4_2"
+  ]
 }

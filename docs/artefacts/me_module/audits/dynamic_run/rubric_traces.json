@@ -1,0 +1,106 @@
+{
+  "stages": {
+    "gap": {
+      "degraded": false,
+      "gap_count": 46,
+      "completed_at": "2026-06-08T19:58:45.258566+00:00",
+      "readiness_score": 0
+    },
+    "export": {
+      "action": "export_completed",
+      "filename": "Foreign_Commonwealth_Development_Office_FCDO_Annual_Review_2025-04-01_2026-03-31.docx",
+      "render_mode": "from_scratch",
+      "storage_ref": "users/ee6126db-a855-46a1-a917-0eef7b34641c/reports/3347590c-5b4f-4443-8a3d-a5ae455932e2/d01efd35-b7db-4730-9c3c-07f745f52ace/Foreign_Commonwealth_Development_Office_FCDO_Annual_Review_2025-04-01_2026-03-31.docx",
+      "completed_at": "2026-06-08T20:05:17.582174+00:00",
+      "bytes_written": 44655,
+      "template_version": 1,
+      "gate3_confirmed_at": "2026-06-08T20:05:14.244434+00:00"
+    },
+    "extract": {
+      "completed_at": "2026-06-08T19:51:41.481226+00:00",
+      "degraded_documents": []
+    },
+    "classify": {
+      "completed_at": "2026-06-08T19:46:12.532734+00:00",
+      "degraded_notes": [],
+      "document_count": 3
+    },
+    "critique": {
+      "action": "critique_completed",
+      "flagged": 4,
+      "skipped": 0,
+      "verified": 4,
+      "unverified": 0,
+      "completed_at": "2026-06-08T20:05:12.134766+00:00",
+      "critic_blocks": 6,
+      "section_count": 6,
+      "gate2_confirmed_at": "2026-06-08T19:58:56.227604+00:00"
+    },
+    "reconcile": {
+      "degraded": false,
+      "completed_at": "2026-06-08T19:54:14.639683+00:00"
+    },
+    "synthesise": {
+      "action": "synthesise_completed",
+      "failed": 0,
+      "degraded": false,
+      "generated": 6,
+      "completed_at": "2026-06-08T20:03:06.672563+00:00",
+      "section_count": 6,
+      "gate2_confirmed_at": "2026-06-08T19:58:56.227604+00:00"
+    }
+  },
+  "docs": [
+    {
+      "file": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+      "class": "proposal",
+      "status": "COMPLETE",
+      "trace": {
+        "max_turns": 3,
+        "latency_ms": 66731,
+        "model_used": "haiku",
+        "content_hash": "422b2e10a1aa9ae2d5e1938feecefae7f8d552f0d7f01c16e9bb7046f1a0e0bd",
+        "input_tokens": 16,
+        "attempt_count": null,
+        "degraded_code": null,
+        "output_tokens": 12255,
+        "unreadable_code": null
+      },
+      "outcome": "complete"
+    },
+    {
+      "file": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "class": "grant_letter",
+      "status": "COMPLETE",
+      "trace": {
+        "max_turns": 3,
+        "latency_ms": 60791,
+        "model_used": "haiku",
+        "content_hash": "189737373a02ca8796cfe1f28e98e368fa9615cab920a96a977f03765e1af8b5",
+        "input_tokens": 16,
+        "attempt_count": null,
+        "degraded_code": null,
+        "output_tokens": 11219,
+        "unreadable_code": null
+      },
+      "outcome": "complete"
+    },
+    {
+      "file": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "class": "indicator_data",
+      "status": "COMPLETE",
+      "trace": {
+        "max_turns": 3,
+        "num_turns": 2,
+        "latency_ms": 99166,
+        "model_used": "haiku",
+        "content_hash": "398ab956a0d3e82f2eba38cac19e7ffc4404c97f977e35e95cb038ca0c8c75b9",
+        "input_tokens": 16,
+        "attempt_count": 1,
+        "degraded_code": null,
+        "output_tokens": 18077
+      },
+      "outcome": "complete"
+    }
+  ]
+}

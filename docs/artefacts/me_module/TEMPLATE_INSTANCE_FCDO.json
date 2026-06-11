@@ -43,6 +43,12 @@
         "claim_level_citation_required": true,
         "numeric_claims_must_have_source": true,
         "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      },
+      "table_requirements": {
+        "review_summary_sheet": {
+          "owner": "funder",
+          "requirement_type": "funder_supplied"
+        }
       }
     },
     {
@@ -78,12 +84,19 @@
         "claim_level_citation_required": true,
         "numeric_claims_must_have_source": true,
         "allowed_sources": ["uploaded_documents", "human_confirmed_gap_answers"]
+      },
+      "table_requirements": {
+        "outcome_assessment": {
+          "requirement_type": "narrative"
+        }
       }
     },
     {
       "section_key": "detailed_output_scoring",
       "label": "C. Detailed Output Scoring",
       "archetype": "ARCH_OUTPUT_SCORING_TABLE",
+      "owner": "funder",
+      "requirement_type_default": "data",
       "word_limit": null,
       "required": true,
       "required_tables": [
@@ -114,6 +127,14 @@
         "risk_ratings",
         "output_scores"
       ],
+      "indicator_requirements": {
+        "output_indicators": {"owner": "ngo", "requirement_type": "data"},
+        "logframe_milestones": {"owner": "ngo", "requirement_type": "data"},
+        "actual_results": {"owner": "ngo", "requirement_type": "data"},
+        "impact_weightings": {"requirement_type": "funder_supplied"},
+        "risk_ratings": {"requirement_type": "funder_supplied"},
+        "output_scores": {"requirement_type": "funder_supplied"}
+      },
       "tone": "technical, precise, evidence-linked",
       "conditional_display": {"enabled": false, "condition": null},
       "evidence_rules": {
@@ -198,6 +219,8 @@
       "section_key": "value_for_money",
       "label": "D. Value for Money",
       "archetype": "ARCH_VALUE_FOR_MONEY_4E",
+      "owner": "funder",
+      "requirement_type_default": "narrative",
       "word_limit": 1200,
       "required": true,
       "required_tables": [
@@ -225,6 +248,18 @@
         "forecast_vs_actual_costs",
         "commercial_improvement_where_relevant"
       ],
+      "indicator_requirements": {
+        "economy": {"requirement_type": "funder_supplied"},
+        "efficiency": {"requirement_type": "funder_supplied"},
+        "effectiveness": {"requirement_type": "funder_supplied"},
+        "equity": {"requirement_type": "funder_supplied"},
+        "cost_drivers": {"owner": "ngo", "requirement_type": "data"},
+        "forecast_vs_actual_costs": {"owner": "ngo", "requirement_type": "data"},
+        "commercial_improvement_where_relevant": {"requirement_type": "funder_supplied"}
+      },
+      "table_requirements": {
+        "vfm_measures": {"requirement_type": "funder_supplied"}
+      },
       "tone": "analytical, cost-aware, evidence-linked",
       "conditional_display": {"enabled": false, "condition": null},
       "evidence_rules": {
@@ -262,6 +297,9 @@
         "commercial_or_procurement_issues",
         "FCDO_management_actions"
       ],
+      "indicator_requirements": {
+        "FCDO_management_actions": {"requirement_type": "funder_supplied", "owner": "funder"}
+      },
       "tone": "formal, management-focused, concise",
       "conditional_display": {"enabled": false, "condition": null},
       "evidence_rules": {

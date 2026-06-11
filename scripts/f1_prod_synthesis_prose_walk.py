@@ -433,7 +433,7 @@ def main() -> int:
     ok = (
         job.get("stage") == "critique"
         and job.get("status") == "awaiting_human"
-        and len(sections) == 8
+        and len(sections) == 6
     )
     print(f"STRUCTURAL_OK={ok}", flush=True)
     return 0 if ok else 2

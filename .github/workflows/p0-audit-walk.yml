@@ -89,7 +89,7 @@ jobs:
       - name: Prepare artifact directory
         run: mkdir -p docs/artefacts/me_module/audits/dynamic_run
 
-      - name: Run CLEAN docset walk (export — 8/8 target)
+      - name: Run CLEAN docset walk (export — 6/6 target)
         env:
           PYTHONPATH: ${{ github.workspace }}
           BASE_URL: ${{ secrets.SMOKE_BASE_URL }}

@@ -2,8 +2,8 @@
 
 **Status:** Canonical (LOCKED — Stage B validation complete)  
 **Scope:** JSONB shapes inside `funder_report_templates`  
-**Version:** 1.1.0  
-**Last updated:** 2026-05-24
+**Version:** 1.2.0  
+**Last updated:** 2026-06-08
 
 ---
 
@@ -51,6 +51,10 @@
 | `required` | boolean | NO | Default `true`; if false, section skippable when gap agent allows |
 | `required_tables` | array | NO | Table specs this section must include (§2.2) |
 | `required_indicators` | array[string] | NO | Indicator keys that MUST appear (cross-ref `indicator_actuals_json`) |
+| `owner` | string | NO | Section default owner: `ngo` (default) or `funder` — funder-owned sections are excluded from NGO Gate 2 checklist |
+| `requirement_type_default` | string | NO | Default requirement type for indicators/tables in section: `data`, `narrative`, or `funder_supplied` |
+| `indicator_requirements` | object | NO | Per-indicator overrides — keys are indicator slugs; values may set `owner` and/or `requirement_type` |
+| `table_requirements` | object | NO | Per-table overrides — keys are `table_key`; values may set `owner` and/or `requirement_type` |
 | `guidance` | string | NO | Funder-specific writing guidance for synthesis agent |
 | `conditional_display` | object | NO | Show section only when condition met — §2.1a |
 | `evidence_rules` | object | NO | Critic/gap rules for this section — §2.1b |
@@ -318,7 +322,7 @@ Validated 2026-05-24 against [`TEMPLATE_INSTANCE_NLCF.json`](TEMPLATE_INSTANCE_N
 
 | Criterion | Simple (NLCF) | Complex (FCDO) | Verdict |
 |-----------|---------------|----------------|---------|
-| Ordered narrative sections | ✓ 7 sections | ✓ 8 sections | **Pass** |
+| Ordered narrative sections | ✓ 7 sections | ✓ 8 template sections (**6 NGO-synthesizable**; C+D funder-owned) | **Pass** |
 | Required indicators | ✓ flexible lists | ✓ logframe-linked | **Pass** |
 | Tables | ✓ optional + 1 required budget | ✓ multi-column logframe/scoring | **Pass** |
 | `conditional_display` | ✓ final section | not required | **Pass** |

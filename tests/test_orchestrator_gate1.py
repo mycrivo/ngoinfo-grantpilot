@@ -632,13 +632,13 @@ def test_outcome_g_h_resume_after_gate2_full_confirm(orchestrator_db):
     synth_trace = parked.agent_trace_json.get("stages", {}).get("synthesise", {})
     assert synth_trace.get("action") == "synthesise_completed"
     assert synth_trace.get("gate2_confirmed_at")
-    assert synth_trace.get("section_count") == 8
+    assert synth_trace.get("section_count") == 6
 
     critique_trace = parked.agent_trace_json.get("stages", {}).get("critique", {})
     assert critique_trace.get("action") == "parked_at_critique_boundary"
 
     sections = report.content_json.get("sections") or []
-    assert len(sections) == 8
+    assert len(sections) == 6
 
     assert poll_once(job_timeout_seconds=2) == 0
 

@@ -22,7 +22,6 @@ from app.reports.gap.logframe_completeness import (
     is_logframe_row_ref,
     missing_to_template_requirements,
 )
-from app.reports.gap.satisfaction import unsatisfied_requirements
 from app.reports.gap.template_requirements import (
     enumerate_template_requirements,
     merge_template_requirements,
@@ -48,6 +47,18 @@ FCDO_KB_RECORDED = (
     / "reconciler"
     / "recorded"
     / "fcdo_bridgelight_recorded_knowledge_bank.json"
+)
+FCDO_COMPLETE_DISTILLED = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+    / "gap"
+    / "fcdo_complete_3347590c_knowledge_bank.json"
+)
+FCDO_COMPLETE_EXPECTED_GAPS_PATH = (
+    Path(__file__).resolve().parent
+    / "fixtures"
+    / "gap"
+    / "fcdo_complete_3347590c_expected_gaps.json"
 )
 
 REPORT_CONTEXT = {"report_type": "annual"}
@@ -160,49 +171,14 @@ def _xlsx_fact(fact_key: str, label: str, excerpt: str) -> dict:
     }
 
 
-def _build_complete_fcdo_kb(template: dict) -> dict:
-    recorded = _load_json(FCDO_KB_RECORDED)
-    recorded["gate1_confirmed_at"] = "2026-05-24T12:00:00+00:00"
-    facts = dict(recorded.get("facts") or {})
-    sections = template["report_sections_json"]
-    format_rules = template.get("format_rules_json")
+def _load_distilled_fcdo_kb() -> dict:
+    wrapper = _load_json(FCDO_COMPLETE_DISTILLED)
+    return dict(wrapper["knowledge_bank_json"])
 
-    for entry in derive_missing_logframe_actuals(
-        {"facts": facts},
-        format_rules_json=format_rules,
-        report_sections_json=sections,
-    ):
-        fact_key = f"indicators.{entry.indicator_id}_complete.actual"
-        facts[fact_key] = _xlsx_fact(
-            fact_key,
-            f"{entry.indicator_id.upper()} actual",
-            entry.proposal_target_value or "0",
-        )
 
-    requirements = merge_template_requirements(
-        enumerate_template_requirements(sections, report_context=REPORT_CONTEXT),
-        missing_to_template_requirements(
-            derive_missing_logframe_actuals(
-                {"facts": facts},
-                format_rules_json=format_rules,
-                report_sections_json=sections,
-            )
-        ),
-    )
-    still_missing = unsatisfied_requirements(
-        requirements,
-        {"facts": facts, "gap_answers": {}},
-    )
-    for req in still_missing:
-        if is_logframe_row_ref(req.required_item_ref):
-            continue
-        facts[req.required_item_ref] = _fact(
-            req.required_item_ref,
-            req.required_item_ref.replace("_", " "),
-            f"Supplemental evidence for {req.required_item_ref}.",
-        )
-    recorded["facts"] = facts
-    return recorded
+def _fcdo_complete_expected_refs() -> set[str]:
+    sidecar = _load_json(FCDO_COMPLETE_EXPECTED_GAPS_PATH)
+    return set(sidecar.get("required_item_refs") or [])
 
 
 def _mock_gap_response_from_key(answer_key: dict, template: dict) -> dict:
@@ -237,14 +213,7 @@ def _mock_gap_response_from_key(answer_key: dict, template: dict) -> dict:
             }
         )
     expected_count = len(answer_key.get("expected_missing") or [])
-    total_checks = len([r for r in requirements if r.required_item_type != "section"])
-    satisfied = total_checks - expected_count
-    readiness = (
-        100
-        if expected_count == 0
-        else max(0, int(round(100 * satisfied / max(total_checks, 1))))
-    )
-    return {"readiness_score": readiness, "gaps": gaps}
+    return {"readiness_score": 100 if expected_count == 0 else 50, "gaps": gaps}
 
 
 async def _mock_query_factory(payload: dict):
@@ -281,7 +250,7 @@ async def test_gap_compliance_grades_t2_fixtures(template_path, kb_builder, key_
     elif kb_builder == "_fcdo_incomplete":
         kb = _build_incomplete_fcdo_kb()
     else:
-        kb = _build_complete_fcdo_kb(template)
+        kb = _load_distilled_fcdo_kb()
 
     mock_payload = _mock_gap_response_from_key(key, template)
     result = await run_gap_compliance(
@@ -401,7 +370,7 @@ async def test_service_persists_gap_analysis(monkeypatch):
 
     result = await run_gap_compliance_and_persist(db, report_id)
     assert report.gap_analysis_json.get("gap_agent") == AGENT_NAME
-    assert report.gap_analysis_json.get("readiness_score") is not None
+    assert report.gap_analysis_json.get("open_items_count") is not None
     assert isinstance(report.gap_analysis_json.get("gaps"), list)
     db.commit.assert_called_once()
 
@@ -519,7 +488,7 @@ async def test_gap_compliance_retries_once_on_empty_structured_output():
     )
     assert call_count == 2
     assert result.envelope.agent_trace.attempt_count == 2
-    assert result.envelope.structured.readiness_score == 100
+    assert result.envelope.structured.open_items_count == 0
 
 
 @pytest.mark.asyncio
@@ -537,7 +506,7 @@ async def test_gap_compliance_falls_back_to_deterministic_after_llm_failures():
         query_fn=_always_empty,
     )
     assert result.envelope.agent_trace.attempt_count == 2
-    assert result.envelope.structured.readiness_score == 100
+    assert result.envelope.structured.open_items_count == 0
     assert result.envelope.structured.gaps == []
     assert result.model_used != DETERMINISTIC_MODEL
 
@@ -618,3 +587,108 @@ async def test_gap_compliance_does_not_retry_agent_errors():
         )
     assert call_count == 1
     assert exc_info.value.code == "STOP_AGENT_ERROR"
+
+
+def test_nlcf_final_section_visible_only_for_final_report_type():
+    template = _load_json(NLCF_TEMPLATE)
+    annual = enumerate_template_requirements(
+        template["report_sections_json"],
+        report_context={"report_type": "annual"},
+    )
+    final = enumerate_template_requirements(
+        template["report_sections_json"],
+        report_context={"report_type": "final"},
+    )
+    annual_final_keys = {
+        req.section_key for req in annual if req.section_key == "final_update_only"
+    }
+    final_final_keys = {
+        req.section_key for req in final if req.section_key == "final_update_only"
+    }
+    assert annual_final_keys == set()
+    assert "final_update_only" in final_final_keys
+
+
+@pytest.mark.asyncio
+async def test_fcdo_complete_distilled_gap_set_exact():
+    template = _load_json(FCDO_TEMPLATE)
+    kb = _load_distilled_fcdo_kb()
+    expected_refs = _fcdo_complete_expected_refs()
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template,
+        report_context=REPORT_CONTEXT,
+    )
+    gaps = result.envelope.structured.gaps
+    gap_refs = {g.required_item_ref for g in gaps}
+    assert gap_refs == expected_refs, f"expected {expected_refs}, got {gap_refs}"
+    assert result.envelope.structured.open_items_count == len(expected_refs)
+
+
+@pytest.mark.asyncio
+async def test_fcdo_complete_has_no_funder_side_gaps():
+    template = _load_json(FCDO_TEMPLATE)
+    kb = _load_distilled_fcdo_kb()
+    result = await run_gap_compliance(
+        knowledge_bank_json=kb,
+        template_payload=template,
+        report_context=REPORT_CONTEXT,
+    )
+    funder_refs = {
+        g.required_item_ref
+        for g in result.envelope.structured.gaps
+        if g.owner == "funder" or g.requirement_type == "funder_supplied"
+    }
+    assert funder_refs == set()
+
+
+def test_fcdo_owner_tagged_fixture_excludes_funder_supplied_from_checklist():
+    template = _load_json(Path(__file__).resolve().parent / "fixtures" / "templates" / "fcdo_owner_tagged.json")
+    requirements = enumerate_template_requirements(template["report_sections_json"])
+    refs = {req.required_item_ref for req in requirements}
+    assert "output_scores" not in refs
+    assert "actual_results" in refs
+
+
+def test_unmapped_data_ref_emits_gap():
+    from app.reports.gap.requirement_satisfaction import evaluate_requirement_satisfaction
+    from app.reports.gap.template_requirements import TemplateRequirement
+
+    requirement = TemplateRequirement(
+        item_key="custom:indicator:totally_unknown_slug",
+        section_key="custom",
+        section_label="Custom",
+        required_item_type="indicator",
+        required_item_ref="totally_unknown_slug",
+        owner="ngo",
+        requirement_type="data",
+    )
+    kb_facts = {
+        "unrelated.other_fact": _fact(
+            "unrelated.other_fact",
+            "other",
+            "Some unrelated evidence.",
+        )
+    }
+    result = evaluate_requirement_satisfaction(
+        requirement,
+        facts=kb_facts,
+        gap_answers={},
+        gate1_confirmed_at="2026-05-24T12:00:00+00:00",
+    )
+    assert result.satisfied is False
+    assert result.suggested_action == "provide"
+
+
+def test_post_draft_gap_analysis_emits_readiness_basis():
+    from app.reports.gap.post_draft_gaps import run_post_draft_gap_analysis
+
+    template = _load_json(FCDO_TEMPLATE)
+    kb = _build_incomplete_fcdo_kb()
+    output = run_post_draft_gap_analysis(
+        content_json={"sections": []},
+        knowledge_bank_json=kb,
+        template_payload=template,
+        report_context=REPORT_CONTEXT,
+    )
+    assert output.readiness_basis == "post_draft"

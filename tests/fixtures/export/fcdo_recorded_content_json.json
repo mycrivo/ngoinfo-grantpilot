@@ -33,22 +33,6 @@
       "last_edited_at": null
     },
     {
-      "section_key": "detailed_output_scoring",
-      "label": "C. Detailed Output Scoring",
-      "generation_status": "ACCEPTED",
-      "archetype": "ARCH_OUTPUT_SCORING_TABLE",
-      "content": {
-        "text": "Output scoring against the logframe is summarised below.\n\n| Output | Indicator | Baseline | Milestone | Target | Actual | Score | Evidence |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| OP1.1 | Girls re-enrolled | 0 | 650 | 650 | 684 | A+ | School registers |\n| OP2.1 | Latrine stances functional | 0 | 24 | 24 | 31 | A++ | Site verification |\n| OP4.1 | District learning meetings | 0 | 3 | 3 | 3 | A | Meeting minutes |",
-        "assumptions": [],
-        "evidence_used": []
-      },
-      "critic_flags": [],
-      "failure_reason": null,
-      "constraints_applied": {"word_limit": null, "word_limit_respected": true},
-      "human_edited": false,
-      "last_edited_at": null
-    },
-    {
       "section_key": "evidence_and_evaluation",
       "label": "Evidence and Evaluation",
       "generation_status": "ACCEPTED",
@@ -77,22 +61,6 @@
       "critic_flags": [],
       "failure_reason": null,
       "constraints_applied": {"word_limit": 900, "word_limit_respected": true},
-      "human_edited": false,
-      "last_edited_at": null
-    },
-    {
-      "section_key": "value_for_money",
-      "label": "D. Value for Money",
-      "generation_status": "ACCEPTED",
-      "archetype": "ARCH_VALUE_FOR_MONEY_4E",
-      "content": {
-        "text": "Economy and efficiency were acceptable relative to forecast. Effectiveness was supported by output delivery evidence.",
-        "assumptions": [],
-        "evidence_used": []
-      },
-      "critic_flags": [],
-      "failure_reason": null,
-      "constraints_applied": {"word_limit": 1200, "word_limit_respected": true},
       "human_edited": false,
       "last_edited_at": null
     },
@@ -130,11 +98,11 @@
     }
   ],
   "generation_summary": {
-    "total_sections": 8,
-    "generated": 8,
+    "total_sections": 6,
+    "generated": 6,
     "failed": 0,
     "awaiting_review": 0,
-    "accepted": 8,
+    "accepted": 6,
     "critic_blocks": 0,
     "warnings": []
   }
