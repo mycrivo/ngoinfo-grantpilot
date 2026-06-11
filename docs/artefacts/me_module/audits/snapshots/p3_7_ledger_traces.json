@@ -1,0 +1,122 @@
+{
+  "1beb588b": {
+    "report_id": "1beb588b-68e1-4ad9-a43e-a6695aa15dd6",
+    "report_status": "COMPLETE",
+    "requeue_count": 0,
+    "job_stage": "export",
+    "job_status": "done",
+    "stages": {
+      "gap": {
+        "degraded": false,
+        "gap_count": 3,
+        "completed_at": "2026-06-11T21:19:30.293663+00:00",
+        "open_items_count": 3
+      },
+      "export": {
+        "action": "export_completed",
+        "filename": "Foreign_Commonwealth_Development_Office_FCDO_Annual_Review_2025-04-01_2026-03-31.docx",
+        "render_mode": "from_scratch",
+        "storage_ref": "users/1d450a39-e798-4f9c-acaa-48444eee5e69/reports/1beb588b-68e1-4ad9-a43e-a6695aa15dd6/9df105c7-c5b6-4ae6-91c2-7cf20053f80f/Foreign_Commonwealth_Development_Office_FCDO_Annual_Review_2025-04-01_2026-03-31.docx",
+        "completed_at": "2026-06-11T21:23:24.658918+00:00",
+        "bytes_written": 38341,
+        "template_version": 2,
+        "gate3_confirmed_at": "2026-06-11T21:23:21.174372+00:00"
+      },
+      "extract": {
+        "completed_at": "2026-06-11T21:16:42.713734+00:00",
+        "degraded_documents": []
+      },
+      "classify": {
+        "completed_at": "2026-06-11T21:12:44.843984+00:00",
+        "degraded_notes": [],
+        "document_count": 3
+      },
+      "critique": {
+        "action": "critique_completed",
+        "flagged": 4,
+        "skipped": 0,
+        "verified": 2,
+        "unverified": 0,
+        "completed_at": "2026-06-11T21:23:09.196462+00:00",
+        "critic_blocks": 12,
+        "section_count": 6,
+        "gate2_confirmed_at": "2026-06-11T21:19:42.227186+00:00",
+        "empty_content_skipped": 0
+      },
+      "reconcile": {
+        "degraded": false,
+        "completed_at": "2026-06-11T21:19:20.133550+00:00"
+      },
+      "synthesise": {
+        "action": "synthesise_completed",
+        "failed": 0,
+        "degraded": false,
+        "generated": 6,
+        "completed_at": "2026-06-11T21:22:12.235115+00:00",
+        "section_count": 6,
+        "gate2_confirmed_at": "2026-06-11T21:19:42.227186+00:00",
+        "openai_input_tokens": 67863,
+        "openai_output_tokens": 3396
+      }
+    },
+    "ledger_rows": [
+      {
+        "action_type": "REPORT_CREATE",
+        "idempotency_key": "report:create:1beb588b-68e1-4ad9-a43e-a6695aa15dd6",
+        "created_at": "2026-06-11 21:23:24.619101+00:00"
+      }
+    ]
+  },
+  "6c756017": {
+    "report_id": "6c756017-d510-46b0-a765-bdd82605a7a1",
+    "report_status": "DEGRADED",
+    "requeue_count": 0,
+    "job_stage": "export",
+    "job_status": "awaiting_human",
+    "stages": {
+      "gap": {
+        "degraded": false,
+        "gap_count": 11,
+        "completed_at": "2026-06-11T21:30:32.764275+00:00",
+        "open_items_count": 11
+      },
+      "extract": {
+        "completed_at": "2026-06-11T21:28:22.604655+00:00",
+        "degraded_documents": []
+      },
+      "classify": {
+        "completed_at": "2026-06-11T21:24:13.311790+00:00",
+        "degraded_notes": [],
+        "document_count": 3
+      },
+      "critique": {
+        "action": "critique_completed",
+        "flagged": 2,
+        "skipped": 1,
+        "verified": 3,
+        "unverified": 0,
+        "completed_at": "2026-06-11T21:34:13.412027+00:00",
+        "critic_blocks": 2,
+        "section_count": 6,
+        "gate2_confirmed_at": "2026-06-11T21:30:43.006942+00:00",
+        "empty_content_skipped": 0
+      },
+      "reconcile": {
+        "degraded": false,
+        "completed_at": "2026-06-11T21:30:27.615811+00:00"
+      },
+      "synthesise": {
+        "action": "synthesise_completed",
+        "failed": 1,
+        "degraded": true,
+        "generated": 5,
+        "completed_at": "2026-06-11T21:33:37.629573+00:00",
+        "section_count": 6,
+        "gate2_confirmed_at": "2026-06-11T21:30:43.006942+00:00",
+        "openai_input_tokens": 25480,
+        "openai_output_tokens": 4393
+      }
+    },
+    "ledger_rows": []
+  }
+}

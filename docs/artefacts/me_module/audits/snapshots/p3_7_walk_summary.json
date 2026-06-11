@@ -1,0 +1,30 @@
+[
+  {
+    "report_id": "1beb588b-68e1-4ad9-a43e-a6695aa15dd6",
+    "walk": "C:\\Users\\prana\\OneDrive\\Desktop\\NGOInfo-Grantpilot\\docs\\artefacts\\me_module\\audits\\dynamic_run\\walk_p3_7_rewalk_fcdo_1beb588b.json",
+    "verdict": "completed",
+    "cost": {
+      "claude_input_tokens": 123,
+      "claude_output_tokens": 64,
+      "claude_usd": 0.0004,
+      "openai_input_tokens": 67863,
+      "openai_output_tokens": 3396,
+      "openai_usd": 0.2036,
+      "total_usd": 0.2041
+    }
+  },
+  {
+    "report_id": "6c756017-d510-46b0-a765-bdd82605a7a1",
+    "walk": "C:\\Users\\prana\\OneDrive\\Desktop\\NGOInfo-Grantpilot\\docs\\artefacts\\me_module\\audits\\dynamic_run\\walk_p3_7_rewalk_nlcf_6c756017.json",
+    "verdict": "accept_all_failed",
+    "cost": {
+      "claude_input_tokens": 116,
+      "claude_output_tokens": 26,
+      "claude_usd": 0.0002,
+      "openai_input_tokens": 25480,
+      "openai_output_tokens": 4393,
+      "openai_usd": 0.1076,
+      "total_usd": 0.1079
+    }
+  }
+]

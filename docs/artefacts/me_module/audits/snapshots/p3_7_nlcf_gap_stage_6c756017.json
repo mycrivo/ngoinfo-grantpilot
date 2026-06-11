@@ -1,0 +1,177 @@
+{
+  "report_id": "6c756017-d510-46b0-a765-bdd82605a7a1",
+  "owner_email": "audit-p3_7_nlcf-1781216631@grantpilot-test.org",
+  "gap_analysis_json": {
+    "gaps": [
+      {
+        "owner": "ngo",
+        "item_key": "learning:indicator:what_worked",
+        "question": "What is the what worked for What you learned?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you learned \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "learning",
+        "section_label": "What you learned",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "what_worked",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "learning:indicator:what_did_not_work",
+        "question": "What is the what did not work for What you learned?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you learned \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "learning",
+        "section_label": "What you learned",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "what_did_not_work",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "learning:indicator:unexpected_findings",
+        "question": "What is the unexpected findings for What you learned?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you learned \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "learning",
+        "section_label": "What you learned",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "unexpected_findings",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "learning:indicator:learning_useful_to_others",
+        "question": "What is the learning useful to others for What you learned?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you learned \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "learning",
+        "section_label": "What you learned",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "learning_useful_to_others",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "changes_and_next_steps:indicator:changes_made",
+        "question": "What is the changes made for How you are changing what you do?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete How you are changing what you do \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "changes_and_next_steps",
+        "section_label": "How you are changing what you do",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "changes_made",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "changes_and_next_steps:indicator:planned_changes",
+        "question": "What is the planned changes for How you are changing what you do?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete How you are changing what you do \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "changes_and_next_steps",
+        "section_label": "How you are changing what you do",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "planned_changes",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "changes_and_next_steps:indicator:support_needed",
+        "question": "What is the support needed for How you are changing what you do?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete How you are changing what you do \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "changes_and_next_steps",
+        "section_label": "How you are changing what you do",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "support_needed",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "spend_summary:indicator:budgeted_total",
+        "question": "What is the budgeted total for What you spent this year?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you spent this year \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "spend_summary",
+        "section_label": "What you spent this year",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "budgeted_total",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "spend_summary:indicator:actual_spend_total",
+        "question": "What is the actual spend total for What you spent this year?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you spent this year \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "spend_summary",
+        "section_label": "What you spent this year",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "actual_spend_total",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "spend_summary:indicator:revenue_cost_variance",
+        "question": "What is the revenue cost variance for What you spent this year?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you spent this year \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "spend_summary",
+        "section_label": "What you spent this year",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "revenue_cost_variance",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "spend_summary:indicator:capital_cost_variance",
+        "question": "What is the capital cost variance for What you spent this year?",
+        "severity": "required",
+        "rationale": "We need this indicator to complete What you spent this year \u2014 it was not found in your confirmed knowledge bank.",
+        "section_key": "spend_summary",
+        "section_label": "What you spent this year",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "capital_cost_variance",
+        "required_item_type": "indicator"
+      }
+    ],
+    "gap_agent": "gap_compliance_agent",
+    "agent_trace": {
+      "cost_usd": null,
+      "estimated": null,
+      "latency_ms": null,
+      "model_used": "deterministic",
+      "input_tokens": null,
+      "attempt_count": 1,
+      "output_tokens": null
+    },
+    "analyzed_at": "2026-06-11T21:30:32.764156+00:00",
+    "report_context": {
+      "report_type": "annual"
+    },
+    "schema_version": "1.0.0",
+    "readiness_basis": "ngo_data",
+    "ready_for_gate2": false,
+    "open_items_count": 11
+  },
+  "gap_check_endpoint": {
+    "status_code": 500,
+    "body": {
+      "error_code": "INTERNAL_SERVER_ERROR",
+      "message": "Internal server error"
+    }
+  },
+  "agent_trace_gap_stage": null
+}

@@ -67,6 +67,7 @@ def main() -> int:
         names = [n.strip() for n in os.environ["DOCSET"].split(",") if n.strip()]
 
     print(f"=== AUDIT RUN {run} template={template} stop_at={stop_at} ===", flush=True)
+    C.bootstrap_db_env()
     snapshots: dict = {}
     resume_id = os.environ.get("RESUME_REPORT_ID")
 
