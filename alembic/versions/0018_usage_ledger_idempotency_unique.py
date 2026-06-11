@@ -1,6 +1,6 @@
 """Composite unique index on usage_ledger idempotency (F-6).
 
-Revision ID: 0018_usage_ledger_idempotency_unique
+Revision ID: 0018_usage_ledger_uq
 Revises: 0017_report_jobs_worker_recovery
 Create Date: 2026-06-11
 
@@ -10,7 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-revision: str = "0018_usage_ledger_idempotency_unique"
+revision: str = "0018_usage_ledger_uq"
 down_revision: Union[str, Sequence[str], None] = "0017_report_jobs_worker_recovery"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
