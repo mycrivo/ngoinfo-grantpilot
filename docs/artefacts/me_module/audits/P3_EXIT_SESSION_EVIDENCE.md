@@ -171,9 +171,16 @@ FCDO agent trace gap stage: `open_items_count: 2`, `degraded: false`. Template v
 | [27350651106](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651106) | P3 Offline Replay | `300b430` | success |
 | [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608) | P3 Offline Replay | `e06673b` | success |
 
-**This package CI runs:** inserted after push (see §Push / CI).
+**This package CI runs (@ `b00e124`):**
 
-### Offline replay committed input paths
+| Run ID | Workflow | conclusion |
+|--------|----------|------------|
+| [27361318980](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27361318980) | Smoke Test | success |
+| [27361319189](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27361319189) | P3 Offline Replay | success |
+
+**FINAL HEAD:** `b00e124b86247637fe2f2a2a04b1519bd1dee84e`
+
+**FINAL STOP** — Owner reads [`p3_b3_export_fcdo_7cdcc3a8.docx`](snapshots/p3_b3_export_fcdo_7cdcc3a8.docx) and [`p3_b3_export_nlcf_df7450dc.docx`](snapshots/p3_b3_export_nlcf_df7450dc.docx) against knowledge bank and declares Phase 3 closed.
 
 | Entry point | Reads |
 |-------------|-------|
@@ -187,10 +194,4 @@ FCDO agent trace gap stage: `open_items_count: 2`, `degraded: false`. Template v
 | `outcome_indicators` | No | Literal-forbidden regression pin; absent from FCDO complete-docset probe expected set |
 | `progress_against_expected_results` | No | Same; incomplete-docset key only |
 
----
-
-## Push / CI
-
-Commits in this package: `f1a4c6e`, `0868920`, `9ec90de`, plus B2/B3/B4 completion commits on push.
-
-**FINAL STOP** — Owner reads [`p3_b3_export_fcdo_7cdcc3a8.docx`](snapshots/p3_b3_export_fcdo_7cdcc3a8.docx) and [`p3_b3_export_nlcf_df7450dc.docx`](snapshots/p3_b3_export_nlcf_df7450dc.docx) against knowledge bank and declares Phase 3 closed.
+### Offline replay committed input paths
