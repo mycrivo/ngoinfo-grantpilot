@@ -182,25 +182,38 @@ def _dump_rows(conn, report_ids: list[str]) -> dict:
 
 
 def _delete_r2_objects(docs: list[dict]) -> list[dict]:
-    from app.reports.services.document_storage_service import (
-        DocumentStorageError,
-        DocumentStorageService,
-    )
+    import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
 
-    store = DocumentStorageService()
+    from scripts.audit import _common as C
+
+    backend = C.railway_vars("--service", C.BACKEND_SERVICE)
+    endpoint = backend.get("ME_DOCUMENTS_S3_ENDPOINT") or ""
+    access_key = backend.get("ME_DOCUMENTS_S3_ACCESS_KEY") or ""
+    secret = backend.get("ME_DOCUMENTS_S3_SECRET") or ""
+    bucket = backend.get("ME_DOCUMENTS_S3_BUCKET") or ""
+    if not all([endpoint, access_key, secret, bucket]):
+        raise RuntimeError("ME_DOCUMENTS_S3_* vars unavailable from Railway backend service")
+
+    client = boto3.client(
+        "s3",
+        endpoint_url=endpoint,
+        aws_access_key_id=access_key,
+        aws_secret_access_key=secret,
+    )
     failures: list[dict] = []
     for doc in docs:
         ref = doc.get("storage_ref")
         if not ref:
             continue
         try:
-            store.delete_object(str(ref))
-        except DocumentStorageError as exc:
+            client.delete_object(Bucket=bucket, Key=str(ref))
+        except (ClientError, BotoCoreError) as exc:
             failures.append(
                 {
                     "document_id": str(doc.get("id")),
                     "storage_ref": ref,
-                    "error": getattr(exc, "message", str(exc)),
+                    "error": str(exc),
                 }
             )
         except Exception as exc:  # noqa: BLE001 — audit script lists all storage failures

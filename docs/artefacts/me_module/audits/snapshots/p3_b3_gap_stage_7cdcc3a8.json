@@ -1,0 +1,99 @@
+{
+  "report_id": "7cdcc3a8-e15e-449b-991c-b79d99c918ec",
+  "owner_email": "audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org",
+  "gap_analysis_json": {
+    "gaps": [
+      {
+        "owner": "ngo",
+        "item_key": "performance_and_conclusions:indicator:logframe_row:op2_3",
+        "question": "Please provide the Annual Review actual result for OP2.3 (Proposal target: number of schools with active safeguarding referral pathway (OP2.3)) and explain any variance from the proposal target.",
+        "severity": "required",
+        "rationale": "OP2_3 appears in the proposal logframe but no indicator-data actual was found in submitted monitoring records. Proposal target: 40.",
+        "section_key": "performance_and_conclusions",
+        "section_label": "B. Performance and Conclusions",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "logframe_row:op2_3",
+        "required_item_type": "indicator"
+      },
+      {
+        "owner": "ngo",
+        "item_key": "performance_and_conclusions:indicator:logframe_row:op4_2",
+        "question": "Please provide the Annual Review actual result for OP4.2 (Proposal target: number of learning briefs produced/shared with district (OP4.2)) and explain any variance from the proposal target.",
+        "severity": "required",
+        "rationale": "OP4_2 appears in the proposal logframe but no indicator-data actual was found in submitted monitoring records. Proposal target: 5.",
+        "section_key": "performance_and_conclusions",
+        "section_label": "B. Performance and Conclusions",
+        "requirement_type": "data",
+        "suggested_action": "provide",
+        "required_item_ref": "logframe_row:op4_2",
+        "required_item_type": "indicator"
+      }
+    ],
+    "gap_agent": "gap_compliance_agent",
+    "agent_trace": {
+      "cost_usd": null,
+      "estimated": null,
+      "latency_ms": null,
+      "model_used": "deterministic",
+      "input_tokens": null,
+      "attempt_count": 1,
+      "output_tokens": null
+    },
+    "analyzed_at": "2026-06-11T16:02:06.918408+00:00",
+    "report_context": {
+      "report_type": "annual"
+    },
+    "schema_version": "1.0.0",
+    "readiness_basis": "ngo_data",
+    "ready_for_gate2": false,
+    "open_items_count": 2
+  },
+  "gap_check_endpoint": {
+    "status_code": 200,
+    "body": {
+      "donor_report_id": "7cdcc3a8-e15e-449b-991c-b79d99c918ec",
+      "open_items_count": 2,
+      "ready_for_gate2": false,
+      "missing_items": [
+        {
+          "item_key": "performance_and_conclusions:indicator:logframe_row:op2_3",
+          "label": "B. Performance and Conclusions",
+          "prompt": "Please provide the Annual Review actual result for OP2.3 (Proposal target: number of schools with active safeguarding referral pathway (OP2.3)) and explain any variance from the proposal target.",
+          "severity": "required",
+          "section_key": "performance_and_conclusions",
+          "section_label": "B. Performance and Conclusions",
+          "question": "Please provide the Annual Review actual result for OP2.3 (Proposal target: number of schools with active safeguarding referral pathway (OP2.3)) and explain any variance from the proposal target.",
+          "rationale": "OP2_3 appears in the proposal logframe but no indicator-data actual was found in submitted monitoring records. Proposal target: 40.",
+          "owner": "ngo",
+          "requirement_type": "data",
+          "suggested_action": "provide",
+          "confirm_existing_excerpt": null
+        },
+        {
+          "item_key": "performance_and_conclusions:indicator:logframe_row:op4_2",
+          "label": "B. Performance and Conclusions",
+          "prompt": "Please provide the Annual Review actual result for OP4.2 (Proposal target: number of learning briefs produced/shared with district (OP4.2)) and explain any variance from the proposal target.",
+          "severity": "required",
+          "section_key": "performance_and_conclusions",
+          "section_label": "B. Performance and Conclusions",
+          "question": "Please provide the Annual Review actual result for OP4.2 (Proposal target: number of learning briefs produced/shared with district (OP4.2)) and explain any variance from the proposal target.",
+          "rationale": "OP4_2 appears in the proposal logframe but no indicator-data actual was found in submitted monitoring records. Proposal target: 5.",
+          "owner": "ngo",
+          "requirement_type": "data",
+          "suggested_action": "provide",
+          "confirm_existing_excerpt": null
+        }
+      ],
+      "gate2_confirmed_at": null,
+      "readiness_basis": "ngo_data",
+      "readiness_message": "2 items need your input before we can draft your report."
+    }
+  },
+  "agent_trace_gap_stage": {
+    "degraded": false,
+    "gap_count": 2,
+    "completed_at": "2026-06-11T16:02:06.918521+00:00",
+    "open_items_count": 2
+  }
+}

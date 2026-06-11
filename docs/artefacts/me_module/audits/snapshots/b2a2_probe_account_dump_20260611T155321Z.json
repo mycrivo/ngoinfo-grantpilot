@@ -1,0 +1,70 @@
+{
+  "scoped_emails": [
+    "probe-upload2@test.org",
+    "probe-upload3@test.org"
+  ],
+  "user_ids": [
+    "3b9323eb-adca-4352-b9aa-36f8c52d1651",
+    "9d8f98de-3a85-4853-8d49-a8c9106413b8"
+  ],
+  "rows": {
+    "users": [
+      {
+        "id": "3b9323eb-adca-4352-b9aa-36f8c52d1651",
+        "email": "probe-upload2@test.org",
+        "full_name": null,
+        "avatar_url": null,
+        "google_sub": null,
+        "auth_provider": "email",
+        "created_at": "2026-06-09 05:43:03.684722+00:00",
+        "updated_at": "2026-06-09 05:43:03.684722+00:00",
+        "last_login_at": "2026-06-09 05:43:03.686236+00:00",
+        "stripe_customer_id": null,
+        "first_login_at": null
+      },
+      {
+        "id": "9d8f98de-3a85-4853-8d49-a8c9106413b8",
+        "email": "probe-upload3@test.org",
+        "full_name": null,
+        "avatar_url": null,
+        "google_sub": null,
+        "auth_provider": "email",
+        "created_at": "2026-06-09 05:43:51.563386+00:00",
+        "updated_at": "2026-06-09 05:43:51.563386+00:00",
+        "last_login_at": "2026-06-09 05:43:51.562435+00:00",
+        "stripe_customer_id": null,
+        "first_login_at": null
+      }
+    ],
+    "user_plans": [
+      {
+        "id": "d520985e-0e1b-4477-ae60-48e2091b6c3e",
+        "user_id": "3b9323eb-adca-4352-b9aa-36f8c52d1651",
+        "plan_name": "IMPACT",
+        "stripe_subscription_id": null,
+        "billing_period_start": "2026-06-09 05:43:03.788499+00:00",
+        "billing_period_end": "2026-07-09 05:43:03.788499+00:00",
+        "created_at": "2026-06-09 05:43:03.684722+00:00",
+        "updated_at": "2026-06-09 05:43:03.684722+00:00",
+        "plan_activated_at": "2026-06-09 05:43:03.788499+00:00"
+      },
+      {
+        "id": "729e42af-f2bb-4bf2-8b32-20698228ec4f",
+        "user_id": "9d8f98de-3a85-4853-8d49-a8c9106413b8",
+        "plan_name": "IMPACT",
+        "stripe_subscription_id": null,
+        "billing_period_start": "2026-06-09 05:43:51.797049+00:00",
+        "billing_period_end": "2026-07-09 05:43:51.797049+00:00",
+        "created_at": "2026-06-09 05:43:51.563386+00:00",
+        "updated_at": "2026-06-09 05:43:51.563386+00:00",
+        "plan_activated_at": "2026-06-09 05:43:51.797049+00:00"
+      }
+    ],
+    "usage_ledger": [],
+    "donor_reports": [],
+    "report_jobs": [],
+    "uploaded_documents": [],
+    "proposals": [],
+    "ngo_profiles": []
+  }
+}

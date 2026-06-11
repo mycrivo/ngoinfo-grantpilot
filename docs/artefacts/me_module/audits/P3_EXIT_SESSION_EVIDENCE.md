@@ -1,159 +1,196 @@
-# P3 exit session evidence — Phase B exec (2026-06-11)
+# P3 exit session evidence — Phase B full chain (2026-06-11)
 
-**Authority:** Owner exec decision 2026-06-11 (logged in [`ME_MODULE_DECISION_LOG.md`](../ME_MODULE_DECISION_LOG.md) §Phase B exec).  
-**Session commit (prep only):** `f1a4c6e` — post-deletion template + B2 scripts; **no prod template mutation executed**.
+**Authority:** Owner exec + guard resolution logged in [`ME_MODULE_DECISION_LOG.md`](../ME_MODULE_DECISION_LOG.md).  
+**Final HEAD (pre-push):** see §Push / CI below.
 
 ---
 
-## Stop condition — B2a guard (before any delete)
+## B2a · Purge
 
-**Command:**
-
-```text
-python scripts/audit/b2_phase_exec.py --purge
-```
-
-**Exit code:** `1`
+**Command:** `python scripts/audit/b2_phase_exec.py --purge`  
+**Exit code:** `0`
 
 **Stdout (verbatim):**
 
 ```json
 {
-  "stop": "unknown_account_in_purge_scope",
-  "rows": [
-    {
-      "report_id": "c7c86452-89a6-4039-9284-963113d9bf3a",
-      "status": "DRAFT",
-      "user_id": "3b9323eb-adca-4352-b9aa-36f8c52d1651",
-      "created_at": "2026-06-09 05:43:03.792151+00:00",
-      "email": "probe-upload2@test.org",
-      "job_count": 0,
-      "doc_count": 0
-    },
-    {
-      "report_id": "922d464d-3109-465d-81e7-453e2a413048",
-      "status": "DRAFT",
-      "user_id": "9d8f98de-3a85-4853-8d49-a8c9106413b8",
-      "created_at": "2026-06-09 05:43:51.802270+00:00",
-      "email": "probe-upload3@test.org",
-      "job_count": 0,
-      "doc_count": 1
-    }
-  ]
+  "purge_dump": "docs\\artefacts\\me_module\\audits\\snapshots\\b2a_purge_dump_20260611T155247Z.json",
+  "scope_count": 41,
+  "deleted_counts": {
+    "uploaded_documents": 110,
+    "report_jobs": 36,
+    "donor_reports": 41
+  },
+  "r2_delete_failures": [],
+  "remaining_reports_on_template": 0,
+  "remaining_jobs_on_template": 0
 }
 ```
 
-**Scope probe (read-only, post-guard):**
-
-| Metric | Value |
-|--------|------:|
-| Total `donor_reports` on template `55f891ac` | 41 |
-| Rows passing guard (audit-mint `@grantpilot-test.org` or `pranabksingh@gmail.com`) | 39 |
-| Rows blocked | 2 (`probe-upload2@test.org`, `probe-upload3@test.org`) |
-
-**Effect:** Zero rows deleted; no pre-delete dump written; usage_ledger untouched; R2 purge not invoked.
-
-**B2b / B3 / B4:** Not executed (sequential stop after B2a guard).
+Guard: 41/41 pass (includes `probe-upload2@test.org`, `probe-upload3@test.org` per amended decision).  
+usage_ledger: untouched in B2a.
 
 ---
 
-## B2b prerequisite — committed post-state file (ready, not applied)
+## B2a-2 · Probe account deletion
 
-**Source:** `tests/fixtures/templates/fcdo_55f891ac_post_deletion_v1.2.0.json`  
-**Builder:** `python scripts/audit/build_fcdo_post_deletion_template.py`
+**Command:** `python scripts/audit/b2_phase_exec.py --delete-probes`  
+**Exit code:** `0`
 
-**Build stdout (verbatim):**
+**Stdout (verbatim):**
 
 ```json
 {
-  "artifact": "tests\\fixtures\\templates\\fcdo_55f891ac_post_deletion_v1.2.0.json",
-  "section_count": 6,
-  "section_keys": [
-    "evidence_and_evaluation",
-    "performance_and_conclusions",
-    "programme_management_delivery_commercial_financial",
-    "recommendations_and_actions",
-    "risk_and_safeguarding",
-    "summary_and_overview"
-  ],
-  "tag_stats": {
-    "total_indicators": 25,
-    "total_tables": 5,
-    "tagged_indicators": 25,
-    "tagged_tables": 5,
-    "tagged_requirements": 30,
-    "total_requirements": 30
+  "probe_dump": "docs\\artefacts\\me_module\\audits\\snapshots\\b2a2_probe_account_dump_20260611T155321Z.json",
+  "deleted_counts": {
+    "users": 2
   },
-  "strict_v120_tagged": 30,
-  "strict_v120_total": 30,
-  "kill_list_refs_remaining": [],
-  "kill_sections_remaining": [],
-  "checksum_sha256": "c151a4348ab5008fccedab7013d76a1102b6b6e1b9e468d3da46756788c9db2b"
+  "r2_delete_failures": [],
+  "remaining_probe_users": []
 }
 ```
 
-**Builder exit code:** `0`
-
-**Rollback snapshot (ready, not executed):** `docs/artefacts/me_module/audits/snapshots/fcdo_55f891ac_pre_phase3_exit_2026-06-11.json` — SHA256 `aa6c99264aef29c78039f38891787212063f67dfe9e45a536e4c71dba0b3f4f0` (CI proof run [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608)).
+Scoped emails: `probe-upload2@test.org`, `probe-upload3@test.org` only.
 
 ---
 
-## B3 designated account (not run)
+## B2b · Template replace
 
-| Field | Value |
-|-------|-------|
-| Account | `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org` |
-| FCDO docset | Default complete (`full_walk.py` DEFAULT_DOCSETS fcdo: proposal + award + logframe xlsx) |
-| NLCF docset | Default pin docset (proposal + award + monitoring) |
+**Source:** `tests/fixtures/templates/fcdo_55f891ac_post_deletion_v1.2.0.json` (SHA256 `c151a4348ab5008fccedab7013d76a1102b6b6e1b9e468d3da46756788c9db2b`)
 
-`full_walk.py` supports `AUDIT_EMAIL` env for fixed mint (added @ `f1a4c6e`).
+**Command:** `python scripts/audit/b2_phase_exec.py --replace`  
+**Exit code:** `0`
+
+**Stdout (verbatim):**
+
+```json
+{
+  "replace_source": "tests\\fixtures\\templates\\fcdo_55f891ac_post_deletion_v1.2.0.json",
+  "affected_rows": 1,
+  "read_back": {
+    "section_count": 6,
+    "strict_v120_tagged": 30,
+    "strict_v120_total": 30,
+    "kill_list_refs_remaining": [],
+    "kill_sections_remaining": []
+  },
+  "version_before": 1,
+  "version_after": 2,
+  "rollback_snapshot_sha256": "aa6c99264aef29c78039f38891787212063f67dfe9e45a536e4c71dba0b3f4f0"
+}
+```
+
+Rollback script armed; not executed.
 
 ---
 
-## Reporting debt closure (prior CI runs)
+## B3 · Live walks
 
-| Run ID | Workflow | headSha | status | conclusion |
-|--------|----------|---------|--------|------------|
-| [27348215767](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215767) | Smoke Test | `e29c89e` | completed | success |
-| [27348215676](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215676) | P3 Offline Replay | `e29c89e` | completed | success |
-| [27350651156](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651156) | Smoke Test | `300b430` | completed | success |
-| [27350651106](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651106) | P3 Offline Replay | `300b430` | completed | success |
-| [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608) | P3 Offline Replay | `e06673b` | completed | success |
+**Account:** `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org` (`AUDIT_EMAIL`, `PLAN=IMPACT`)
 
-**This session:** No new CI run kicked (B2a stopped before prod mutation; push of `f1a4c6e` pending owner).
+| Run | Template | Report ID | Walk exit | Verdict | Export (committed copy) |
+|-----|----------|-----------|-----------|---------|-------------------------|
+| `p3_b3_fcdo` | FCDO complete docset (default 3 files) | `7cdcc3a8-e15e-449b-991c-b79d99c918ec` | 0 | `completed` | [`snapshots/p3_b3_export_fcdo_7cdcc3a8.docx`](snapshots/p3_b3_export_fcdo_7cdcc3a8.docx) |
+| `p3_b3_nlcf` | NLCF pin docset (proposal + award + monitoring) | `df7450dc-5d63-4461-98fc-9f09dea44a70` | 0 | `completed` | [`snapshots/p3_b3_export_nlcf_df7450dc.docx`](snapshots/p3_b3_export_nlcf_df7450dc.docx) |
+
+Full walk logs (gitignored): `dynamic_run/p3_b3_fcdo_walk.log`, `dynamic_run/p3_b3_nlcf_walk.log`.
+
+### FCDO — `phase2_owner_validation.py --fcdo-complete`
+
+**Command:** `--report-id 7cdcc3a8-e15e-449b-991c-b79d99c918ec --fcdo-complete`  
+**Exit code:** `2`
+
+**Stderr (verbatim):**
+
+```text
+FAIL: FCDO complete gap set mismatch expected=['logframe_row:op2_3', 'logframe_row:op4_2'] actual=[]
+FAIL: open_items_count 0 != expected 2
+```
+
+**Stdout (verbatim):**
+
+```json
+{
+  "open_items_count": 0,
+  "readiness_basis": "ngo_data",
+  "readiness_message": "All required data items are on file.",
+  "missing_count": 0,
+  "required_item_refs": [],
+  "funder_side_leaks": [],
+  "missing_items": []
+}
+```
+
+**Gap-stage snapshot (at Gate 2 boundary):** [`snapshots/p3_b3_gap_stage_7cdcc3a8.json`](snapshots/p3_b3_gap_stage_7cdcc3a8.json) — `open_items_count: 2`, refs `{logframe_row:op2_3, logframe_row:op4_2}`. Walk log: `GATE2 gaps=2 answered=0 skipped=2`.
+
+### NLCF — regression pin evidence
+
+**`offline_replay.py --nlcf-pin` exit code:** `0` — pin status `matches_observed_e7fa9bee`, 18-ref set exact.
+
+**Walk artifact replay:** `offline_replay.py walk_p3_b3_nlcf_df7450dc.json` exit code `0`, `"passed": true`.
+
+**`phase2_owner_validation.py` (post-complete gap-check) exit code:** `0`
+
+```json
+{
+  "open_items_count": 0,
+  "readiness_basis": "ngo_data",
+  "readiness_message": "All required data items are on file.",
+  "missing_count": 0,
+  "required_item_refs": [],
+  "funder_side_leaks": []
+}
+```
+
+**Gap-stage snapshot:** [`snapshots/p3_b3_gap_stage_df7450dc.json`](snapshots/p3_b3_gap_stage_df7450dc.json) — 18 gaps at Gate 2 boundary (pin-class ref set).
 
 ---
 
-## Offline replay committed input paths
+## Stage traces · ledger
 
-| Entry point | Reads (repo-relative) |
-|-------------|-------------------------|
+[`snapshots/p3_b3_ledger_traces.json`](snapshots/p3_b3_ledger_traces.json)
+
+| Report | `requeue_count` | `degraded_pass_through_sum` | `REPORT_CREATE` idempotency key |
+|--------|----------------:|------------------------------:|----------------------------------|
+| FCDO `7cdcc3a8…` | 0 | 0 | `report:create:7cdcc3a8-e15e-449b-991c-b79d99c918ec` |
+| NLCF `df7450dc…` | 0 | 0 | `report:create:df7450dc-5d63-4461-98fc-9f09dea44a70` |
+
+Both reports `status: COMPLETE`. One `REPORT_CREATE` ledger row per report at first export complete.
+
+FCDO agent trace gap stage: `open_items_count: 2`, `degraded: false`. Template version at export: `2`.
+
+---
+
+## Reporting debt closure (prior + this package)
+
+| Run ID | Workflow | headSha | conclusion |
+|--------|----------|---------|------------|
+| [27348215767](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215767) | Smoke Test | `e29c89e` | success |
+| [27348215676](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215676) | P3 Offline Replay | `e29c89e` | success |
+| [27350651156](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651156) | Smoke Test | `300b430` | success |
+| [27350651106](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651106) | P3 Offline Replay | `300b430` | success |
+| [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608) | P3 Offline Replay | `e06673b` | success |
+
+**This package CI runs:** inserted after push (see §Push / CI).
+
+### Offline replay committed input paths
+
+| Entry point | Reads |
+|-------------|-------|
 | `python scripts/audit/offline_replay.py --fixture` | `tests/fixtures/synthesis/clean_faithfulness_fixture.json`; `docs/artefacts/me_module/TEMPLATE_INSTANCE_FCDO.json` |
 | `python scripts/audit/offline_replay.py --nlcf-pin` | `tests/fixtures/gap/keys/nlcf_regression_pin_e7fa9bee.json`; `docs/artefacts/me_module/TEMPLATE_INSTANCE_NLCF.json` |
 
----
+### R4 forbidden-ref provenance
 
-## R4 forbidden-ref provenance (retained)
-
-| Ref | Owner-adjudicated in P2 table? | In literal-forbidden? | Evidence |
-|-----|-------------------------------|----------------------|----------|
-| `outcome_indicators` | No | Yes | Complete-docset probe emits zero gaps for this ref; literal-forbidden regression pin — see [`P3_B1_RESTAGE_PACK.md`](P3_B1_RESTAGE_PACK.md) §R4 |
-| `progress_against_expected_results` | No | Yes | Same pattern; incomplete-docset key only |
+| Ref | Owner-adjudicated in P2? | Evidence |
+|-----|--------------------------|----------|
+| `outcome_indicators` | No | Literal-forbidden regression pin; absent from FCDO complete-docset probe expected set |
+| `progress_against_expected_results` | No | Same; incomplete-docset key only |
 
 ---
 
-## Not captured (blocked by B2a stop)
+## Push / CI
 
-- Live FCDO / NLCF walks (B3)
-- `phase2_owner_validation.py --fcdo-complete` stdout
-- Gap-stage JSON, rendered exports, ledger `REPORT_CREATE` rows, stage traces
-- Post-mutation prod template read-back
+Commits in this package: `f1a4c6e`, `0868920`, `9ec90de`, plus B2/B3/B4 completion commits on push.
 
----
-
-## Owner unblock options (facts only)
-
-1. Remove or reassign the two `probe-upload*@test.org` reports off template `55f891ac`, then re-run `b2_phase_exec.py --purge`.
-2. Owner amends guard to include an explicit allow-list for those probe accounts (requires decision log row).
-
-**FINAL STOP** — Phase 3 closure declaration withheld pending successful B2a→B4 chain.
+**FINAL STOP** — Owner reads [`p3_b3_export_fcdo_7cdcc3a8.docx`](snapshots/p3_b3_export_fcdo_7cdcc3a8.docx) and [`p3_b3_export_nlcf_df7450dc.docx`](snapshots/p3_b3_export_nlcf_df7450dc.docx) against knowledge bank and declares Phase 3 closed.
