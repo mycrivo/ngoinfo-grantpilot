@@ -206,4 +206,6 @@ Context: Owner exec 2026-06-11; supersedes M1–M4 re-stage order and staged 8-d
 2. **B2b authorized** — full JSONB replace from committed `tests/fixtures/templates/fcdo_55f891ac_post_deletion_v1.2.0.json` (6 sections, kill-list absent, 30/30 v1.2.0 tags); rollback from snapshot `aa6c9926…` ready before UPDATE; in-transaction read-back verification.
 3. **Rationale** — all in-flight rows are owner test data; funder-owned template rows leave the DB ahead of multi-funder scaling.
 4. **Artefacts** — `scripts/audit/b2_phase_exec.py`, `scripts/audit/build_fcdo_post_deletion_template.py`.
+
+**Amendment (2026-06-11, guard resolved):** `probe-upload2@test.org` and `probe-upload3@test.org` are owner-recognized test accounts; their reports join B2a purge scope (full **41/41** on template `55f891ac`). **B2a-2** hard-scoped deletion of the two user rows (+ dependents incl. ledger) after purge; usage_ledger touched only in B2a-2 for those accounts.
 ---

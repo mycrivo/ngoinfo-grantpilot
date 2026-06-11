@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""B2a report purge + B2b template replace (prod write, owner-authorized).
+"""B2a report purge + B2a-2 probe account deletion + B2b template replace (prod write).
 
 Usage:
   python scripts/audit/b2_phase_exec.py --purge
+  python scripts/audit/b2_phase_exec.py --delete-probes
   python scripts/audit/b2_phase_exec.py --replace
   python scripts/audit/b2_phase_exec.py --rollback   # owner instruction only
 """
@@ -38,6 +39,8 @@ from scripts.audit.build_fcdo_post_deletion_template import OUT as POST_DELETION
 
 ARTIFACT_DIR = ROOT / "docs/artefacts/me_module/audits/snapshots"
 ALLOWED_REAL_USER = "pranabksingh@gmail.com"
+PROBE_ACCOUNTS = frozenset({"probe-upload2@test.org", "probe-upload3@test.org"})
+EXPECTED_PURGE_COUNT = 41
 KILL_REFS = KILL_INDICATORS | KILL_TABLES
 
 
@@ -55,7 +58,11 @@ def _bootstrap_db() -> str:
 
 def _allowed_email(email: str) -> bool:
     e = (email or "").strip().lower()
-    return e == ALLOWED_REAL_USER or e.endswith("@grantpilot-test.org")
+    return (
+        e == ALLOWED_REAL_USER
+        or e.endswith("@grantpilot-test.org")
+        or e in PROBE_ACCOUNTS
+    )
 
 
 def _per_item_tagged(sections: list[dict]) -> tuple[int, int]:
@@ -229,7 +236,7 @@ def run_purge() -> int:
         report_ids = [str(r["report_id"]) for r in scope]
         dump_body = {
             "template_id": TEMPLATE_ID,
-            "expected_count_hint": 16,
+            "expected_count": EXPECTED_PURGE_COUNT,
             "scope_count": len(scope),
             "rows": _dump_rows(conn, report_ids),
         }
@@ -304,6 +311,158 @@ def run_purge() -> int:
     }
     print(json.dumps(result, indent=2, default=str))
     if int(remaining_reports or 0) != 0 or int(remaining_jobs or 0) != 0:
+        return 1
+    return 0
+
+
+def _fetch_probe_users(conn) -> list[dict]:
+    rows = conn.execute(
+        text(
+            """
+            SELECT id, email, created_at
+            FROM users
+            WHERE lower(email) = ANY(CAST(:emails AS text[]))
+            ORDER BY email
+            """
+        ),
+        {"emails": [e.lower() for e in PROBE_ACCOUNTS]},
+    ).mappings().all()
+    return [dict(r) for r in rows]
+
+
+def _dump_probe_dependents(conn, user_ids: list[str]) -> dict:
+    if not user_ids:
+        return {}
+    users = conn.execute(
+        text("SELECT * FROM users WHERE id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    plans = conn.execute(
+        text("SELECT * FROM user_plans WHERE user_id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    ledger = conn.execute(
+        text("SELECT * FROM usage_ledger WHERE user_id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    reports = conn.execute(
+        text("SELECT * FROM donor_reports WHERE user_id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    report_ids = [str(r["id"]) for r in reports]
+    jobs: list = []
+    docs: list = []
+    if report_ids:
+        jobs = conn.execute(
+            text(
+                "SELECT * FROM report_jobs WHERE donor_report_id = ANY(CAST(:ids AS uuid[]))"
+            ),
+            {"ids": report_ids},
+        ).mappings().all()
+        docs = conn.execute(
+            text(
+                """
+                SELECT * FROM uploaded_documents
+                WHERE donor_report_id = ANY(CAST(:ids AS uuid[]))
+                   OR user_id = ANY(CAST(:uids AS uuid[]))
+                """
+            ),
+            {"ids": report_ids, "uids": user_ids},
+        ).mappings().all()
+    proposals = conn.execute(
+        text("SELECT * FROM proposals WHERE user_id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    profiles = conn.execute(
+        text("SELECT * FROM ngo_profiles WHERE user_id = ANY(CAST(:ids AS uuid[]))"),
+        {"ids": user_ids},
+    ).mappings().all()
+    return {
+        "users": [dict(r) for r in users],
+        "user_plans": [dict(r) for r in plans],
+        "usage_ledger": [dict(r) for r in ledger],
+        "donor_reports": [dict(r) for r in reports],
+        "report_jobs": [dict(j) for j in jobs],
+        "uploaded_documents": [dict(d) for d in docs],
+        "proposals": [dict(p) for p in proposals],
+        "ngo_profiles": [dict(p) for p in profiles],
+    }
+
+
+def run_delete_probes() -> int:
+    db_url = _bootstrap_db()
+    engine = create_engine(db_url)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    dump_path = ARTIFACT_DIR / f"b2a2_probe_account_dump_{ts}.json"
+
+    with engine.connect() as conn:
+        probe_users = _fetch_probe_users(conn)
+        found_emails = {str(u["email"]).lower() for u in probe_users}
+        if found_emails != {e.lower() for e in PROBE_ACCOUNTS}:
+            print(
+                json.dumps(
+                    {
+                        "stop": "probe_account_set_mismatch",
+                        "expected": sorted(PROBE_ACCOUNTS),
+                        "found": sorted(found_emails),
+                    },
+                    indent=2,
+                )
+            )
+            return 1
+
+        user_ids = [str(u["id"]) for u in probe_users]
+        dump_body = {
+            "scoped_emails": sorted(PROBE_ACCOUNTS),
+            "user_ids": user_ids,
+            "rows": _dump_probe_dependents(conn, user_ids),
+        }
+        dump_path.write_text(
+            json.dumps(dump_body, indent=2, default=str) + "\n", encoding="utf-8"
+        )
+
+    docs_for_r2 = dump_body["rows"]["uploaded_documents"]
+    r2_failures = _delete_r2_objects(docs_for_r2)
+
+    deleted_counts: dict[str, int] = {}
+    with engine.begin() as conn:
+        for table, sql in (
+            (
+                "users",
+                """
+                DELETE FROM users
+                WHERE id = ANY(CAST(:ids AS uuid[]))
+                  AND lower(email) = ANY(CAST(:emails AS text[]))
+                """,
+            ),
+        ):
+            result = conn.execute(
+                text(sql),
+                {
+                    "ids": user_ids,
+                    "emails": [e.lower() for e in PROBE_ACCOUNTS],
+                },
+            )
+            deleted_counts[table] = int(result.rowcount or 0)
+
+        remaining = conn.execute(
+            text(
+                """
+                SELECT email FROM users
+                WHERE lower(email) = ANY(CAST(:emails AS text[]))
+                """
+            ),
+            {"emails": [e.lower() for e in PROBE_ACCOUNTS]},
+        ).mappings().all()
+
+    out = {
+        "probe_dump": str(dump_path.relative_to(ROOT)),
+        "deleted_counts": deleted_counts,
+        "r2_delete_failures": r2_failures,
+        "remaining_probe_users": [dict(r) for r in remaining],
+    }
+    print(json.dumps(out, indent=2, default=str))
+    if remaining:
         return 1
     return 0
 
@@ -438,13 +597,17 @@ def run_rollback() -> int:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--purge", action="store_true")
+    parser.add_argument("--delete-probes", action="store_true")
     parser.add_argument("--replace", action="store_true")
     parser.add_argument("--rollback", action="store_true")
     args = parser.parse_args()
-    if sum(bool(x) for x in (args.purge, args.replace, args.rollback)) != 1:
-        parser.error("exactly one of --purge, --replace, --rollback")
+    flags = (args.purge, args.delete_probes, args.replace, args.rollback)
+    if sum(bool(x) for x in flags) != 1:
+        parser.error("exactly one of --purge, --delete-probes, --replace, --rollback")
     if args.purge:
         return run_purge()
+    if args.delete_probes:
+        return run_delete_probes()
     if args.replace:
         return run_replace()
     return run_rollback()
