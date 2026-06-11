@@ -110,3 +110,27 @@ python scripts/audit/offline_replay.py --fixture
 - NLCF eval gates await owner ratification (CP-2 proposal only)
 
 **Next:** Owner session — snapshot, JSONB replace, FCDO + NLCF validation walks, NLCF golden ratification.
+
+---
+
+## 7. B1 addenda (recorded pre-session — no action)
+
+### Template pinning vs live reference
+
+**Fact (schema):** `donor_reports` has single template FK column `funder_report_template_id` only — no JSONB snapshot of template at report creation (`information_schema` probe 2026-06-11).
+
+**Implication for B1:** In-flight reports **live-reference** the `funder_report_templates` row. JSONB replace on `55f891ac` affects all 16 in-flight FCDO-template reports immediately on next engine read — strand risk per [`P2_FUNDER_ROW_DELETION_PROPOSAL.md`](P2_FUNDER_ROW_DELETION_PROPOSAL.md) scoping applies to each non-terminal job stage.
+
+### DEGRADED in-flight origin (7 rows, FCDO template `55f891ac`)
+
+| Report ID | Created (UTC) | User email | Job stage |
+|-----------|---------------|------------|-----------|
+| `f162ae64-2be2-4f7a-a8b5-de979b582bd0` | 2026-06-09 12:50:40 | `audit-p0_degraded_pdf-1781009439@grantpilot-test.org` | gap |
+| `1f617f76-ab03-453b-9731-8c148b7d4a95` | 2026-06-09 11:57:50 | `audit-p0_degraded_pdf-1781006269@grantpilot-test.org` | gap |
+| `c1e33557-eb88-4826-bf11-80f72042d0c6` | 2026-06-09 08:50:22 | `audit-p0_degraded_pdf-1780995021@grantpilot-test.org` | gap |
+| `982834f6-4032-4ed6-b6a4-f5f75080536b` | 2026-06-09 08:07:21 | `audit-p0_degraded_pdf-1780992440@grantpilot-test.org` | gap |
+| `9606f25a-4b34-4fb6-8261-67d220d968fb` | 2026-06-09 05:58:01 | `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org` | synthesise |
+| `fcd8131c-eb7a-446d-8741-2368218ebdff` | 2026-06-09 05:52:33 | `audit-p0_degraded_pdf-1780984351@grantpilot-test.org` | gap |
+| `230290ce-d28a-4138-ae08-901cf1ad69c0` | 2026-06-08 13:30:07 | `pranabksingh@gmail.com` | critique |
+
+**Fact:** 6/7 DEGRADED rows are audit test accounts (`@grantpilot-test.org`); 1/7 is real user email. All non-terminal (`awaiting_human`).

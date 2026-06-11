@@ -1,8 +1,8 @@
 # P3 closure audit pack (Phase A — read-only)
 
-**Date:** 2026-06-11  
+**Date:** 2026-06-11 (Phase A `d132722`); hold-clearance appendices 2026-06-11  
 **Authority:** Owner prompt supersedes pack wording on agent-as-hands; conflict rule satisfied by owner authority note.  
-**HEAD (repo):** `ffbd86c8886cfb08463e518d268a250a7eec6c11`  
+**HEAD (repo):** hold-clearance commits land after `d132722` — see §H1/H2 CI run IDs  
 **Scope:** Facts and verbatim extracts only. No owner verdicts.
 
 ---
@@ -11,15 +11,16 @@
 
 | # | Condition | Hold? | Evidence |
 |---|-----------|-------|----------|
-| 1 | All seven locked positives present in gate list (incl. explicit forbidden refs `review_summary_sheet` + `outcome_assessment`, RSS/OA, funder/narrative zero, FCDO 6/6, NLCF unchanged, charge-once, honest exit) | **YES — hold** | Seven gate *names* present in `tests/test_p3_eval_harness.py`. `G-forbidden` asserts `forbidden_rss_oa == 0`, `funder_owned == 0`, `narrative_data == 0` only — does **not** name `review_summary_sheet` or `outcome_assessment` explicitly. `FCDO_FORBIDDEN_GAP_REFS` in `app/reports/eval/output_rubric.py` lists only `outcome_indicators`, `progress_against_expected_results`. `fcdo_incomplete_answer_key.json` lists `review_summary_sheet` and `outcome_assessment` under `forbidden_gaps` but harness does not import that key. |
-| 2 | `hard_red` / harness in **blocking** CI path on `main` | **YES — hold** | `smoke-test.yml` includes `tests/test_p3_eval_harness.py` (blocking). `@pytest.mark.hard_red` tests live in `tests/test_p3_4_output_quality.py` only — **not** referenced in `smoke-test.yml` or `p3-offline-replay.yml`. |
+| 1 | All seven locked positives present in gate list (incl. explicit forbidden refs `review_summary_sheet` + `outcome_assessment`, RSS/OA, funder/narrative zero, FCDO 6/6, NLCF unchanged, charge-once, honest exit) | **Cleared pending owner review** — fix in hold-clearance commit | §H1: `G-forbidden` now tracks `literal_forbidden_count` / `literal_forbidden_refs` for walk-3347590c namespace refs (`review_summary_sheet`, `outcome_assessment`, `outcome_indicators`, `progress_against_expected_results`). Negative-control parametrized tests inject each ref and assert gate does not pass. |
+| 2 | `hard_red` / harness in **blocking** CI path on `main` | **Cleared pending owner review** — fix in hold-clearance commit | §H2: blocking `pytest -m hard_red tests/test_p3_4_output_quality.py -q` step added to `smoke-test.yml` and `p3-offline-replay.yml`; `hard_red` marker registered in `pytest.ini`. |
 | 3 | Missing alembic scratch-Postgres upgrade evidence | **NO — hold cleared** | Run [27343602374](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27343602374) job `alembic-upgrade` completed; log excerpt in A5. |
 | 4 | Decision-log entry missing either supersession (reaper-D4 + D3 Route A) | **NO — hold cleared** | Verbatim entries in A6. |
 | 5 | Gate3 fix touched app code without fence note | **YES — hold** | `app/services/quota_service.py` changed in `bd72572` (explicit `created_at`/`updated_at` on `UserPlan` insert). `P3_1_PACKAGE_REPORT.md` documents gate3/quota fixes but contains no dedicated fence note separating app-code vs test-seed changes. |
-| 6 | Dirty working tree | **YES — hold** | `git status -sb` on 2026-06-11: `main...origin/main` with **no tracked modifications**; **32+ untracked paths** including `docs/artefacts/me_module/audits/dynamic_run/**`, `me_capture/`, throwaway scripts, sample PDF. |
+| 6 | Dirty working tree | **Cleared pending owner review** — `.gitignore` commit | §H6: capture residues gitignored; remaining untracked inventory table + grep proof. Two **RED** tracked-script hits on gitignored walk/docx paths (not CI-blocking). |
 | 7 | Prod running pre-P3 code with no upgrade path | **NO — hold cleared** | API deployment `ba60be38` logs show alembic upgrades through `0018_usage_ledger_uq`; prod DB probe (A8) confirms same revision. |
 
-**Phase A stop:** Four holds active (rows 1, 2, 5, 6). Owner review required before `GO PHASE B`.
+**Phase A stop (at `d132722`):** Four holds active (rows 1, 2, 5, 6).  
+**Hold-clearance (pre-session):** Holds 1, 2, 6 addressed in scoped commits; hold 5 (H5 quota dossier) awaits owner ratification / revert decision. **Phase B not started.**
 
 ---
 
@@ -299,3 +300,165 @@ NLCF RATIFIED: <gap set / section count>
 (or amendments to close NO-GO holds 1, 2, 5, 6 before mutation).
 
 **No Phase B actions executed in this session.**
+
+---
+
+## H5 — Quota diff dossier (gate3 fix, read-only)
+
+**Commit range:** `ab66dd9..bd72572` (`bd72572` = P3-1..P3-6 combined commit)
+
+### Verbatim diff — `app/services/quota_service.py` (only production app file in gate3 quota path)
+
+```diff
+diff --git a/app/services/quota_service.py b/app/services/quota_service.py
+index 84b7862..dd97576 100644
+--- a/app/services/quota_service.py
++++ b/app/services/quota_service.py
+@@ -82,7 +82,14 @@ def get_or_create_user_plan(
+     plan = db.execute(select(UserPlan).where(UserPlan.user_id == user_id)).scalar_one_or_none()
+     if plan:
+         return plan
+-    plan = UserPlan(id=uuid.uuid4(), user_id=user_id, plan_name=PLAN_FREE)
++    now = datetime.now(timezone.utc)
++    plan = UserPlan(
++        id=uuid.uuid4(),
++        user_id=user_id,
++        plan_name=PLAN_FREE,
++        created_at=now,
++        updated_at=now,
++    )
+     db.add(plan)
+     if commit:
+         db.commit()
+```
+
+### Verbatim diff — test seeding only (not production app)
+
+```diff
+diff --git a/tests/worker_validation_seed.py b/tests/worker_validation_seed.py
+--- a/tests/worker_validation_seed.py
++++ b/tests/worker_validation_seed.py
+@@ -176,6 +176,7 @@ def seed_queued_report_job(
+         requeue_count=0,
+     )
+@@ -259,6 +260,7 @@ def seed_orchestrator_fixture(
+     session.flush()
++    seed_user_plan(session, user.id, plan_name=PLAN_IMPACT)
+```
+
+No other files under `app/` changed solely for gate3 quota path in `bd72572`.
+
+### Behavioural analysis (facts)
+
+| Dimension | Altered? | Evidence |
+|-----------|----------|----------|
+| (a) When a charge is recorded | **No** | `charge_report_on_first_complete` unchanged; still gates on export completion + idempotency key |
+| (b) Entitlement amounts or checks | **No** | `PLAN_LIMITS`, `enforce_report_create_quota`, snapshot math unchanged |
+| (c) Plan activation/expiry semantics | **No** | `billing_period_start` / `billing_period_end` logic unchanged; only insert path touched |
+| (d) Timestamp population / test-mode seeding | **Yes** | Insert path now sets explicit `created_at`/`updated_at`; test seeds add `PLAN_IMPACT` + `requeue_count=0` |
+
+### Production call sites — `get_or_create_user_plan`
+
+| Location | Role |
+|----------|------|
+| `app/services/quota_service.py` → `_report_quota_snapshot` | Lazy plan row for quota read |
+| `app/services/quota_service.py` → `enforce_report_create_quota` | Pre-create enforcement |
+| `app/services/quota_service.py` → `charge_report_on_first_complete` | Post-export charge |
+| `app/services/quota_service.py` → `get_quota_status` | API quota status |
+| `app/api/routes/auth.py` (~701) | Signup — create FREE plan |
+| `app/services/proposal_service.py` (~649) | Proposal quota path |
+
+(`app/services/billing_service.py` defines separate `_get_or_create_user_plan` — not modified.)
+
+### Prod probe — null / inconsistent `user_plans` timestamps (read-only, 2026-06-11)
+
+```
+plan_name=FREE  rows=5  null_created_at=0  null_updated_at=0  updated_before_created=0
+plan_name=IMPACT rows=68 null_created_at=0  null_updated_at=0  updated_before_created=0
+```
+
+**Fact:** No production `user_plans` rows with null or inconsistent timestamps at probe time. Change affects **new** inserts only; existing rows predate explicit timestamp set.
+
+**Owner decision pending:** ratify with retroactive fence note, or revert `quota_service.py` hunk.
+
+---
+
+## H1 — Forbidden-gate literalness (fix evidence)
+
+**Walk namespace:** `walk_fcdo_full_3347590c.json` emits gap refs exactly as `required_item_ref` values, e.g. `review_summary_sheet` (table, `summary_and_overview`), `outcome_assessment` (table, `performance_and_conclusions`).
+
+**Change:** `FCDO_LITERAL_FORBIDDEN_GAP_REFS` in `app/reports/eval/output_rubric.py`; `gate_forbidden` summary adds `literal_forbidden_count` / `literal_forbidden_refs`. Commit scope note: includes P3-1 eval harness under `app/reports/eval/` (no `app/services` changes).
+
+**Negative-control tests** (`tests/test_p3_eval_harness.py::test_g_forbidden_negative_control_literal_ref_injected`): injects each of the four literal refs into a copy of the FCDO complete gap fixture; asserts `result.passed` is false and ref appears in `literal_forbidden_refs`.
+
+**Local run (2026-06-11):**
+
+```
+pytest tests/test_p3_eval_harness.py -k negative_control -q
+....                                                                     [100%]
+4 passed, 13 deselected in 0.35s
+```
+
+---
+
+## H2 — hard_red CI wiring (fix evidence)
+
+**Workflow diff:** blocking step added after P3 eval harness pytest in both workflows:
+
+```yaml
+- name: P3-4 hard_red faithfulness gates (blocking)
+  env:
+    PYTHONPATH: ${{ github.workspace }}
+  run: pytest -m hard_red tests/test_p3_4_output_quality.py -q
+```
+
+**Files:** `.github/workflows/smoke-test.yml`, `.github/workflows/p3-offline-replay.yml`, `pytest.ini` (`hard_red` marker).
+
+**Anti-vacuity red run (local throwaway test, not committed):**
+
+```
+pytest -m hard_red tests/test_p3_red_proof_temp.py tests/test_p3_4_output_quality.py -q
+F..                                                                      [100%]
+FAILED tests/test_p3_red_proof_temp.py::test_hard_red_intentional_fail - AssertionError: intentional hard_red anti-vacuity failure
+1 failed, 2 passed, 2 deselected in 0.51s
+EXIT=1
+```
+
+**CI run IDs:** see §H1/H2 CI table below (filled after push).
+
+---
+
+## H6 — Untracked inventory + grep proof
+
+**Post-`.gitignore` commit** (`git ls-files --others --exclude-standard`):
+
+| Path | Classification | Action |
+|------|----------------|--------|
+| `docs/artefacts/me_module/audits/P2_CORRECTIONS_FINDINGS.md` | audit-artefact | recommend commit |
+| `M_E_Module/Sample_docs/FCDO_Test_Set/02_FCDO_BridgeLight_Award_Letter.pdf` | audit-artefact (docset) | recommend commit or relocate to committed test fixtures |
+| `scripts/audit/faithfulness_check.py` | audit-artefact / tooling | recommend commit or merge into `app/reports/eval/` |
+| `pytest.ini` | tracked in H1+H2 commit | — |
+| `docs/artefacts/me_module/audits/dynamic_run/**` (40 files) | capture residue | **gitignored** |
+| `me_capture/**` (11 files) | capture residue (prod data) | **gitignored** |
+| `scripts/_audit_out.txt`, `scripts/_check_report_status.py`, `scripts/_poll_report_job.py` | throwaway | list for deletion — not deleted |
+| `scripts/audit/_probe_leak.py` | throwaway probe | gitignored; **still tracked** in git index (pre-existing) |
+
+**Grep proof — tracked test/script/workflow reads of gitignored untracked paths:**
+
+| Hit | Status | Detail |
+|-----|--------|--------|
+| `scripts/audit/distill_fcdo_complete_gap_fixture.py` | **RED** | `SOURCE_WALK = "walk_fcdo_full_3347590c.json"` under `dynamic_run/` (gitignored, untracked locally) |
+| `scripts/audit/_probe_leak.py` | **RED** | reads `docs/artefacts/me_module/audits/dynamic_run/export_3347590c.docx` (not present locally; path gitignored) |
+| `.github/workflows/p0-audit-walk.yml` | OK | writes to `dynamic_run/` at CI runtime; does not read local untracked copies on developer machine |
+| `tests/**`, blocking CI workflows | OK | no imports of gitignored walk JSON or `me_capture/` |
+
+**P2 false-green pattern:** RED hits are offline audit scripts, not in blocking smoke/offline-replay path — owner may waive or fix distill to use committed fixture path.
+
+---
+
+## H1/H2 CI run IDs (hold-clearance)
+
+| Workflow | Run ID | Notes |
+|----------|--------|-------|
+| smoke-test | *(fill after push)* | must show `P3-4 hard_red faithfulness gates (blocking)` step |
+| p3-offline-replay | *(fill after push)* | same hard_red step |
