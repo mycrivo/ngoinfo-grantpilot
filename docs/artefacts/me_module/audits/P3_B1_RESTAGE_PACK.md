@@ -135,7 +135,20 @@ Same UPDATE shape; bind from tags-only artefact. Step B (deletion) would bind on
 
 **Proof protocol:** Seed scratch row with intended post-mutation JSONB → run rollback executor → assert canonical JSON byte-equality with snapshot (`aa6c9926…`).
 
-**Local proof:** Docker unavailable on agent host; proof runs in CI scratch Postgres (see M4 for run ID after push).
+**Local proof:** Docker unavailable on agent host; proof runs in CI scratch Postgres.
+
+**CI proof evidence (verbatim log excerpt, run [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608) job `alembic-upgrade` step `B1 rollback proof`):**
+
+```json
+{
+  "snapshot_sha256": "aa6c99264aef29c78039f38891787212063f67dfe9e45a536e4c71dba0b3f4f0",
+  "rollback_affected_rows": 1,
+  "rollback_byte_equality": true,
+  "database_url_host": "localhost:5432/grantpilot_test"
+}
+```
+
+Prior attempt run [27355440965](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355440965): `alembic-upgrade` step failed — `NotNullViolation` on `region` during proof seed (fixed @ `e06673b`).
 
 ---
 
@@ -198,8 +211,11 @@ Same UPDATE shape; bind from tags-only artefact. Step B (deletion) would bind on
 | [27348215676](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27348215676) | P3 Offline Replay | `e29c89e` | completed | success |
 | [27350651156](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651156) | Smoke Test | `300b430` | completed | success |
 | [27350651106](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27350651106) | P3 Offline Replay | `300b430` | completed | success |
+| [27355440712](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355440712) | Smoke Test | `7a2fd09` | completed | success |
+| [27355440965](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355440965) | P3 Offline Replay | `7a2fd09` | completed | failure (`alembic-upgrade` rollback proof — fixed `e06673b`) |
+| [27355737608](https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/27355737608) | P3 Offline Replay | `e06673b` | completed | success (rollback proof step included) |
 
-**27350651106 jobs:** `alembic-upgrade` completed success; `offline-replay` completed success (includes NLCF pin replay step @ `300b430`; rollback proof step added in re-stage commit — run ID TBD after push).
+**27355737608 jobs:** `alembic-upgrade` completed success (rollback proof verbatim above); `offline-replay` completed success.
 
 ### R2 — Offline replay committed paths (fresh checkout)
 
