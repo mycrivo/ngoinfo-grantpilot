@@ -19,6 +19,32 @@ from scripts.audit.full_walk import PASSING_VERDICTS, exit_code_for_verdict
 FCDO_COMPLETE_GAP_REFS = frozenset({"logframe_row:op2_3", "logframe_row:op4_2"})
 FCDO_NGO_SECTION_COUNT = 6
 
+NLCF_REGRESSION_PIN_REFS = frozenset(
+    {
+        "actual_spend_total",
+        "beneficiary_numbers",
+        "budget_vs_actual",
+        "budgeted_total",
+        "capital_cost_variance",
+        "changes_made",
+        "community_feedback",
+        "community_participation_examples",
+        "learning_useful_to_others",
+        "outcome_indicators_where_available",
+        "partner_or_local_collaboration_examples",
+        "planned_changes",
+        "revenue_cost_variance",
+        "staff_or_volunteer_feedback",
+        "support_needed",
+        "unexpected_findings",
+        "what_did_not_work",
+        "what_worked",
+    }
+)
+NLCF_NGO_SECTION_COUNT = 6
+NLCF_PIN_STATUS = "matches_observed_e7fa9bee"
+NLCF_PIN_DOCSET_BASIS = "default (proposal + award + monitoring)"
+
 
 @dataclass
 class GateResult:
@@ -85,6 +111,28 @@ def gate_fcdo_gap_exact(gap_analysis: dict[str, Any]) -> GateResult:
         name="G-fcdo-gap-exact",
         passed=passed,
         summary={"gap_refs": sorted(refs), "expected": sorted(FCDO_COMPLETE_GAP_REFS)},
+    )
+
+
+def gate_nlcf_gap_regression_pin(gap_analysis: dict[str, Any]) -> GateResult:
+    gaps = gap_analysis.get("gaps") or []
+    refs = {
+        str(g.get("required_item_ref") or "")
+        for g in gaps
+        if isinstance(g, dict)
+    }
+    passed = refs == set(NLCF_REGRESSION_PIN_REFS)
+    return GateResult(
+        name="G-nlcf-gap-regression-pin",
+        passed=passed,
+        summary={
+            "gap_refs": sorted(refs),
+            "expected": sorted(NLCF_REGRESSION_PIN_REFS),
+            "pin_class": True,
+            "adjudicated_truth": False,
+            "status": NLCF_PIN_STATUS,
+            "docset_basis": NLCF_PIN_DOCSET_BASIS,
+        },
     )
 
 
@@ -193,6 +241,30 @@ def run_fcdo_gates(
     )
     if walk_verdict is not None:
         report.results.append(gate_honest_exit(walk_verdict))
+    return report
+
+
+def run_nlcf_regression_pin_gates(
+    *,
+    gap_analysis: dict[str, Any],
+    template_sections: list[dict[str, Any]],
+    report_context: dict[str, Any] | None = None,
+    content_json: dict[str, Any] | None = None,
+) -> EvalGateReport:
+    ctx = report_context or {"report_type": "annual"}
+    content = content_json or {"sections": []}
+    report = EvalGateReport(
+        results=[
+            gate_nlcf_gap_regression_pin(gap_analysis),
+            gate_forbidden(gap_analysis),
+            gate_section_count(
+                content,
+                template_sections=template_sections,
+                report_context=ctx,
+                expected_count=NLCF_NGO_SECTION_COUNT,
+            ),
+        ]
+    )
     return report
 
 

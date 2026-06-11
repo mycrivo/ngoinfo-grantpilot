@@ -184,3 +184,18 @@ Context: Report `230290ce-d28a-4138-ae08-901cf1ad69c0` failed at gap stage when 
 4. **Gate 1 confirm** stamps `confirmed: true` on all facts; unresolved conflicts block confirm.
 5. **E1 reconciler** default `MAX_OUTPUT_TOKENS` raised to 32768 via `ME_RECONCILER_MAX_OUTPUT_TOKENS`.
 ---
+DECISION (2026-06-11) — P3 gate3 quota timestamp fence (H5 retroactive ratification).
+Context: `bd72572` changed `app/services/quota_service.py` `get_or_create_user_plan` to set explicit `created_at`/`updated_at` on insert.
+
+1. **Category-d only** — timestamp population on new plan insert; no change to charge timing, entitlement amounts, or billing-period semantics.
+2. **Prod probe clean** — no null or inconsistent `user_plans` timestamps at hold-clearance probe.
+3. **Standing rule (forward)** — any `app/services/**` change ships with an explicit fence note at commit time stating behavioural category (a–d per P3 audit pack H5).
+---
+DECISION (2026-06-11) — NLCF regression pin (Phase B owner ratification).
+Context: walk `e7fa9bee`; owner line `NLCF RATIFIED: regression pin`.
+
+1. **Pin-class, not adjudicated truth** — `G-nlcf-gap-regression-pin` asserts exact 18-ref set from walk on default docset; status `matches_observed_e7fa9bee`.
+2. **Section count 6** — annual visible NGO sections unchanged vs template.
+3. **Typing parity queued** — `budget_vs_actual` table vs indicator typing not enforced in pin gate until follow-up.
+4. **Fixture** — `tests/fixtures/gap/keys/nlcf_regression_pin_e7fa9bee.json`; offline replay `--nlcf-pin`.
+---

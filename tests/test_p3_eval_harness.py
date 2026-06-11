@@ -13,13 +13,17 @@ from app.reports.eval.gap_pr import evaluate_gap_pr
 from app.reports.eval.gates import (
     FCDO_COMPLETE_GAP_REFS,
     FCDO_NGO_SECTION_COUNT,
+    NLCF_REGRESSION_PIN_REFS,
+    NLCF_NGO_SECTION_COUNT,
     gate_degrade_leak,
     gate_fcdo_gap_exact,
     gate_faithfulness,
     gate_forbidden,
     gate_honest_exit,
+    gate_nlcf_gap_regression_pin,
     gate_section_count,
     run_fcdo_gates,
+    run_nlcf_regression_pin_gates,
 )
 from app.reports.eval.fixtures import pad_fcdo_ngo_sections
 from app.reports.eval.offline_replay import replay_clean_fixture
@@ -35,6 +39,7 @@ FCDO_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_F
 NLCF_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_NLCF.json"
 CLEAN_FIXTURE = ROOT / "tests" / "fixtures" / "synthesis" / "clean_faithfulness_fixture.json"
 FCDO_COMPLETE_KEY = ROOT / "tests" / "fixtures" / "gap" / "keys" / "fcdo_complete_answer_key.json"
+NLCF_PIN_KEY = ROOT / "tests" / "fixtures" / "gap" / "keys" / "nlcf_regression_pin_e7fa9bee.json"
 
 
 @pytest.fixture
@@ -82,6 +87,56 @@ def test_g_faithfulness_zero_unmatched_on_clean(clean_fixture):
     )
     assert result.passed
     assert result.summary["faithfulness.unmatched_numbers"] == 0
+
+
+@pytest.fixture
+def nlcf_regression_gap_analysis() -> dict:
+    key = json.loads(NLCF_PIN_KEY.read_text(encoding="utf-8"))
+    gaps = []
+    for item in key["expected_missing"]:
+        gaps.append(
+            {
+                **item,
+                "requirement_type": "data",
+                "owner": "ngo",
+            }
+        )
+    return {"gaps": gaps, "open_items_count": len(gaps)}
+
+
+def test_g_nlcf_gap_regression_pin_eighteen_refs(nlcf_regression_gap_analysis):
+    result = gate_nlcf_gap_regression_pin(nlcf_regression_gap_analysis)
+    assert result.passed
+    assert result.summary["pin_class"] is True
+    assert result.summary["adjudicated_truth"] is False
+    assert result.summary["status"] == "matches_observed_e7fa9bee"
+    assert set(result.summary["gap_refs"]) == set(NLCF_REGRESSION_PIN_REFS)
+    assert len(result.summary["gap_refs"]) == 18
+
+
+def test_run_nlcf_regression_pin_gates(nlcf_template_sections, nlcf_regression_gap_analysis):
+    visible = visible_sections_for_context(
+        nlcf_template_sections,
+        report_context={"report_type": "annual"},
+        include_funder_owned=False,
+    )
+    content = {
+        "sections": [
+            {
+                "section_key": s["section_key"],
+                "generation_status": "GENERATED",
+                "content": {"citation_mode": "structured", "text": "", "claims": []},
+            }
+            for s in visible
+        ]
+    }
+    report = run_nlcf_regression_pin_gates(
+        gap_analysis=nlcf_regression_gap_analysis,
+        template_sections=nlcf_template_sections,
+        content_json=content,
+    )
+    assert report.passed
+    assert report.to_summary_dict()["gates"]["G-nlcf-gap-regression-pin"]["passed"]
 
 
 def test_g_fcdo_gap_exact_two_ref(fcdo_complete_gap_analysis):

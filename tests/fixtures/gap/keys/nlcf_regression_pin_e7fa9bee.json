@@ -1,0 +1,127 @@
+{
+  "fixture": "nlcf_regression_pin",
+  "pin_class": true,
+  "adjudicated_truth": false,
+  "status": "matches_observed_e7fa9bee",
+  "source_walk": "walk_nlcf_gen_e7fa9bee.json",
+  "source_report_id": "e7fa9bee-4b05-4e5b-bdd4-17dfedaaa0a5",
+  "docset_basis": "default (proposal + award + monitoring)",
+  "report_context": {
+    "report_type": "annual"
+  },
+  "section_count": 6,
+  "expected_gap_refs": [
+    "actual_spend_total",
+    "beneficiary_numbers",
+    "budget_vs_actual",
+    "budgeted_total",
+    "capital_cost_variance",
+    "changes_made",
+    "community_feedback",
+    "community_participation_examples",
+    "learning_useful_to_others",
+    "outcome_indicators_where_available",
+    "partner_or_local_collaboration_examples",
+    "planned_changes",
+    "revenue_cost_variance",
+    "staff_or_volunteer_feedback",
+    "support_needed",
+    "unexpected_findings",
+    "what_did_not_work",
+    "what_worked"
+  ],
+  "expected_missing": [
+    {
+      "section_key": "community_involvement",
+      "required_item_type": "indicator",
+      "required_item_ref": "community_participation_examples"
+    },
+    {
+      "section_key": "community_involvement",
+      "required_item_type": "indicator",
+      "required_item_ref": "partner_or_local_collaboration_examples"
+    },
+    {
+      "section_key": "difference_made",
+      "required_item_type": "indicator",
+      "required_item_ref": "beneficiary_numbers"
+    },
+    {
+      "section_key": "difference_made",
+      "required_item_type": "indicator",
+      "required_item_ref": "community_feedback"
+    },
+    {
+      "section_key": "difference_made",
+      "required_item_type": "indicator",
+      "required_item_ref": "staff_or_volunteer_feedback"
+    },
+    {
+      "section_key": "difference_made",
+      "required_item_type": "indicator",
+      "required_item_ref": "outcome_indicators_where_available"
+    },
+    {
+      "section_key": "learning",
+      "required_item_type": "indicator",
+      "required_item_ref": "what_worked"
+    },
+    {
+      "section_key": "learning",
+      "required_item_type": "indicator",
+      "required_item_ref": "what_did_not_work"
+    },
+    {
+      "section_key": "learning",
+      "required_item_type": "indicator",
+      "required_item_ref": "unexpected_findings"
+    },
+    {
+      "section_key": "learning",
+      "required_item_type": "indicator",
+      "required_item_ref": "learning_useful_to_others"
+    },
+    {
+      "section_key": "changes_and_next_steps",
+      "required_item_type": "indicator",
+      "required_item_ref": "changes_made"
+    },
+    {
+      "section_key": "changes_and_next_steps",
+      "required_item_type": "indicator",
+      "required_item_ref": "planned_changes"
+    },
+    {
+      "section_key": "changes_and_next_steps",
+      "required_item_type": "indicator",
+      "required_item_ref": "support_needed"
+    },
+    {
+      "section_key": "spend_summary",
+      "required_item_type": "indicator",
+      "required_item_ref": "budgeted_total"
+    },
+    {
+      "section_key": "spend_summary",
+      "required_item_type": "indicator",
+      "required_item_ref": "actual_spend_total"
+    },
+    {
+      "section_key": "spend_summary",
+      "required_item_type": "indicator",
+      "required_item_ref": "revenue_cost_variance"
+    },
+    {
+      "section_key": "spend_summary",
+      "required_item_type": "indicator",
+      "required_item_ref": "capital_cost_variance"
+    },
+    {
+      "section_key": "spend_summary",
+      "required_item_type": "table",
+      "required_item_ref": "budget_vs_actual"
+    }
+  ],
+  "forbidden_gaps": [],
+  "typing_parity_queued": true
+}

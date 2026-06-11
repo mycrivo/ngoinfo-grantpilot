@@ -14,6 +14,7 @@ from app.reports.eval.gates import (
     gate_honest_exit,
     load_walk_artifact,
     run_fcdo_gates,
+    run_nlcf_regression_pin_gates,
 )
 from app.reports.eval.faithfulness_check import load_faithfulness_fixture
 from app.reports.eval.fixtures import pad_fcdo_ngo_sections
@@ -86,6 +87,53 @@ def replay_walk(path: Path) -> tuple[dict[str, Any], int]:
     return summary, 0 if not failures else 1
 
 
+def _default_nlcf_template() -> list[dict[str, Any]]:
+    template_path = _repo_root() / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_NLCF.json"
+    payload = json.loads(template_path.read_text(encoding="utf-8"))
+    return list(payload.get("report_sections_json") or [])
+
+
+def replay_nlcf_regression_pin() -> tuple[dict[str, Any], int]:
+    key_path = (
+        _repo_root()
+        / "tests"
+        / "fixtures"
+        / "gap"
+        / "keys"
+        / "nlcf_regression_pin_e7fa9bee.json"
+    )
+    key = json.loads(key_path.read_text(encoding="utf-8"))
+    gaps = [
+        {**item, "requirement_type": "data", "owner": "ngo"}
+        for item in key.get("expected_missing") or []
+    ]
+    gap_analysis = {"gaps": gaps, "open_items_count": len(gaps)}
+    template = _default_nlcf_template()
+    visible = template  # annual context; conditional final section off in gate helper
+    content = {
+        "sections": [
+            {
+                "section_key": s["section_key"],
+                "generation_status": "GENERATED",
+                "content": {"citation_mode": "structured", "text": "", "claims": []},
+            }
+            for s in visible
+            if s.get("section_key") != "final_update_only"
+        ]
+    }
+    report = run_nlcf_regression_pin_gates(
+        gap_analysis=gap_analysis,
+        template_sections=template,
+        content_json=content,
+        report_context=key.get("report_context") or {"report_type": "annual"},
+    )
+    summary = report.to_summary_dict()
+    summary["fixture"] = str(key_path)
+    summary["pin_status"] = key.get("status")
+    print(json.dumps(summary, indent=2))
+    return summary, 0 if report.passed else 1
+
+
 def replay_clean_fixture(path: Path) -> tuple[dict[str, Any], int]:
     fixture = load_faithfulness_fixture(path)
     template = _default_fcdo_template()
@@ -134,6 +182,10 @@ def main(argv: list[str] | None = None) -> int:
     if not args or args[0] == "--fixture":
         path = Path(args[1]) if len(args) > 1 else default_fixture
         _, code = replay_clean_fixture(path)
+        return code
+
+    if args[0] == "--nlcf-pin":
+        _, code = replay_nlcf_regression_pin()
         return code
 
     path = Path(args[0])

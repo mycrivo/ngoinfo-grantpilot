@@ -1,0 +1,50 @@
+{
+  "template_id": "55f891ac-bb8b-4137-bc42-6de8ff935064",
+  "snapshot_path": "docs\\artefacts\\me_module\\audits\\snapshots\\fcdo_55f891ac_pre_phase3_exit_2026-06-11.json",
+  "rollback_sql_path": "docs\\artefacts\\me_module\\audits\\snapshots\\fcdo_55f891ac_rollback_2026-06-11.sql",
+  "checksum_sha256": "aa6c99264aef29c78039f38891787212063f67dfe9e45a536e4c71dba0b3f4f0",
+  "alembic_version_prod": "0018_usage_ledger_uq",
+  "prod_version": 1,
+  "repo_source": "docs\\artefacts\\me_module\\TEMPLATE_INSTANCE_FCDO.json",
+  "diff_summary": {
+    "sections_removed_in_repo": [],
+    "sections_added_in_repo": [],
+    "prod_funder_owned_section_keys": [
+      "detailed_output_scoring",
+      "value_for_money"
+    ],
+    "repo_funder_owned_section_keys": [
+      "detailed_output_scoring",
+      "value_for_money"
+    ],
+    "kill_list_sections": [
+      "detailed_output_scoring",
+      "value_for_money"
+    ],
+    "kill_list_indicators": [
+      "FCDO_management_actions",
+      "commercial_improvement_where_relevant",
+      "economy",
+      "effectiveness",
+      "efficiency",
+      "equity",
+      "impact_weightings",
+      "output_scores",
+      "risk_ratings"
+    ],
+    "kill_list_tables": [
+      "output_score_table",
+      "review_summary_sheet",
+      "vfm_measures"
+    ]
+  },
+  "repo_tag_coverage_sample": [
+    "FCDO_management_actions",
+    "actual_results",
+    "cost_drivers",
+    "forecast_vs_actual_costs",
+    "logframe_milestones",
+    "output_indicators",
+    "review_summary_sheet"
+  ]
+}

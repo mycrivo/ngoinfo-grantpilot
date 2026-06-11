@@ -1,6 +1,7 @@
 # P3-1 NLCF golden proposal (CP-2)
 
 **Status:** Proposal only — NLCF eval gates wait for owner ratification; FCDO gates activate immediately on `main`.  
+**Ratification (2026-06-11):** **Regression pin** — 18-ref set per classification table below; section count **6**; docset basis **default (proposal + award + monitoring)**; status **`matches_observed_e7fa9bee`**. Pin-class assertions active in CI (`G-nlcf-gap-regression-pin`); typing parity queued. Not adjudicated truth.
 **Source walk:** `walk_nlcf_gen_e7fa9bee.json` (run `nlcf_gen`, report `e7fa9bee-4b05-4e5b-bdd4-17dfedaaa0a5`, verdict `stopped_at_gate2`).  
 **Plan reference:** Phase 3 Plan v2 · CP-2.
 

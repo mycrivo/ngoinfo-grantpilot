@@ -57,6 +57,10 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python scripts/audit/offline_replay.py --fixture
+      - name: Offline replay — NLCF regression pin
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python scripts/audit/offline_replay.py --nlcf-pin
       - name: Honest exit code probe
         env:
           PYTHONPATH: ${{ github.workspace }}

@@ -1,8 +1,8 @@
 # P3 Phase exit — owner session pack
 
 **Plan:** Phase 3 — Durable and Excellent (Plan v2)  
-**Status:** STOP — owner session required before prod mutations or live validation walks  
-**Baseline after Phase 3:** (record commit SHA + CI run ID after push)
+**Status:** Phase B **B1 complete** — STOP for `GO MUTATION` (B2/B3/B4 pending)  
+**Baseline after Phase 3:** `6ff999a` (hold-clearance) + Phase B commits pending push
 
 ---
 
@@ -134,3 +134,17 @@ python scripts/audit/offline_replay.py --fixture
 | `230290ce-d28a-4138-ae08-901cf1ad69c0` | 2026-06-08 13:30:07 | `pranabksingh@gmail.com` | critique |
 
 **Fact:** 6/7 DEGRADED rows are audit test accounts (`@grantpilot-test.org`); 1/7 is real user email. All non-terminal (`awaiting_human`).
+
+---
+
+## 8. Phase B progress (owner GO 2026-06-11)
+
+| Step | Status | Artefact |
+|------|--------|----------|
+| R1 RED cleanup | Done | distill → committed fixture; `_probe_leak.py` removed |
+| NLCF regression pin | Active in CI | `nlcf_regression_pin_e7fa9bee.json`, `G-nlcf-gap-regression-pin` |
+| H5 fence note | Ratified | `ME_MODULE_DECISION_LOG.md` 2026-06-11 entry |
+| B1 snapshot + staging | Done | [`P3_B1_MUTATION_STAGING.md`](P3_B1_MUTATION_STAGING.md) |
+| B2 mutation | **Awaiting `GO MUTATION`** | — |
+| B3 live walks | Pending B2 | Test account: `audit-p0_fcdo_pdf_full-1780984679@grantpilot-test.org` |
+| B4 evidence bundle | Pending B3 | — |
