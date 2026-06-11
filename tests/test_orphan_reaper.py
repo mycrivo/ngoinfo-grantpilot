@@ -107,16 +107,13 @@ def test_reaps_stale_running_job_with_old_started_at(reaper_db):
     session.close()
 
     verify = reaper_db()
-    failed = verify.get(ReportJob, job_id)
+    requeued = verify.get(ReportJob, job_id)
     verify.close()
 
-    assert failed is not None
-    assert failed.status == ReportJobStatus.FAILED.value
-    assert failed.finished_at is not None
-    assert "orphan reaper" in (failed.error or "")
-    assert failed.agent_trace_json.get("failure", {}).get("event") == (
-        FAILURE_EVENT_ORPHAN_REAPED
-    )
+    assert requeued is not None
+    assert requeued.status == ReportJobStatus.QUEUED.value
+    assert requeued.requeue_count == 1
+    assert requeued.finished_at is None
 
 
 def test_does_not_reap_fresh_running_job(reaper_db):
@@ -186,9 +183,10 @@ def test_reaps_stale_extract_silence(reaper_db):
     session.close()
 
     verify = reaper_db()
-    failed = verify.get(ReportJob, job_id)
+    requeued = verify.get(ReportJob, job_id)
     verify.close()
-    assert failed.status == ReportJobStatus.FAILED.value
+    assert requeued.status == ReportJobStatus.QUEUED.value
+    assert requeued.requeue_count == 1
 
 
 def test_does_not_reap_awaiting_human(reaper_db):
@@ -224,15 +222,42 @@ def test_reap_idempotent_second_pass(reaper_db):
     session.close()
 
     verify = reaper_db()
-    failed = verify.get(ReportJob, job_id)
+    requeued = verify.get(ReportJob, job_id)
     verify.close()
-    assert failed.status == ReportJobStatus.FAILED.value
+    assert requeued.status == ReportJobStatus.QUEUED.value
+    assert requeued.requeue_count == 1
 
 
-def test_enqueue_after_reap_succeeds(reaper_db):
+def test_reap_terminal_after_requeue_bound(reaper_db):
     session = reaper_db()
     stale = datetime.now(timezone.utc) - timedelta(hours=2)
     job = _seed_running_job(session, started_at=stale)
+    job.requeue_count = 1
+    session.add(job)
+    session.commit()
+    job_id = job.id
+    session.close()
+
+    session = reaper_db()
+    assert reap_stale_running_jobs(session) == 1
+    session.close()
+
+    verify = reaper_db()
+    failed = verify.get(ReportJob, job_id)
+    verify.close()
+    assert failed.status == ReportJobStatus.FAILED.value
+    assert failed.agent_trace_json.get("failure", {}).get("event") == (
+        FAILURE_EVENT_ORPHAN_REAPED
+    )
+
+
+def test_enqueue_after_terminal_reap_succeeds(reaper_db):
+    session = reaper_db()
+    stale = datetime.now(timezone.utc) - timedelta(hours=2)
+    job = _seed_running_job(session, started_at=stale)
+    job.requeue_count = 1
+    session.add(job)
+    session.commit()
     report = job.donor_report
     user_id = report.user_id
     report_id = report.id

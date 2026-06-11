@@ -500,6 +500,7 @@
     "latency_ms": 72363,
     "input_tokens": 16,
     "output_tokens": 12904,
+    "estimated": true,
     "max_turns": 3,
     "content_hash": "422b2e10a1aa9ae2d5e1938feecefae7f8d552f0d7f01c16e9bb7046f1a0e0bd"
   }

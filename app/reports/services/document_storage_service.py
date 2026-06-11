@@ -5,8 +5,18 @@ from pathlib import PurePosixPath
 
 import boto3
 from botocore.client import BaseClient
+from botocore.exceptions import BotoCoreError, ClientError
 
 from app.core.config import Settings, get_settings
+
+
+class DocumentStorageError(Exception):
+    """Raised when object storage read/write/delete fails."""
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message
 
 
 class DocumentStorageService:
@@ -66,4 +76,10 @@ class DocumentStorageService:
         return response["Body"].read()
 
     def delete_object(self, key: str) -> None:
-        self.client.delete_object(Bucket=self.bucket, Key=key)
+        try:
+            self.client.delete_object(Bucket=self.bucket, Key=key)
+        except (ClientError, BotoCoreError) as exc:
+            raise DocumentStorageError(
+                "STORAGE_DELETE_FAILED",
+                f"Failed to delete object {key}: {exc}",
+            ) from exc

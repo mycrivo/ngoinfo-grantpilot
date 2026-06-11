@@ -8,6 +8,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError
+from app.models.proposal import Proposal
 from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_ANSWERED
 from app.reports.knowledge.confirmed_kb import (
     filter_citable_facts,
@@ -37,6 +38,8 @@ _TABLE_DATA_SOURCE_PREFIXES: dict[str, tuple[str, ...]] = {
     "financials": ("financials.",),
 }
 
+_LINKED_PROPOSAL_SUMMARY_MAX_CHARS = 4000
+
 
 def _answered_gap_answers(gap_answers: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, Any] = {}
@@ -58,6 +61,44 @@ def _format_period_label(start: date | None, end: date | None) -> str | None:
     if start is None or end is None:
         return None
     return f"{start.isoformat()} to {end.isoformat()}"
+
+
+def _linked_proposal_summary(db: Session, report: DonorReport) -> str | None:
+    """Truncate winning-proposal prose for synthesis context (background only)."""
+    if not report.linked_proposal_id:
+        return None
+    proposal = db.get(Proposal, report.linked_proposal_id)
+    if proposal is None:
+        return None
+    parts: list[str] = []
+    for section in (proposal.content_json or {}).get("sections") or []:
+        if not isinstance(section, dict):
+            continue
+        label = str(section.get("label") or section.get("section_key") or "").strip()
+        content = section.get("content") or {}
+        text = str(content.get("text") or "").strip() if isinstance(content, dict) else ""
+        if not text:
+            continue
+        parts.append(f"{label}: {text}" if label else text)
+    if not parts:
+        return None
+    summary = "\n\n".join(parts)
+    if len(summary) > _LINKED_PROPOSAL_SUMMARY_MAX_CHARS:
+        return summary[: _LINKED_PROPOSAL_SUMMARY_MAX_CHARS].rstrip() + "…"
+    return summary
+
+
+def _terminology_resolved(template: FunderReportTemplate) -> dict[str, str]:
+    mapping = (template.terminology_map_json or {}).get("canonical_to_funder") or {}
+    if not isinstance(mapping, dict):
+        return {}
+    return {str(k): str(v) for k, v in mapping.items() if k and v}
+
+
+def _narrative_constraints(template: FunderReportTemplate) -> dict[str, Any]:
+    rules = template.format_rules_json or {}
+    constraints = rules.get("narrative_constraints") or {}
+    return constraints if isinstance(constraints, dict) else {}
 
 
 def _ngo_payload(db: Session, user_id) -> dict[str, Any]:
@@ -186,5 +227,8 @@ def build_report_inputs_for_section(
                 report.reporting_period_end,
             ),
             "funder_display_name": f"{template.funder_name} — {template.template_name}",
+            "linked_proposal_summary": _linked_proposal_summary(db, report),
+            "terminology_resolved": _terminology_resolved(template),
+            "narrative_constraints": _narrative_constraints(template),
         },
     }

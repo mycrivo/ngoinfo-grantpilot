@@ -1,4 +1,4 @@
-"""F1 synthesis output hygiene — evidence_used binding and prose sanitization."""
+"""F1 synthesis output hygiene — evidence_used binding, prose sanitization, humaniser checks."""
 
 from __future__ import annotations
 
@@ -29,6 +29,46 @@ _DATE_VALUE_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Mirrors Humaniser V3 banned list in synthesis system prompt (detection only — no prose rewrite).
+_HUMANISER_BANNED_WORDS = frozenset(
+    {
+        "crucial",
+        "pivotal",
+        "vital",
+        "leverage",
+        "comprehensive",
+        "robust",
+        "synergy",
+        "holistic",
+        "paradigm",
+        "empower",
+        "transformative",
+        "delve",
+        "foster",
+        "utilize",
+        "streamline",
+        "spearhead",
+        "bolster",
+        "harness",
+    }
+)
+
+_HUMANISER_BANNED_PHRASES = (
+    "it is worth noting",
+    "not only",
+    "but also",
+    "game-changing",
+    "this project will",
+    "we propose to",
+    "upon funding",
+    "capacity building",
+)
+
+_PROPOSAL_VOICE_RE = re.compile(
+    r"\b(this project will|we propose to|upon funding|will deliver|will achieve)\b",
+    re.IGNORECASE,
+)
+
 
 @dataclass(frozen=True)
 class SanitizedSectionContent:
@@ -37,6 +77,7 @@ class SanitizedSectionContent:
     dropped_citations: list[str]
     remapped_citations: list[dict[str, str]]
     auto_citations: list[str]
+    humaniser_violations: list[str]
 
 
 def _strip_null_bytes(text: str) -> str:
@@ -159,6 +200,23 @@ def sanitize_prose(text: str) -> str:
         for ch in text
         if ch in "\n\r\t" or (ord(ch) >= 32 and ord(ch) != 127)
     )
+
+
+def detect_humaniser_violations(text: str) -> list[str]:
+    """Return deterministic humaniser/tone violations (does not mutate prose)."""
+    if not text or not str(text).strip():
+        return []
+    lowered = text.lower()
+    violations: list[str] = []
+    for word in _HUMANISER_BANNED_WORDS:
+        if re.search(rf"\b{re.escape(word)}\w*\b", lowered):
+            violations.append(f"banned_word:{word}")
+    for phrase in _HUMANISER_BANNED_PHRASES:
+        if phrase in lowered:
+            violations.append(f"banned_phrase:{phrase}")
+    if _PROPOSAL_VOICE_RE.search(text):
+        violations.append("proposal_voice_detected")
+    return violations
 
 
 def _resolve_citation(
@@ -538,10 +596,12 @@ def sanitize_generated_content(
         kb_fact_keys=kb_fact_keys,
         kb_gap_answer_keys=kb_gap_answer_keys,
     )
+    violations = detect_humaniser_violations(cleaned_text)
     return SanitizedSectionContent(
         text=cleaned_text,
         evidence_used=enriched_evidence,
         dropped_citations=dropped,
         remapped_citations=remapped,
         auto_citations=auto_citations,
+        humaniser_violations=violations,
     )

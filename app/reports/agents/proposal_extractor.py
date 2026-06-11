@@ -18,6 +18,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.schemas.proposal_extraction_v1 import (
     PROPOSAL_EXTRACTION_SCHEMA_VERSION,
     ExtractedActivity,
@@ -179,17 +180,6 @@ def compute_content_hash(text: str) -> str:
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
-def _extract_token_counts(usage: dict[str, Any] | None) -> tuple[int | None, int | None]:
-    if not usage:
-        return None, None
-    input_tokens = usage.get("input_tokens") or usage.get("prompt_tokens")
-    output_tokens = usage.get("output_tokens") or usage.get("completion_tokens")
-    return (
-        int(input_tokens) if input_tokens is not None else None,
-        int(output_tokens) if output_tokens is not None else None,
-    )
-
-
 def _prepare_input_text(text: str) -> tuple[str, bool]:
     normalized = text.strip()
     if len(normalized) <= MAX_INPUT_CHARS:
@@ -299,15 +289,14 @@ async def _run_extractor_query(
     stop_reason: str | None = None
     is_error = False
     latency_ms: int | None = None
-    input_tokens: int | None = None
-    output_tokens: int | None = None
+    usage_accumulator = SdkUsageAccumulator()
 
     async for message in query_fn(prompt=prompt, options=options):
+        usage_accumulator.absorb_message(message)
         if isinstance(message, ResultMessage):
             stop_reason = message.stop_reason
             is_error = message.is_error
             latency_ms = message.duration_ms
-            input_tokens, output_tokens = _extract_token_counts(message.usage)
             if message.subtype == "success" and message.structured_output:
                 structured_output = message.structured_output
             elif message.subtype == "error_max_structured_output_retries":
@@ -315,6 +304,10 @@ async def _run_extractor_query(
                     "STOP_STRUCTURED_OUTPUT_FAILED",
                     "Proposal extractor could not produce valid structured output",
                 )
+
+    usage = usage_accumulator.resolve()
+    input_tokens = usage.input_tokens
+    output_tokens = usage.output_tokens
 
     if is_error:
         raise ProposalExtractorError(
@@ -335,6 +328,8 @@ async def _run_extractor_query(
         latency_ms=latency_ms,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
+        estimated=usage.estimated,
+        cost_usd=usage.cost_usd,
         max_turns=MAX_TURNS,
         content_hash=content_hash,
     )

@@ -107,6 +107,7 @@ jobs:
         run: |
           set -o pipefail
           python scripts/audit/full_walk.py | tee docs/artefacts/me_module/audits/dynamic_run/p1_clean_docset.log
+          test "${PIPESTATUS[0]}" -eq 0
 
       - name: Run degraded PDF walk (gate1 — DEGRADED-PDF tier)
         env:

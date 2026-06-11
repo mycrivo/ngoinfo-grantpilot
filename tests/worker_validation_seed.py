@@ -176,6 +176,7 @@ def seed_queued_report_job(
         stage=stage,
         status=ReportJobStatus.QUEUED.value,
         agent_trace_json={},
+        requeue_count=0,
     )
     session.add(job)
     session.commit()
@@ -259,6 +260,7 @@ def seed_orchestrator_fixture(
     )
     session.add_all([user, template, report])
     session.flush()
+    seed_user_plan(session, user.id, plan_name=PLAN_IMPACT)
 
     doc_specs = documents or [
         ("proposal.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
@@ -281,6 +283,7 @@ def seed_orchestrator_fixture(
         stage=job_stage,
         status=job_status,
         agent_trace_json={},
+        requeue_count=0,
     )
     session.add(job)
     session.commit()

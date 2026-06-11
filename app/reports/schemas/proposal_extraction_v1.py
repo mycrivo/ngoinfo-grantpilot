@@ -96,6 +96,8 @@ class ProposalAgentTrace(BaseModel):
     latency_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    estimated: bool | None = None
+    cost_usd: float | None = None
     max_turns: int | None = None
     content_hash: str | None = None
     attempt_count: int | None = None

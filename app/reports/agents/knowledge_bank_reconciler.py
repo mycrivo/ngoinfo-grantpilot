@@ -34,6 +34,7 @@ from pydantic import BaseModel, ValidationError
 
 
 
+from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.parsing.json_from_text import parse_json_object_from_text
 from app.reports.reconciliation.degrade_resilience import (
     ReconcilerFailureContext,
@@ -776,6 +777,10 @@ async def _run_reconciler_query(
 
     output_tokens: int | None = None
 
+    usage_estimated: bool | None = None
+
+    usage_cost_usd: float | None = None
+
     api_stop_reason: str | None = None
 
 
@@ -786,7 +791,11 @@ async def _run_reconciler_query(
 
         stop_reason: str | None = None
 
+        usage_accumulator = SdkUsageAccumulator()
+
         async for message in query_fn(prompt=prompt, options=None):
+
+            usage_accumulator.absorb_message(message)
 
             is_error = bool(getattr(message, "is_error", False))
 
@@ -795,12 +804,6 @@ async def _run_reconciler_query(
             api_stop_reason = stop_reason
 
             latency_ms = getattr(message, "duration_ms", latency_ms)
-
-            input_tokens, output_tokens = _extract_token_counts(
-
-                getattr(message, "usage", None)
-
-            )
 
             subtype = getattr(message, "subtype", None)
 
@@ -824,6 +827,16 @@ async def _run_reconciler_query(
 
                 break
 
+        usage = usage_accumulator.resolve()
+
+        input_tokens = usage.input_tokens
+
+        output_tokens = usage.output_tokens
+
+        usage_estimated = usage.estimated
+
+        usage_cost_usd = usage.cost_usd
+
         if is_error:
 
             raise KnowledgeBankReconcilerError(
@@ -843,6 +856,8 @@ async def _run_reconciler_query(
             model=resolved_model,
 
         )
+
+        usage_estimated = False
 
         raw_response_text = text
 
@@ -931,6 +946,10 @@ async def _run_reconciler_query(
         input_tokens=input_tokens,
 
         output_tokens=output_tokens,
+
+        estimated=usage_estimated,
+
+        cost_usd=usage_cost_usd,
 
         max_turns=None,
 

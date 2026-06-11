@@ -14,6 +14,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.schemas.fact_safety_critic_v1 import (
     CRITIC_AGENT_NAME,
     FactSafetyCriticLLMOutput,
@@ -368,27 +369,33 @@ async def _run_critic_query(
     query_fn: QueryFn | None,
     model: str | None = None,
     system_prompt: str = _QUALITATIVE_SYSTEM_PROMPT,
-) -> tuple[dict[str, Any], str, int | None, int | None, int | None]:
+) -> tuple[dict[str, Any], str, int | None, int | None, int | None, bool | None, float | None]:
     resolved_model = model or DEFAULT_MODEL
     structured_output: dict[str, Any] | None = None
     latency_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    usage_estimated: bool | None = None
+    usage_cost_usd: float | None = None
 
     if query_fn is not None:
         is_error = False
         stop_reason: str | None = None
+        usage_accumulator = SdkUsageAccumulator()
         async for message in query_fn(prompt=prompt, options=None):
+            usage_accumulator.absorb_message(message)
             is_error = bool(getattr(message, "is_error", False))
             stop_reason = getattr(message, "stop_reason", stop_reason)
             latency_ms = getattr(message, "duration_ms", latency_ms)
-            input_tokens, output_tokens = _extract_token_counts(
-                getattr(message, "usage", None)
-            )
             so = getattr(message, "structured_output", None)
             if so is not None:
                 structured_output = so
                 break
+        usage = usage_accumulator.resolve()
+        input_tokens = usage.input_tokens
+        output_tokens = usage.output_tokens
+        usage_estimated = usage.estimated
+        usage_cost_usd = usage.cost_usd
         if is_error:
             raise FactSafetyCriticError(
                 "STOP_AGENT_ERROR",
@@ -398,6 +405,7 @@ async def _run_critic_query(
         text, latency_ms, input_tokens, output_tokens = await _call_anthropic_messages(
             prompt, model=resolved_model, system_prompt=system_prompt
         )
+        usage_estimated = False
         structured_output = _parse_json_from_text(text)
 
     if structured_output is None:
@@ -405,7 +413,15 @@ async def _run_critic_query(
             "STOP_NO_RESULT",
             "Critic finished without structured output",
         )
-    return structured_output, resolved_model, latency_ms, input_tokens, output_tokens
+    return (
+        structured_output,
+        resolved_model,
+        latency_ms,
+        input_tokens,
+        output_tokens,
+        usage_estimated,
+        usage_cost_usd,
+    )
 
 
 async def run_qualitative_fact_safety_critic(
@@ -432,16 +448,22 @@ async def run_qualitative_fact_safety_critic(
     )
 
     try:
-        structured_output, resolved_model, latency_ms, input_tokens, output_tokens = (
-            await asyncio.wait_for(
-                _run_critic_query(
-                    prompt,
-                    query_fn=query_fn,
-                    model=model,
-                    system_prompt=_QUALITATIVE_SYSTEM_PROMPT,
-                ),
-                timeout=TIMEOUT_SECONDS,
-            )
+        (
+            structured_output,
+            resolved_model,
+            latency_ms,
+            input_tokens,
+            output_tokens,
+            _usage_estimated,
+            _usage_cost_usd,
+        ) = await asyncio.wait_for(
+            _run_critic_query(
+                prompt,
+                query_fn=query_fn,
+                model=model,
+                system_prompt=_QUALITATIVE_SYSTEM_PROMPT,
+            ),
+            timeout=TIMEOUT_SECONDS,
         )
     except asyncio.TimeoutError as exc:
         raise FactSafetyCriticError(
@@ -489,16 +511,22 @@ async def run_fact_safety_critic(
     )
 
     try:
-        structured_output, resolved_model, latency_ms, input_tokens, output_tokens = (
-            await asyncio.wait_for(
-                _run_critic_query(
-                    prompt,
-                    query_fn=query_fn,
-                    model=model,
-                    system_prompt=_LEGACY_SYSTEM_PROMPT,
-                ),
-                timeout=TIMEOUT_SECONDS,
-            )
+        (
+            structured_output,
+            resolved_model,
+            latency_ms,
+            input_tokens,
+            output_tokens,
+            _usage_estimated,
+            _usage_cost_usd,
+        ) = await asyncio.wait_for(
+            _run_critic_query(
+                prompt,
+                query_fn=query_fn,
+                model=model,
+                system_prompt=_LEGACY_SYSTEM_PROMPT,
+            ),
+            timeout=TIMEOUT_SECONDS,
         )
     except asyncio.TimeoutError as exc:
         raise FactSafetyCriticError(

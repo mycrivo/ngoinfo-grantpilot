@@ -28,6 +28,7 @@ from app.reports.gap.template_requirements import (
     merge_template_requirements,
     ngo_data_gap_denominator,
 )
+from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.schemas.gap_compliance_v1 import (
     GAP_AGENT_NAME,
     GapComplianceAgentTrace,
@@ -337,27 +338,33 @@ async def _run_gap_query(
     *,
     query_fn: QueryFn | None,
     model: str | None = None,
-) -> tuple[dict[str, Any], str, int | None, int | None, int | None]:
+) -> tuple[dict[str, Any], str, int | None, int | None, int | None, bool | None, float | None]:
     resolved_model = model or DEFAULT_MODEL
     structured_output: dict[str, Any] | None = None
     latency_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    usage_estimated: bool | None = None
+    usage_cost_usd: float | None = None
 
     if query_fn is not None:
         is_error = False
         stop_reason: str | None = None
+        usage_accumulator = SdkUsageAccumulator()
         async for message in query_fn(prompt=prompt, options=None):
+            usage_accumulator.absorb_message(message)
             is_error = bool(getattr(message, "is_error", False))
             stop_reason = getattr(message, "stop_reason", stop_reason)
             latency_ms = getattr(message, "duration_ms", latency_ms)
-            input_tokens, output_tokens = _extract_token_counts(
-                getattr(message, "usage", None)
-            )
             so = getattr(message, "structured_output", None)
             if so is not None:
                 structured_output = so
                 break
+        usage = usage_accumulator.resolve()
+        input_tokens = usage.input_tokens
+        output_tokens = usage.output_tokens
+        usage_estimated = usage.estimated
+        usage_cost_usd = usage.cost_usd
         if is_error:
             raise GapComplianceAgentError(
                 "STOP_AGENT_ERROR",
@@ -367,6 +374,7 @@ async def _run_gap_query(
         text, latency_ms, input_tokens, output_tokens = await _call_anthropic_messages(
             prompt, model=resolved_model
         )
+        usage_estimated = False
         structured_output = _parse_json_from_text(text)
 
     if structured_output is None:
@@ -375,7 +383,15 @@ async def _run_gap_query(
             "Gap agent finished without structured output",
             raw_response="",
         )
-    return structured_output, resolved_model, latency_ms, input_tokens, output_tokens
+    return (
+        structured_output,
+        resolved_model,
+        latency_ms,
+        input_tokens,
+        output_tokens,
+        usage_estimated,
+        usage_cost_usd,
+    )
 
 
 def _build_gap_result(
@@ -387,6 +403,8 @@ def _build_gap_result(
     input_tokens: int | None,
     output_tokens: int | None,
     attempt_count: int,
+    estimated: bool | None = None,
+    cost_usd: float | None = None,
 ) -> GapComplianceAgentResult:
     now = datetime.now(timezone.utc)
     trace = GapComplianceAgentTrace(
@@ -394,6 +412,8 @@ def _build_gap_result(
         latency_ms=latency_ms,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
+        estimated=estimated,
+        cost_usd=cost_usd,
         attempt_count=attempt_count,
     )
     envelope = GapCompliancePersistedEnvelope(
@@ -487,14 +507,22 @@ async def run_gap_compliance(
     latency_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    usage_estimated: bool | None = None
+    usage_cost_usd: float | None = None
 
     for attempt in range(1, MAX_GAP_COMPLIANCE_ATTEMPTS + 1):
         try:
-            structured_output, resolved_model, latency_ms, input_tokens, output_tokens = (
-                await asyncio.wait_for(
-                    _run_gap_query(prompt, query_fn=query_fn, model=model),
-                    timeout=TIMEOUT_SECONDS,
-                )
+            (
+                structured_output,
+                resolved_model,
+                latency_ms,
+                input_tokens,
+                output_tokens,
+                usage_estimated,
+                usage_cost_usd,
+            ) = await asyncio.wait_for(
+                _run_gap_query(prompt, query_fn=query_fn, model=model),
+                timeout=TIMEOUT_SECONDS,
             )
         except asyncio.TimeoutError as exc:
             raise GapComplianceAgentError(
@@ -579,6 +607,8 @@ async def run_gap_compliance(
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             attempt_count=attempt,
+            estimated=usage_estimated,
+            cost_usd=usage_cost_usd,
         )
 
     return _build_gap_result(

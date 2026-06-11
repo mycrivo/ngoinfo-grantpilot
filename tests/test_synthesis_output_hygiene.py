@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 from app.reports.services.synthesis_output_hygiene import (
+    detect_humaniser_violations,
     enrich_evidence_from_kb,
     fact_key_signature,
     normalize_identifier,
@@ -264,6 +265,14 @@ def test_sanitize_generated_content_idempotent_on_clean_input():
     assert second.dropped_citations == []
     assert second.auto_citations == first.auto_citations
     assert second.remapped_citations == first.remapped_citations
+
+
+def test_detect_humaniser_violations_flags_banned_terms():
+    violations = detect_humaniser_violations(
+        "The programme leveraged a comprehensive approach."
+    )
+    assert "banned_word:leverage" in violations
+    assert "banned_word:comprehensive" in violations
 
 
 def test_sanitize_generated_content_full_hygiene_pass():

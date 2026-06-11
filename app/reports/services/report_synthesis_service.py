@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any, Callable
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -223,6 +224,12 @@ def _generate_one_section(
                 section_key,
                 len(cleaned.auto_citations),
             )
+        if cleaned.humaniser_violations:
+            logger.info(
+                "report_synthesis section=%s humaniser_violations=%s",
+                section_key,
+                cleaned.humaniser_violations,
+            )
         return build_generated_section(
             section_key=section_key,
             label=label,
@@ -339,6 +346,17 @@ def _generate_all_sections(
     return ordered, warnings
 
 
+def _acquire_synthesis_lock(db: Session, donor_report_id) -> None:
+    """PostgreSQL advisory lock — single-flight synthesis per report (F-5)."""
+    bind = db.get_bind()
+    if bind.dialect.name != "postgresql":
+        return
+    db.execute(
+        text("SELECT pg_advisory_xact_lock(hashtext(:lock_key))"),
+        {"lock_key": f"report_synthesis:{donor_report_id}"},
+    )
+
+
 async def synthesise_and_persist(
     db: Session,
     donor_report_id,
@@ -347,6 +365,7 @@ async def synthesise_and_persist(
     synthesis_mode: str = "final",
 ) -> ReportSynthesisStageResult:
     """Generate missing/failed template sections and merge into donor_reports.content_json."""
+    _acquire_synthesis_lock(db, donor_report_id)
     report = db.get(DonorReport, donor_report_id)
     if report is None:
         raise ReportSynthesisServiceError(

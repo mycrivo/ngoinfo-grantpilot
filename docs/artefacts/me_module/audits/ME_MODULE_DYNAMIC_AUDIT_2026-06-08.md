@@ -97,9 +97,10 @@ Severity legend: **TOP** = threatens moat or hard-blocks the core flow · **HIGH
 - **Fix cost:** Low (decide whether export is metered; if so, write the ledger row).
 - **Evidence:** `contracts_probe.json`, `export.py`.
 
-### DYN-10 — SDK extractors under-report input tokens → broken cost accounting · **LOW (traceability)**
-- **What it means:** The spec requires per-agent token/cost accounting; the D2–D4 Claude-Agent-SDK extractors report `input_tokens=16` flat, so trace-based cost is unreliable (audit's claude_input summed to 48 = 16×3).
-- **Fix cost:** Low. **Evidence:** `rubric_traces.json`.
+### DYN-10 — SDK extractors under-report input tokens → broken cost accounting · **CLOSED (P3-3)**
+- **What it meant:** The spec requires per-agent token/cost accounting; the D2–D4 Claude-Agent-SDK extractors reported `input_tokens=16` flat from `ResultMessage.usage` (last-turn only), so trace-based cost was unreliable (audit's claude_input summed to 48 = 16×3).
+- **Fix (P3-3):** `app/reports/agents/token_usage.py` — `SdkUsageAccumulator` sums `AssistantMessage.usage` across sub-turns; falls back to `ResultMessage.model_usage` then `ResultMessage.usage` with `estimated: true` when multi-turn and sub-turn data absent. D2/D3/D4 traces now carry `estimated` and optional `cost_usd` from `total_cost_usd`.
+- **Evidence:** `tests/test_token_usage.py`; recorded fixtures tagged `estimated: true` for legacy 16-token captures.
 
 ### DYN-11 — Documented "5 known test failures" are stale: 3 reproduce, 2 now pass · **LOW (test debt)**
 - **Reproduced:** `test_auth_account_linking` ×2 (`AttributeError: 'tuple' object has no attribute 'id'`, line 39 — test-harness bug, not engine, and outside M&E), `test_me_module_worker::test_worker_startup_path_registers_mappers_before_claim` (subprocess sqlite `no such table: report_jobs`).
@@ -121,7 +122,7 @@ Severity legend: **TOP** = threatens moat or hard-blocks the core flow · **HIGH
 | Agent | Build | Input contract | Live job-performance (R1) | Robustness / stability | Moat exposure |
 |-------|-------|----------------|---------------------------|------------------------|---------------|
 | **D1 Classifier** | Anthropic Messages (haiku) | doc text | 3/3 correct enums (`proposal`,`grant_letter`,`indicator_data`); classify stage ~25s | **Crashes on PDF input (DYN-01)** | Low (labels only) |
-| **D2 Proposal extractor** | Claude Agent SDK (haiku) | proposal text | complete, 66.7s, 12.3k out | input_tokens mis-reported (DYN-10) | Data into KB |
+| **D2 Proposal extractor** | Claude Agent SDK (haiku) | proposal text | complete, 66.7s, 12.3k out | sub-turn aggregation + `estimated` marker (DYN-10 closed) | Data into KB |
 | **D3 Grant-terms extractor** | Claude Agent SDK (haiku) | award text | complete, 60.8s, 11.2k out | as above | Data into KB |
 | **D4 Indicator extractor** | Claude Agent SDK (haiku) | xlsx | complete, 99.2s, 18.1k out, 1 attempt | as above | Actuals into KB |
 | **E1 Reconciler** | Anthropic Messages (sonnet, 32768 out) | fact candidates | 74 facts, **1 conflict surfaced, not merged** | Robust; Gate 1 blocks unresolved | **Strong (surfaces, never resolves) ✓** |

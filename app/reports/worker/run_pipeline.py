@@ -15,8 +15,35 @@ from app.reports.worker.job_failure import (
     FAILURE_EVENT_EXCEPTION,
     mark_job_failed,
 )
+from app.reports.worker.job_lease import touch_heartbeat
 
 logger = logging.getLogger("reports.worker")
+
+
+def _heartbeat_hook(*, session: Session, job: ReportJob, **_kwargs) -> None:
+    touch_heartbeat(session, job)
+
+
+def _build_orchestration_ctx(
+    session: Session,
+    *,
+    orchestration_ctx: OrchestrationContext | None,
+) -> OrchestrationContext:
+    ctx = orchestration_ctx or OrchestrationContext()
+    if ctx.heartbeat_fn is None:
+        ctx.heartbeat_fn = lambda s, j: touch_heartbeat(s, j)
+    if not ctx.stage_hooks:
+        for stage in (
+            "classify",
+            "extract",
+            "reconcile",
+            "gap",
+            "synthesise",
+            "critique",
+            "export",
+        ):
+            ctx.stage_hooks[stage] = _heartbeat_hook
+    return ctx
 
 
 def run_pipeline(
@@ -53,8 +80,11 @@ def run_pipeline(
         if job.status == ReportJobStatus.FAILED.value:
             return
 
+        touch_heartbeat(session, job)
+        ctx = _build_orchestration_ctx(session, orchestration_ctx=orchestration_ctx)
+
         try:
-            run_orchestrated_walk_sync(job, session, ctx=orchestration_ctx)
+            run_orchestrated_walk_sync(job, session, ctx=ctx)
         except StageFailure as exc:
             session.rollback()
             job = session.get(ReportJob, job_id)

@@ -338,6 +338,7 @@
     "latency_ms": 55182,
     "input_tokens": 16,
     "output_tokens": 10116,
+    "estimated": true,
     "max_turns": 3,
     "content_hash": "123ea52fdc0e8a64f2ec5184a27a56237d423047b43170f715d8e411cff89681",
     "attempt_count": null,

@@ -78,6 +78,9 @@ class MemoryDocumentStorage:
     def upload_bytes(self, key: str, data: bytes, content_type: str) -> None:
         self.objects[key] = (data, content_type)
 
+    def delete_object(self, key: str) -> None:
+        self.objects.pop(key, None)
+
     def fetch_bytes(self, key: str) -> bytes:
         return self.objects[key][0]
 

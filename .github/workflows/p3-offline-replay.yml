@@ -1,0 +1,65 @@
+name: P3 Offline Replay
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  alembic-upgrade:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: grantpilot_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Alembic upgrade head (scratch Postgres)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/grantpilot_test
+        run: alembic upgrade head
+
+  offline-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: P3-1 eval harness
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest tests/test_p3_eval_harness.py -q
+      - name: Offline replay — CLEAN faithfulness fixture
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python scripts/audit/offline_replay.py --fixture
+      - name: Honest exit code probe
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from scripts.audit.full_walk import exit_code_for_verdict
+          assert exit_code_for_verdict("failed_before_gate1") == 1
+          assert exit_code_for_verdict("completed") == 0
+          print("HONEST_EXIT_PROBE_PASS")
+          PY

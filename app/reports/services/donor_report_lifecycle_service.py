@@ -20,7 +20,10 @@ from app.reports.models.enums import (
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
-from app.reports.services.document_storage_service import DocumentStorageService
+from app.reports.services.document_storage_service import (
+    DocumentStorageError,
+    DocumentStorageService,
+)
 from app.reports.services.gate_preconditions import require_gate1_confirmed
 from app.reports.services.report_access import get_owned_donor_report
 from app.reports.services.upload_format_validation import validate_upload_format
@@ -258,9 +261,25 @@ def delete_document(
         )
 
     store = storage or DocumentStorageService()
-    store.delete_object(document.storage_ref)
+    storage_ref = document.storage_ref
     db.delete(document)
     db.commit()
+    try:
+        store.delete_object(storage_ref)
+    except DocumentStorageError as exc:
+        logger.error(
+            "document_storage_delete_failed donor_report_id=%s document_id=%s ref=%s err=%s",
+            donor_report_id,
+            document_id,
+            storage_ref,
+            exc.message,
+        )
+        raise DomainError(
+            error_code="DOCUMENT_STORAGE_DELETE_FAILED",
+            message="Document removed from report but object storage cleanup failed",
+            status_code=500,
+            details={"storage_ref": storage_ref},
+        ) from exc
     logger.info(
         "document_deleted donor_report_id=%s document_id=%s",
         donor_report_id,

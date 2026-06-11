@@ -82,7 +82,14 @@ def get_or_create_user_plan(
     plan = db.execute(select(UserPlan).where(UserPlan.user_id == user_id)).scalar_one_or_none()
     if plan:
         return plan
-    plan = UserPlan(id=uuid.uuid4(), user_id=user_id, plan_name=PLAN_FREE)
+    now = datetime.now(timezone.utc)
+    plan = UserPlan(
+        id=uuid.uuid4(),
+        user_id=user_id,
+        plan_name=PLAN_FREE,
+        created_at=now,
+        updated_at=now,
+    )
     db.add(plan)
     if commit:
         db.commit()

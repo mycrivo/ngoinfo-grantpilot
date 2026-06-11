@@ -1,4 +1,4 @@
-"""Orphan reaper — fail stale running report_jobs (P3 / D3 Route A, D4)."""
+"""Orphan reaper — requeue or fail stale running report_jobs (P3-2)."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.models.report_job import ReportJob
 from app.reports.models.uploaded_document import UploadedDocument
 from app.reports.worker.job_failure import FAILURE_EVENT_ORPHAN_REAPED, mark_job_failed
+from app.reports.worker.job_lease import job_has_degraded_outcomes, requeue_stale_job
 
 logger = logging.getLogger("reports.worker.orphan_reaper")
 
@@ -46,8 +47,10 @@ def _as_utc(value: datetime) -> datetime:
 
 
 def compute_last_progress_at(job: ReportJob) -> datetime | None:
-    """Latest durable progress from started_at and stage completed_at markers."""
+    """Latest durable progress from heartbeat, started_at, and stage markers."""
     candidates: list[datetime] = []
+    if job.last_heartbeat_at is not None:
+        candidates.append(_as_utc(job.last_heartbeat_at))
     if job.started_at is not None:
         candidates.append(_as_utc(job.started_at))
 
@@ -180,7 +183,7 @@ def should_reap_job(
 
 
 def reap_stale_running_jobs(session: Session) -> int:
-    """Fail stale running jobs via mark_job_failed. Returns count reaped."""
+    """Requeue or fail stale running jobs. Returns count recovered."""
     now = datetime.now(timezone.utc)
     running_ids = list(
         session.scalars(
@@ -227,14 +230,27 @@ def reap_stale_running_jobs(session: Session) -> int:
 
         last_progress = compute_last_progress_at(job)
         progress_iso = last_progress.isoformat() if last_progress else "unknown"
-        error = (
-            f"aborted: no worker progress since {progress_iso} "
+        reason = (
+            f"stale: no worker progress since {progress_iso} "
             f"(stage={job.stage}; orphan reaper)"
         )
+        if job_has_degraded_outcomes(session, job):
+            error = f"aborted: {reason}; degraded job not requeued"
+            if mark_job_failed(session, job, error=error, event=FAILURE_EVENT_ORPHAN_REAPED):
+                reaped += 1
+            else:
+                session.rollback()
+            continue
+
+        if requeue_stale_job(session, job, reason=reason):
+            reaped += 1
+            continue
+
+        error = f"aborted: {reason}; requeue bound exhausted"
         if mark_job_failed(session, job, error=error, event=FAILURE_EVENT_ORPHAN_REAPED):
             reaped += 1
             logger.warning(
-                "orphan_reaper reaped job_id=%s donor_report_id=%s stage=%s",
+                "orphan_reaper terminal-fail job_id=%s donor_report_id=%s stage=%s",
                 job.id,
                 job.donor_report_id,
                 job.stage,

@@ -84,6 +84,7 @@ class OrchestrationContext:
     grant_terms_timeout_seconds: float | None = None
     indicator_timeout_seconds: float | None = None
     proposal_timeout_seconds: float | None = None
+    heartbeat_fn: Callable[[Session, ReportJob], None] | None = None
     stage_hooks: dict[str, Callable[..., None]] = field(default_factory=dict)
 
 
@@ -102,6 +103,15 @@ def _job_is_terminal(job: ReportJob) -> bool:
     )
 
 
+def _touch_progress(
+    session: Session,
+    job: ReportJob,
+    ctx: OrchestrationContext,
+) -> None:
+    if ctx.heartbeat_fn is not None:
+        ctx.heartbeat_fn(session, job)
+
+
 def _commit_checkpoint(
     session: Session,
     job: ReportJob,
@@ -109,6 +119,7 @@ def _commit_checkpoint(
     next_stage: str,
     stage_completed: str,
     trace_entry: dict[str, Any] | None = None,
+    ctx: OrchestrationContext | None = None,
 ) -> None:
     session.refresh(job)
     if _job_is_terminal(job):
@@ -118,6 +129,8 @@ def _commit_checkpoint(
     job.stage = next_stage
     session.add(job)
     session.commit()
+    if ctx is not None:
+        _touch_progress(session, job, ctx)
 
 
 def _halt_gate1(session: Session, job: ReportJob, *, reconcile_trace: dict[str, Any]) -> None:
@@ -474,6 +487,7 @@ async def _run_classify_stage(
         session.refresh(job)
         if _job_is_terminal(job):
             return
+        _touch_progress(session, job, ctx)
         try:
             degraded_id = await process_classify_document(
                 session,
@@ -501,6 +515,7 @@ async def _run_classify_stage(
             "document_count": len(documents),
             "degraded_notes": degraded_notes,
         },
+        ctx=ctx,
     )
 
 
@@ -521,6 +536,7 @@ async def _run_extract_stage(
     degraded_documents: list[str] = []
     run_state = ExtractStageRunState()
     for document in documents:
+        _touch_progress(session, job, ctx)
         try:
             if await process_extract_document(
                 session,
@@ -542,6 +558,7 @@ async def _run_extract_stage(
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "degraded_documents": degraded_documents,
         },
+        ctx=ctx,
     )
 
 

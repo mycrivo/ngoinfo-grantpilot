@@ -30,6 +30,8 @@ class FactSafetyCriticTrace(BaseModel):
     latency_ms: int | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
+    estimated: bool | None = None
+    cost_usd: float | None = None
 
 
 class CriticFlagEntry(BaseModel):

@@ -16,7 +16,10 @@ from app.reports.export.docx_renderer import build_export_filename, render_donor
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import DonorReportStatus
 from app.reports.models.funder_report_template import FunderReportTemplate
-from app.reports.services.document_storage_service import DocumentStorageService
+from app.reports.services.document_storage_service import (
+    DocumentStorageError,
+    DocumentStorageService,
+)
 from app.reports.services.gate_preconditions import require_gate3_confirmed
 
 logger = logging.getLogger("reports.services.report_export")
@@ -121,7 +124,18 @@ def export_and_persist(
             report.id,
             filename,
         )
+        old_export_ref = str(
+            ((report.content_json or {}).get("export") or {}).get("storage_ref") or ""
+        )
         store.upload_bytes(storage_ref, docx_bytes, DOCX_CONTENT_TYPE)
+        if old_export_ref and old_export_ref != storage_ref:
+            try:
+                store.delete_object(old_export_ref)
+            except DocumentStorageError as exc:
+                raise ReportExportServiceError(
+                    "STOP_EXPORT_STORAGE_CLEANUP",
+                    exc.message,
+                ) from exc
 
         generated_at = generated_at.isoformat()
         content_json["export"] = {

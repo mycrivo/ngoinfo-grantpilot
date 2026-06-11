@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import DateTime, ForeignKey, Text, text
+from sqlalchemy import DateTime, ForeignKey, Integer, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -35,6 +35,16 @@ class ReportJob(Base):
     )
     finished_at: Mapped[DateTime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+    last_heartbeat_at: Mapped[DateTime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    lease_owner: Mapped[str | None] = mapped_column(Text, nullable=True)
+    lease_expires_at: Mapped[DateTime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    requeue_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0"), default=0
     )
 
     donor_report = relationship("DonorReport", back_populates="report_jobs")

@@ -325,11 +325,12 @@ Response 200:
       "reset_at": "ISO-8601 timestamp or null"
     },
     "report_exports": {
-      "limit": 0,
+      "limit": null,
       "used": 0,
-      "remaining": 0,
+      "remaining": null,
       "period": "BILLING_CYCLE",
-      "reset_at": "ISO-8601 timestamp or null"
+      "reset_at": "ISO-8601 timestamp or null",
+      "note": "Unmetered — DOCX export/re-download does not consume quota (D6 / P3-5)"
     }
   }
 }
@@ -337,7 +338,7 @@ Response 200:
 
 **M&E entitlement limits (Stage J):**
 - **FREE / GROWTH:** `reports.limit` = 0 (M&E not available; entry points return `403 UPGRADE_REQUIRED`).
-- **IMPACT:** `reports.limit` = 2 per billing cycle; `report_exports` idempotent per report version (mirrors proposal `DOCX_EXPORT` pattern).
+- **IMPACT:** `reports.limit` = 2 per billing cycle. **`report_exports` is unmetered** — export and re-download do not decrement quota (D6 charges `REPORT_CREATE` once at first `COMPLETE` only).
 
 Errors:
 
@@ -1477,28 +1478,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` (Gate 1 not complete) · 5
 
 ### 12.7 PATCH /api/reports/{id}/gap-answers
 
-**PROVISIONAL — confirm against Plan 1 (Track B) gate UI design before building.**
-
-Purpose: Gate 2 — free-text answers for genuinely missing items (alternate to POST §12.7a).
-
-Auth: REQUIRED · Owner only
-
-Request:
-
-```json
-{
-  "gap_answers": {
-    "<item_key>": {
-      "answer_text": "string"
-    }
-  },
-  "confirm_gate2": true
-}
-```
-
-Response 200: same shape as GET §12.6 (with updated `gate2_confirmed_at` when confirmed).
-
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
+**PROVISIONAL — not implemented.** Canonical Gate 2 intake is §12.7a. Persisted shape: `docs/artefacts/me_module/GATE2_GAP_ANSWERS_FIELD_CONTRACT.md`. Code alignment → backlog `P-UX-11`.
 
 ---
 
@@ -1512,7 +1492,7 @@ Purpose: Gate 2 — submit gap answers (answer-or-skip); sets `gate2_confirmed_a
 
 Auth: REQUIRED · Owner only
 
-Request: gap response payload per Gate 2 service contract.
+Request: per `Gate2GapAnswersRequest` — map of `item_key` → `{ disposition, answer_text?, skip_reason? }`. Full persisted contract: `docs/artefacts/me_module/GATE2_GAP_ANSWERS_FIELD_CONTRACT.md`.
 
 Response 200: remaining gaps + `gate2_confirmed_at` when confirmed.
 
@@ -1752,7 +1732,7 @@ Errors: 401 · 403 · 404 · 404 `JOB_NOT_FOUND` · 500
 
 ### 12.13 POST /api/reports/{id}/export
 
-Purpose: render funder-formatted DOCX (idempotent).
+Purpose: render funder-formatted DOCX (idempotent re-download).
 
 Auth: REQUIRED · Owner only
 
@@ -1772,12 +1752,13 @@ Headers:
 - `Content-Disposition: attachment; filename="report-{id}.docx"`
 
 **Rules:**
-- Idempotent re-download does not consume quota.
-- First successful export per report version consumes `REPORT_EXPORT` quota (Stage J).
-- Requires Gate 3 complete / `status: COMPLETE` or `DEGRADED` with all accepted sections.
+- **Unmetered:** export and re-download do **not** consume quota. No `REPORT_EXPORT` ledger charge (D6 / P3-5).
+- `REPORT_CREATE` is charged once when the report first reaches `status: COMPLETE` at the export stage (§12.8).
+- Requires Gate 3 confirmed (`knowledge_bank_json.gate3_confirmed_at`) and export artefact in `content_json.export` (worker export stage) or equivalent ready state.
+- `status: COMPLETE` is set when export stage persists `content_json.export` and upload succeeds — distinct from Gate 3 confirm (human acceptance of draft sections).
 - Non-200 responses: JSON error envelope (§1).
 
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` · 422 `UNSUPPORTED_FORMAT` · 429 `QUOTA_EXCEEDED` · 500
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` · 422 `UNSUPPORTED_FORMAT` · 500
 
 ---
 
@@ -1799,7 +1780,7 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` 
 | `ACTIVE_JOB_EXISTS` | 409 | Report job in progress or awaiting human gate |
 | `REPORT_HAS_COMPLETED_RUN` | 409 | Document delete blocked after a completed run |
 
-Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports` | `report_exports`.
+Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports` (at export completion when bundled report quota exhausted). `report_exports` is not metered.
 
 ---
 

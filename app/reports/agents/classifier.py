@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
+from app.reports.agents.token_usage import SdkUsageAccumulator
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
 logger = logging.getLogger("reports.agents.classifier")
@@ -358,13 +359,12 @@ async def _run_classifier_query(
         is_error = False
         stop_reason: str | None = None
         options = build_agent_options(model=resolved_model)
+        usage_accumulator = SdkUsageAccumulator()
         async for message in query_fn(prompt=prompt, options=options):
+            usage_accumulator.absorb_message(message)
             is_error = bool(getattr(message, "is_error", False))
             stop_reason = getattr(message, "stop_reason", stop_reason)
             latency_ms = getattr(message, "duration_ms", latency_ms)
-            input_tokens, output_tokens = _extract_token_counts(
-                getattr(message, "usage", None)
-            )
             subtype = getattr(message, "subtype", None)
             so = getattr(message, "structured_output", None)
             if subtype == "error_max_structured_output_retries":
@@ -375,6 +375,9 @@ async def _run_classifier_query(
             if so is not None:
                 structured_output = so
                 break
+        usage = usage_accumulator.resolve()
+        input_tokens = usage.input_tokens
+        output_tokens = usage.output_tokens
         if is_error:
             raise ClassifierError(
                 "STOP_AGENT_ERROR",

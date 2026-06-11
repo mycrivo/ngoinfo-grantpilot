@@ -136,6 +136,15 @@ Context: M_E_Module/P3_ORPHAN_REAPER_PLAN.md; owner approved build.
 4. Worker triggers: startup sweep + idle-cycle sweep in `job_runner.run_forever()` when `poll_once()` returns 0.
 5. Out of scope: worker stability/OOM/Railway restart policy; dead worker with no process restart stays orphaned until infra restarts worker.
 ---
+DECISION (2026-06-11) — P3-2 worker recovery (supersedes reaper D3 Route A + D4).
+Context: Phase 3 Plan v2 · [`P3_2_DECISION_LOG.md`](audits/P3_2_DECISION_LOG.md); diagnosis [`P3_2_EXTRACT_HANG_DIAGNOSIS.md`](audits/P3_2_EXTRACT_HANG_DIAGNOSIS.md).
+
+1. Migration 0017: `last_heartbeat_at`, `lease_owner`, `lease_expires_at`, `requeue_count` on `report_jobs`.
+2. Heartbeat on claim, stage entry, per-document classify/extract, checkpoints; reaper prefers heartbeat over stage `completed_at`.
+3. Requeue bound 1 (0→1) then terminal `orphan_reaped`; degraded jobs never requeued; stage-boundary restart only.
+4. F-11 unified timeout via `job_timeout.py` (stage-aware budget + shared failure path).
+5. Supersedes prior D3 Route A (no migration) and D4 (fail-only); does not change stage-D4 indicator extractor degrade.
+---
 DECISION (2026-06-08) — P2 extract isolation (engine survives bad input).
 Context: M_E_Module/P2_ENGINE_SURVIVES_BAD_INPUT_PLAN.md; owner approved classification + build.
 

@@ -120,16 +120,25 @@ REPORT INPUTS (AUTHORITATIVE — facts and gap_answers only for specifics):
 SECTION DEFINITION:
 {section_json}
 
+FUNDER TONE AND VOICE (respect in prose — do not invent facts to match tone):
+{tone_and_voice}
+
+LINKED PROPOSAL CONTEXT (background only — NEVER cite for numbers or specifics):
+{linked_proposal_context}
+
 Apply archetype rules for report_inputs.section.archetype:
 {archetype_rule}
 
 TASK:
 1. Write retrospective accountability narrative for this section using ONLY specifics from
    report_inputs.knowledge_bank.facts and report_inputs.knowledge_bank.gap_answers.
-2. Resolved conflicts in report_inputs.knowledge_bank.conflicts_resolved may inform wording
+2. Linked proposal context (if present) may inform programme framing and objectives wording
+   but must NOT supply numbers, dates, or targets — those come only from the knowledge bank.
+3. Resolved conflicts in report_inputs.knowledge_bank.conflicts_resolved may inform wording
    but do not invent values beyond what those records state.
-3. Respect report_inputs.section.word_limit and tone.
-4. If insufficient evidence for a required indicator or table row, note the gap in
+4. Respect report_inputs.section.word_limit, section tone, and funder narrative constraints.
+5. Prefer funder terminology from report_inputs.derived.terminology_resolved where natural.
+6. If insufficient evidence for a required indicator or table row, note the gap in
    assumptions[] and write around it without fabricating numbers.
 
 SELF-AUDIT (mandatory before JSON output):
@@ -138,6 +147,7 @@ SELF-AUDIT (mandatory before JSON output):
 3. Is the voice retrospective (past delivery), not proposal (future intent)?
 4. Any banned words or phrases from the system prompt?
 5. Sentence length varied; no three consecutive similar-length sentences?
+6. Does tone match the section and funder constraints without adding unsupported specifics?
 
 Output ONLY valid JSON:
 {{
@@ -167,6 +177,47 @@ Output ONLY valid JSON:
 """
 
 
+def _tone_and_voice_block(*, report_inputs: dict, section: dict) -> str:
+    lines: list[str] = []
+    section_tone = str(section.get("tone") or "").strip()
+    if section_tone:
+        lines.append(f"Section tone: {section_tone}")
+    derived = report_inputs.get("derived") or {}
+    constraints = derived.get("narrative_constraints") or {}
+    if isinstance(constraints, dict):
+        voice = str(constraints.get("voice") or "").strip()
+        if voice:
+            lines.append(f"Funder voice: {voice}")
+        if constraints.get("strict_word_limits"):
+            lines.append("Strict word limits apply — stay within section.word_limit.")
+    template = report_inputs.get("template") or {}
+    terminology = template.get("terminology_map_json") or {}
+    forbidden = terminology.get("forbidden_terms") or []
+    if not forbidden:
+        forbidden = (template.get("format_rules_json") or {}).get("forbidden_terms") or []
+    if isinstance(forbidden, list) and forbidden:
+        terms = ", ".join(str(t) for t in forbidden[:20] if t)
+        if terms:
+            lines.append(f"Forbidden terms: {terms}")
+    if not lines:
+        return "Formal, evidence-led, retrospective accountability voice."
+    return "\n".join(lines)
+
+
+def _linked_proposal_context_block(report_inputs: dict) -> str:
+    derived = report_inputs.get("derived") or {}
+    summary = derived.get("linked_proposal_summary")
+    if not summary or not str(summary).strip():
+        return (
+            "None — no linked GrantPilot proposal. Use knowledge bank facts and gap answers only."
+        )
+    return (
+        "Use for programme intent and objectives context only. "
+        "Do NOT treat as evidence for numbers, dates, or targets.\n"
+        f"{summary}"
+    )
+
+
 def archetype_rule_for(archetype: str | None) -> str:
     if not archetype:
         return "Use section label and required indicators to structure the narrative."
@@ -191,5 +242,7 @@ def build_synthesis_user_prompt(*, report_inputs: dict, section: dict) -> str:
             "{report_inputs_json}", report_inputs_json
         )
         .replace("{section_json}", section_json)
+        .replace("{tone_and_voice}", _tone_and_voice_block(report_inputs=report_inputs, section=section))
+        .replace("{linked_proposal_context}", _linked_proposal_context_block(report_inputs))
         .replace("{archetype_rule}", archetype_rule_for(archetype))
     )
