@@ -6,7 +6,9 @@ Usage:
   python scripts/audit/phase2_owner_validation.py --report-id <uuid> --fcdo-complete
 
 Owner sign-off: one real FCDO run + one real NLCF run; inspect missing_items count.
-Owner must execute prod funder-row deletion on template 55f891ac before validation walk.
+Gap-set assertions for --fcdo-complete use gap_analysis_json from the report under
+test (Gate-2 boundary surfaced set), not post-complete gap-check remaining items.
+Funder-side leak checks use live gap-check (post-complete).
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 FCDO_EXPECTED_GAPS_PATH = (
@@ -25,8 +28,7 @@ FCDO_EXPECTED_GAPS_PATH = (
 )
 
 
-def fetch_gap_check(api_base: str, report_id: str, token: str | None) -> dict:
-    url = f"{api_base.rstrip('/')}/api/reports/{report_id}/gap-check"
+def _request_json(url: str, token: str | None) -> dict:
     headers = {"Accept": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -35,12 +37,22 @@ def fetch_gap_check(api_base: str, report_id: str, token: str | None) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
+def fetch_gap_check(api_base: str, report_id: str, token: str | None) -> dict:
+    url = f"{api_base.rstrip('/')}/api/reports/{report_id}/gap-check"
+    return _request_json(url, token)
+
+
+def fetch_report_detail(api_base: str, report_id: str, token: str | None) -> dict:
+    url = f"{api_base.rstrip('/')}/api/reports/{report_id}"
+    return _request_json(url, token)
+
+
 def _load_fcdo_expected_refs() -> set[str]:
     sidecar = json.loads(FCDO_EXPECTED_GAPS_PATH.read_text(encoding="utf-8"))
     return set(sidecar.get("required_item_refs") or [])
 
 
-def summarize(payload: dict) -> dict:
+def summarize_gap_check(payload: dict) -> dict:
     items = payload.get("missing_items") or []
     funder_refs = [
         item.get("required_item_ref") or item.get("label")
@@ -57,10 +69,47 @@ def summarize(payload: dict) -> dict:
         "open_items_count": payload.get("open_items_count"),
         "readiness_basis": payload.get("readiness_basis"),
         "readiness_message": payload.get("readiness_message"),
+        "skipped_items_count": payload.get("skipped_items_count"),
         "missing_count": len(items),
         "required_item_refs": sorted(gap_refs),
         "funder_side_leaks": funder_refs,
         "missing_items": items,
+    }
+
+
+def gate2_boundary_from_report(report: dict[str, Any]) -> dict:
+    """Surfaced gap set at Gate-2 boundary from donor_reports.gap_analysis_json."""
+    ga = report.get("gap_analysis_json") or {}
+    gaps = ga.get("gaps") or []
+    gap_refs = {
+        str(g.get("required_item_ref"))
+        for g in gaps
+        if isinstance(g, dict) and g.get("required_item_ref")
+    }
+    return {
+        "open_items_count": ga.get("open_items_count"),
+        "required_item_refs": sorted(gap_refs),
+        "missing_count": len(gaps),
+        "readiness_basis": ga.get("readiness_basis"),
+        "source": "report.gap_analysis_json",
+    }
+
+
+def _gap_stage_boundary_summary(snapshot_path: Path) -> dict:
+    """Offline replay only — explicit walk snapshot, not default for live validation."""
+    payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    ga = payload.get("gap_analysis_json") or {}
+    gaps = ga.get("gaps") or []
+    gap_refs = {
+        str(g.get("required_item_ref"))
+        for g in gaps
+        if isinstance(g, dict) and g.get("required_item_ref")
+    }
+    return {
+        "open_items_count": ga.get("open_items_count"),
+        "required_item_refs": sorted(gap_refs),
+        "missing_count": len(gaps),
+        "source": str(snapshot_path),
     }
 
 
@@ -74,10 +123,15 @@ def main() -> int:
         action="store_true",
         help="Assert gap refs match distilled 3347590c expected set (FCDO BridgeLight walk)",
     )
+    parser.add_argument(
+        "--gap-stage-snapshot",
+        default=None,
+        help="Optional offline walk snapshot JSON (overrides live report gap_analysis_json)",
+    )
     args = parser.parse_args()
 
     try:
-        payload = fetch_gap_check(args.api_base, args.report_id, args.token)
+        gap_check_payload = fetch_gap_check(args.api_base, args.report_id, args.token)
     except urllib.error.HTTPError as exc:
         print(json.dumps({"error": exc.read().decode("utf-8", errors="replace")}, indent=2))
         return 1
@@ -85,7 +139,31 @@ def main() -> int:
         print(json.dumps({"error": str(exc)}, indent=2))
         return 1
 
-    summary = summarize(payload)
+    summary = summarize_gap_check(gap_check_payload)
+    summary["gap_check_live"] = {
+        "open_items_count": summary["open_items_count"],
+        "required_item_refs": summary["required_item_refs"],
+        "readiness_message": summary.get("readiness_message"),
+    }
+
+    if args.fcdo_complete:
+        if args.gap_stage_snapshot:
+            boundary = _gap_stage_boundary_summary(Path(args.gap_stage_snapshot))
+        else:
+            try:
+                report = fetch_report_detail(args.api_base, args.report_id, args.token)
+            except urllib.error.HTTPError as exc:
+                print(json.dumps({"error": exc.read().decode("utf-8", errors="replace")}, indent=2))
+                return 1
+            except OSError as exc:
+                print(json.dumps({"error": str(exc)}, indent=2))
+                return 1
+            boundary = gate2_boundary_from_report(report)
+        summary["gate2_boundary"] = boundary
+        summary["open_items_count"] = boundary["open_items_count"]
+        summary["required_item_refs"] = boundary["required_item_refs"]
+        summary["missing_count"] = boundary["missing_count"]
+
     print(json.dumps(summary, indent=2))
     exit_code = 0
     if summary["funder_side_leaks"]:

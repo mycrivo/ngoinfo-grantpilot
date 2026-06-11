@@ -209,3 +209,18 @@ Context: Owner exec 2026-06-11; supersedes M1–M4 re-stage order and staged 8-d
 
 **Amendment (2026-06-11, guard resolved):** `probe-upload2@test.org` and `probe-upload3@test.org` are owner-recognized test accounts; their reports join B2a purge scope (full **41/41** on template `55f891ac`). **B2a-2** hard-scoped deletion of the two user rows (+ dependents incl. ledger) after purge; usage_ledger touched only in B2a-2 for those accounts.
 ---
+DECISION (2026-06-08) — P3-7 Plate the dish: synthesis prose + export fidelity.
+Context: Owner-approved correction package from [`P3_FCDO_EMPTY_RENDER_DIAGNOSIS.md`](audits/P3_FCDO_EMPTY_RENDER_DIAGNOSIS.md); scope fence — no template rows, gap engine, typed matcher, reconciler, extraction; no prod writes; no live walks.
+
+**S1 — Decisive experiment (branch i):** Git diff `b20b27a..HEAD` on synthesis prompt/schema/binder: P3-4 tone/proposal blocks only (`ab66dd9`, `bd72572`); `synthesis_claim_binding.py` unchanged in window. P2 clean fixture has non-empty section `text`. Recorded raw response artefact: `tests/fixtures/synthesis/p3_b3_fcdo_summary_empty_top_level_text_raw.json` (walk `7cdcc3a8`, `summary_and_overview` — empty top-level `generated_content.text`, populated `claims[].text`). **Branch (i):** prose present in claims, dropped at bind — fix: assemble bound claim text into section prose when top-level text empty; fail closed on `EMPTY_SECTION_PROSE` when assembly still empty; prompt requires non-empty `generated_content.text`.
+
+**S2 — Honesty gates:** (1) Synthesis fails `EMPTY_SECTION_PROSE` / never `GENERATED` with whitespace-only body when citable inputs exist. (2) Critique: empty-content skip → `UNVERIFIED` + `critique_incomplete` when `empty_content_skipped > 0`. (3) Accept API rejects `FAILED` and empty-prose sections. (4) Gate 3 `confirm_gate3` requires non-empty prose + structured bind status on accepted sections.
+
+**S3 — Table rendering:** `app/reports/export/kb_table_renderer.py` — deterministic logframe `output_score_table` (12 OP rows, 10 actuals + honest `not provided` for `op2_3`/`op4_2` gaps) and NLCF `budget_vs_actual` from KB facts; wired in `docx_renderer` + export service (no LLM).
+
+**S4 — Docx machine-check:** `app/reports/eval/docx_export_assertions.py`; `G-section-prose` in offline replay gates.
+
+**S5 — Carry-overs:** `phase2_owner_validation --fcdo-complete` grades gap-set at Gate-2 boundary via `p3_b3_gap_stage_7cdcc3a8.json`; readiness message `Complete — N items skipped`; `stages.synthesise.openai_input_tokens` / `openai_output_tokens` in pipeline trace.
+
+**STOP:** Validation ladder complete locally; owner-triggered live re-walk (one FCDO + one NLCF) remains out of scope for agent.
+---
