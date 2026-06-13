@@ -1,0 +1,30 @@
+{
+  "d838c419": {
+    "report_id": "d838c419-8ac3-44c4-a22e-d713e491bcc6",
+    "report_status": "DEGRADED",
+    "job_stage": "export",
+    "job_status": "awaiting_human",
+    "synthesise": {
+      "action": "synthesise_completed",
+      "openai_input_tokens": 55412,
+      "openai_output_tokens": 2915,
+      "failed": 1,
+      "generated": 5
+    },
+    "ledger_rows": []
+  },
+  "588c3e7d": {
+    "report_id": "588c3e7d-d16b-49b2-b4f4-9c2a695c1c2c",
+    "report_status": "DEGRADED",
+    "job_stage": "export",
+    "job_status": "awaiting_human",
+    "synthesise": {
+      "action": "synthesise_completed",
+      "openai_input_tokens": 22438,
+      "openai_output_tokens": 3052,
+      "failed": 2,
+      "generated": 4
+    },
+    "ledger_rows": []
+  }
+}
