@@ -1,0 +1,1061 @@
+{
+  "facts": {
+    "funder": {
+      "unit": null,
+      "value": "The National Lottery Community Fund",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "The National Lottery Community Fund (header)",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Funder organisation name",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "grant_reference": {
+      "unit": null,
+      "value": "NLCF-WY-25-77103",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "Grant reference | NLCF-WY-25-77103",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Grant reference number",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "grant_period.end": {
+      "unit": null,
+      "value": "2026-10-31",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "the project end date is 31 October 2026",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Grant period end date",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "grant_period.start": {
+      "unit": null,
+      "value": "2025-05-01",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "The project start date is 1 May 2025",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Grant period start date",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "award_budget.amount": {
+      "unit": "GBP",
+      "value": 82000,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "The grant awarded is \u00a382,000",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Total approved grant award amount (contract)",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": "This is the approved award amount per the grant letter. The application proposal (01_NLCF_Southbank_Application_Proposal.docx) was unreadable (DEGRADED_EXTRACTION_TIMEOUT) so no requested amount is available for comparison.",
+      "verification_status": "reconciled"
+    },
+    "financials.currency": {
+      "unit": null,
+      "value": "GBP",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a3",
+        "cell_ref": "Table2!C11:D17",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Spend table financials currency",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.2.actual": {
+      "unit": null,
+      "value": 88,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "88",
+        "cell_ref": "Table2!D2",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 2 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.2.target": {
+      "unit": null,
+      "value": 96,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "96",
+        "cell_ref": "Table2!C2",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 2 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.3.actual": {
+      "unit": null,
+      "value": 148,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "148",
+        "cell_ref": "Table2!D3",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 3 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.3.target": {
+      "unit": null,
+      "value": 120,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "120",
+        "cell_ref": "Table2!C3",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 3 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.4.actual": {
+      "unit": null,
+      "value": 61,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "61",
+        "cell_ref": "Table2!D4",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 4 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.4.target": {
+      "unit": null,
+      "value": 55,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "55",
+        "cell_ref": "Table2!C4",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 4 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.5.actual": {
+      "unit": null,
+      "value": 14,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "14",
+        "cell_ref": "Table2!D5",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 5 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.5.target": {
+      "unit": null,
+      "value": 18,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "18",
+        "cell_ref": "Table2!C5",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 5 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.6.actual": {
+      "unit": "%",
+      "value": 58,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "58%",
+        "cell_ref": "Table2!D6",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 6 actual value (percentage)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.6.target": {
+      "unit": "%",
+      "value": 65,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "65%",
+        "cell_ref": "Table2!C6",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 6 target value (percentage)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.7.actual": {
+      "unit": null,
+      "value": 27,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "27",
+        "cell_ref": "Table2!D7",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 7 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.7.target": {
+      "unit": null,
+      "value": 24,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "24",
+        "cell_ref": "Table2!C7",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 7 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.8.actual": {
+      "unit": null,
+      "value": 5,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "5",
+        "cell_ref": "Table2!C8",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 8 actual value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.8.target": {
+      "unit": null,
+      "value": 3,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "3",
+        "cell_ref": "Table2!C8",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 8 target value",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.9.actual": {
+      "unit": null,
+      "value": "Food-first format worked best",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "Food-first format worked best",
+        "cell_ref": "Table2!D9",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 9 actual (qualitative learning note)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.9.target": {
+      "unit": null,
+      "value": null,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "n/a",
+        "cell_ref": "Table2!C9",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 9 target value (not applicable)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": "Target explicitly marked n/a in source.",
+      "verification_status": "reconciled"
+    },
+    "indicators.10.actual": {
+      "unit": null,
+      "value": "Formal wellbeing survey had low response",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "Formal wellbeing survey had low response",
+        "cell_ref": "Table2!D10",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 10 actual (qualitative learning note)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "indicators.10.target": {
+      "unit": null,
+      "value": null,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "n/a",
+        "cell_ref": "Table2!C10",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Indicator 10 target value (not applicable)",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": "Target explicitly marked n/a in source.",
+      "verification_status": "reconciled"
+    },
+    "reporting_period.end": {
+      "unit": null,
+      "value": "2026-10-31",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "at the end of the grant (project end date)",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Final reporting period end date (project end date)",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "award_budget.currency": {
+      "unit": null,
+      "value": "GBP",
+      "coverage": "agreed",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "The grant awarded is \u00a382,000",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Award budget currency",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": "Also corroborated by 03_NLCF_Southbank_Monitoring_and_Spend_Table.docx (document_id: 02d53287-073a-4bf8-bb59-c6c11d19bd83), excerpt: '\u00a3', cell_ref: Table2!C11:D17.",
+      "verification_status": "reconciled"
+    },
+    "reporting_period.start": {
+      "unit": null,
+      "value": "2025-05-01",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "Your first progress update should cover the period 1 May 2025",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "First reporting period start date",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.15.actual": {
+      "unit": "GBP",
+      "value": 7850,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a37,850",
+        "cell_ref": "Table2!D15",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Activity materials and local trips \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.16.actual": {
+      "unit": "GBP",
+      "value": 4780,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a34,780",
+        "cell_ref": "Table2!D16",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Evaluation and admin \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.16.budget": {
+      "unit": "GBP",
+      "value": 8000,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a38,000",
+        "cell_ref": "Table2!C16",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Evaluation and admin \u2014 budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.17.actual": {
+      "unit": "GBP",
+      "value": 78460,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a378,460",
+        "cell_ref": "Table2!D17",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "TOTAL \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.17.budget": {
+      "unit": "GBP",
+      "value": 78500,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a378,500",
+        "cell_ref": "Table2!C17",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "TOTAL \u2014 budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "reporting_obligations.frequency": {
+      "unit": null,
+      "value": "After first year and at end of grant",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "tell us how the project is going... and at the end of the grant",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Progress update frequency requirement",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.coordinator.actual": {
+      "unit": "GBP",
+      "value": 29950,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a329,950",
+        "cell_ref": "Table2!D11",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Part-time project coordinator \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.coordinator.budget": {
+      "unit": "GBP",
+      "value": 31200,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a331,200",
+        "cell_ref": "Table2!C11",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Part-time project coordinator \u2014 approved budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "reporting_obligations.narrative_content": {
+      "unit": null,
+      "value": "Narrative reporting (outcomes and learnings)",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "We are interested in the story of the project, what difference it is making",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Required narrative reporting content",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.food_heating_room.actual": {
+      "unit": "GBP",
+      "value": 16260,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a316,260",
+        "cell_ref": "Table2!D14",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Food, heating and room costs \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.food_heating_room.budget": {
+      "unit": "GBP",
+      "value": 13500,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a313,500",
+        "cell_ref": "Table2!C14",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Food, heating and room costs \u2014 approved budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "reporting_obligations.change_notification": {
+      "unit": null,
+      "value": "Notification of significant changes",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "If anything changes significantly... please tell us before making the change",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "Obligation to notify funder of significant changes before making them",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.volunteer_training_dbs.actual": {
+      "unit": "GBP",
+      "value": 3140,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a33,140",
+        "cell_ref": "Table2!D13",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Volunteer training and DBS checks \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.volunteer_training_dbs.budget": {
+      "unit": "GBP",
+      "value": 4200,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a34,200",
+        "cell_ref": "Table2!C13",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Volunteer training and DBS checks \u2014 approved budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.sessional_youth_workers.actual": {
+      "unit": "GBP",
+      "value": 16480,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a316,480",
+        "cell_ref": "Table2!D12",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Sessional youth workers \u2014 actual spend",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.sessional_youth_workers.budget": {
+      "unit": "GBP",
+      "value": 13600,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a313,600",
+        "cell_ref": "Table2!C12",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Sessional youth workers \u2014 approved budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "financials.lines.activity_materials_trips.budget": {
+      "unit": "GBP",
+      "value": 8000,
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "\u00a38,000",
+        "cell_ref": "Table2!C15",
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+      "semantic_label": "Activity materials and local trips \u2014 approved budget",
+      "confirmed_by_user": false,
+      "source_document_id": "02d53287-073a-4bf8-bb59-c6c11d19bd83",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    },
+    "reporting_obligations.progress_update_year1_period": {
+      "unit": null,
+      "value": "2025-05-01 to 2026-04-30",
+      "coverage": "single_source",
+      "confirmed": false,
+      "provenance": {
+        "page": null,
+        "excerpt": "Your first progress update should cover the period 1 May 2025 to 30 April 2026",
+        "cell_ref": null,
+        "char_end": null,
+        "char_start": null,
+        "section_label": null
+      },
+      "confirmed_at": null,
+      "source_label": "02_NLCF_Southbank_Award_Letter.docx",
+      "semantic_label": "First annual progress update coverage period",
+      "confirmed_by_user": false,
+      "source_document_id": "54194c4a-ffbc-4928-8a2d-b1490fa81f11",
+      "interpretation_note": null,
+      "verification_status": "reconciled"
+    }
+  },
+  "gap_answers": {
+    "learning:indicator:what_worked": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "learning:indicator:what_did_not_work": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "spend_summary:table:budget_vs_actual": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "cannot_provide",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "learning:indicator:unexpected_findings": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "spend_summary:indicator:budgeted_total": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "spend_summary:indicator:actual_spend_total": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "learning:indicator:learning_useful_to_others": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "changes_and_next_steps:indicator:changes_made": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "spend_summary:indicator:capital_cost_variance": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "spend_summary:indicator:revenue_cost_variance": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "changes_and_next_steps:indicator:support_needed": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    },
+    "changes_and_next_steps:indicator:planned_changes": {
+      "provenance": null,
+      "answer_text": null,
+      "disposition": "skipped",
+      "skip_reason": "not_applicable",
+      "responded_at": "2026-06-13T15:39:57.617393+00:00",
+      "source_label": "human_confirmed_gap_answer",
+      "source_document_id": null
+    }
+  },
+  "gate1_confirmed_at": "2026-06-13T15:39:44.739218+00:00",
+  "gate2_confirmed_at": "2026-06-13T15:39:57.617393+00:00"
+}

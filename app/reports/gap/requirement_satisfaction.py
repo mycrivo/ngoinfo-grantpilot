@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
-from app.reports.gap.gap_answer import is_gap_answer_resolved
+from app.reports.gap.gap_answer import (
+    GAP_ANSWER_DISPOSITION_ANSWERED,
+    is_gap_answer_resolved,
+)
 from app.reports.gap.logframe_completeness import (
     has_indicator_data_actual_for_id,
     is_logframe_row_ref,
@@ -123,6 +126,23 @@ class SatisfactionResult:
     suggested_action: str | None = None
 
 
+RequirementSatisfactionPurpose = Literal["gate", "synthesis"]
+
+
+def _gap_answer_satisfies_requirement(
+    entry: Any,
+    *,
+    purpose: RequirementSatisfactionPurpose,
+) -> bool:
+    if not isinstance(entry, dict):
+        return False
+    if purpose == "synthesis":
+        if entry.get("disposition") != GAP_ANSWER_DISPOSITION_ANSWERED:
+            return False
+        return is_gap_answer_resolved(entry)
+    return is_gap_answer_resolved(entry)
+
+
 def evaluate_requirement_satisfaction(
     requirement: TemplateRequirement,
     *,
@@ -130,12 +150,14 @@ def evaluate_requirement_satisfaction(
     gap_answers: dict[str, Any],
     all_requirements: list[TemplateRequirement] | None = None,
     gate1_confirmed_at: str | None = None,
+    purpose: RequirementSatisfactionPurpose = "gate",
 ) -> SatisfactionResult:
     if requirement.requirement_type == "funder_supplied" or requirement.owner == "funder":
         return SatisfactionResult(satisfied=True)
 
-    if requirement.item_key in gap_answers and is_gap_answer_resolved(
-        gap_answers[requirement.item_key]
+    if requirement.item_key in gap_answers and _gap_answer_satisfies_requirement(
+        gap_answers[requirement.item_key],
+        purpose=purpose,
     ):
         return SatisfactionResult(satisfied=True)
 
@@ -146,7 +168,7 @@ def evaluate_requirement_satisfaction(
             gate1_confirmed_at=gate1_confirmed_at,
         ):
             return SatisfactionResult(satisfied=True)
-        if requirement.required_item_type == "indicator":
+        if requirement.required_item_type == "indicator" and purpose != "synthesis":
             return SatisfactionResult(satisfied=True)
         return SatisfactionResult(satisfied=False)
 
@@ -195,6 +217,7 @@ def evaluate_requirement_satisfaction(
             gap_answers=gap_answers,
             all_requirements=all_requirements,
             gate1_confirmed_at=gate1_confirmed_at,
+            purpose=purpose,
         )
         if not child_result.satisfied:
             return SatisfactionResult(satisfied=False)

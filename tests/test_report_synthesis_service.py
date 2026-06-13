@@ -33,7 +33,7 @@ from app.reports.schemas.knowledge_bank_reconciliation_v1 import (
     RECONCILER_AGENT_NAME,
 )
 from tests.orchestrator_mocks import fcdo_synthesis_query_fn
-from tests.test_gap_compliance_agent import _build_incomplete_fcdo_kb, _fact
+from tests.test_gap_compliance_agent import _fact, _load_distilled_fcdo_kb
 from tests.worker_validation_seed import create_worker_validation_sessionmaker
 
 FCDO_TEMPLATE_PATH = (
@@ -92,9 +92,7 @@ def _seed_report_ready_for_synthesis(session) -> uuid.UUID:
         created_at=now,
         updated_at=now,
     )
-    kb = _build_incomplete_fcdo_kb()
-    kb["facts"] = {}
-    kb["gap_answers"] = {}
+    kb = _load_distilled_fcdo_kb()
     kb["schema_version"] = KNOWLEDGE_BANK_RECONCILIATION_VERSION
     kb["reconciler_agent"] = RECONCILER_AGENT_NAME
     kb["gate1_confirmed_at"] = "2026-05-24T12:00:00+00:00"
@@ -544,7 +542,7 @@ def test_synthesis_structured_mode_persists_citation_mode(synthesis_db, monkeypa
     section = sections_by_key(report.content_json["sections"])["summary_and_overview"]
     content = section["content"]
     assert content.get("citation_mode") == "structured"
-    assert content.get("structured_bind_status") == "honest_empty"
+    assert content.get("structured_bind_status") == "bound"
     get_settings.cache_clear()
 
 

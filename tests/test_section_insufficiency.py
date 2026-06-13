@@ -19,6 +19,8 @@ from app.reports.services.section_prose import (
 ROOT = Path(__file__).resolve().parents[1]
 NLCF_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_NLCF.json"
 FCDO_TEMPLATE = ROOT / "docs" / "artefacts" / "me_module" / "TEMPLATE_INSTANCE_FCDO.json"
+P3_8_NLCF_KB = ROOT / "tests" / "fixtures" / "kb" / "p3_8_nlcf_post_gate2_skip_kb.json"
+NLCF_REPORT_CONTEXT = {"report_type": "annual"}
 
 
 def _section_from_template(template_path: Path, section_key: str) -> dict:
@@ -35,6 +37,10 @@ def _empty_kb() -> dict:
         "gap_answers": {},
         "gate1_confirmed_at": "2026-05-24T12:00:00+00:00",
     }
+
+
+def _load_p3_8_nlcf_kb() -> dict:
+    return json.loads(P3_8_NLCF_KB.read_text(encoding="utf-8"))
 
 
 def test_insufficiency_statement_is_professional_and_submittable():
@@ -160,3 +166,56 @@ def test_partial_fcdo_section_synthesis_not_insufficient_data():
     bind_status = result["content"].get("structured_bind_status")
     assert bind_status in ("bound", "honest_empty")
     assert bind_status != STRUCTURED_BIND_STATUS_INSUFFICIENT_DATA
+
+
+def test_p3_8_nlcf_sparse_section_routing_table():
+    kb = _load_p3_8_nlcf_kb()
+    expect_insufficient = {
+        "project_story",
+        "community_involvement",
+        "changes_and_next_steps",
+    }
+    expect_synthesis = {"difference_made", "learning", "spend_summary"}
+    for section_key in expect_insufficient | expect_synthesis:
+        section = _section_from_template(NLCF_TEMPLATE, section_key)
+        has_inputs = section_has_synthesizable_inputs(
+            kb,
+            section,
+            report_context=NLCF_REPORT_CONTEXT,
+        )
+        if section_key in expect_insufficient:
+            assert has_inputs is False, section_key
+        else:
+            assert has_inputs is True, section_key
+
+
+def test_p3_8_nlcf_sparse_sections_preflight_skips_openai():
+    kb = _load_p3_8_nlcf_kb()
+    for section_key in ("community_involvement", "changes_and_next_steps"):
+        section = _section_from_template(NLCF_TEMPLATE, section_key)
+        called = False
+
+        def _query(*_args, **_kwargs):
+            nonlocal called
+            called = True
+            return {
+                "generation_status": "GENERATED",
+                "generated_content": {"text": "should not run", "claims": []},
+            }
+
+        result, in_tok, out_tok = _generate_one_section(
+            section=section,
+            report_inputs={"knowledge_bank": kb},
+            knowledge_bank_json=kb,
+            report_context=NLCF_REPORT_CONTEXT,
+            query_fn_synthesis=_query,
+            user_id=None,
+        )
+        assert not called, section_key
+        assert in_tok == 0 and out_tok == 0, section_key
+        assert result["generation_status"] == "GENERATED", section_key
+        assert (
+            result["content"]["structured_bind_status"]
+            == STRUCTURED_BIND_STATUS_INSUFFICIENT_DATA
+        ), section_key
+        assert has_non_empty_prose(result), section_key

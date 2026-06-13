@@ -208,9 +208,12 @@ def section_has_synthesizable_inputs(
             facts=facts,
             gap_answers=gap_answers,
             gate1_confirmed_at=gate1_at,
+            purpose="synthesis",
         )
         if result.satisfied:
             return True
+    if build_knowledge_bank_inputs_for_section(kb, section)["facts"]:
+        return True
     return False
 
 
