@@ -1,9 +1,20 @@
 {
-  "source_report_id": "3347590c-5b4f-4443-8a3d-a5ae455932e2",
-  "source_walk": "walk_fcdo_full_3347590c.json",
-  "probed_at": "2026-06-11T07:41:34.796835+00:00",
-  "open_items_count": 2,
+  "source_report_id": "1beb588b-68e1-4ad9-a43e-a6695aa15dd6",
+  "source_walk": "walk_p3_7_rewalk_fcdo_1beb588b.json",
+  "docset_basis": "FCDO default complete docset — BridgeLight proposal + award letter + logframe/finance xlsx (scripts/audit/full_walk.py DEFAULT_DOCSETS[fcdo]); same class as B3/P3-7 walks, not account-specific uploads",
+  "distilled_3347590c_probe_refs": [
+    "logframe_row:op2_3",
+    "logframe_row:op4_2"
+  ],
+  "distilled_probe_note": "Committed distill of walk 3347590c on the same docset yields 2 refs because progress_against_expected_results is satisfied via global ar1_actual/milestone hint match; P3-7 live extraction left it open — eval pin follows live Gate-2 boundary.",
+  "probed_at": "2026-06-11T21:30:00+00:00",
+  "open_items_count": 3,
   "expected_missing": [
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "progress_against_expected_results"
+    },
     {
       "section_key": "performance_and_conclusions",
       "required_item_type": "indicator",
@@ -16,6 +27,7 @@
     }
   ],
   "required_item_refs": [
+    "progress_against_expected_results",
     "logframe_row:op2_3",
     "logframe_row:op4_2"
   ]

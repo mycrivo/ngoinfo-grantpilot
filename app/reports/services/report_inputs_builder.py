@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from app.core.errors import NotFoundError
 from app.models.proposal import Proposal
 from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_ANSWERED
+from app.reports.gap.requirement_satisfaction import evaluate_requirement_satisfaction
+from app.reports.gap.template_requirements import enumerate_template_requirements
 from app.reports.knowledge.confirmed_kb import (
     filter_citable_facts,
     filter_citable_gap_answers,
@@ -183,6 +185,33 @@ def build_knowledge_bank_inputs_for_section(
         "gate1_confirmed_at": kb.get("gate1_confirmed_at"),
         "gate2_confirmed_at": kb.get("gate2_confirmed_at"),
     }
+
+
+def section_has_synthesizable_inputs(
+    knowledge_bank_json: dict[str, Any],
+    section: dict[str, Any],
+    *,
+    report_context: dict[str, Any] | None = None,
+) -> bool:
+    """True when at least one NGO checklist requirement for this section is satisfied in KB."""
+    kb = knowledge_bank_json or {}
+    ctx = report_context or {"report_type": "annual"}
+    facts = kb.get("facts") or {}
+    gap_answers = kb.get("gap_answers") or {}
+    gate1_at = kb.get("gate1_confirmed_at")
+    requirements = enumerate_template_requirements([section], report_context=ctx)
+    for requirement in requirements:
+        if requirement.required_item_type == "section":
+            continue
+        result = evaluate_requirement_satisfaction(
+            requirement,
+            facts=facts,
+            gap_answers=gap_answers,
+            gate1_confirmed_at=gate1_at,
+        )
+        if result.satisfied:
+            return True
+    return False
 
 
 def build_report_inputs_for_section(

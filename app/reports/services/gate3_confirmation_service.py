@@ -37,7 +37,7 @@ def _sections_not_export_ready(content_json: dict[str, Any]) -> list[str]:
         content = section.get("content") or {}
         if content.get("citation_mode") == "structured":
             bind_status = content.get("structured_bind_status")
-            if bind_status not in ("bound", "honest_empty"):
+            if bind_status not in ("bound", "honest_empty", "insufficient_data"):
                 blocked.append(key)
     return blocked
 

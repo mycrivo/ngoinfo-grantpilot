@@ -224,3 +224,19 @@ Context: Owner-approved correction package from [`P3_FCDO_EMPTY_RENDER_DIAGNOSIS
 
 **STOP:** Validation ladder complete locally; owner-triggered live re-walk (one FCDO + one NLCF) remains out of scope for agent.
 ---
+DECISION (2026-06-11) — P3-8 Forbidden-ref reclassification + empty-section policy.
+Context: P3-7 re-walk GO; owner conditions C1–C4; build authorized.
+
+**Forbidden moat (complete FCDO, post-change — full set):**
+- `review_summary_sheet` — adjudicated funder (summary RSS table; funder-owned)
+- `outcome_assessment` — adjudicated narrative (`table_requirements.outcome_assessment.requirement_type = narrative`)
+- `outcome_indicators` — regression pin (P3-B1 R4 walk-3347590c namespace; not owner-adjudicated reclass)
+
+**Reclassified out:** `progress_against_expected_results` — ordinary NGO data gap (`DATA_BACKED_HINTS`: `ar1_actual`, `ar1_milestone_target`); P3-7 Gate-2 on default BridgeLight docset; supersedes P3-B1 R4 regression pin for this ref only.
+
+**Complete gap pin (3 refs):** `progress_against_expected_results`, `logframe_row:op2_3`, `logframe_row:op4_2` — P3-7 rewalk `1beb588b` Gate-2 boundary on `DEFAULT_DOCSETS[fcdo]` (BridgeLight proposal + award + logframe/finance xlsx); not account-specific uploads. Committed distill `3347590c` on same docset class yields 2 refs when `progress_against` satisfied via global ar1 hint match — eval pin follows live walk, documented in fixture sidecar.
+
+**Empty-section policy:** `structured_bind_status = insufficient_data` + engine insufficiency prose when zero NGO requirements satisfied for section (preflight before OpenAI); `FAILED` unchanged when any input satisfied but output empty/broken (P3-7 gates intact). Partial sections (some inputs, some gaps) route to `bound` / `honest_empty` only.
+
+**STOP:** CI green; owner-triggered confirming re-walk (FCDO + NLCF) out of scope for agent.
+---

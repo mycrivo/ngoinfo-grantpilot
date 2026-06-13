@@ -611,9 +611,9 @@ def test_nlcf_final_section_visible_only_for_final_report_type():
 
 @pytest.mark.asyncio
 async def test_fcdo_complete_distilled_gap_set_exact():
+    """Distilled 3347590c KB on same docset class — engine truth (2 refs), not live-walk pin."""
     template = _load_json(FCDO_TEMPLATE)
     kb = _load_distilled_fcdo_kb()
-    expected_refs = _fcdo_complete_expected_refs()
     result = await run_gap_compliance(
         knowledge_bank_json=kb,
         template_payload=template,
@@ -621,8 +621,9 @@ async def test_fcdo_complete_distilled_gap_set_exact():
     )
     gaps = result.envelope.structured.gaps
     gap_refs = {g.required_item_ref for g in gaps}
-    assert gap_refs == expected_refs, f"expected {expected_refs}, got {gap_refs}"
-    assert result.envelope.structured.open_items_count == len(expected_refs)
+    expected_distilled = {"logframe_row:op2_3", "logframe_row:op4_2"}
+    assert gap_refs == expected_distilled, f"expected {expected_distilled}, got {gap_refs}"
+    assert result.envelope.structured.open_items_count == len(expected_distilled)
 
 
 @pytest.mark.asyncio

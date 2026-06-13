@@ -146,6 +146,13 @@ def replay_clean_fixture(path: Path) -> tuple[dict[str, Any], int]:
             {
                 "section_key": "performance_and_conclusions",
                 "required_item_type": "indicator",
+                "required_item_ref": "progress_against_expected_results",
+                "requirement_type": "data",
+                "owner": "ngo",
+            },
+            {
+                "section_key": "performance_and_conclusions",
+                "required_item_type": "indicator",
                 "required_item_ref": "logframe_row:op2_3",
                 "requirement_type": "data",
                 "owner": "ngo",
@@ -158,7 +165,7 @@ def replay_clean_fixture(path: Path) -> tuple[dict[str, Any], int]:
                 "owner": "ngo",
             },
         ],
-        "open_items_count": 2,
+        "open_items_count": 3,
     }
     report = run_fcdo_gates(
         content_json=content_json,

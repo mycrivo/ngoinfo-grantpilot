@@ -209,6 +209,10 @@ Owner reads:
 
 **Open items for owner Phase 3 closure decision:**
 
-1. FCDO gap set includes forbidden `progress_against_expected_results` (validator exit 2; offline replay G-forbidden fail).
-2. Production FCDO export had prose but 0 tables; KB on this walk lacked `logframe_ar1_actual` facts.
-3. NLCF `changes_and_next_steps` synthesis FAILED — accept-all honestly refused (P3-7 gate working as designed).
+1. FCDO gap set includes forbidden `progress_against_expected_results` (validator exit 2; offline replay G-forbidden fail). **→ P3-8 build:** reclassified out of forbidden moat; 3-ref complete pin.
+2. Production FCDO export had prose but 0 tables; KB on this walk lacked `logframe_ar1_actual` facts. **→ Resolved/noise** (test-data; local re-render proves table path).
+3. NLCF `changes_and_next_steps` synthesis FAILED — accept-all honestly refused (P3-7 gate working as designed). **→ P3-8 build:** `insufficient_data` + engine insufficiency prose; confirming re-walk must capture verbatim statement below.
+
+**P3-8 confirming re-walk — NLCF insufficiency prose (verbatim, owner-read):**
+
+_(Pending owner-triggered re-walk after P3-8 CI green — paste `content_json.sections[changes_and_next_steps].content.text` here.)_

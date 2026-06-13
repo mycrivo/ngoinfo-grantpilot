@@ -42,7 +42,7 @@ __all__ = [
     "section_has_citable_inputs",
 ]
 
-StructuredBindStatus = Literal["bound", "honest_empty", "omitted_numeric", "dropped_refs"]
+StructuredBindStatus = Literal["bound", "honest_empty", "insufficient_data", "omitted_numeric", "dropped_refs"]
 ClaimBindStatus = Literal["bound", "omitted_numeric", "dropped_refs", "empty"]
 
 

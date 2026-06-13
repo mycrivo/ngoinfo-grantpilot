@@ -597,7 +597,14 @@ def _run_generate_all_with_tracking(
         return _synthesis_generated_payload(section_key)
 
     sections = _eight_test_sections()[:section_count]
-    report = MagicMock(user_id=uuid.uuid4())
+    report = MagicMock(
+        user_id=uuid.uuid4(),
+        knowledge_bank_json={
+            "facts": {"indicators.op1_1.ar1_actual": {"value": "1", "verification_status": "reconciled"}},
+            "gap_answers": {},
+            "gate1_confirmed_at": "2026-05-24T12:00:00+00:00",
+        },
+    )
     template = MagicMock()
     db = MagicMock()
     kb_inputs = {"knowledge_bank": {"facts": {}, "gap_answers": {}}}
@@ -608,12 +615,16 @@ def _run_generate_all_with_tracking(
     ), patch(
         "app.reports.services.report_synthesis_service.get_synthesis_max_concurrency",
         return_value=cap,
+    ), patch(
+        "app.reports.services.report_synthesis_service.section_has_synthesizable_inputs",
+        return_value=True,
     ):
         ordered, _, _, _ = _generate_all_sections(
             sections=sections,
             report=report,
             template=template,
             db=db,
+            report_context={"report_type": "annual"},
             query_fn_synthesis=tracking_query,
         )
     return ordered, peak

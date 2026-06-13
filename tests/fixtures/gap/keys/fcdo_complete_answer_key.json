@@ -3,7 +3,13 @@
   "report_context": {
     "report_type": "annual"
   },
+  "docset_basis": "FCDO default complete docset (BridgeLight 3-file set); live-walk Gate-2 pin per P3-7 rewalk 1beb588b",
   "expected_missing": [
+    {
+      "section_key": "performance_and_conclusions",
+      "required_item_type": "indicator",
+      "required_item_ref": "progress_against_expected_results"
+    },
     {
       "section_key": "performance_and_conclusions",
       "required_item_type": "indicator",
@@ -16,5 +22,5 @@
     }
   ],
   "forbidden_gaps": [],
-  "max_gaps": 2
+  "max_gaps": 3
 }

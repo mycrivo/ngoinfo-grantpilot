@@ -193,7 +193,7 @@ Mirrors proposal `content_json` section pattern with critic extensions:
           }
         ],
         "citation_mode": "structured | legacy_fallback",
-        "structured_bind_status": "bound | honest_empty",
+        "structured_bind_status": "bound | honest_empty | insufficient_data",
         "omitted_claims": [
           {
             "original_text": "string",

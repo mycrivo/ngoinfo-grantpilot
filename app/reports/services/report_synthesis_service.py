@@ -32,8 +32,15 @@ from app.reports.schemas.content_json_v1 import (
 )
 from app.reports.gap.section_visibility import visible_sections_for_context
 from app.reports.services.gate_preconditions import require_gate1_confirmed, require_gate2_confirmed
-from app.reports.services.report_inputs_builder import build_report_inputs_for_section
-from app.reports.services.section_prose import FAILURE_EMPTY_PROSE, has_non_empty_prose
+from app.reports.services.report_inputs_builder import (
+    build_report_inputs_for_section,
+    section_has_synthesizable_inputs,
+)
+from app.reports.services.section_prose import (
+    FAILURE_EMPTY_PROSE,
+    build_insufficient_data_section,
+    has_non_empty_prose,
+)
 from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
 from app.reports.services.synthesis_output_hygiene import (
@@ -138,12 +145,27 @@ def _generate_one_section(
     *,
     section: dict[str, Any],
     report_inputs: dict[str, Any],
+    knowledge_bank_json: dict[str, Any],
+    report_context: dict[str, Any],
     query_fn_synthesis: QueryFnSynthesis | None,
     user_id: str | None,
 ) -> tuple[dict[str, Any], int, int]:
     section_key = str(section.get("section_key") or "")
     label = str(section.get("label") or section_key)
     word_limit = int(section.get("word_limit") or 0)
+
+    has_inputs = section_has_synthesizable_inputs(
+        knowledge_bank_json,
+        section,
+        report_context=report_context,
+    )
+    if not has_inputs:
+        logger.info(
+            "report_synthesis section=%s insufficient_data preflight skip",
+            section_key,
+        )
+        return build_insufficient_data_section(section=section), 0, 0
+
     user_prompt = build_synthesis_user_prompt(
         report_inputs=report_inputs,
         section=section,
@@ -191,11 +213,12 @@ def _generate_one_section(
     if status != "GENERATED":
         warnings = raw.get("warnings") or []
         reason = "; ".join(str(w) for w in warnings) if warnings else "INSUFFICIENT_INPUT"
-        return {
-            "section_key": section_key,
-            "generation_status": "FAILED",
-            "failure_reason": reason,
-        }, input_tokens, output_tokens
+        return build_failed_section(
+            section_key=section_key,
+            label=label,
+            word_limit=word_limit,
+            failure_reason=reason,
+        ), input_tokens, output_tokens
 
     generated = raw.get("generated_content") or {}
     constraints = raw.get("constraints_applied") or {}
@@ -309,11 +332,13 @@ def _generate_all_sections(
     report: DonorReport,
     template: FunderReportTemplate,
     db: Session,
+    report_context: dict[str, Any],
     query_fn_synthesis: QueryFnSynthesis | None,
 ) -> tuple[list[dict[str, Any]], list[str], int, int]:
     if not sections:
         return [], [], 0, 0
 
+    kb_json = dict(report.knowledge_bank_json or {})
     inputs_by_key: dict[str, dict[str, Any]] = {}
     for section in sections:
         key = str(section["section_key"])
@@ -336,6 +361,8 @@ def _generate_all_sections(
                 _generate_one_section,
                 section=section,
                 report_inputs=inputs_by_key[str(section["section_key"])],
+                knowledge_bank_json=kb_json,
+                report_context=report_context,
                 query_fn_synthesis=query_fn_synthesis,
                 user_id=user_id,
             ): section
@@ -454,6 +481,7 @@ async def synthesise_and_persist(
             report=report,
             template=template,
             db=db,
+            report_context=report_context,
             query_fn_synthesis=query_fn_synthesis,
         )
         new_results_by_key = {

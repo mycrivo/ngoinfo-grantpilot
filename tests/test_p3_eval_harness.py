@@ -139,10 +139,21 @@ def test_run_nlcf_regression_pin_gates(nlcf_template_sections, nlcf_regression_g
     assert report.to_summary_dict()["gates"]["G-nlcf-gap-regression-pin"]["passed"]
 
 
-def test_g_fcdo_gap_exact_two_ref(fcdo_complete_gap_analysis):
+def test_g_fcdo_gap_exact_three_ref(fcdo_complete_gap_analysis):
     result = gate_fcdo_gap_exact(fcdo_complete_gap_analysis)
     assert result.passed
     assert set(result.summary["gap_refs"]) == set(FCDO_COMPLETE_GAP_REFS)
+    assert "progress_against_expected_results" in result.summary["gap_refs"]
+
+
+def test_g_forbidden_progress_against_not_forbidden(fcdo_complete_gap_analysis):
+    result = gate_forbidden(fcdo_complete_gap_analysis)
+    assert result.passed
+    gap_refs = {
+        g["required_item_ref"]
+        for g in fcdo_complete_gap_analysis["gaps"]
+    }
+    assert "progress_against_expected_results" in gap_refs
 
 
 def test_g_forbidden_no_rss_oa_funder_narrative(fcdo_complete_gap_analysis):
@@ -165,11 +176,6 @@ def test_g_forbidden_no_rss_oa_funder_narrative(fcdo_complete_gap_analysis):
         ("review_summary_sheet", "summary_and_overview", "table"),
         ("outcome_assessment", "performance_and_conclusions", "table"),
         ("outcome_indicators", "performance_and_conclusions", "indicator"),
-        (
-            "progress_against_expected_results",
-            "performance_and_conclusions",
-            "indicator",
-        ),
     ],
 )
 def test_g_forbidden_negative_control_literal_ref_injected(

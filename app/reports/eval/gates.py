@@ -17,7 +17,13 @@ from app.reports.services.section_prose import has_non_empty_prose
 from app.reports.gap.section_visibility import visible_sections_for_context
 from scripts.audit.full_walk import PASSING_VERDICTS, exit_code_for_verdict
 
-FCDO_COMPLETE_GAP_REFS = frozenset({"logframe_row:op2_3", "logframe_row:op4_2"})
+FCDO_COMPLETE_GAP_REFS = frozenset(
+    {
+        "progress_against_expected_results",
+        "logframe_row:op2_3",
+        "logframe_row:op4_2",
+    }
+)
 FCDO_NGO_SECTION_COUNT = 6
 
 NLCF_REGRESSION_PIN_REFS = frozenset(

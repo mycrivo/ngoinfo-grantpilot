@@ -5,22 +5,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-# P2 adjudication: RSS (progress_against_expected_results) and OA (outcome_indicators)
-# must not surface as NGO data gaps on complete FCDO distilled KB.
-FCDO_FORBIDDEN_GAP_REFS = frozenset(
-    {
-        "outcome_indicators",
-        "progress_against_expected_results",
-    }
-)
+# P3-8 moat — complete FCDO forbidden gap refs (see ME_MODULE_DECISION_LOG P3-8):
+#   review_summary_sheet — adjudicated funder (summary RSS table)
+#   outcome_assessment — adjudicated narrative (table_requirements)
+#   outcome_indicators — regression pin (P3-B1 R4 walk-3347590c namespace)
+FCDO_FORBIDDEN_GAP_REFS = frozenset({"outcome_indicators"})
 
-# Literal refs observed in walk 3347590c gap output namespace — must be absent on complete KB.
 FCDO_LITERAL_FORBIDDEN_GAP_REFS = frozenset(
     {
         "review_summary_sheet",
         "outcome_assessment",
         "outcome_indicators",
-        "progress_against_expected_results",
     }
 )
 
