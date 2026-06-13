@@ -10,6 +10,10 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError
 from app.reports.gap.gap_answer import GAP_ANSWER_DISPOSITION_SKIPPED
+from app.reports.schemas.gap_check import (
+    GapAnswerPatchInput,
+    GapCheckMissingItemResponse,
+)
 from app.reports.schemas.gate2_gap_answers import Gate2GapResponseInput
 from app.reports.services.gate2_gap_answer_service import (
     _persisted_answer,
