@@ -240,3 +240,19 @@ Context: P3-7 re-walk GO; owner conditions C1–C4; build authorized.
 
 **STOP:** CI green; owner-triggered confirming re-walk (FCDO + NLCF) out of scope for agent.
 ---
+DECISION (2026-06-13) — Package C.1: sparse-section routing (model refusal → honest `insufficient_data` preflight).
+Context: P3-9 Cluster C / A-MODEL; P3-8 NLCF walk `588c3e7d` froze at Gate-3 (`community_involvement` + `changes_and_next_steps` FAILED on model `INSUFFICIENT_INPUT` while preflight over-counted skipped gaps and narrative-indicator auto-satisfy). Build authorized after plan review.
+
+**Shipped (`e475c7b`):**
+1. **`purpose` param on `evaluate_requirement_satisfaction`** — default `"gate"` (Gate-2 / gap agent / gap-check unchanged); only `section_has_synthesizable_inputs` passes `purpose="synthesis"`.
+2. **Synthesis preflight tightened** — skipped gap answers do not count as substrate; narrative indicators no longer auto-satisfy without citable facts; section-scoped citable-facts fallback via `build_knowledge_bank_inputs_for_section`.
+3. **Offline proof** — `tests/fixtures/kb/p3_8_nlcf_post_gate2_skip_kb.json` + routing table tests in `tests/test_section_insufficiency.py`; wired to Smoke Test P0 M&E allowlist.
+4. **A-JSON untouched** — `_extract_json_payload` / parse-failure path unchanged; JSON-parse FAILED stays FAILED.
+5. **CI** — Smoke Test run `27477844306` and P3 Offline Replay run `27477844292` green on `main` after push.
+
+**Owner confirming re-walk (`d8e7518b`, 2026-06-13):** Fresh mint account; default 3-file NLCF docset; Gate-2 **13/13 skipped**. **Verdict: `completed`** — accept-all, Gate-3 confirm, export (40 614-byte DOCX). **Gate-3 freeze cleared** vs P3-8 NLCF on same protocol. **Routing table not reproduced on live KB:** all six sections `structured_bind_status = bound` (no `insufficient_data` path fired). Reconciler emitted two `objectives.*` facts absent on P3-8 freeze KB (`588c3e7d`); shared-prefix scoped-facts fallback routed sparse sections to synthesis — documented for follow-up (C.2 candidate), not a rollback of C.1 predicate on the P3-8 distilled fixture.
+
+**Evidence:** `docs/artefacts/me_module/audits/snapshots/c1_nlcf_rewalk_d8e7518b.json`, `c1_nlcf_rewalk_export_d8e7518b.docx` (commit `ca1e57d`).
+
+**STOP:** No engine change in evidence commit; owner read gate complete pending C.2 scoping if programme-level `objectives.*` must not alone unlock narrative sections.
+---
