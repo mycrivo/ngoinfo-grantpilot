@@ -21,13 +21,12 @@ from app.reports.export.kb_table_renderer import (
     table_headers_for_definition,
     table_rows_for_definition,
 )
+from app.reports.services.ngo_text_redaction import redact_internal_identifiers
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 _TABLE_ROW_RE = re.compile(r"^\|.+\|$")
 _TABLE_SEP_RE = re.compile(r"^\|[\s:\-|]+\|$")
-_CITATION_MARKER_RE = re.compile(r"\s*\[(?:fact|gap):[^\]]+\]\s*", re.IGNORECASE)
-_ARCHETYPE_RE = re.compile(r"\bARCH_[A-Z0-9_]+\b")
 
 
 def resolve_docx_template_path(docx_template_ref: str | None) -> Path | None:
@@ -60,12 +59,8 @@ def _terminology_substitutions(terminology_map: dict[str, Any]) -> list[tuple[re
 
 
 def _strip_internal_tokens(text: str) -> str:
-    """Remove inline citation markers and archetype tokens from prose; preserve narrative words."""
-    cleaned = _CITATION_MARKER_RE.sub(" ", text)
-    cleaned = _ARCHETYPE_RE.sub("", cleaned)
-    cleaned = re.sub(r" +", " ", cleaned)
-    cleaned = re.sub(r" *\n *", "\n", cleaned)
-    return cleaned.strip()
+    """Route NGO-facing prose through the single identifier-redaction chokepoint."""
+    return redact_internal_identifiers(text)
 
 
 def _apply_terminology(text: str, subs: list[tuple[re.Pattern[str], str]]) -> str:
@@ -100,10 +95,12 @@ def _add_word_table(document: Document, header: list[str], rows: list[list[str]]
     table = document.add_table(rows=1 + len(rows), cols=col_count)
     table.style = "Table Grid"
     for col_idx in range(col_count):
-        table.rows[0].cells[col_idx].text = header[col_idx] if col_idx < len(header) else ""
+        cell_text = header[col_idx] if col_idx < len(header) else ""
+        table.rows[0].cells[col_idx].text = redact_internal_identifiers(cell_text)
     for row_idx, row in enumerate(rows, start=1):
         for col_idx in range(col_count):
-            table.rows[row_idx].cells[col_idx].text = row[col_idx] if col_idx < len(row) else ""
+            cell_text = row[col_idx] if col_idx < len(row) else ""
+            table.rows[row_idx].cells[col_idx].text = redact_internal_identifiers(cell_text)
 
 
 def _render_section_body(
@@ -207,14 +204,19 @@ def render_donor_report_docx(
         heading = strip_markdown_heading_prefix(
             str(template_section.get("label") or section_key)
         )
-        document.add_heading(_apply_terminology(heading, subs), level=1)
+        document.add_heading(
+            redact_internal_identifiers(_apply_terminology(heading, subs)), level=1
+        )
 
         for table_def in template_section.get("required_tables") or []:
             if not isinstance(table_def, dict):
                 continue
             table_label = strip_markdown_heading_prefix(str(table_def.get("label") or ""))
             if table_label:
-                document.add_heading(_apply_terminology(table_label, subs), level=2)
+                document.add_heading(
+                    redact_internal_identifiers(_apply_terminology(table_label, subs)),
+                    level=2,
+                )
             kb_rows = table_rows_for_definition(
                 table_def=table_def,
                 facts=kb_facts,
@@ -234,7 +236,12 @@ def render_donor_report_docx(
         content = section.get("content") or {}
         text = str(content.get("text") or "")
         section_assumptions = content.get("assumptions") or []
-        collected_assumptions.extend(str(a) for a in section_assumptions if a)
+        for assumption in section_assumptions:
+            if not assumption:
+                continue
+            redacted = redact_internal_identifiers(str(assumption))
+            if redacted.strip():
+                collected_assumptions.append(redacted)
 
         if status in ("GENERATED", "AWAITING_REVIEW", "ACCEPTED") and text.strip():
             _render_section_body(document, text)

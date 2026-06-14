@@ -22,6 +22,15 @@ REPORT_SYNTHESIS_SYSTEM_PROMPT = (
     "Output valid JSON only.\n"
     "Respect report_inputs.section.word_limit when provided.\n"
     "\n"
+    "NGO-FACING LANGUAGE RULE (NON-NEGOTIABLE):\n"
+    "generated_content.text and generated_content.assumptions[] are read by the NGO "
+    "and the funder. They MUST be plain English. NEVER write an internal identifier of "
+    "any kind into them: no fact: or gap: keys, no colon-delimited paths like "
+    "section:type:ref, no schema/fact keys like financials.lines.*, no archetype tokens, "
+    "no enum values like cannot_provide. When you must refer to a missing requirement, "
+    "name it in human terms (e.g. 'beneficiary numbers', 'the budget compared with actual "
+    "spend'), never by its key.\n"
+    "\n"
     "WRITING QUALITY (Humaniser V3 — retrospective mode):\n"
     "Write as a senior M&E officer accountable to the funder, not as a marketing writer.\n"
     "Use active voice. Use contractions where natural.\n"
@@ -141,7 +150,10 @@ TASK:
 4. Respect report_inputs.section.word_limit, section tone, and funder narrative constraints.
 5. Prefer funder terminology from report_inputs.derived.terminology_resolved where natural.
 6. If insufficient evidence for a required indicator or table row, note the gap in
-   assumptions[] and write around it without fabricating numbers.
+   assumptions[] in plain language, naming the missing item in human terms (e.g.
+   "beneficiary numbers were not available in the submitted records") - never copy a
+   key, colon-path, or identifier into the assumption text - then write around it
+   without fabricating numbers.
 
 SELF-AUDIT (mandatory before JSON output):
 1. Does every claims[] entry list source_refs that exist in report_inputs.knowledge_bank?
@@ -151,6 +163,8 @@ SELF-AUDIT (mandatory before JSON output):
 5. Sentence length varied; no three consecutive similar-length sentences?
 6. Does tone match the section and funder constraints without adding unsupported specifics?
 7. Is generated_content.text non-empty and consistent with claims[]?
+8. Are text and assumptions[] free of any internal identifier (no fact:/gap: keys,
+   no colon-paths, no schema keys, no enum values) - every gap named in plain English?
 
 Output ONLY valid JSON:
 {{

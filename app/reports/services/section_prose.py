@@ -5,6 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from app.reports.schemas.content_json_v1 import build_generated_section
+from app.reports.services.ngo_text_redaction import (
+    humanize_identifier,
+    redact_internal_identifiers,
+)
 
 MIN_SECTION_PROSE_CHARS = 40
 
@@ -49,11 +53,13 @@ def section_meets_minimum_substance(section: dict[str, Any]) -> bool:
 
 
 def _humanize_requirement_refs(refs: list[str]) -> str:
-    if not refs:
-        return "the required template items"
-    if len(refs) == 1:
-        return refs[0].replace("_", " ")
-    readable = [ref.replace("_", " ") for ref in refs]
+    """Plain-English, identifier-free names for required items (colon-paths translated)."""
+    readable = [humanize_identifier(ref) for ref in refs if str(ref).strip()]
+    readable = [r for r in readable if r]
+    if not readable:
+        return ""
+    if len(readable) == 1:
+        return readable[0]
     return ", ".join(readable[:-1]) + f", and {readable[-1]}"
 
 
@@ -62,19 +68,34 @@ def build_insufficiency_statement(
     section: dict[str, Any],
     unsatisfied_refs: list[str] | None = None,
 ) -> str:
-    """Deterministic, submittable prose when no citable section inputs exist (P3-8)."""
+    """Deterministic, submittable prose when no citable section inputs exist (P3-8).
+
+    Names the missing requirements in plain language. When the template declares no
+    named requirements for the section, the requirement clause is dropped entirely
+    rather than emitting a generic placeholder (Package 1, A3).
+    """
     label = str(section.get("label") or section.get("section_key") or "this section").strip()
     refs = unsatisfied_refs or list(section.get("required_indicators") or [])
     items_phrase = _humanize_requirement_refs(refs)
-    return (
+    if items_phrase:
+        requirement_clause = (
+            f"The template requires information on {items_phrase}, but no citable "
+            f"source supplied those items for \"{label}\". "
+        )
+    else:
+        requirement_clause = (
+            f"No citable source in the uploaded documents or confirmed gap answers "
+            f"supplied material for \"{label}\". "
+        )
+    statement = (
         f"This section could not be drafted from the material available in uploaded "
         f"documents or confirmed gap answers for the reporting period. "
-        f"The template requires information on {items_phrase}, but no citable source "
-        f"supplied those items for \"{label}\". "
+        f"{requirement_clause}"
         f"Accordingly, no narrative is presented here: the organisation has left "
         f"this section blank rather than report anything not supported by the "
         f"available evidence."
     )
+    return redact_internal_identifiers(statement)
 
 
 def build_insufficient_data_section(

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from io import BytesIO
 from typing import Any
@@ -18,6 +19,38 @@ from app.reports.services.section_prose import (
     has_non_empty_prose,
     section_meets_minimum_substance,
 )
+
+
+# --- Identifier-leak tripwire (Package 1, E2) -------------------------------
+# Independent of the redaction chokepoint: this asserts the *target* (no internal
+# identifier reaches NGO-facing output), so the chokepoint must satisfy it rather
+# than the assertion being weakened to pass. Patterns require the no-internal-space
+# / namespace-prefixed shapes that identifiers have but honest prose does not, so
+# times (10:30), ratios (3:1), scripture (John 3:16), decimals (4.2), URLs, and
+# domains do not trip it.
+_LEAK_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("colon_item_key", re.compile(r"[A-Za-z][A-Za-z0-9_]*(?::[A-Za-z0-9_]+){2,}")),
+    (
+        "schema_dotted_path",
+        re.compile(
+            r"\b(?:financials|indicators?|reporting|objectives|outcomes)(?:\.[A-Za-z0-9_]+){2,}"
+        ),
+    ),
+    ("citation_marker", re.compile(r"\[(?:fact|gap):[^\]]+\]", re.IGNORECASE)),
+    ("archetype_token", re.compile(r"\bARCH_[A-Z0-9_]+\b")),
+    ("enum_value", re.compile(r"\b(?:cannot_provide|not_applicable)\b")),
+    ("generic_placeholder", re.compile(r"the required template items")),
+)
+
+
+def scan_identifier_leaks(text: str) -> list[str]:
+    """Return violation tags for every internal-identifier pattern found in NGO text."""
+    violations: list[str] = []
+    for name, pattern in _LEAK_PATTERNS:
+        match = pattern.search(text)
+        if match:
+            violations.append(f"identifier_leak:{name}:{match.group(0)[:60]}")
+    return violations
 
 
 @dataclass
@@ -126,10 +159,14 @@ def assert_export_docx(
             f"table_count_low:expected>={expected_tables}:actual={actual_tables}"
         )
 
+    plaintext = _docx_plaintext(docx_bytes)
+    # Identifier-leak tripwire over the entire rendered document (body prose,
+    # table cells, and the Assumptions & Caveats appendix). Always runs.
+    violations.extend(scan_identifier_leaks(plaintext))
+
     if violations:
         return DocxExportAssertionReport(violations=violations)
 
-    plaintext = _docx_plaintext(docx_bytes)
     for template_section in visible:
         key = str(template_section.get("section_key") or "")
         section = sections_by_key.get(key)
