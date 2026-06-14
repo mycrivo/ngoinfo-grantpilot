@@ -256,3 +256,17 @@ Context: P3-9 Cluster C / A-MODEL; P3-8 NLCF walk `588c3e7d` froze at Gate-3 (`c
 
 **STOP:** No engine change in evidence commit; owner read gate complete pending C.2 scoping if programme-level `objectives.*` must not alone unlock narrative sections.
 ---
+DECISION (2026-06-14) — Package 2: FCDO indicator data-table scope (output-vs-outcome split not invented).
+Context: Generic template-driven table renderer (`kb_table_renderer.py`) drives off `required_tables` + real KB fact namespaces; deleted the hardcoded `FCDO_LOGFRAME_OPS` 12-row OP skeleton (latent integrity defect — it could render OP rows no fact backed). Diagnosis confirmed the renderer cannot derive an output-vs-outcome indicator classification from the facts: real recorded shapes are `indicators.<id>.<facet>` (e.g. `indicators.op1_1_girls_reenrolled.actual`, `indicators.ocm1_attendance_80pct.target`) with no declared indicator-type tag.
+
+**Decision (honest-not-invented):**
+1. **Single indicator data-table populates from ALL real indicator facts.** A `data_source` table is treated as a per-entity data table only when its declared columns map to ≥2 distinct fillable value families (`actual`/`budget`/`target`). FCDO `output_score_table` (actual + milestone) qualifies and receives every `indicators.*` entity as a row; each cell fills fail-closed on exact facet-family membership, honest `not provided` otherwise.
+2. **`outcome_assessment` and `vfm_measures` render honest-empty** (declared columns + one `not provided` row): their columns are narrative / single-family, so no indicator actual is dumped into them. This deliberately does NOT split outcome indicators (`ocm*`) out of the output table into the outcome-assessment table.
+3. **Why not split:** the output/outcome distinction is **not declared in the facts** (no indicator-type field in template or reconciler output). Synthesising a split from id-prefix conventions (`op*` vs `ocm*`) would be inventing a classification the data does not carry — a moat breach by the same standard as inventing a row. Every rendered cell traces to a real fact; row-to-table placement across indicator sub-types is the only thing left undeclared, and we leave it honest rather than guess.
+
+**Deliberate data-layer limitation — revisit only if FCDO reviewers require the split.** Implementing it would need an indicator-type tag carried in the funder template (per-indicator `indicator_type`) and/or surfaced by the reconciler/extractor onto each `indicators.*` fact — **out of scope here** (no fact reshaping in this package). Recorded so the first live FCDO report is not a surprise: all indicators appear in the single indicator data-table; the outcome-assessment table is honestly empty.
+
+**Evidence:** proven against real `c1_nlcf_rewalk_d8e7518b.json` (NLCF financials) and recorded `tests/fixtures/reconciler/recorded/fcdo_bridgelight_recorded_knowledge_bank.json` (FCDO indicators) in `tests/test_funder_table_rendering.py` (Smoke P0 M&E allowlist), NOT the favourable `fcdo_complete_3347590c` fixture.
+
+**STOP:** owner-triggered double re-walk (clean human caveats + populated funder tables, one walk) is the next gate.
+---

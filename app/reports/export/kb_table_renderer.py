@@ -1,4 +1,21 @@
-"""Deterministic KB-backed table rows for export — no LLM (P3-7 F-6)."""
+"""Deterministic, template-driven KB-backed table rows for export - no LLM.
+
+Generic across funders (Package 2). Rows come from the REAL knowledge-bank
+fact-key namespaces (``financials.lines.*``, ``financials.<aggregate>.*``,
+``indicators.*`` / ``indicator.*``), grouped into entities. There are NO
+hardcoded per-funder key shapes or row skeletons.
+
+Moat rules inside the table:
+
+- A cell fills ONLY on EXACT value-family membership (fail closed). A fact whose
+  facet does not map to a column of the same family renders "not provided" - it is
+  never placed in a best-guess or nearest-match column.
+- Every value traces to a real fact. ``variance`` is derived only when BOTH real
+  operands (actual and budget) are present; a missing operand is never treated as
+  zero.
+- A declared table never vanishes: where no fact backs it, it renders its declared
+  columns plus one honest-empty row.
+"""
 
 from __future__ import annotations
 
@@ -7,198 +24,214 @@ from typing import Any
 
 NOT_PROVIDED = "not provided"
 
-FCDO_LOGFRAME_OPS = (
-    "OP1.1",
-    "OP1.2",
-    "OP1.3",
-    "OP2.1",
-    "OP2.2",
-    "OP2.3",
-    "OP3.1",
-    "OP3.2",
-    "OP3.3",
-    "OP4.1",
-    "OP4.2",
-    "OP4.3",
+# Fillable value families - generic, funder-agnostic vocabulary shared by template
+# column_keys and KB fact facets. Membership is EXACT: a cell fills only when a
+# fact facet and a column resolve to the SAME family. Tokens absent here have no
+# family and always render "not provided" (never a nearest-match guess).
+_ACTUAL_TOKENS = frozenset(
+    {"actual", "actual_spend", "ar1_actual", "y1_actual", "actual_position", "current_performance"}
 )
+_BUDGET_TOKENS = frozenset(
+    {"budget", "budgeted_amount", "y1_budget", "planned_position"}
+)
+_TARGET_TOKENS = frozenset(
+    {
+        "target",
+        "milestone",
+        "ar1_target",
+        "ar1_milestone_target",
+        "milestone_target",
+        "proposal_target",
+        "target_proposal",
+    }
+)
+_VARIANCE_TOKENS = frozenset({"variance", "variance_or_issue"})
 
-_OP_KEY_RE = re.compile(r"^indicators\.(OP\d+\.\d+)\.", re.IGNORECASE)
+# Families a value column can be filled from directly (variance is derived, not
+# looked up; it is intentionally excluded from the data-table discriminator).
+_FILLABLE_FAMILIES = ("actual", "budget", "target")
+
+_FACET_PREFIX_RE = re.compile(
+    r"^(?:budget|actual|target|milestone|spend|forecast|planned)(?:\s+spend)?\s*[:\-\u2013\u2014]\s*",
+    re.IGNORECASE,
+)
+_FACET_SUFFIX_RE = re.compile(
+    r"\s*[\-\u2013\u2014]\s*(?:budget|actual(?:\s+spend)?|target|milestone|spend|forecast|planned)\s*$",
+    re.IGNORECASE,
+)
+# Deterministic family order for picking an entity's display label.
+_LABEL_FAMILY_ORDER = ("budget", "actual", "target")
 
 
-def _fact_value(facts: dict[str, Any], key: str) -> str:
-    fact = facts.get(key)
-    if not isinstance(fact, dict):
-        return ""
-    value = fact.get("value")
+def _family(token: str) -> str | None:
+    t = str(token or "").strip().lower()
+    if t in _ACTUAL_TOKENS:
+        return "actual"
+    if t in _BUDGET_TOKENS:
+        return "budget"
+    if t in _TARGET_TOKENS:
+        return "target"
+    if t in _VARIANCE_TOKENS:
+        return "variance"
+    return None
+
+
+def _parse_fact_key(key: str) -> tuple[str, str, str] | None:
+    """Return (namespace, entity_id, facet) for financials/indicators KB keys."""
+    parts = str(key).split(".")
+    if len(parts) < 3:
+        return None
+    head = parts[0].lower()
+    if head == "financials":
+        if parts[1].lower() == "lines" and len(parts) >= 4:
+            return ("financials", ".".join(parts[2:-1]), parts[-1])
+        return ("financials", ".".join(parts[1:-1]), parts[-1])
+    if head in ("indicators", "indicator"):
+        return ("indicators", ".".join(parts[1:-1]), parts[-1])
+    return None
+
+
+def _group_entities(
+    facts: dict[str, Any], namespace: str
+) -> dict[str, dict[str, list[dict[str, Any]]]]:
+    """entity_id -> family -> list of fact dicts (only fillable-family facets)."""
+    grouped: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    for key, fact in (facts or {}).items():
+        if not isinstance(fact, dict):
+            continue
+        parsed = _parse_fact_key(key)
+        if not parsed:
+            continue
+        ns, entity, facet = parsed
+        if ns != namespace or not entity:
+            continue
+        fam = _family(facet)
+        if fam is None:
+            continue
+        grouped.setdefault(entity, {}).setdefault(fam, []).append(fact)
+    return grouped
+
+
+def _value_for_family(entity_facts: dict[str, list[dict[str, Any]]], family: str) -> str:
+    """Fail-closed value lookup: fills only on a single unambiguous family fact."""
+    candidates = entity_facts.get(family) or []
+    if len(candidates) != 1:
+        return ""  # zero or ambiguous -> caller renders "not provided"
+    value = candidates[0].get("value")
     if value is None:
         return ""
     return str(value).strip()
 
 
-def _fact_label(facts: dict[str, Any], key: str) -> str:
-    fact = facts.get(key)
-    if not isinstance(fact, dict):
-        return ""
-    label = fact.get("semantic_label")
-    if label:
-        return str(label).strip()
-    return ""
+def _strip_facet_prefix(label: str) -> str:
+    out = _FACET_PREFIX_RE.sub("", label)
+    out = _FACET_SUFFIX_RE.sub("", out)
+    return out.strip() or label
 
 
-def _resolve_fact_key(facts: dict[str, Any], suffix: str) -> str | None:
-    """Match indicators.OP1.1.logframe_ar1_actual style keys case-insensitively."""
-    target = suffix.lower()
-    for key in facts:
-        if str(key).lower().endswith(target.lower()):
-            return str(key)
-    return None
+def _entity_label(entity_id: str, entity_facts: dict[str, list[dict[str, Any]]]) -> str:
+    ordered = list(_LABEL_FAMILY_ORDER) + [
+        f for f in entity_facts if f not in _LABEL_FAMILY_ORDER
+    ]
+    for fam in ordered:
+        for fact in entity_facts.get(fam, []):
+            label = str(fact.get("semantic_label") or "").strip()
+            if label:
+                return _strip_facet_prefix(label)
+    return entity_id.replace("_", " ").strip()
 
 
-def _cell(value: str, *, missing_ok: bool = False) -> str:
-    stripped = str(value or "").strip()
-    if stripped:
-        return stripped
-    return NOT_PROVIDED if missing_ok else ""
+def _format_number(n: float) -> str:
+    if n == int(n):
+        return str(int(n))
+    return f"{n:g}"
 
 
-def build_logframe_output_score_rows(
-    *,
-    facts: dict[str, Any],
-    gap_refs: set[str] | None = None,
-) -> list[list[str]]:
-    """Rows for FCDO detailed_output_scoring output_score_table (12 OP indicators)."""
-    gap_refs = {ref.lower() for ref in (gap_refs or set())}
-    rows: list[list[str]] = []
-    for op in FCDO_LOGFRAME_OPS:
-        op_lower = op.lower().replace(".", "_")
-        is_gap = f"logframe_row:{op_lower}" in gap_refs
-        actual_key = _resolve_fact_key(facts, f"{op}.logframe_ar1_actual")
-        target_key = _resolve_fact_key(facts, f"{op}.logframe_ar1_target")
-        actual = _fact_value(facts, actual_key) if actual_key else ""
-        target = _fact_value(facts, target_key) if target_key else ""
-        indicator = _fact_label(facts, actual_key) if actual_key else ""
-        if is_gap and not actual:
-            actual = NOT_PROVIDED
-        rows.append(
-            [
-                op,
-                NOT_PROVIDED,
-                NOT_PROVIDED,
-                indicator or NOT_PROVIDED,
-                NOT_PROVIDED,
-                target or NOT_PROVIDED,
-                actual or (NOT_PROVIDED if is_gap else ""),
-                NOT_PROVIDED,
-                NOT_PROVIDED,
-                NOT_PROVIDED,
-            ]
+def _variance(actual: str, budget: str) -> str:
+    """Derived only when BOTH real operands present; missing operand is never zero."""
+    if not actual or not budget:
+        return NOT_PROVIDED
+    try:
+        return _format_number(
+            float(actual.replace(",", "")) - float(budget.replace(",", ""))
         )
-    return rows
+    except ValueError:
+        return NOT_PROVIDED
 
 
-def build_budget_vs_actual_rows(*, facts: dict[str, Any]) -> list[list[str]]:
-    """Rows for NLCF spend_summary budget_vs_actual from financials.lines.* facts."""
-    line_keys: dict[str, dict[str, str]] = {}
-    for key in facts:
-        match = re.match(
-            r"^financials\.lines\.(OP\d+\.\d+)\.(y1_actual|y1_budget|actual|budget)$",
-            str(key),
-            re.IGNORECASE,
-        )
-        if not match:
-            continue
-        op = match.group(1).upper()
-        field = match.group(2).lower()
-        bucket = line_keys.setdefault(op, {})
-        if field in ("y1_actual", "actual"):
-            bucket["actual"] = str(key)
-        elif field in ("y1_budget", "budget"):
-            bucket["budget"] = str(key)
+def _is_total_entity(entity_id: str, label: str) -> bool:
+    return "total" in entity_id.lower() or "total" in label.lower()
 
-    total_actual = _resolve_fact_key(facts, "financials.y1_actual.total") or _resolve_fact_key(
-        facts, "financials.total.y1_actual"
-    )
-    total_budget = _resolve_fact_key(facts, "financials.y1_budget.total") or _resolve_fact_key(
-        facts, "financials.total.y1_budget"
+
+def _is_fact_data_table(col_families: list[str | None]) -> bool:
+    """A table takes per-entity rows only if >=2 distinct fillable families are declared."""
+    fams = {f for f in col_families if f in _FILLABLE_FAMILIES}
+    return len(fams) >= 2
+
+
+def _build_rows(table_def: dict[str, Any], facts: dict[str, Any], namespace: str) -> list[list[str]]:
+    columns = [c for c in (table_def.get("columns") or []) if isinstance(c, dict)]
+    col_count = len(columns)
+    if col_count == 0:
+        return []
+    col_families = [_family(c.get("column_key") or "") for c in columns]
+
+    honest_empty = [NOT_PROVIDED] * col_count
+    if not _is_fact_data_table(col_families):
+        return [list(honest_empty)]
+
+    grouped = _group_entities(facts, namespace)
+    if not grouped:
+        return [list(honest_empty)]
+
+    ordered_entities = sorted(
+        grouped,
+        key=lambda e: (_is_total_entity(e, _entity_label(e, grouped[e])), e.lower()),
     )
 
     rows: list[list[str]] = []
-    for op in sorted(line_keys.keys()):
-        refs = line_keys[op]
-        budget = _fact_value(facts, refs.get("budget", ""))
-        actual = _fact_value(facts, refs.get("actual", ""))
-        variance = ""
-        if budget and actual:
-            try:
-                variance = str(float(actual.replace(",", "")) - float(budget.replace(",", "")))
-            except ValueError:
-                variance = NOT_PROVIDED
-        rows.append(
-            [
-                op,
-                budget or NOT_PROVIDED,
-                actual or NOT_PROVIDED,
-                variance or NOT_PROVIDED,
-                NOT_PROVIDED,
-            ]
-        )
-
-    if total_budget or total_actual:
-        variance = ""
-        if total_budget and total_actual:
-            try:
-                variance = str(
-                    float(_fact_value(facts, total_actual).replace(",", ""))
-                    - float(_fact_value(facts, total_budget).replace(",", ""))
-                )
-            except ValueError:
-                variance = NOT_PROVIDED
-        rows.append(
-            [
-                "Total",
-                _fact_value(facts, total_budget) if total_budget else NOT_PROVIDED,
-                _fact_value(facts, total_actual) if total_actual else NOT_PROVIDED,
-                variance or NOT_PROVIDED,
-                NOT_PROVIDED,
-            ]
-        )
-    return rows
-
-
-def gap_refs_from_analysis(gap_analysis: dict[str, Any] | None) -> set[str]:
-    refs: set[str] = set()
-    for gap in (gap_analysis or {}).get("gaps") or []:
-        if not isinstance(gap, dict):
-            continue
-        ref = str(gap.get("required_item_ref") or "").strip()
-        if ref:
-            refs.add(ref)
-    return refs
+    for entity_id in ordered_entities:
+        entity_facts = grouped[entity_id]
+        fam_value = {fam: _value_for_family(entity_facts, fam) for fam in _FILLABLE_FAMILIES}
+        label = _entity_label(entity_id, entity_facts)
+        row: list[str] = []
+        for idx, fam in enumerate(col_families):
+            if idx == 0:
+                row.append(label or NOT_PROVIDED)
+            elif fam == "variance":
+                row.append(_variance(fam_value["actual"], fam_value["budget"]))
+            elif fam in _FILLABLE_FAMILIES:
+                row.append(fam_value.get(fam) or NOT_PROVIDED)
+            else:
+                row.append(NOT_PROVIDED)
+        rows.append(row)
+    return rows or [list(honest_empty)]
 
 
 def table_rows_for_definition(
     *,
     table_def: dict[str, Any],
     facts: dict[str, Any],
-    format_rules_json: dict[str, Any],
-    gap_analysis: dict[str, Any] | None,
+    format_rules_json: dict[str, Any] | None = None,
+    gap_analysis: dict[str, Any] | None = None,
 ) -> list[list[str]] | None:
-    """Return body rows for a template required_tables entry, or None if not KB-backed."""
-    table_key = str(table_def.get("table_key") or "")
-    data_source = str(table_def.get("data_source") or "")
+    """Body rows for a template required_tables entry.
 
-    logframe_enabled = bool((format_rules_json.get("logframe") or {}).get("enabled"))
-    if table_key == "output_score_table" and data_source == "indicators" and logframe_enabled:
-        return build_logframe_output_score_rows(
-            facts=facts,
-            gap_refs=gap_refs_from_analysis(gap_analysis),
-        )
+    Returns a list for every declared table that has columns (never a bare
+    heading): populated rows where facts back them, otherwise a single
+    honest-empty row. Returns None only when the table declares no columns.
+    """
+    columns = [c for c in (table_def.get("columns") or []) if isinstance(c, dict)]
+    if not columns:
+        return None
 
-    if table_key == "budget_vs_actual" and data_source == "financials":
-        rows = build_budget_vs_actual_rows(facts=facts)
-        return rows if rows else None
+    data_source = str(table_def.get("data_source") or "").lower()
+    if data_source in ("financials", "indicators"):
+        return _build_rows(table_def, facts or {}, data_source)
 
-    return None
+    # manual (and any other declared source): no structured fact namespace to
+    # group; render the declared columns with one honest-empty row.
+    return [[NOT_PROVIDED] * len(columns)]
 
 
 def table_headers_for_definition(table_def: dict[str, Any]) -> list[str]:
@@ -208,3 +241,14 @@ def table_headers_for_definition(table_def: dict[str, Any]) -> list[str]:
         for col in columns
         if isinstance(col, dict)
     ]
+
+
+def is_honest_empty_rows(rows: list[list[str]] | None) -> bool:
+    """True when a rendered table carries no real values (every cell 'not provided')."""
+    if not rows:
+        return True
+    for row in rows:
+        for cell in row:
+            if str(cell).strip() and str(cell).strip() != NOT_PROVIDED:
+                return False
+    return True

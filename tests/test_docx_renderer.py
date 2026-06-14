@@ -125,9 +125,11 @@ def test_body_removes_whole_citation_markers_without_orphan_brackets():
 def test_kb_logframe_table_renders_in_docx():
     fcdo = _load_fcdo_template_fields()
     template_sections = fcdo["report_sections_json"]
+    # Real recorded indicator fact shapes (op<n>_<n>.actual/.target), not the
+    # deleted favourable distilled logframe_ar1_* skeleton keys.
     facts = {
-        "indicators.OP1.1.logframe_ar1_actual": {"value": 684, "semantic_label": "Re-enrolled girls"},
-        "indicators.OP1.1.logframe_ar1_target": {"value": 650},
+        "indicators.op1_1_girls_reenrolled.actual": {"value": 684, "semantic_label": "Re-enrolled girls"},
+        "indicators.op1_1_girls_reenrolled.target": {"value": 650},
     }
     content_json = {
         "sections": [
@@ -149,18 +151,22 @@ def test_kb_logframe_table_renders_in_docx():
         funder_name="FCDO",
         template_name="Annual Review",
         knowledge_bank_json={"facts": facts},
-        gap_analysis_json={
-            "gaps": [
-                {"required_item_ref": "logframe_row:op2_3"},
-                {"required_item_ref": "logframe_row:op4_2"},
-            ]
-        },
     )
     document = Document(BytesIO(docx_bytes))
     assert len(document.tables) >= 1
-    table_text = document.tables[0].rows[1].cells[6].text
-    assert "684" in table_text or "684" in _docx_plaintext(docx_bytes)
+    # The real actual (684) and target (650) land in their own columns of a row.
+    matching_rows = [
+        [c.text for c in row.cells]
+        for table in document.tables
+        for row in table.rows
+        if "684" in [c.text for c in row.cells]
+    ]
+    assert matching_rows, "expected a logframe row populated from the real actual fact"
+    row = matching_rows[0]
+    assert "684" in row and "650" in row
 
+    # E1: funder-authored labels render VERBATIM — no canonical_to_funder
+    # substitution inside section/table headings.
     terminology_map_json = {
         "canonical_to_funder": {
             "risk": "Risk rating / assumptions / controls",
@@ -196,6 +202,8 @@ def test_kb_logframe_table_renders_in_docx():
     )
     document = Document(BytesIO(docx_bytes))
     headings = [p.text for p in document.paragraphs if p.style.name.startswith("Heading")]
-    assert any("Risk rating / assumptions / controls" in h for h in headings)
-    assert any("Budget / forecast and actual costs" in h for h in headings)
+    assert any("Program risk review" in h for h in headings)
+    assert any("Annual budget summary" in h for h in headings)
+    assert not any("Risk rating / assumptions / controls" in h for h in headings)
+    assert not any("Budget / forecast and actual costs" in h for h in headings)
     assert "Body text only." in _docx_plaintext(docx_bytes)

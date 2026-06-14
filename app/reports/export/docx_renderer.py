@@ -18,6 +18,7 @@ from app.core.docx_presentation import (
     strip_markdown_heading_prefix,
 )
 from app.reports.export.kb_table_renderer import (
+    is_honest_empty_rows,
     table_headers_for_definition,
     table_rows_for_definition,
 )
@@ -47,27 +48,32 @@ def _apply_basic_styles(document: Document) -> None:
     apply_house_styles(document)
 
 
-def _terminology_substitutions(terminology_map: dict[str, Any]) -> list[tuple[re.Pattern[str], str]]:
-    mapping = terminology_map.get("canonical_to_funder") or {}
-    subs: list[tuple[re.Pattern[str], str]] = []
-    for canonical, funder_label in mapping.items():
-        if not canonical or not funder_label:
-            continue
-        pattern = re.compile(rf"\b{re.escape(str(canonical))}\b", re.IGNORECASE)
-        subs.append((pattern, str(funder_label)))
-    return subs
-
-
 def _strip_internal_tokens(text: str) -> str:
     """Route NGO-facing prose through the single identifier-redaction chokepoint."""
     return redact_internal_identifiers(text)
 
 
-def _apply_terminology(text: str, subs: list[tuple[re.Pattern[str], str]]) -> str:
-    out = text
-    for pattern, replacement in subs:
-        out = pattern.sub(replacement, out)
-    return out
+# D2: a model-emitted caveat claiming a table was unfillable because the schema
+# lacked a table field is false (the template declares the table; the engine now
+# renders it). Suppress only that misattribution; the engine emits the TRUE
+# reason for any genuinely honest-empty table.
+_FALSE_TABLE_SCHEMA_RE = re.compile(
+    r"(?:output\s+)?schema\s+(?:did\s+not|does\s+not|did\s*n[o']t|does\s*n[o']t)\s+"
+    r"(?:include|provide|define|contain|have)\s+a?\s*table",
+    re.IGNORECASE,
+)
+
+
+def _is_false_table_schema_attribution(text: str) -> bool:
+    return bool(_FALSE_TABLE_SCHEMA_RE.search(text or ""))
+
+
+def _honest_empty_table_caveat(label: str) -> str:
+    name = label.strip() or "required"
+    return (
+        f"The \"{name}\" table is included, but no verified figures were available "
+        f"in the submitted records to populate it."
+    )
 
 
 def _parse_markdown_table_block(lines: list[str]) -> tuple[list[str], list[list[str]]] | None:
@@ -193,8 +199,8 @@ def render_donor_report_docx(
         if isinstance(item, dict) and item.get("section_key"):
             sections_by_key[str(item["section_key"])] = item
 
-    subs = _terminology_substitutions(terminology_map_json)
     collected_assumptions: list[str] = []
+    table_caveats: list[str] = []
     kb_facts = dict((knowledge_bank_json or {}).get("facts") or {})
 
     for template_section in template_sections:
@@ -204,19 +210,16 @@ def render_donor_report_docx(
         heading = strip_markdown_heading_prefix(
             str(template_section.get("label") or section_key)
         )
-        document.add_heading(
-            redact_internal_identifiers(_apply_terminology(heading, subs)), level=1
-        )
+        # E1: render the funder-authored label verbatim (no canonical_to_funder
+        # substitution inside labels, which produced broken mid-sentence headings).
+        document.add_heading(redact_internal_identifiers(heading), level=1)
 
         for table_def in template_section.get("required_tables") or []:
             if not isinstance(table_def, dict):
                 continue
             table_label = strip_markdown_heading_prefix(str(table_def.get("label") or ""))
             if table_label:
-                document.add_heading(
-                    redact_internal_identifiers(_apply_terminology(table_label, subs)),
-                    level=2,
-                )
+                document.add_heading(redact_internal_identifiers(table_label), level=2)
             kb_rows = table_rows_for_definition(
                 table_def=table_def,
                 facts=kb_facts,
@@ -227,6 +230,9 @@ def render_donor_report_docx(
                 header = table_headers_for_definition(table_def)
                 if header:
                     _add_word_table(document, header, kb_rows)
+                    if table_label and is_honest_empty_rows(kb_rows):
+                        # D2: state the TRUE reason a declared table could not fill.
+                        table_caveats.append(_honest_empty_table_caveat(table_label))
 
         section = sections_by_key.get(section_key)
         if section is None:
@@ -239,6 +245,10 @@ def render_donor_report_docx(
         for assumption in section_assumptions:
             if not assumption:
                 continue
+            # D2: drop the false "schema did not include a table field"
+            # misattribution; the engine emits the true table caveat instead.
+            if _is_false_table_schema_attribution(str(assumption)):
+                continue
             redacted = redact_internal_identifiers(str(assumption))
             if redacted.strip():
                 collected_assumptions.append(redacted)
@@ -249,7 +259,7 @@ def render_donor_report_docx(
             pass
         # Empty / missing content: heading only — no internal placeholder paragraphs.
 
-    add_assumptions_appendix(document, collected_assumptions)
+    add_assumptions_appendix(document, collected_assumptions + table_caveats)
     add_document_footer(
         document,
         org_name=ngo_name or "Organisation",
