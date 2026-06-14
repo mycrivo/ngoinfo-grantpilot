@@ -170,12 +170,19 @@ def test_partial_fcdo_section_synthesis_not_insufficient_data():
 
 def test_p3_8_nlcf_sparse_section_routing_table():
     kb = _load_p3_8_nlcf_kb()
+    # Package A note: this fixture predates the source-section carrier, so its monitoring
+    # rows carry no source_section. Under correct (non-bleeding) routing, learning's notes
+    # (indicators.9/10, positional) are NOT routable to learning without that signal, and
+    # learning no longer falsely inherits financials via the old "work"->"workers" token
+    # leak. learning is therefore correctly insufficient on this pre-carrier fixture; the
+    # real source-routed proof (learning sees row9/row10) lives in test_section_visibility.
     expect_insufficient = {
         "project_story",
         "community_involvement",
         "changes_and_next_steps",
+        "learning",
     }
-    expect_synthesis = {"difference_made", "learning", "spend_summary"}
+    expect_synthesis = {"difference_made", "spend_summary"}
     for section_key in expect_insufficient | expect_synthesis:
         section = _section_from_template(NLCF_TEMPLATE, section_key)
         has_inputs = section_has_synthesizable_inputs(

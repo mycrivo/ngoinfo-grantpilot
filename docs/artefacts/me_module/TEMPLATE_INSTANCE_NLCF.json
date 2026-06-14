@@ -15,6 +15,8 @@
       "required": true,
       "required_tables": [],
       "required_indicators": [],
+      "source_section_labels": ["Project story"],
+      "fact_namespaces": [],
       "tone": "plain, reflective, community-centred, non-technical",
       "conditional_display": {
         "enabled": false,
@@ -37,6 +39,8 @@
         "community_participation_examples",
         "partner_or_local_collaboration_examples"
       ],
+      "source_section_labels": ["Community involvement"],
+      "fact_namespaces": ["partnerships", "engagement"],
       "tone": "practical, specific, inclusive",
       "conditional_display": {
         "enabled": false,
@@ -75,6 +79,12 @@
         "staff_or_volunteer_feedback",
         "outcome_indicators_where_available"
       ],
+      "source_section_labels": ["Difference made"],
+      "fact_namespaces": [
+        "indicators.*.target",
+        "indicators.*.actual",
+        "indicators.*.disaggregation*"
+      ],
       "tone": "balanced, evidence-informed, accessible",
       "conditional_display": {
         "enabled": false,
@@ -99,6 +109,8 @@
         "unexpected_findings",
         "learning_useful_to_others"
       ],
+      "source_section_labels": ["Learning"],
+      "fact_namespaces": [],
       "tone": "honest, reflective, non-defensive",
       "conditional_display": {
         "enabled": false,
@@ -122,6 +134,8 @@
         "planned_changes",
         "support_needed"
       ],
+      "source_section_labels": [],
+      "fact_namespaces": ["indicators.*.note"],
       "tone": "practical, forward-looking, grounded in learning",
       "conditional_display": {
         "enabled": false,
@@ -160,6 +174,8 @@
         "revenue_cost_variance",
         "capital_cost_variance"
       ],
+      "source_section_labels": ["Spend summary"],
+      "fact_namespaces": ["financials"],
       "tone": "simple, factual, transparent",
       "conditional_display": {
         "enabled": false,

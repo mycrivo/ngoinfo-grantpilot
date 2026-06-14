@@ -154,6 +154,11 @@ TASK:
    "beneficiary numbers were not available in the submitted records") - never copy a
    key, colon-path, or identifier into the assumption text - then write around it
    without fabricating numbers.
+6a. REMIT-SCOPED CAVEATS: only disclaim items inside THIS section's remit, i.e. its
+   report_inputs.section.required_indicators / required_tables. Do NOT state that an item
+   is missing or "not available" when it falls outside this section's required items
+   (another section is responsible for it) — and never disclaim something that is present
+   elsewhere in the knowledge bank. Silence on out-of-remit items, not a false disclaimer.
 
 SELF-AUDIT (mandatory before JSON output):
 1. Does every claims[] entry list source_refs that exist in report_inputs.knowledge_bank?

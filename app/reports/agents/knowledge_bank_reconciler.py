@@ -377,6 +377,26 @@ def _to_provenance(prov: Any) -> KnowledgeProvenance:
 
 
 
+def _build_source_section_index(
+    bundle: ReconciliationInputBundle,
+) -> dict[tuple[str, str], str]:
+    """Map (document_id, cell_ref) -> source-declared section from candidates.
+
+    Package A carrier: lets the reconciler attach a routing tag to each fact
+    DETERMINISTICALLY by joining on the cell reference the LLM cites — the LLM never
+    authors section membership.
+    """
+    index: dict[tuple[str, str], str] = {}
+    for cand in bundle.fact_candidates:
+        if not cand.source_section:
+            continue
+        cell_ref = (cand.provenance or {}).get("cell_ref")
+        if not cell_ref:
+            continue
+        index[(cand.document_id, str(cell_ref))] = cand.source_section
+    return index
+
+
 def _llm_to_structured(
 
     parsed: KnowledgeBankReconcilerLLMOutput,
@@ -387,7 +407,17 @@ def _llm_to_structured(
 
     facts: dict[str, KnowledgeBankFact] = {}
 
+    section_index = _build_source_section_index(bundle)
+
     for fact in parsed.facts:
+
+        provenance = _to_provenance(fact.provenance.model_dump())
+
+        source_section = (
+            section_index.get((fact.source_document_id, str(provenance.cell_ref)))
+            if provenance.cell_ref
+            else None
+        )
 
         facts[fact.fact_key] = KnowledgeBankFact(
 
@@ -403,11 +433,13 @@ def _llm_to_structured(
 
             source_label=fact.source_label,
 
-            provenance=_to_provenance(fact.provenance.model_dump()),
+            provenance=provenance,
 
             interpretation_note=fact.interpretation_note,
 
             verification_status="reconciled",
+
+            source_section=source_section,
 
         )
 

@@ -33,13 +33,21 @@ def build_qualitative_kb_view(
     knowledge_bank_json: dict[str, Any],
     *,
     section: dict[str, Any],
+    report_sections: list[dict[str, Any]] | None = None,
 ) -> QualitativeKBView:
-    """Scoped facts (shared prefixes + section trim) + all citable gap answers."""
+    """Scoped facts (source-routed + declared-needs trim) + all citable gap answers.
+
+    Must mirror synthesis's section view so the critic never flags a routed fact as
+    unsupported: pass the TEMPLATE section (carrying source_section_labels /
+    fact_namespaces) and the full report_sections so routing resolves identically.
+    """
     kb = knowledge_bank_json or {}
     citable_facts = filter_citable_facts(kb)
     section_key = str(section.get("section_key") or "")
     return QualitativeKBView(
-        facts=subset_facts_for_section(citable_facts, section),
+        facts=subset_facts_for_section(
+            citable_facts, section, report_sections=report_sections
+        ),
         gap_answers=filter_citable_gap_answers(kb),
         conflicts_resolved=_resolved_conflicts(kb.get("conflicts") or []),
         section_key=section_key,

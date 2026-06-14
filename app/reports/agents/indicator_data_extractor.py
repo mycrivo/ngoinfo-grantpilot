@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 from collections.abc import AsyncIterator, Callable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,6 +21,7 @@ from pydantic import BaseModel, Field
 from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.extraction.spreadsheet_input import (
     compute_spreadsheet_hash,
+    locate_section_assignment_column,
     parse_spreadsheet_from_path,
     spreadsheet_to_json_text,
 )
@@ -603,6 +605,78 @@ def build_degraded_extraction_stop_result(
     )
 
 
+_ROW_REF_RE = re.compile(r"(\d+)")
+
+
+def _row_grid_position(row: ExtractedIndicatorRow) -> tuple[str | None, int | None]:
+    """Best-effort (sheet, grid_row) for a row, from its source locators or row_id.
+
+    Deterministic and read-only: used only to look up the source-declared section
+    label from the parsed grid. Never alters extracted values.
+    """
+    candidates: list[SourceLocator | None] = [
+        row.source_locator,
+        row.actual.source_locator if row.actual else None,
+        row.target.source_locator if row.target else None,
+        row.indicator_name.source_locator if row.indicator_name else None,
+    ]
+    for loc in candidates:
+        if loc is None:
+            continue
+        match = _ROW_REF_RE.search(str(loc.cell_range))
+        if match:
+            return loc.sheet, int(match.group(1))
+    if str(row.row_id).isdigit():
+        return None, int(row.row_id)
+    return None, None
+
+
+def _attach_section_assignments(
+    structured: IndicatorDataExtractionOutput,
+    data: dict[str, Any],
+) -> None:
+    """Populate ExtractedIndicatorRow.section_assignment from the source grid.
+
+    Package A carrier: reads the funder's source-declared section column (e.g. NLCF
+    "Section for NLCF update") verbatim. The LLM never authors section membership.
+    Observable: logs when indicator rows exist but no section column was located so a
+    differently-worded funder table is detectable rather than a silent routing loss.
+    """
+    rows = structured.indicators
+    if not rows:
+        return
+    section_map = locate_section_assignment_column(data)
+    if not section_map:
+        logger.info(
+            "indicator_data_extractor no section-assignment column located rows=%d "
+            "(routing will fall back to declared-needs visibility)",
+            len(rows),
+        )
+        return
+    single_sheet = next(iter(section_map)) if len(section_map) == 1 else None
+    for row in rows:
+        sheet, grid_row = _row_grid_position(row)
+        if grid_row is None:
+            continue
+        per_row = section_map.get(sheet) if sheet else None
+        if per_row is None and single_sheet is not None:
+            per_row = section_map.get(single_sheet)
+            sheet = single_sheet
+        if not per_row:
+            continue
+        entry = per_row.get(grid_row)
+        if not entry:
+            continue
+        cell_ref = entry["cell_ref"]
+        loc_sheet, _, loc_cell = cell_ref.partition("!")
+        row.section_assignment = TabularCellField(
+            raw=entry["raw"],
+            normalized=entry["raw"],
+            cell_state="stated",
+            source_locator=SourceLocator(sheet=loc_sheet or sheet or "", cell_range=loc_cell or cell_ref),
+        )
+
+
 async def extract_indicator_data_from_path(
     path: Path,
     *,
@@ -624,6 +698,7 @@ async def extract_indicator_data_from_path(
         model=model,
         query_fn=query_fn,
     )
+    _attach_section_assignments(result.envelope.structured, data)
     result.content_hash = content_hash
     result.truncated = result.truncated or truncated_extra
     return result

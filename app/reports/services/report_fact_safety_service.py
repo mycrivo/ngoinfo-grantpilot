@@ -22,6 +22,7 @@ from app.reports.knowledge.qualitative_kb_scope import (
     serialize_qualitative_kb_for_critic,
 )
 from app.reports.models.donor_report import DonorReport
+from app.reports.models.funder_report_template import FunderReportTemplate
 from app.reports.schemas.qualitative_critic_v1 import (
     fence_flag_dict,
     qualitative_flag_from_specific,
@@ -151,6 +152,16 @@ async def critique_and_persist(
     kb = report.knowledge_bank_json or {}
     kb_view = build_confirmed_kb_view(kb)
 
+    # Package A: load template section declarations so the critic's per-section fact
+    # view mirrors synthesis's (source routing + declared-needs resolve identically).
+    template = db.get(FunderReportTemplate, report.funder_report_template_id)
+    template_sections = list((template.report_sections_json or []) if template else [])
+    template_by_key = {
+        str(s.get("section_key")): s
+        for s in template_sections
+        if isinstance(s, dict) and s.get("section_key")
+    }
+
     verified = flagged = unverified = skipped = empty_content_skipped = 0
 
     for section in sections:
@@ -211,7 +222,12 @@ async def critique_and_persist(
         )
         numeric_dicts = [numeric_flag_to_critic_dict(f) for f in numeric_flags]
 
-        qual_view = build_qualitative_kb_view(kb, section=section)
+        routing_section = template_by_key.get(section_key, section)
+        qual_view = build_qualitative_kb_view(
+            kb,
+            section=routing_section,
+            report_sections=template_sections or None,
+        )
         scoped_kb = serialize_qualitative_kb_for_critic(qual_view)
 
         qualitative_failed = False

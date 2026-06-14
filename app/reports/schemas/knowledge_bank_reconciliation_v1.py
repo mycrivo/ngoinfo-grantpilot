@@ -38,6 +38,11 @@ class KnowledgeBankFact(BaseModel):
     confirmed: bool = False
     confirmed_at: datetime | None = None
     confirmed_by_user: bool = False
+    # Section-routing carrier (Package A): the funder's own source-declared section
+    # for this fact, attached deterministically by the reconciler via a cell_ref join
+    # to the candidate. NOT authored by the LLM (absent from _LLMFact). None when the
+    # source carried no section signal -> declared-needs visibility fallback applies.
+    source_section: str | None = None
 
 
 class ConflictValueEntry(BaseModel):

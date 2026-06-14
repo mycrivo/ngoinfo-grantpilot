@@ -41,6 +41,7 @@ from app.reports.services.section_prose import (
     build_insufficient_data_section,
     has_non_empty_prose,
 )
+from app.reports.services.remit_disclosure import build_owned_absent_disclosure
 from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
 from app.reports.services.synthesis_output_hygiene import (
@@ -141,6 +142,16 @@ def _call_openai_section(
     return _extract_json_payload(response), *_extract_usage_counts(response)
 
 
+def _merge_remit_disclosure(
+    assumptions: list[str], disclosure: str | None
+) -> list[str]:
+    """Append the deterministic remit gap disclosure, deduped, preserving order."""
+    out = list(assumptions or [])
+    if disclosure and disclosure not in out:
+        out.append(disclosure)
+    return out
+
+
 def _generate_one_section(
     *,
     section: dict[str, Any],
@@ -149,6 +160,7 @@ def _generate_one_section(
     report_context: dict[str, Any],
     query_fn_synthesis: QueryFnSynthesis | None,
     user_id: str | None,
+    report_sections: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], int, int]:
     section_key = str(section.get("section_key") or "")
     label = str(section.get("label") or section_key)
@@ -158,6 +170,7 @@ def _generate_one_section(
         knowledge_bank_json,
         section,
         report_context=report_context,
+        report_sections=report_sections,
     )
     if not has_inputs:
         logger.info(
@@ -224,6 +237,13 @@ def _generate_one_section(
     constraints = raw.get("constraints_applied") or {}
     kb = report_inputs.get("knowledge_bank") or {}
 
+    # Package A (disclosure-completeness): deterministically guarantee a genuinely-absent
+    # OWNED required item is disclosed in this section's output, regardless of what the
+    # model wrote. Uses the GLOBAL KB so a present-elsewhere item is suppressed.
+    remit_gap_disclosure = build_owned_absent_disclosure(
+        section, knowledge_bank_json, report_context=report_context
+    )
+
     if get_settings().SYNTHESIS_CITATION_FALLBACK:
         logger.info(
             "report_synthesis section=%s citation_mode=legacy_fallback",
@@ -278,7 +298,9 @@ def _generate_one_section(
             label=label,
             archetype=raw.get("archetype") or section.get("archetype"),
             text=cleaned.text,
-            assumptions=list(generated.get("assumptions") or []),
+            assumptions=_merge_remit_disclosure(
+                list(generated.get("assumptions") or []), remit_gap_disclosure
+            ),
             evidence_used=cleaned.evidence_used,
             citation_mode="legacy_fallback",
             dropped_citations=cleaned.dropped_citations,
@@ -315,7 +337,9 @@ def _generate_one_section(
         label=label,
         archetype=raw.get("archetype") or section.get("archetype"),
         text=bound.text,
-        assumptions=list(generated.get("assumptions") or []),
+        assumptions=_merge_remit_disclosure(
+            list(generated.get("assumptions") or []), remit_gap_disclosure
+        ),
         evidence_used=bound.evidence_used,
         claims=bound.claims,
         citation_mode="structured",
@@ -365,6 +389,7 @@ def _generate_all_sections(
                 report_context=report_context,
                 query_fn_synthesis=query_fn_synthesis,
                 user_id=user_id,
+                report_sections=sections,
             ): section
             for section in sections
         }

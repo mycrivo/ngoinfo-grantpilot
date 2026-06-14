@@ -77,6 +77,11 @@ class ExtractedIndicatorRow(BaseModel):
     disaggregation: list[DisaggregationDimension] = Field(default_factory=list)
     source_locator: SourceLocator | None = None
     multi_value: bool = False
+    # Section-routing carrier (Package A): the funder's own source-declared section
+    # assignment for this row (e.g. NLCF monitoring column "Section for NLCF update").
+    # Captured DETERMINISTICALLY from the source grid post-extraction; the LLM never
+    # authors section membership. None when the source has no such column.
+    section_assignment: TabularCellField | None = None
 
 
 class FinancialLine(BaseModel):

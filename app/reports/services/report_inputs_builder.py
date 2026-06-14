@@ -1,7 +1,21 @@
-"""Assemble report_inputs for per-section synthesis (Stage F1)."""
+"""Assemble report_inputs for per-section synthesis (Stage F1).
+
+Section-scoped visibility (Package A) is template-driven and source-routed:
+1. SOURCE PIN — a fact carrying a funder source-declared section (``source_section``)
+   is visible ONLY to the section that source assigned it to (no cross-section bleed).
+2. DECLARED-NEEDS FALLBACK — a fact with no/unknown source signal is visible to a
+   section per what the section declares (``fact_namespaces`` + ``required_tables``
+   data sources + ``required_indicators`` tokens), over a shared programme floor
+   (grant / reporting / objectives), matched by NAMESPACE ROOT so underscore roots
+   like ``grant_reference`` match alongside dotted ``grant.x``.
+The archetype map is a derivation fallback, not the source of truth.
+"""
 
 from __future__ import annotations
 
+import fnmatch
+import logging
+import re
 from datetime import date
 from typing import Any
 
@@ -20,27 +34,104 @@ from app.reports.models.donor_report import DonorReport
 from app.reports.models.funder_report_template import FunderReportTemplate
 from app.services.profile_service import get_profile
 
-# Programme-level fact namespaces any section may reference in narrative.
-_SHARED_FACT_PREFIXES: tuple[str, ...] = ("grant.", "reporting.", "objectives.")
+logger = logging.getLogger("reports.services.report_inputs_builder")
 
-# Generous archetype-driven fact namespaces (template report_sections_json[].archetype).
-_ARCHETYPE_FACT_PREFIXES: dict[str, tuple[str, ...]] = {
-    "ARCH_EXECUTIVE_REVIEW_SUMMARY": ("indicators.", "financials."),
-    "ARCH_PERFORMANCE_CONCLUSIONS": ("indicators.",),
-    "ARCH_OUTPUT_SCORING_TABLE": ("indicators.", "financials."),
-    "ARCH_EVIDENCE_AND_EVALUATION_REVIEW": ("indicators.",),
-    "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS": ("indicators.", "financials."),
-    "ARCH_VALUE_FOR_MONEY_4E": ("indicators.", "financials."),
-    "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW": ("indicators.", "financials."),
-    "ARCH_RECOMMENDATIONS_ACTION_PLAN": ("indicators.",),
+# Programme-level fact namespace ROOTS any section may reference in narrative.
+# Root matching (not dotted startswith) so grant_reference / reporting_period.* match.
+_SHARED_FACT_ROOTS: frozenset[str] = frozenset({"grant", "reporting", "objectives"})
+
+# Archetype-driven namespace roots — FALLBACK only (used when a section declares no
+# explicit fact_namespaces). Template data is the source of truth; see _fact_namespace_patterns.
+_ARCHETYPE_FACT_ROOTS: dict[str, tuple[str, ...]] = {
+    "ARCH_EXECUTIVE_REVIEW_SUMMARY": ("indicators", "financials"),
+    "ARCH_PERFORMANCE_CONCLUSIONS": ("indicators",),
+    "ARCH_OUTPUT_SCORING_TABLE": ("indicators", "financials"),
+    "ARCH_EVIDENCE_AND_EVALUATION_REVIEW": ("indicators",),
+    "ARCH_RISK_ASSUMPTIONS_AND_CONTROLS": ("indicators", "financials"),
+    "ARCH_VALUE_FOR_MONEY_4E": ("indicators", "financials"),
+    "ARCH_DELIVERY_COMMERCIAL_FINANCIAL_REVIEW": ("indicators", "financials"),
+    "ARCH_RECOMMENDATIONS_ACTION_PLAN": ("indicators",),
 }
 
-_TABLE_DATA_SOURCE_PREFIXES: dict[str, tuple[str, ...]] = {
-    "indicators": ("indicators.",),
-    "financials": ("financials.",),
+_TABLE_DATA_SOURCE_ROOTS: dict[str, tuple[str, ...]] = {
+    "indicators": ("indicators",),
+    "financials": ("financials",),
 }
+
+_NAMESPACE_ROOT_RE = re.compile(r"^[a-z]+")
 
 _LINKED_PROPOSAL_SUMMARY_MAX_CHARS = 4000
+
+
+def _namespace_root(key: str) -> str:
+    match = _NAMESPACE_ROOT_RE.match(str(key).lower())
+    return match.group(0) if match else ""
+
+
+def _norm_label(label: str) -> str:
+    return re.sub(r"\s+", " ", str(label or "").strip().lower())
+
+
+def _build_section_label_map(
+    report_sections: list[dict[str, Any]] | None,
+    section: dict[str, Any],
+) -> dict[str, str]:
+    """Normalized source-section label -> engine section_key, across the template.
+
+    Falls back to the single section when the full template is unavailable (legacy
+    callers); pinning to this section still works, cross-section exclusion does not.
+    """
+    sections = report_sections if report_sections is not None else [section]
+    label_map: dict[str, str] = {}
+    for sec in sections:
+        if not isinstance(sec, dict):
+            continue
+        skey = str(sec.get("section_key") or "")
+        if not skey:
+            continue
+        for label in sec.get("source_section_labels") or []:
+            norm = _norm_label(label)
+            if norm:
+                label_map[norm] = skey
+    return label_map
+
+
+def _fact_namespace_patterns(section: dict[str, Any]) -> set[str]:
+    """Declared-needs namespace patterns (roots or glob sub-paths) for one section.
+
+    Template data is the source of truth: explicit fact_namespaces + required_tables
+    data sources. The archetype map is used ONLY as a fallback when no explicit
+    fact_namespaces are declared.
+    """
+    patterns: set[str] = set()
+    declared = section.get("fact_namespaces") or []
+    for ns in declared:
+        text = str(ns).strip()
+        if text:
+            patterns.add(text)
+    for table in section.get("required_tables") or []:
+        if not isinstance(table, dict):
+            continue
+        data_source = str(table.get("data_source") or "")
+        patterns.update(_TABLE_DATA_SOURCE_ROOTS.get(data_source, ()))
+    # Archetype roots are a FALLBACK only for legacy sections that declare no
+    # fact_namespaces key at all (e.g. FCDO). A section that declares the key (even
+    # empty) opts into precise template-driven routing with no archetype widening.
+    if "fact_namespaces" not in section:
+        archetype = str(section.get("archetype") or "")
+        patterns.update(_ARCHETYPE_FACT_ROOTS.get(archetype, ()))
+    return patterns
+
+
+def _key_matches_patterns(key: str, patterns: set[str]) -> bool:
+    root = _namespace_root(key)
+    for pattern in patterns:
+        if "." in pattern or "*" in pattern:
+            if fnmatch.fnmatch(key, pattern):
+                return True
+        elif root == pattern:
+            return True
+    return False
 
 
 def _answered_gap_answers(gap_answers: dict[str, Any]) -> dict[str, Any]:
@@ -131,18 +222,6 @@ def build_knowledge_bank_inputs(knowledge_bank_json: dict[str, Any]) -> dict[str
     }
 
 
-def _fact_prefixes_for_section(section: dict[str, Any]) -> set[str]:
-    prefixes = set(_SHARED_FACT_PREFIXES)
-    archetype = str(section.get("archetype") or "")
-    prefixes.update(_ARCHETYPE_FACT_PREFIXES.get(archetype, ()))
-    for table in section.get("required_tables") or []:
-        if not isinstance(table, dict):
-            continue
-        data_source = str(table.get("data_source") or "")
-        prefixes.update(_TABLE_DATA_SOURCE_PREFIXES.get(data_source, ()))
-    return prefixes
-
-
 def _indicator_match_tokens(section: dict[str, Any]) -> set[str]:
     tokens: set[str] = set()
     for indicator in section.get("required_indicators") or []:
@@ -152,34 +231,84 @@ def _indicator_match_tokens(section: dict[str, Any]) -> set[str]:
     return tokens
 
 
+def _fact_source_section(value: Any) -> str | None:
+    if isinstance(value, dict):
+        src = value.get("source_section")
+        return str(src) if src else None
+    return None
+
+
 def subset_facts_for_section(
     facts: dict[str, Any],
     section: dict[str, Any],
+    *,
+    report_sections: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Return the fact subset for one F1 section call — generous, template-driven trim."""
+    """Return the fact subset visible to one F1 section call.
+
+    Source pin first (a source-declared fact is visible ONLY to its assigned section),
+    then a template-driven declared-needs floor for facts with no/unknown source. A
+    source label that matches no declared section fails safe to declared-needs (never
+    dropped, never misrouted) and is surfaced for observability.
+    """
     if not facts:
         return {}
-    prefixes = _fact_prefixes_for_section(section)
-    tokens = _indicator_match_tokens(section)
+    section_key = str(section.get("section_key") or "")
+    label_map = _build_section_label_map(report_sections, section)
+    own_labels = {_norm_label(lbl) for lbl in (section.get("source_section_labels") or [])}
+    patterns = _fact_namespace_patterns(section)
+    # Legacy indicator-token matching is a fallback for sections that declare NO
+    # fact_namespaces key (e.g. FCDO archetype-driven). Sections that declare the key
+    # (even empty) use precise patterns only — this excludes the accidental broad
+    # "indicators" token bleed and the "work"->"workers" financial mismatch.
+    tokens = (
+        _indicator_match_tokens(section)
+        if "fact_namespaces" not in section
+        else set()
+    )
+    unmatched_labels: set[str] = set()
     out: dict[str, Any] = {}
     for key, value in facts.items():
-        if any(key.startswith(prefix) for prefix in prefixes):
+        source_section = _fact_source_section(value)
+        if source_section:
+            norm = _norm_label(source_section)
+            if norm in own_labels:
+                out[key] = value  # source pin: this section owns the fact
+                continue
+            resolved = label_map.get(norm)
+            if resolved is not None and resolved != section_key:
+                continue  # pinned to another declared section — never bleed here
+            # Unknown label: fail safe to declared-needs (surfaced below).
+            unmatched_labels.add(source_section)
+        root = _namespace_root(key)
+        if root in _SHARED_FACT_ROOTS or _key_matches_patterns(key, patterns):
             out[key] = value
             continue
         if tokens and any(token in key.lower() for token in tokens):
             out[key] = value
+    if unmatched_labels:
+        logger.warning(
+            "subset_facts_for_section unmatched source_section labels=%s section=%s "
+            "-> declared-needs fallback (check template source_section_labels)",
+            sorted(unmatched_labels),
+            section_key or "(unknown)",
+        )
     return out
 
 
 def build_knowledge_bank_inputs_for_section(
     knowledge_bank_json: dict[str, Any],
     section: dict[str, Any],
+    *,
+    report_sections: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Section-scoped KB inputs: citable trimmed facts, all citable answered gaps."""
     kb = knowledge_bank_json or {}
     citable_facts = filter_citable_facts(kb)
     return {
-        "facts": subset_facts_for_section(citable_facts, section),
+        "facts": subset_facts_for_section(
+            citable_facts, section, report_sections=report_sections
+        ),
         "gap_answers": filter_citable_gap_answers(kb),
         "conflicts_resolved": _resolved_conflicts(kb.get("conflicts") or []),
         "gate1_confirmed_at": kb.get("gate1_confirmed_at"),
@@ -192,6 +321,7 @@ def section_has_synthesizable_inputs(
     section: dict[str, Any],
     *,
     report_context: dict[str, Any] | None = None,
+    report_sections: list[dict[str, Any]] | None = None,
 ) -> bool:
     """True when at least one NGO checklist requirement for this section is satisfied in KB."""
     kb = knowledge_bank_json or {}
@@ -212,7 +342,14 @@ def section_has_synthesizable_inputs(
         )
         if result.satisfied:
             return True
-    if build_knowledge_bank_inputs_for_section(kb, section)["facts"]:
+    # The shared programme floor (grant / reporting / objectives) is CONTEXT available to
+    # every section, not synthesizable content on its own. A section is synthesizable only
+    # when it can see at least one SECTION-SPECIFIC fact (source-pinned or declared-needs),
+    # so a section seeing only the shared floor is correctly treated as insufficient.
+    section_facts = build_knowledge_bank_inputs_for_section(
+        kb, section, report_sections=report_sections
+    )["facts"]
+    if any(_namespace_root(key) not in _SHARED_FACT_ROOTS for key in section_facts):
         return True
     return False
 
@@ -228,6 +365,7 @@ def build_report_inputs_for_section(
     kb_inputs = build_knowledge_bank_inputs_for_section(
         report.knowledge_bank_json or {},
         section,
+        report_sections=template.report_sections_json or [],
     )
     return {
         "ngo": _ngo_payload(db, report.user_id),

@@ -222,6 +222,75 @@ def get_cell_at_ref(data: dict[str, Any], sheet_name: str, cell_ref: str) -> dic
     return None
 
 
+# Package A: header phrases that identify a funder's source-declared section column
+# (e.g. NLCF monitoring "Section for NLCF update"). Markdown-stripped, lower-cased,
+# substring match. Kept deliberately narrow so ordinary indicator headers
+# ("indicator", "target", "actual", "evidence", demographics) never match.
+_SECTION_COLUMN_HEADER_TOKENS: tuple[str, ...] = ("section",)
+
+
+def _normalize_header(raw: str | None) -> str:
+    if raw is None:
+        return ""
+    return re.sub(r"[*_`]+", "", str(raw)).strip().lower()
+
+
+def _column_letters(ref: str | None) -> str | None:
+    if not ref:
+        return None
+    match = re.match(r"([A-Z]+)", str(ref).upper())
+    return match.group(1) if match else None
+
+
+def locate_section_assignment_column(
+    data: dict[str, Any],
+) -> dict[str, dict[int, dict[str, str]]]:
+    """Locate the source-declared section column per sheet (Package A carrier).
+
+    Deterministic, header-driven: finds the column whose header cell text matches a
+    section-column token, then reads that column's verbatim value for every data row.
+    Returns ``{sheet_name: {row_index: {"raw": label, "cell_ref": "Sheet!A<row>"}}}``.
+
+    A sheet with no matching header yields no entry — observable as an absent sheet so
+    the caller can surface the gap rather than silently routing to None. Values are
+    copied verbatim from the grid; section membership is never inferred.
+    """
+    out: dict[str, dict[int, dict[str, str]]] = {}
+    for sheet in data.get("sheets", []):
+        sheet_name = sheet.get("name") or ""
+        rows = sheet.get("rows") or []
+        if not rows:
+            continue
+        header_cells = rows[0].get("cells") or []
+        section_col: str | None = None
+        for cell in header_cells:
+            normalized = _normalize_header(cell.get("raw"))
+            if normalized and any(tok in normalized for tok in _SECTION_COLUMN_HEADER_TOKENS):
+                section_col = _column_letters(cell.get("ref"))
+                break
+        if section_col is None:
+            continue
+        per_row: dict[int, dict[str, str]] = {}
+        for row_data in rows[1:]:
+            row_index = row_data.get("row_index")
+            if row_index is None:
+                continue
+            for cell in row_data.get("cells") or []:
+                if _column_letters(cell.get("ref")) != section_col:
+                    continue
+                raw = cell.get("raw")
+                if raw is None or str(raw).strip() == "":
+                    break
+                per_row[int(row_index)] = {
+                    "raw": str(raw).strip(),
+                    "cell_ref": f"{sheet_name}!{section_col}{row_index}",
+                }
+                break
+        if per_row:
+            out[sheet_name] = per_row
+    return out
+
+
 def list_data_row_ids(data: dict[str, Any], *, sheet_name: str = "Indicators") -> list[str]:
     """Return row_id values from column A (first cell) for rows after the header."""
     for sheet in data.get("sheets", []):

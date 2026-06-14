@@ -24,6 +24,10 @@ class FactCandidate(BaseModel):
     multi_value: bool = False
     stated_values: list[dict[str, Any]] = Field(default_factory=list)
     provenance: dict[str, Any] = Field(default_factory=dict)
+    # Section-routing carrier (Package A): the source-declared section label for the
+    # row this candidate came from. Set deterministically in the flattener; never
+    # inferred. Carried to the KB fact via a cell_ref join in the reconciler.
+    source_section: str | None = None
 
 
 class UnreadableSourceInput(BaseModel):
@@ -242,6 +246,10 @@ def _flatten_indicator_data(
     out: list[FactCandidate] = []
     for row in structured.get("indicators") or []:
         row_id = row.get("row_id", "unknown")
+        # Package A: carry the source-declared section label (captured deterministically
+        # at extraction) onto every fact candidate from this row, for section routing.
+        section_field = row.get("section_assignment") or {}
+        source_section = section_field.get("raw") if isinstance(section_field, dict) else None
         for facet, hint in (
             ("target", "indicator target"),
             ("actual", "indicator actual"),
@@ -255,6 +263,7 @@ def _flatten_indicator_data(
                 field=field,
             )
             if cand:
+                cand.source_section = source_section
                 out.append(cand)
     financials = structured.get("financials") or {}
     currency = financials.get("currency") or {}
