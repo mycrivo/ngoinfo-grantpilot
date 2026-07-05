@@ -11,7 +11,9 @@ import asyncio
 import hashlib
 import logging
 import os
+import time
 from collections.abc import AsyncIterator, Callable
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,6 +30,7 @@ from app.reports.schemas.proposal_extraction_v1 import (
     ExtractedPartner,
     ExtractionOutcome,
     ProposalAgentTrace,
+    ProposalAttemptTrace,
     ProposalExtractedEnvelope,
     ProposalExtractionOutput,
     ProposalExtractionSummary,
@@ -111,6 +114,108 @@ OUTPUT — compactness and turns (mandatory):
 """
 
 QueryFn = Callable[..., AsyncIterator[Any]]
+
+
+@dataclass
+class _ProposalAttemptSession:
+    """Mutable per-attempt metrics — survives asyncio cancellation on timeout."""
+
+    attempt_number: int
+    timeout_ceiling_seconds: float
+    started_at: float = field(default_factory=time.perf_counter)
+    usage_accumulator: SdkUsageAccumulator = field(default_factory=SdkUsageAccumulator)
+    stop_reason: str | None = None
+    result_subtype: str | None = None
+    is_error: bool | None = None
+    sdk_latency_ms: int | None = None
+    sdk_duration_api_ms: int | None = None
+    num_turns: int | None = None
+    received_structured_output: bool = False
+
+    def absorb_message(self, message: Any) -> None:
+        self.usage_accumulator.absorb_message(message)
+        from claude_agent_sdk import ResultMessage
+
+        if isinstance(message, ResultMessage):
+            self.stop_reason = message.stop_reason
+            self.result_subtype = message.subtype
+            self.is_error = message.is_error
+            self.sdk_latency_ms = message.duration_ms
+            self.sdk_duration_api_ms = getattr(message, "duration_api_ms", None)
+            self.num_turns = message.num_turns
+            if message.subtype == "success" and message.structured_output:
+                self.received_structured_output = True
+
+    def finalize(
+        self,
+        *,
+        outcome: str,
+    ) -> ProposalAttemptTrace:
+        usage = self.usage_accumulator.resolve()
+        wall_clock_ms = int((time.perf_counter() - self.started_at) * 1000)
+        return ProposalAttemptTrace(
+            attempt_number=self.attempt_number,
+            outcome=outcome,  # type: ignore[arg-type]
+            wall_clock_ms=wall_clock_ms,
+            sdk_latency_ms=self.sdk_latency_ms,
+            sdk_duration_api_ms=self.sdk_duration_api_ms,
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
+            token_source=usage.source,
+            stop_reason=self.stop_reason,
+            result_subtype=self.result_subtype,
+            is_error=self.is_error,
+            num_turns=self.num_turns,
+            timeout_ceiling_seconds=self.timeout_ceiling_seconds,
+            received_structured_output=self.received_structured_output,
+            sub_turn_count=self.usage_accumulator.sub_turn_count or None,
+        )
+
+
+def _log_attempt_trace(trace: ProposalAttemptTrace) -> None:
+    logger.info(
+        "proposal_extractor attempt outcome=%s attempt=%d wall_ms=%d sdk_ms=%s "
+        "input_tokens=%s output_tokens=%s stop_reason=%s num_turns=%s "
+        "partial_output=%s token_source=%s",
+        trace.outcome,
+        trace.attempt_number,
+        trace.wall_clock_ms,
+        trace.sdk_latency_ms,
+        trace.input_tokens,
+        trace.output_tokens,
+        trace.stop_reason,
+        trace.num_turns,
+        trace.received_structured_output,
+        trace.token_source,
+    )
+
+
+def _aggregate_attempt_traces(
+    attempt_traces: list[ProposalAttemptTrace],
+) -> tuple[int | None, int | None, bool | None, float | None]:
+    """Roll up token/latency/cost hints for top-level agent_trace from attempt rows."""
+    total_input = 0
+    total_output = 0
+    saw_input = False
+    saw_output = False
+    max_wall_ms: int | None = None
+    cost_usd: float | None = None
+    estimated: bool | None = None
+    for row in attempt_traces:
+        if row.input_tokens is not None:
+            total_input += row.input_tokens
+            saw_input = True
+        if row.output_tokens is not None:
+            total_output += row.output_tokens
+            saw_output = True
+        if max_wall_ms is None or row.wall_clock_ms > max_wall_ms:
+            max_wall_ms = row.wall_clock_ms
+    return (
+        total_input if saw_input else None,
+        total_output if saw_output else None,
+        estimated,
+        cost_usd,
+    )
 
 
 class ProposalExtractorError(Exception):
@@ -344,6 +449,7 @@ async def _run_extractor_query(
     model: str | None = None,
     content_hash: str,
     truncated: bool = False,
+    session: _ProposalAttemptSession | None = None,
 ) -> ProposalExtractorResult:
     from claude_agent_sdk import ResultMessage
 
@@ -353,10 +459,13 @@ async def _run_extractor_query(
     stop_reason: str | None = None
     is_error = False
     latency_ms: int | None = None
-    usage_accumulator = SdkUsageAccumulator()
+    usage_accumulator = session.usage_accumulator if session is not None else SdkUsageAccumulator()
 
     async for message in query_fn(prompt=prompt, options=options):
-        usage_accumulator.absorb_message(message)
+        if session is not None:
+            session.absorb_message(message)
+        else:
+            usage_accumulator.absorb_message(message)
         if isinstance(message, ResultMessage):
             stop_reason = message.stop_reason
             is_error = message.is_error
@@ -372,6 +481,7 @@ async def _run_extractor_query(
     usage = usage_accumulator.resolve()
     input_tokens = usage.input_tokens
     output_tokens = usage.output_tokens
+    resolved_latency_ms = session.sdk_latency_ms if session is not None else latency_ms
 
     if is_error:
         raise ProposalExtractorError(
@@ -389,7 +499,7 @@ async def _run_extractor_query(
     now = datetime.now(timezone.utc)
     trace = ProposalAgentTrace(
         model_used=resolved_model,
-        latency_ms=latency_ms,
+        latency_ms=resolved_latency_ms,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
         estimated=usage.estimated,
@@ -408,7 +518,7 @@ async def _run_extractor_query(
     return ProposalExtractorResult(
         envelope=envelope,
         model_used=resolved_model,
-        latency_ms=latency_ms,
+        latency_ms=resolved_latency_ms,
         input_tokens=input_tokens,
         output_tokens=output_tokens,
         timestamp=now,
@@ -457,6 +567,7 @@ def _build_degraded_timeout_result(
     truncated: bool,
     attempt_count: int,
     model: str | None = None,
+    attempt_traces: list[ProposalAttemptTrace] | None = None,
 ) -> ProposalExtractorResult:
     """Typed terminal outcome after bounded timeout retries — never raises."""
     structured = ProposalExtractionOutput(
@@ -469,12 +580,19 @@ def _build_degraded_timeout_result(
     )
     now = datetime.now(timezone.utc)
     resolved_model = model or DEFAULT_MODEL
+    traces = list(attempt_traces or [])
+    agg_input, agg_output, _, _ = _aggregate_attempt_traces(traces)
+    last_wall_ms = traces[-1].wall_clock_ms if traces else None
     trace = ProposalAgentTrace(
         model_used=resolved_model,
+        latency_ms=last_wall_ms,
+        input_tokens=agg_input,
+        output_tokens=agg_output,
         max_turns=MAX_TURNS,
         content_hash=content_hash,
         attempt_count=attempt_count,
         degraded_code=DEGRADED_EXTRACTION_TIMEOUT,
+        attempt_traces=traces,
     )
     envelope = ProposalExtractedEnvelope(
         extractor_agent=AGENT_NAME,
@@ -560,24 +678,39 @@ async def extract_proposal_text(
         truncated,
     )
 
+    attempt_traces: list[ProposalAttemptTrace] = []
+
     for attempt in range(1, MAX_EXTRACTION_ATTEMPTS + 1):
+        session = _ProposalAttemptSession(
+            attempt_number=attempt,
+            timeout_ceiling_seconds=attempt_timeout,
+        )
         try:
-            return await asyncio.wait_for(
+            result = await asyncio.wait_for(
                 _run_extractor_query(
                     prompt,
                     query_fn=query_fn,
                     model=model,
                     content_hash=content_hash,
                     truncated=truncated,
+                    session=session,
                 ),
                 timeout=attempt_timeout,
             )
         except asyncio.TimeoutError:
+            timeout_trace = session.finalize(outcome="timeout")
+            attempt_traces.append(timeout_trace)
+            _log_attempt_trace(timeout_trace)
             logger.warning(
-                "proposal_extractor timeout attempt=%d/%d ceiling=%ss",
+                "proposal_extractor timeout attempt=%d/%d ceiling=%ss wall_ms=%d "
+                "partial_output=%s input_tokens=%s output_tokens=%s",
                 attempt,
                 MAX_EXTRACTION_ATTEMPTS,
                 attempt_timeout,
+                timeout_trace.wall_clock_ms,
+                timeout_trace.received_structured_output,
+                timeout_trace.input_tokens,
+                timeout_trace.output_tokens,
             )
             if attempt >= MAX_EXTRACTION_ATTEMPTS:
                 return _build_degraded_timeout_result(
@@ -585,13 +718,30 @@ async def extract_proposal_text(
                     truncated=truncated,
                     attempt_count=attempt,
                     model=model,
+                    attempt_traces=attempt_traces,
                 )
+            continue
+        except ProposalExtractorError as exc:
+            error_trace = session.finalize(outcome="error")
+            attempt_traces.append(error_trace)
+            _log_attempt_trace(error_trace)
+            raise exc
+
+        complete_trace = session.finalize(outcome="complete")
+        attempt_traces.append(complete_trace)
+        _log_attempt_trace(complete_trace)
+        trace = result.envelope.agent_trace
+        if trace is not None:
+            trace.attempt_traces = attempt_traces
+            trace.attempt_count = len(attempt_traces)
+        return result
 
     return _build_degraded_timeout_result(
         content_hash=content_hash,
         truncated=truncated,
         attempt_count=MAX_EXTRACTION_ATTEMPTS,
         model=model,
+        attempt_traces=attempt_traces,
     )
 
 

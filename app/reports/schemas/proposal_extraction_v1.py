@@ -126,6 +126,29 @@ class ProposalExtractionOutput(BaseModel):
     summary: ProposalExtractionSummary = Field(default_factory=ProposalExtractionSummary)
 
 
+ProposalAttemptOutcome = Literal["complete", "timeout", "error"]
+
+
+class ProposalAttemptTrace(BaseModel):
+    """Per-attempt instrumentation — internal observability only (never NGO-facing)."""
+
+    attempt_number: int = Field(ge=1)
+    outcome: ProposalAttemptOutcome
+    wall_clock_ms: int = Field(ge=0)
+    sdk_latency_ms: int | None = None
+    sdk_duration_api_ms: int | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    token_source: str | None = None
+    stop_reason: str | None = None
+    result_subtype: str | None = None
+    is_error: bool | None = None
+    num_turns: int | None = None
+    timeout_ceiling_seconds: float | None = None
+    received_structured_output: bool = False
+    sub_turn_count: int | None = None
+
+
 class ProposalAgentTrace(BaseModel):
     model_used: str | None = None
     latency_ms: int | None = None
@@ -138,6 +161,7 @@ class ProposalAgentTrace(BaseModel):
     attempt_count: int | None = None
     degraded_code: str | None = None
     unreadable_code: str | None = None
+    attempt_traces: list[ProposalAttemptTrace] = Field(default_factory=list)
 
 
 class ProposalExtractedEnvelope(BaseModel):

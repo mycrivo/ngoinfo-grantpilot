@@ -172,6 +172,11 @@ async def test_timeout_one_retry_then_degraded_no_raise():
     assert result.envelope.agent_trace is not None
     assert result.envelope.agent_trace.attempt_count == MAX_EXTRACTION_ATTEMPTS
     assert result.envelope.agent_trace.degraded_code == DEGRADED_EXTRACTION_TIMEOUT
+    assert len(result.envelope.agent_trace.attempt_traces) == MAX_EXTRACTION_ATTEMPTS
+    for row in result.envelope.agent_trace.attempt_traces:
+        assert row.outcome == "timeout"
+        assert row.wall_clock_ms >= 0
+        assert row.timeout_ceiling_seconds == 0.01
 
 
 @pytest.mark.asyncio
