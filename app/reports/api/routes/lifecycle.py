@@ -21,6 +21,8 @@ from app.reports.schemas.report_lifecycle import (
     UploadedDocumentListResponse,
     UploadedDocumentResponse,
 )
+from app.reports.schemas.knowledge_bank_patch import PatchKnowledgeBankRequest
+from app.reports.services.knowledge_bank_patch_service import patch_knowledge_bank
 from app.reports.services.donor_report_lifecycle_service import (
     create_donor_report,
     delete_document,
@@ -207,5 +209,24 @@ def read_knowledge_bank(
         db,
         donor_report_id=donor_report_id,
         user_id=current_user.id,
+    )
+    return KnowledgeBankResponse(**payload)
+
+
+@router.patch(
+    "/api/reports/{donor_report_id}/knowledge-bank",
+    response_model=KnowledgeBankResponse,
+)
+def patch_knowledge_bank_route(
+    donor_report_id: uuid.UUID,
+    body: PatchKnowledgeBankRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> KnowledgeBankResponse:
+    payload = patch_knowledge_bank(
+        db,
+        donor_report_id=donor_report_id,
+        user_id=current_user.id,
+        body=body,
     )
     return KnowledgeBankResponse(**payload)

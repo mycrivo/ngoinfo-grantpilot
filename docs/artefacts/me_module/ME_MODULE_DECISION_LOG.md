@@ -339,3 +339,17 @@ DECISION (2026-07-05) — A-JSON: synthesis JSON-parse resilience. A malformed/t
 
 **STOP:** owner audit before push. Real gate (deferred, owner-triggered): the FCDO walk that previously froze on the `evidence_and_evaluation` parse failure now completes; the next real parse failure leaves its raw payload in the trace for root-cause.
 ---
+DECISION (2026-07-05) — Gate-1 PATCH knowledge-bank save (`PATCH /api/reports/{id}/knowledge-bank`). Pre-existing gap since June 2026: frontend wired conflict/fact saves to PATCH; backend had GET only (405). AMBER — integrity-critical owner write.
+
+**Scope:** Full §12.5 PATCH in one build — `conflict_resolutions` + `facts` partial updates (conflict resolve, fact edit, add fact, client dedup). Single service, single DB commit.
+
+**Moat — dual materialization (non-negotiable).** Owner conflict resolution MUST atomically set `conflicts[].resolved_value` + `resolved_at` AND overwrite `facts[conflict.fact_key].value` (plus source/provenance from the chosen `conflict.values` entry, or `owner-attested` markers for custom figures). Synthesis cites `facts[fact_key].value` via `filter_citable_facts` — `resolved_value` alone is audit-only. Rejected figure must not remain at the canonical key.
+
+**Confirm path:** PATCH is save-only. `confirm_gate1: true` on PATCH → 422 `USE_GATE1_CONFIRM_ENDPOINT`. Canonical confirm remains `POST .../gate1/confirm` (§12.5a). Reconciler E1 fence unchanged (`resolved_value` forbidden at reconcile).
+
+**Frontend:** PATCH save failures show inline `saveError` on the facts panel; page-level error reserved for initial GET load failure.
+
+**CI:** `tests/test_knowledge_bank_patch.py` (14 tests, OP1.1 1200-vs-650 moat, custom owner-attested, confirm blocked until resolved) on Smoke P0 allowlist.
+
+**STOP:** owner live-walk on report `f33be000-4443-47d1-82f6-12f02947d972` after deploy approval.
+---
