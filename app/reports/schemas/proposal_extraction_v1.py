@@ -127,6 +127,7 @@ class ProposalExtractionOutput(BaseModel):
 
 
 ProposalAttemptOutcome = Literal["complete", "timeout", "error"]
+SilenceProfile = Literal["total", "partial", "none"]
 
 
 class ProposalAttemptTrace(BaseModel):
@@ -147,6 +148,12 @@ class ProposalAttemptTrace(BaseModel):
     timeout_ceiling_seconds: float | None = None
     received_structured_output: bool = False
     sub_turn_count: int | None = None
+    message_type_counts: dict[str, int] = Field(default_factory=dict)
+    first_message_at_ms: int | None = None
+    last_message_at_ms: int | None = None
+    stream_completed: bool = False
+    stream_cancelled: bool = False
+    silence_profile: SilenceProfile = "none"
 
 
 class ProposalAgentTrace(BaseModel):

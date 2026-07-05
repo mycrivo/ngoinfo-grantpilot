@@ -17,12 +17,15 @@ from app.reports.schemas.report_lifecycle import (
     DonorReportSummaryResponse,
     EnqueueReportJobResponse,
     KnowledgeBankResponse,
+    ProposalCheckpointAckRequest,
+    ProposalCheckpointAckResponse,
     ReportJobStatusResponse,
     UploadedDocumentListResponse,
     UploadedDocumentResponse,
 )
 from app.reports.schemas.knowledge_bank_patch import PatchKnowledgeBankRequest
 from app.reports.services.knowledge_bank_patch_service import patch_knowledge_bank
+from app.reports.services.proposal_checkpoint_service import ack_proposal_checkpoint_proceed
 from app.reports.services.donor_report_lifecycle_service import (
     create_donor_report,
     delete_document,
@@ -193,6 +196,39 @@ def read_report_job_status(
         started_at=job.started_at,
         finished_at=job.finished_at,
         agent_trace_json=job.agent_trace_json or {},
+    )
+
+
+@router.post(
+    "/api/reports/{donor_report_id}/jobs/proposal-checkpoint/ack",
+    response_model=ProposalCheckpointAckResponse,
+)
+def ack_proposal_checkpoint(
+    donor_report_id: uuid.UUID,
+    body: ProposalCheckpointAckRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProposalCheckpointAckResponse:
+    from app.core.errors import DomainError
+
+    if body.action != "proceed_with_gap":
+        raise DomainError(
+            error_code="VALIDATION_ERROR",
+            message="action must be proceed_with_gap",
+            status_code=422,
+        )
+    job = ack_proposal_checkpoint_proceed(
+        db,
+        donor_report_id=donor_report_id,
+        user_id=current_user.id,
+    )
+    db.commit()
+    db.refresh(job)
+    return ProposalCheckpointAckResponse(
+        job_id=job.id,
+        donor_report_id=job.donor_report_id,
+        stage=job.stage,
+        status=job.status,
     )
 
 

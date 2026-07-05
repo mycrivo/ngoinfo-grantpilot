@@ -45,7 +45,12 @@ MODEL_CLASS = "cheap_mid"
 DEFAULT_MODEL = os.getenv("ME_CLASSIFIER_MODEL", "haiku")
 MAX_TURNS = 3
 MAX_EXTRACTION_ATTEMPTS = 2
-TIMEOUT_SECONDS = int(os.getenv("ME_CLASSIFIER_TIMEOUT_SECONDS", "90"))
+RETRY_BACKOFF_SECONDS = 3.0
+RETRY_PROMPT_SUFFIX = (
+    "Prior attempt timed out. Return the structured extraction in the earliest "
+    "possible turn with minimal provenance excerpts (max 80 chars)."
+)
+TIMEOUT_SECONDS = int(os.getenv("ME_PROPOSAL_TIMEOUT_SECONDS", "180"))
 DEGRADED_EXTRACTION_TIMEOUT = "DEGRADED_EXTRACTION_TIMEOUT"
 MAX_INPUT_CHARS = 120_000
 
@@ -131,8 +136,19 @@ class _ProposalAttemptSession:
     sdk_duration_api_ms: int | None = None
     num_turns: int | None = None
     received_structured_output: bool = False
+    message_type_counts: dict[str, int] = field(default_factory=dict)
+    first_message_at_ms: int | None = None
+    last_message_at_ms: int | None = None
+    stream_completed: bool = False
+    stream_cancelled: bool = False
 
     def absorb_message(self, message: Any) -> None:
+        type_name = type(message).__name__
+        self.message_type_counts[type_name] = self.message_type_counts.get(type_name, 0) + 1
+        elapsed_ms = int((time.perf_counter() - self.started_at) * 1000)
+        if self.first_message_at_ms is None:
+            self.first_message_at_ms = elapsed_ms
+        self.last_message_at_ms = elapsed_ms
         self.usage_accumulator.absorb_message(message)
         from claude_agent_sdk import ResultMessage
 
@@ -146,6 +162,12 @@ class _ProposalAttemptSession:
             if message.subtype == "success" and message.structured_output:
                 self.received_structured_output = True
 
+    def mark_stream_completed(self) -> None:
+        self.stream_completed = True
+
+    def mark_stream_cancelled(self) -> None:
+        self.stream_cancelled = True
+
     def finalize(
         self,
         *,
@@ -153,6 +175,15 @@ class _ProposalAttemptSession:
     ) -> ProposalAttemptTrace:
         usage = self.usage_accumulator.resolve()
         wall_clock_ms = int((time.perf_counter() - self.started_at) * 1000)
+        sub_turn_count = self.usage_accumulator.sub_turn_count or None
+        silence_profile = _derive_silence_profile(
+            message_type_counts=self.message_type_counts,
+            received_structured_output=self.received_structured_output,
+            input_tokens=usage.input_tokens,
+            output_tokens=usage.output_tokens,
+            sub_turn_count=sub_turn_count,
+            outcome=outcome,
+        )
         return ProposalAttemptTrace(
             attempt_number=self.attempt_number,
             outcome=outcome,  # type: ignore[arg-type]
@@ -168,8 +199,37 @@ class _ProposalAttemptSession:
             num_turns=self.num_turns,
             timeout_ceiling_seconds=self.timeout_ceiling_seconds,
             received_structured_output=self.received_structured_output,
-            sub_turn_count=self.usage_accumulator.sub_turn_count or None,
+            sub_turn_count=sub_turn_count,
+            message_type_counts=dict(self.message_type_counts),
+            first_message_at_ms=self.first_message_at_ms,
+            last_message_at_ms=self.last_message_at_ms,
+            stream_completed=self.stream_completed,
+            stream_cancelled=self.stream_cancelled,
+            silence_profile=silence_profile,
         )
+
+
+def _derive_silence_profile(
+    *,
+    message_type_counts: dict[str, int],
+    received_structured_output: bool,
+    input_tokens: int | None,
+    output_tokens: int | None,
+    sub_turn_count: int | None,
+    outcome: str,
+) -> str:
+    if not message_type_counts:
+        return "total"
+    if received_structured_output or outcome == "complete":
+        return "none"
+    has_tokens = (
+        (input_tokens or 0) > 0
+        or (output_tokens or 0) > 0
+        or (sub_turn_count or 0) > 0
+    )
+    if has_tokens:
+        return "partial"
+    return "total"
 
 
 def _log_attempt_trace(trace: ProposalAttemptTrace) -> None:
@@ -472,6 +532,7 @@ async def _run_extractor_query(
             latency_ms = message.duration_ms
             if message.subtype == "success" and message.structured_output:
                 structured_output = message.structured_output
+                break
             elif message.subtype == "error_max_structured_output_retries":
                 raise ProposalExtractorError(
                     "STOP_STRUCTURED_OUTPUT_FAILED",
@@ -515,6 +576,8 @@ async def _run_extractor_query(
         error=None,
         agent_trace=trace,
     )
+    if session is not None:
+        session.mark_stream_completed()
     return ProposalExtractorResult(
         envelope=envelope,
         model_used=resolved_model,
@@ -679,8 +742,12 @@ async def extract_proposal_text(
     )
 
     attempt_traces: list[ProposalAttemptTrace] = []
+    base_prompt = prompt
 
     for attempt in range(1, MAX_EXTRACTION_ATTEMPTS + 1):
+        if attempt > 1:
+            await asyncio.sleep(RETRY_BACKOFF_SECONDS)
+            prompt = f"{base_prompt}\n\n{RETRY_PROMPT_SUFFIX}"
         session = _ProposalAttemptSession(
             attempt_number=attempt,
             timeout_ceiling_seconds=attempt_timeout,
@@ -698,6 +765,7 @@ async def extract_proposal_text(
                 timeout=attempt_timeout,
             )
         except asyncio.TimeoutError:
+            session.mark_stream_cancelled()
             timeout_trace = session.finalize(outcome="timeout")
             attempt_traces.append(timeout_trace)
             _log_attempt_trace(timeout_trace)

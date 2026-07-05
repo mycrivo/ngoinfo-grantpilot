@@ -501,6 +501,7 @@ async def _run_extractor_query(
             latency_ms = message.duration_ms
             if message.subtype == "success" and message.structured_output:
                 structured_output = message.structured_output
+                break
             elif message.subtype == "error_max_structured_output_retries":
                 raise GrantTermsExtractorError(
                     "STOP_STRUCTURED_OUTPUT_FAILED",

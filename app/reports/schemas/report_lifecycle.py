@@ -63,6 +63,17 @@ class ReportJobStatusResponse(BaseModel):
     agent_trace_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class ProposalCheckpointAckRequest(BaseModel):
+    action: str = Field(description="Must be proceed_with_gap")
+
+
+class ProposalCheckpointAckResponse(BaseModel):
+    job_id: uuid.UUID
+    donor_report_id: uuid.UUID
+    stage: str
+    status: str
+
+
 class KnowledgeBankResponse(BaseModel):
     donor_report_id: uuid.UUID
     facts: dict[str, Any] = Field(default_factory=dict)

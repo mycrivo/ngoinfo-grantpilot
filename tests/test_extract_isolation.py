@@ -197,6 +197,31 @@ async def test_process_extract_proposal_empty_input_degrades(isolation_db):
     assert document.extracted_json.get("structured", {}).get("extraction_outcome") == "degraded"
 
 
+def test_input_builder_dedupes_unreadable_sources_by_document_id():
+    doc_id = str(uuid.uuid4())
+    degraded_json = {
+        "structured": {"extraction_outcome": "degraded"},
+        "error": "DEGRADED_EXTRACTION_TIMEOUT",
+    }
+    documents = [
+        {
+            "id": doc_id,
+            "original_filename": "proposal.docx",
+            "classification": "proposal",
+            "extracted_json": degraded_json,
+        },
+        {
+            "id": doc_id,
+            "original_filename": "proposal.docx",
+            "classification": "proposal",
+            "extracted_json": degraded_json,
+        },
+    ]
+    bundle = build_reconciliation_bundle(documents)
+    assert len(bundle.unreadable_sources) == 1
+    assert bundle.unreadable_sources[0].document_id == doc_id
+
+
 def test_mixed_unparseable_indicator_reaches_gate1_with_unreadable_sources(isolation_db):
     session = isolation_db()
     fixture = seed_orchestrator_fixture(

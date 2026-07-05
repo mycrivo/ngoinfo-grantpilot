@@ -75,7 +75,11 @@ def orchestrator_db(monkeypatch):
 
 
 def _text_loader(_document: UploadedDocument) -> str:
-    return "Sample grant document text for validation testing."
+    base = (
+        "Sample grant document text for validation testing. "
+        "This fixture text must exceed the Docling minimum usable content threshold."
+    )
+    return (base + " ") * 3
 
 
 def _build_happy_context(*, source_document_id: str) -> OrchestrationContext:
@@ -218,17 +222,37 @@ def test_outcome_uniform_degraded_extract_continues(orchestrator_db):
     assert extract_trace.get("degraded_documents")
 
 
-def test_outcome_uniform_degraded_proposal_extract_continues_to_gate1(orchestrator_db):
+def _never_yield_proposal_query_fn():
+    async def _query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        await __import__("asyncio").sleep(3600)
+        yield __import__("tests.orchestrator_mocks", fromlist=["ResultMessage"]).ResultMessage(
+            subtype="success",
+            duration_ms=1,
+            duration_api_ms=1,
+            is_error=False,
+            num_turns=1,
+            session_id="never",
+            structured_output={},
+            usage={},
+        )
+
+    return _query
+
+
+def test_outcome_degraded_proposal_halts_at_extraction_checkpoint(orchestrator_db):
     session = orchestrator_db()
     fixture = seed_orchestrator_fixture(session)
     job_id = fixture["job"].id
+    report_id = fixture["report"].id
     grant_doc_id = str(fixture["documents"][1].id)
     proposal_doc_id = fixture["documents"][0].id
     session.close()
 
     ctx = OrchestrationContext(
         query_fn_classifier=routing_classifier_query_fn(),
-        query_fn_proposal=slow_proposal_query_fn(delay_seconds=0.5),
+        query_fn_proposal=_never_yield_proposal_query_fn(),
         query_fn_grant_terms=minimal_grant_terms_query_fn(),
         query_fn_reconciler=reconciler_query_fn(source_document_id=grant_doc_id),
         text_loader=_text_loader,
@@ -240,17 +264,25 @@ def test_outcome_uniform_degraded_proposal_extract_continues_to_gate1(orchestrat
     verify = orchestrator_db()
     job = verify.get(ReportJob, job_id)
     proposal_doc = verify.get(UploadedDocument, proposal_doc_id)
+    report = verify.get(DonorReport, report_id)
     verify.close()
 
     assert job is not None
     assert job.status == ReportJobStatus.AWAITING_HUMAN.value
-    assert job.stage == ReportJobStage.GAP.value
+    proposal_outcome = proposal_doc.extracted_json.get("structured", {}).get("extraction_outcome")
+    assert proposal_outcome == "degraded", proposal_doc.extracted_json
+    assert job.stage == ReportJobStage.EXTRACT.value
     assert job.error is None
     extract_trace = job.agent_trace_json.get("stages", {}).get("extract", {})
+    checkpoint = extract_trace.get("proposal_checkpoint") or {}
+    assert checkpoint.get("failed_document_id") == str(proposal_doc_id)
+    assert checkpoint.get("original_filename") == "proposal.docx"
+    assert checkpoint.get("acknowledged") is False
     assert str(proposal_doc_id) in extract_trace.get("degraded_documents", [])
     assert proposal_doc is not None
     assert proposal_doc.extracted_json.get("structured", {}).get("extraction_outcome") == "degraded"
     assert proposal_doc.extracted_json.get("error") == "DEGRADED_EXTRACTION_TIMEOUT"
+    assert not (report.knowledge_bank_json or {}).get("facts")
 
 
 def test_outcome_uniform_degraded_indicator_unparseable_mixed_stage_reaches_gate1(

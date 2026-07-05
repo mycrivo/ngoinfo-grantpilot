@@ -473,6 +473,27 @@ def document_dict_to_input(doc: dict[str, Any]) -> ReconciliationInputBundle:
     return ReconciliationInputBundle(fact_candidates=candidates)
 
 
+def _dedupe_unreadable_sources(
+    sources: list,
+) -> list:
+    """Keep first unreadable entry per document_id."""
+    seen: set[str] = set()
+    deduped = []
+    for item in sources:
+        doc_id = getattr(item, "document_id", None) or (
+            item.get("document_id") if isinstance(item, dict) else None
+        )
+        if doc_id is None:
+            deduped.append(item)
+            continue
+        key = str(doc_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
+
+
 def build_reconciliation_bundle(documents: list[Any]) -> ReconciliationInputBundle:
     """Merge bundle from ORM UploadedDocument rows or dict fixtures."""
     merged_candidates: list[FactCandidate] = []
@@ -490,6 +511,7 @@ def build_reconciliation_bundle(documents: list[Any]) -> ReconciliationInputBund
         partial = document_dict_to_input(entry)
         merged_candidates.extend(partial.fact_candidates)
         merged_unreadable.extend(partial.unreadable_sources)
+    merged_unreadable = _dedupe_unreadable_sources(merged_unreadable)
     return ReconciliationInputBundle(
         fact_candidates=merged_candidates,
         unreadable_sources=merged_unreadable,

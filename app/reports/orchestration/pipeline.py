@@ -57,6 +57,10 @@ from app.reports.services.report_synthesis_service import (
     ReportSynthesisServiceError,
     synthesise_and_persist,
 )
+from app.reports.services.proposal_checkpoint_service import (
+    PROPOSAL_MISSING_CONTENT_KEYS,
+    get_proposal_checkpoint,
+)
 
 logger = logging.getLogger("reports.orchestration.pipeline")
 
@@ -146,6 +150,61 @@ def _halt_gate1(session: Session, job: ReportJob, *, reconcile_trace: dict[str, 
         "gate1_halt job_id=%s donor_report_id=%s stage=gap status=awaiting_human",
         job.id,
         job.donor_report_id,
+    )
+
+
+def _build_proposal_checkpoint_payload(document: UploadedDocument) -> dict[str, Any]:
+    extracted = document.extracted_json or {}
+    structured = extracted.get("structured") or {}
+    agent_trace = extracted.get("agent_trace") or {}
+    return {
+        "failed_document_id": str(document.id),
+        "original_filename": document.original_filename,
+        "degraded_code": extracted.get("error") or structured.get("degraded_code"),
+        "missing_content_keys": list(PROPOSAL_MISSING_CONTENT_KEYS),
+        "attempts": agent_trace.get("attempt_count"),
+        "acknowledged": False,
+    }
+
+
+def _find_degraded_proposal(documents: list[UploadedDocument]) -> UploadedDocument | None:
+    for document in documents:
+        if document.classification != DocumentClassification.PROPOSAL.value:
+            continue
+        structured = (document.extracted_json or {}).get("structured") or {}
+        if structured.get("extraction_outcome") == "degraded":
+            return document
+    return None
+
+
+def _halt_proposal_extraction_checkpoint(
+    session: Session,
+    job: ReportJob,
+    *,
+    document: UploadedDocument,
+    degraded_documents: list[str],
+    ctx: OrchestrationContext | None = None,
+) -> None:
+    session.refresh(job)
+    if _job_is_terminal(job):
+        return
+    trace_entry = {
+        "completed_at": datetime.now(timezone.utc).isoformat(),
+        "degraded_documents": degraded_documents,
+        "proposal_checkpoint": _build_proposal_checkpoint_payload(document),
+    }
+    _append_stage_trace(job, ReportJobStage.EXTRACT.value, trace_entry)
+    job.stage = ReportJobStage.EXTRACT.value
+    job.status = ReportJobStatus.AWAITING_HUMAN.value
+    session.add(job)
+    session.commit()
+    if ctx is not None:
+        _touch_progress(session, job, ctx)
+    logger.info(
+        "proposal_checkpoint_halt job_id=%s donor_report_id=%s document_id=%s",
+        job.id,
+        job.donor_report_id,
+        document.id,
     )
 
 
@@ -559,6 +618,20 @@ async def _run_extract_stage(
                 degraded_documents.append(str(document.id))
         except ExtractHardFailure as exc:
             raise StageFailure(stage, exc.message) from exc
+
+    for document in documents:
+        session.refresh(document)
+
+    degraded_proposal = _find_degraded_proposal(documents)
+    if degraded_proposal is not None and get_proposal_checkpoint(job) is None:
+        _halt_proposal_extraction_checkpoint(
+            session,
+            job,
+            document=degraded_proposal,
+            degraded_documents=degraded_documents,
+            ctx=ctx,
+        )
+        return
 
     _commit_checkpoint(
         session,

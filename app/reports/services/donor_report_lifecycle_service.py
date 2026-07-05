@@ -25,6 +25,9 @@ from app.reports.services.document_storage_service import (
     DocumentStorageService,
 )
 from app.reports.services.gate_preconditions import require_gate1_confirmed
+from app.reports.services.proposal_checkpoint_service import (
+    re_enqueue_proposal_checkpoint_retry,
+)
 from app.reports.services.report_access import get_owned_donor_report
 from app.reports.services.upload_format_validation import validate_upload_format
 from app.services.quota_service import enforce_report_create_quota
@@ -344,6 +347,19 @@ def enqueue_report_job(
     user_id: uuid.UUID,
 ) -> ReportJob:
     report = get_owned_donor_report(db, donor_report_id=donor_report_id, user_id=user_id)
+
+    checkpoint_retry = re_enqueue_proposal_checkpoint_retry(
+        db, donor_report_id=donor_report_id
+    )
+    if checkpoint_retry is not None:
+        db.commit()
+        db.refresh(checkpoint_retry)
+        logger.info(
+            "report_job_checkpoint_retry_enqueued donor_report_id=%s job_id=%s",
+            donor_report_id,
+            checkpoint_retry.id,
+        )
+        return checkpoint_retry
 
     active = (
         db.query(ReportJob)

@@ -90,10 +90,18 @@ def merge_chunk_results(
             degraded = True
         unreadable.extend(result.envelope.structured.unreadable_sources)
 
+    seen_ids: set[str] = set()
+    deduped_unreadable = []
+    for item in unreadable:
+        if item.source_document_id in seen_ids:
+            continue
+        seen_ids.add(item.source_document_id)
+        deduped_unreadable.append(item)
+
     merged_structured = KnowledgeBankReconciliationOutput(
         facts=_merge_facts(all_facts),
         conflicts=all_conflicts,
-        unreadable_sources=unreadable,
+        unreadable_sources=deduped_unreadable,
         reconciliation_outcome="degraded" if degraded or truncated_candidate_ids or output_truncated else "complete",
     )
     trace_data = (base.envelope.agent_trace or ReconciliationAgentTrace()).model_dump()

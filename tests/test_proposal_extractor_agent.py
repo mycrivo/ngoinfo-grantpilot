@@ -150,6 +150,127 @@ async def test_extract_empty_text_raises_stop():
 
 
 @pytest.mark.asyncio
+async def test_hang_after_result_message_completes_without_timeout():
+    """Mode C: structured output arrives but stream never closes — must not false-timeout."""
+
+    async def _hang_after_result_query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield _result_message(_fcdo_mock_llm_response())
+        await __import__("asyncio").sleep(3600)
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_hang_after_result_query,
+        per_attempt_timeout_seconds=5.0,
+    )
+    assert result.envelope.structured.extraction_outcome in ("complete", "partial")
+    assert result.envelope.error is None
+    assert result.envelope.structured.objectives
+
+
+def test_build_agent_options_default_timeout_180():
+    from app.reports.agents.proposal_extractor import TIMEOUT_SECONDS, build_agent_options
+
+    options = build_agent_options()
+    assert TIMEOUT_SECONDS == 180
+    assert options.env["API_TIMEOUT_MS"] == "180000"
+
+
+@pytest.mark.asyncio
+async def test_slow_success_within_ceiling_completes_not_degraded():
+    """Mode B headroom: success after delay still within per-attempt ceiling."""
+
+    async def _slow_then_success_query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        await __import__("asyncio").sleep(0.05)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_slow_then_success_query,
+        per_attempt_timeout_seconds=100.0,
+    )
+    assert result.envelope.structured.extraction_outcome in ("complete", "partial")
+    assert result.envelope.error is None
+
+
+@pytest.mark.asyncio
+async def test_mode_c_hang_after_result_trace_profile():
+    """Bench Mode C signature: success payload, stream completed, silence_profile=none."""
+
+    async def _hang_after_result_query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        yield _result_message(_fcdo_mock_llm_response())
+        await __import__("asyncio").sleep(3600)
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_hang_after_result_query,
+        per_attempt_timeout_seconds=5.0,
+    )
+    traces = result.envelope.agent_trace.attempt_traces
+    assert len(traces) == 1
+    row = traces[0]
+    assert row.outcome == "complete"
+    assert row.received_structured_output is True
+    assert row.stream_completed is True
+    assert row.stream_cancelled is False
+    assert row.silence_profile == "none"
+    assert "ResultMessage" in row.message_type_counts
+
+
+@pytest.mark.asyncio
+async def test_mode_a_total_silence_trace():
+    """Hung async generator with no SDK messages until timeout — total silence."""
+
+    async def _silent_query(*, prompt: str, options=None):
+        _ = prompt
+        _ = options
+        await __import__("asyncio").sleep(3600)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_silent_query,
+        per_attempt_timeout_seconds=0.05,
+    )
+    assert result.envelope.structured.extraction_outcome == "degraded"
+    for row in result.envelope.agent_trace.attempt_traces:
+        assert row.silence_profile == "total"
+        assert row.message_type_counts == {}
+        assert row.stream_cancelled is True
+        assert row.stream_completed is False
+
+
+@pytest.mark.asyncio
+async def test_retry_backoff_and_attempt_two_prompt_suffix():
+    """Attempt 2 uses differentiated prompt after backoff."""
+    prompts: list[str] = []
+
+    async def _recording_query(*, prompt: str, options=None):
+        prompts.append(prompt)
+        _ = options
+        if len(prompts) == 1:
+            await __import__("asyncio").sleep(10)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    started = __import__("time").perf_counter()
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_recording_query,
+        per_attempt_timeout_seconds=0.02,
+    )
+    elapsed = __import__("time").perf_counter() - started
+    assert result.envelope.structured.extraction_outcome in ("complete", "partial")
+    assert len(prompts) == 2
+    assert "Prior attempt timed out" in prompts[1]
+    assert elapsed >= 3.0
+
+
+@pytest.mark.asyncio
 async def test_timeout_one_retry_then_degraded_no_raise():
     call_count = 0
 
