@@ -1,0 +1,1236 @@
+{
+  "source_path": "NLCF_Test_Set/03_NLCF_Southbank_Monitoring_and_Spend_Table.docx",
+  "format": "docx",
+  "sheets": [
+    {
+      "name": "Table1",
+      "rows": [
+        {
+          "row_index": 1,
+          "cells": [
+            {
+              "ref": "A1",
+              "raw": "**File name**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B1",
+              "raw": "WarmWelcome_monitoring_budget_tracker_April2026.xlsx",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "cells": [
+            {
+              "ref": "A2",
+              "raw": "**Worksheet**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B2",
+              "raw": "Update for Lottery maybe",
+              "cell_state": "stated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Table2",
+      "rows": [
+        {
+          "row_index": 1,
+          "cells": [
+            {
+              "ref": "A1",
+              "raw": "**Section for NLCF update**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B1",
+              "raw": "**Indicator / cost heading**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C1",
+              "raw": "**Original target / budget**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D1",
+              "raw": "**Actual / spend to 30 Apr 2026**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E1",
+              "raw": "**Evidence or note**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F1",
+              "raw": "**Children 8-11**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G1",
+              "raw": "**Young people 12-16**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H1",
+              "raw": "**Adults 17-64**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I1",
+              "raw": "**Older residents 65+**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J1",
+              "raw": "**Female**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K1",
+              "raw": "**Male**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L1",
+              "raw": "**Non-binary / not said**",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M1",
+              "raw": "**Vulnerability / low-income flag**",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 2,
+          "cells": [
+            {
+              "ref": "A2",
+              "raw": "Project story",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B2",
+              "raw": "Number of hub sessions delivered",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C2",
+              "raw": "96",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D2",
+              "raw": "88",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E2",
+              "raw": "Tuesday sessions paused during boiler repair in January",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L2",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M2",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 3,
+          "cells": [
+            {
+              "ref": "A3",
+              "raw": "Difference made",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B3",
+              "raw": "Unique people attending at least one hub session",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C3",
+              "raw": "120",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D3",
+              "raw": "148",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E3",
+              "raw": "Sign-in sheets, some names duplicated where children used nicknames",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F3",
+              "raw": "42",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G3",
+              "raw": "39",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H3",
+              "raw": "53",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I3",
+              "raw": "11",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J3",
+              "raw": "86",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K3",
+              "raw": "54",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L3",
+              "raw": "5",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M3",
+              "raw": "97",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 4,
+          "cells": [
+            {
+              "ref": "A4",
+              "raw": "Difference made",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B4",
+              "raw": "Children and young people attending at least three sessions",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C4",
+              "raw": "55",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D4",
+              "raw": "61",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E4",
+              "raw": "Attendance tracker",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F4",
+              "raw": "28",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G4",
+              "raw": "33",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H4",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I4",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J4",
+              "raw": "35",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K4",
+              "raw": "24",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L4",
+              "raw": "2",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M4",
+              "raw": "41",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 5,
+          "cells": [
+            {
+              "ref": "A5",
+              "raw": "Difference made",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B5",
+              "raw": "Community volunteers recruited and supported",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C5",
+              "raw": "18",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D5",
+              "raw": "14",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E5",
+              "raw": "Volunteer list; excludes people who only helped with cooking twice",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F5",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G5",
+              "raw": "2",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H5",
+              "raw": "9",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I5",
+              "raw": "3",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J5",
+              "raw": "9",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K5",
+              "raw": "5",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L5",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M5",
+              "raw": "5",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 6,
+          "cells": [
+            {
+              "ref": "A6",
+              "raw": "Difference made",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B6",
+              "raw": "Participants reporting they feel less isolated",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C6",
+              "raw": "65%",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D6",
+              "raw": "58%",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E6",
+              "raw": "Only 38 feedback cards returned; informal chats much more positive",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F6",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G6",
+              "raw": "8",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H6",
+              "raw": "25",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I6",
+              "raw": "5",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J6",
+              "raw": "23",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K6",
+              "raw": "12",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L6",
+              "raw": "3",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M6",
+              "raw": "29",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 7,
+          "cells": [
+            {
+              "ref": "A7",
+              "raw": "Difference made",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B7",
+              "raw": "Young people helping choose or lead activities",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C7",
+              "raw": "24",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D7",
+              "raw": "27",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E7",
+              "raw": "Youth board notes and activity sheets",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F7",
+              "raw": "6",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "G7",
+              "raw": "21",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "H7",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "I7",
+              "raw": "0",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "J7",
+              "raw": "14",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "K7",
+              "raw": "11",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "L7",
+              "raw": "2",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "M7",
+              "raw": "18",
+              "cell_state": "stated"
+            }
+          ]
+        },
+        {
+          "row_index": 8,
+          "cells": [
+            {
+              "ref": "A8",
+              "raw": "Community involvement",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B8",
+              "raw": "Partner or local collaboration examples",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C8",
+              "raw": "3",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D8",
+              "raw": "5",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E8",
+              "raw": "School, food pantry, GP link worker, tenants group, local mosque",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L8",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M8",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 9,
+          "cells": [
+            {
+              "ref": "A9",
+              "raw": "Learning",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B9",
+              "raw": "What worked",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C9",
+              "raw": "n/a",
+              "cell_state": "not_applicable"
+            },
+            {
+              "ref": "D9",
+              "raw": "Food-first format worked best",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E9",
+              "raw": "Staff notes, volunteer meeting March 2026",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L9",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M9",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 10,
+          "cells": [
+            {
+              "ref": "A10",
+              "raw": "Learning",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B10",
+              "raw": "What did not work",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C10",
+              "raw": "n/a",
+              "cell_state": "not_applicable"
+            },
+            {
+              "ref": "D10",
+              "raw": "Formal wellbeing survey had low response",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E10",
+              "raw": "Staff notes",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L10",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M10",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 11,
+          "cells": [
+            {
+              "ref": "A11",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B11",
+              "raw": "Part-time project coordinator",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C11",
+              "raw": "£31,200",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D11",
+              "raw": "£29,950",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E11",
+              "raw": "Coordinator started three weeks late",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L11",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M11",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 12,
+          "cells": [
+            {
+              "ref": "A12",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B12",
+              "raw": "Sessional youth workers",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C12",
+              "raw": "£13,600",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D12",
+              "raw": "£16,480",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E12",
+              "raw": "Extra cover needed during school holidays",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L12",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M12",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 13,
+          "cells": [
+            {
+              "ref": "A13",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B13",
+              "raw": "Volunteer training and DBS checks",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C13",
+              "raw": "£4,200",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D13",
+              "raw": "£3,140",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E13",
+              "raw": "Fewer formal volunteers than planned",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L13",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M13",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 14,
+          "cells": [
+            {
+              "ref": "A14",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B14",
+              "raw": "Food, heating and room costs",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C14",
+              "raw": "£13,500",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D14",
+              "raw": "£16,260",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E14",
+              "raw": "Winter heating higher; food prices increased",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L14",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M14",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 15,
+          "cells": [
+            {
+              "ref": "A15",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B15",
+              "raw": "Activity materials and local trips",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C15",
+              "raw": "£8,000",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D15",
+              "raw": "£7,850",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E15",
+              "raw": "Mostly on local activities",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L15",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M15",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 16,
+          "cells": [
+            {
+              "ref": "A16",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B16",
+              "raw": "Evaluation and admin",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C16",
+              "raw": "£8,000",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D16",
+              "raw": "£4,780",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E16",
+              "raw": "External evaluator not used yet",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L16",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M16",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        },
+        {
+          "row_index": 17,
+          "cells": [
+            {
+              "ref": "A17",
+              "raw": "Spend summary",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "B17",
+              "raw": "TOTAL",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "C17",
+              "raw": "£78,500",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "D17",
+              "raw": "£78,460",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "E17",
+              "raw": "Finance lead says “basically fully spent”, but award letter says £82k",
+              "cell_state": "stated"
+            },
+            {
+              "ref": "F17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "G17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "H17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "I17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "J17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "K17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "L17",
+              "raw": null,
+              "cell_state": "blank"
+            },
+            {
+              "ref": "M17",
+              "raw": null,
+              "cell_state": "blank"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

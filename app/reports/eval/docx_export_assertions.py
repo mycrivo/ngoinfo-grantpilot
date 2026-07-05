@@ -28,6 +28,13 @@ from app.reports.services.section_prose import (
 # / namespace-prefixed shapes that identifiers have but honest prose does not, so
 # times (10:30), ratios (3:1), scripture (John 3:16), decimals (4.2), URLs, and
 # domains do not trip it.
+#
+# Package D WIDENS this tripwire (never narrows it) for the spreadsheet-provenance
+# leak class the diagnosis surfaced: (1) A1-notation cell references ("Table2!C12")
+# and (2) the em-dash facet suffix carrying a cell ref ("- budget (Table2!C12)") on
+# entity labels. Both require the sheet "!" + Column/Row shape, so legitimate prose
+# (times, ratios, numbers, em-dashes, "(Q1)", "(2024)") never trips it.
+_A1_CELL_REF = r"[A-Za-z][A-Za-z0-9_]*![A-Z]{1,3}[0-9]+(?::[A-Z]{1,3}[0-9]+)?"
 _LEAK_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("colon_item_key", re.compile(r"[A-Za-z][A-Za-z0-9_]*(?::[A-Za-z0-9_]+){2,}")),
     (
@@ -40,6 +47,16 @@ _LEAK_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("archetype_token", re.compile(r"\bARCH_[A-Z0-9_]+\b")),
     ("enum_value", re.compile(r"\b(?:cannot_provide|not_applicable)\b")),
     ("generic_placeholder", re.compile(r"the required template items")),
+    ("spreadsheet_cell_ref", re.compile(r"\b" + _A1_CELL_REF + r"\b")),
+    (
+        "entity_facet_provenance",
+        re.compile(
+            r"[\u2013\u2014]\s*"
+            r"(?:budget|actual(?:\s+spend)?|target|milestone|spend|forecast|planned)"
+            r"\s*\(" + _A1_CELL_REF + r"\)",
+            re.IGNORECASE,
+        ),
+    ),
 )
 
 

@@ -59,6 +59,14 @@ _FACET_SUFFIX_RE = re.compile(
     r"\s*[\-\u2013\u2014]\s*(?:budget|actual(?:\s+spend)?|target|milestone|spend|forecast|planned)\s*$",
     re.IGNORECASE,
 )
+# Package D: a trailing spreadsheet A1-notation parenthetical (e.g. "(Table2!C12)")
+# is internal provenance, never a funder-facing label. Strip it BEFORE the facet
+# suffix so a leaked "Sessional youth workers - budget (Table2!C12)" reduces to the
+# clean human name. Requires the sheet "!" so legitimate parentheticals like "(Q1)"
+# or "(2024)" are never touched.
+_A1_REF_SUFFIX_RE = re.compile(
+    r"\s*\([A-Za-z][A-Za-z0-9_]*![A-Z]{1,3}[0-9]+(?::[A-Z]{1,3}[0-9]+)?\)\s*$"
+)
 # Deterministic family order for picking an entity's display label.
 _LABEL_FAMILY_ORDER = ("budget", "actual", "target")
 
@@ -124,7 +132,8 @@ def _value_for_family(entity_facts: dict[str, list[dict[str, Any]]], family: str
 
 
 def _strip_facet_prefix(label: str) -> str:
-    out = _FACET_PREFIX_RE.sub("", label)
+    out = _A1_REF_SUFFIX_RE.sub("", label)
+    out = _FACET_PREFIX_RE.sub("", out)
     out = _FACET_SUFFIX_RE.sub("", out)
     return out.strip() or label
 

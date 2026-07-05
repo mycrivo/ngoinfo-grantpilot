@@ -75,6 +75,10 @@ class ExtractedIndicatorRow(BaseModel):
     actual: TabularCellField
     unit: TabularCellField | None = None
     disaggregation: list[DisaggregationDimension] = Field(default_factory=list)
+    # Package B: the row's evidence/note/commentary cell (e.g. NLCF monitoring column
+    # "Evidence or note") — delivery notes, reasons for variance, data caveats.
+    # Captured verbatim with cell_state + source_locator; absent stays absent.
+    note: TabularCellField | None = None
     source_locator: SourceLocator | None = None
     multi_value: bool = False
     # Section-routing carrier (Package A): the funder's own source-declared section

@@ -82,6 +82,24 @@ logger = logging.getLogger("reports.agents.knowledge_bank_reconciler")
 
 
 
+# Package D (deterministic defense-in-depth): a trailing spreadsheet A1-notation
+# parenthetical (e.g. "(Table2!C12)") is internal provenance and must never enter a
+# fact's semantic_label - the cell reference already lives in provenance.cell_ref.
+# Stripped at fact assembly so the leak cannot reach any funder-facing surface,
+# independent of what the model emitted. Requires the sheet "!" so legitimate
+# parentheticals like "(Q1)" are never touched.
+_SEMANTIC_LABEL_A1_REF_RE = re.compile(
+    r"\s*\([A-Za-z][A-Za-z0-9_]*![A-Z]{1,3}[0-9]+(?::[A-Z]{1,3}[0-9]+)?\)\s*$"
+)
+
+
+
+def _sanitize_semantic_label(label: str) -> str:
+    cleaned = _SEMANTIC_LABEL_A1_REF_RE.sub("", label or "").strip()
+    return cleaned or label
+
+
+
 AGENT_NAME = RECONCILER_AGENT_NAME
 
 DEFAULT_MODEL = os.getenv("ME_RECONCILER_MODEL", "claude-sonnet-4-6")
@@ -425,7 +443,7 @@ def _llm_to_structured(
 
             unit=fact.unit,
 
-            semantic_label=fact.semantic_label,
+            semantic_label=_sanitize_semantic_label(fact.semantic_label),
 
             coverage=fact.coverage,
 

@@ -33,6 +33,12 @@ from app.reports.export.kb_table_renderer import (
 
 _REPO = Path(__file__).resolve().parents[1]
 _NLCF_SNAPSHOT = _REPO / "docs/artefacts/me_module/audits/snapshots/c1_nlcf_rewalk_d8e7518b.json"
+# Package D anchors its provenance-leak proof to the post-A walk where the leak is
+# REAL: the d8e7518b snapshot above has clean semantic_labels (Table2! lives only in
+# provenance.cell_ref there), so it would never exercise PL-a. The 703f0dcf walk
+# carries the leaked "... — budget (Table2!C12)" labels in the KB facts. The existing
+# d8e7518b proofs are NOT weakened; a real-data leak proof is added alongside.
+_NLCF_703_SNAPSHOT = _REPO / "docs/artefacts/me_module/audits/snapshots/pkg2_nlcf_rewalk_703f0dcf.json"
 _NLCF_TEMPLATE = _REPO / "docs/artefacts/me_module/TEMPLATE_INSTANCE_NLCF.json"
 _FCDO_KB = _REPO / "tests/fixtures/reconciler/recorded/fcdo_bridgelight_recorded_knowledge_bank.json"
 _FCDO_TEMPLATE = _REPO / "docs/artefacts/me_module/TEMPLATE_INSTANCE_FCDO.json"
@@ -49,6 +55,11 @@ def _nlcf_facts() -> dict:
 
 def _fcdo_facts() -> dict:
     return _load(_FCDO_KB)["facts"]
+
+
+def _nlcf_703_facts() -> dict:
+    snap = _load(_NLCF_703_SNAPSHOT)
+    return snap["snapshots"]["after_reconcile"]["report"]["knowledge_bank_json"]["facts"]
 
 
 def _all_tables(template: dict) -> list[dict]:
@@ -224,6 +235,45 @@ def test_no_declared_table_renders_as_bare_heading(template_path, facts_fn):
 ])
 def test_rendered_tables_have_no_identifier_leaks(template_path, facts_fn):
     docx_bytes = _render(_load(template_path), facts_fn())
+    assert scan_identifier_leaks(_docx_plaintext(docx_bytes)) == []
+
+
+# --------------------------------------------------------------------------- #
+# Package D — real provenance-leak walk (703f0dcf): clean cells + tripwire
+# --------------------------------------------------------------------------- #
+
+
+def test_pkgd_real_leaked_labels_render_clean_identity_cells():
+    facts = _nlcf_703_facts()
+    # Precondition: the real walk carries the provenance leak in semantic_label.
+    assert any(
+        "Table2!" in (f.get("semantic_label") or "") for f in facts.values()
+    ), "precondition: 703f0dcf must carry the semantic_label cell-ref leak"
+
+    table = _find_table(_load(_NLCF_TEMPLATE), "budget_vs_actual")
+    rows = table_rows_for_definition(table_def=table, facts=facts)
+    flat = [cell for row in rows for cell in row]
+
+    # The clean human name reaches the identity cell; provenance does not.
+    assert "Sessional youth workers" in flat
+    assert not any("Table2!" in cell for cell in flat)
+    assert not any(("— budget" in cell or "— actual" in cell) for cell in flat)
+    # Real figures still populate from the same facts.
+    assert "13600" in flat
+    # Whole rendered table is leak-free under the widened tripwire.
+    assert scan_identifier_leaks("\n".join(flat)) == []
+
+
+def test_pkgd_tripwire_fires_on_real_leak_and_silent_after_render():
+    facts = _nlcf_703_facts()
+    leaked = next(
+        f["semantic_label"]
+        for f in facts.values()
+        if "Table2!" in (f.get("semantic_label") or "")
+    )
+    assert scan_identifier_leaks(leaked), f"tripwire missed real leak: {leaked}"
+
+    docx_bytes = _render(_load(_NLCF_TEMPLATE), facts)
     assert scan_identifier_leaks(_docx_plaintext(docx_bytes)) == []
 
 

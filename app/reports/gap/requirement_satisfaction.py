@@ -31,6 +31,10 @@ DATA_BACKED_HINTS: dict[str, list[str]] = {
     "cost_drivers": ["financials.lines", "financials."],
     "beneficiary_numbers": ["indicators.", "beneficiar"],
     "outcome_indicators_where_available": ["indicators.", "outcome"],
+    # Package B: the monitoring evidence/note column (indicators.<row>.note) carries the
+    # NGO's stated delivery changes / variance reasons — the "changes made" content. Same
+    # namespace-hint shape as the entries above; not a per-funder branch.
+    "changes_made": [".note"],
     "review_summary_sheet": ["programme_title", "programme_code", "review_date"],
     "outcome_assessment": ["indicators.", "outcome"],
     "delivery_financial_performance": ["financials."],

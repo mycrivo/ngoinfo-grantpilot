@@ -103,8 +103,12 @@ Rules:
 9. source_locator on each TabularCellField and row: sheet name + cell ref from JSON.
 10. Optional financials sheet: budget-vs-actual lines with same cell_state discipline.
 11. multi_value only when the sheet shows conflicting stated values for one field.
-12. Return the final structured extraction in the earliest possible turn.
-13. STOP after returning the structured extraction result.
+12. note: if a row has an evidence/note/commentary column (e.g. "Evidence or note")
+   capturing a delivery note, reason for variance, or data caveat, copy that cell
+   VERBATIM into note with its cell_state + source_locator. Blank cell -> note.absent=true.
+   Never invent, summarise, or move a note between rows.
+13. Return the final structured extraction in the earliest possible turn.
+14. STOP after returning the structured extraction result.
 """
 
 QueryFn = Callable[..., AsyncIterator[Any]]
@@ -163,6 +167,7 @@ class _LLMExtractedIndicatorRow(BaseModel):
     actual: _LLMTabularCellField
     unit: _LLMTabularCellField | None = None
     disaggregation: list[_LLMDisaggregationDimension] = Field(default_factory=list)
+    note: _LLMTabularCellField | None = None
     source_locator: _LLMSourceLocator | None = None
     multi_value: bool = False
 
@@ -268,6 +273,7 @@ def _to_indicator_row(row: _LLMExtractedIndicatorRow) -> ExtractedIndicatorRow:
         target=_to_tabular_cell_field(row.target),
         actual=_to_tabular_cell_field(row.actual),
         unit=_to_tabular_cell_field(row.unit) if row.unit is not None else None,
+        note=_to_tabular_cell_field(row.note) if row.note is not None else None,
         disaggregation=[
             DisaggregationDimension(
                 dimension=d.dimension,

@@ -22,8 +22,10 @@ from app.reports.agents.token_usage import SdkUsageAccumulator
 from app.reports.schemas.proposal_extraction_v1 import (
     PROPOSAL_EXTRACTION_SCHEMA_VERSION,
     ExtractedActivity,
+    ExtractedEngagement,
     ExtractedIndicator,
     ExtractedObjective,
+    ExtractedPartner,
     ExtractionOutcome,
     ProposalAgentTrace,
     ProposalExtractedEnvelope,
@@ -91,6 +93,11 @@ INDICATORS — numeric and targetless (mandatory):
 - Never drop an indicator for lacking a number. If no numeric target is stated: target.absent=true, target.value=null.
 - If numeric targets are stated: extract them; never invent or guess missing numbers.
 - Expected total: 15 logframe indicators with targets + 1 targetless equity indicator = 16 indicators.
+
+PARTNERS & COMMUNITY INVOLVEMENT — bounded to the page (mandatory):
+- partners: extract each named external partner, collaborator or organisation the NGO states it works with (e.g. a named school, GP/health team, food bank/pantry, tenants group, faith group). Capture the name exactly as written; capture relationship ONLY when the text states one, else null. Do NOT invent partners, do NOT infer collaborators from context, do NOT include the applicant organisation itself. If none are named, return partners: [].
+- consultation: extract each stated community-consultation or involvement activity describing who was consulted or how the project was shaped (e.g. "spoke to 26 parents", feedback cards, volunteer catch-ups). Put a stated count in value with its unit ONLY when a number is written; otherwise value=null, unit=null. Never invent or estimate counts. If none stated, return consultation: [].
+- Every partner and consultation item MUST have a provenance excerpt copied from the document. Absent content stays absent — do not fill an empty section.
 
 OUTPUT — compactness and turns (mandatory):
 - Provenance excerpt: max 80 characters per item; one short phrase only — never repeat the label text.
@@ -168,11 +175,32 @@ class _LLMIndicator(BaseModel):
     error_message: str | None = None
 
 
+class _LLMPartner(BaseModel):
+    partner_key: str
+    name: str
+    relationship: str | None = None
+    status: str = "extracted"
+    provenance: _LLMProvenance
+    error_message: str | None = None
+
+
+class _LLMEngagement(BaseModel):
+    engagement_key: str
+    label: str
+    value: str | float | int | None = None
+    unit: str | None = None
+    status: str = "extracted"
+    provenance: _LLMProvenance
+    error_message: str | None = None
+
+
 class _ProposalExtractorLLMOutput(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     objectives: list[_LLMObjective] = Field(default_factory=list)
     activities: list[_LLMActivity] = Field(default_factory=list)
     indicators: list[_LLMIndicator] = Field(default_factory=list)
+    partners: list[_LLMPartner] = Field(default_factory=list)
+    consultation: list[_LLMEngagement] = Field(default_factory=list)
 
 
 def compute_content_hash(text: str) -> str:
@@ -196,7 +224,10 @@ def build_extraction_prompt(
     *,
     filename: str | None = None,
 ) -> str:
-    header = "Extract objectives, activities, and indicators from this winning proposal.\n"
+    header = (
+        "Extract objectives, activities, indicators, named partners, and community "
+        "consultation from this winning proposal.\n"
+    )
     if filename:
         header += f"Metadata:\nfilename: {filename}\n\n"
     return header + _wrap_document_data(text)
@@ -226,8 +257,16 @@ def _compute_summary(
     objectives: list[ExtractedObjective],
     activities: list[ExtractedActivity],
     indicators: list[ExtractedIndicator],
+    partners: list[ExtractedPartner],
+    consultation: list[ExtractedEngagement],
 ) -> ProposalExtractionSummary:
-    items = list(objectives) + list(activities) + list(indicators)
+    items = (
+        list(objectives)
+        + list(activities)
+        + list(indicators)
+        + list(partners)
+        + list(consultation)
+    )
     succeeded = sum(1 for item in items if item.status == "extracted")
     failed = sum(1 for item in items if item.status == "failed")
     return ProposalExtractionSummary(
@@ -262,12 +301,37 @@ def _to_structured_output(parsed: _ProposalExtractorLLMOutput) -> ProposalExtrac
         )
         for i in parsed.indicators
     ]
-    summary = _compute_summary(objectives, activities, indicators)
+    partners = [
+        ExtractedPartner(
+            partner_key=p.partner_key,
+            name=p.name,
+            relationship=p.relationship,
+            status=p.status if p.status in ("extracted", "failed", "skipped") else "failed",
+            provenance=SourceProvenance.model_validate(p.provenance.model_dump()),
+            error_message=p.error_message,
+        )
+        for p in parsed.partners
+    ]
+    consultation = [
+        ExtractedEngagement(
+            engagement_key=e.engagement_key,
+            label=e.label,
+            value=e.value,
+            unit=e.unit,
+            status=e.status if e.status in ("extracted", "failed", "skipped") else "failed",
+            provenance=SourceProvenance.model_validate(e.provenance.model_dump()),
+            error_message=e.error_message,
+        )
+        for e in parsed.consultation
+    ]
+    summary = _compute_summary(objectives, activities, indicators, partners, consultation)
     return ProposalExtractionOutput(
         schema_version=PROPOSAL_EXTRACTION_SCHEMA_VERSION,
         objectives=objectives,
         activities=activities,
         indicators=indicators,
+        partners=partners,
+        consultation=consultation,
         extraction_outcome=_derive_outcome(summary),
         summary=summary,
     )

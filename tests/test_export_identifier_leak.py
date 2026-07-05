@@ -20,13 +20,17 @@ from app.reports.export.docx_renderer import _add_word_table, render_donor_repor
 from app.reports.services.ngo_text_redaction import redact_internal_identifiers
 from app.reports.services.section_prose import build_insufficiency_statement
 
-# --- The five identifier shapes (one per leak class) ------------------------
+# --- The identifier shapes (one per leak class) -----------------------------
+# The last two are the Package D spreadsheet-provenance class (A1-notation cell ref
+# + em-dash facet suffix carrying a cell ref) added by widening the tripwire.
 LEAK_SHAPES = {
     "colon_item_key": "spend_summary:table:budget_vs_actual",
     "schema_dotted_path": "financials.lines.part_time_coordinator.budget",
     "citation_marker": "[fact:indicator.op_volunteers_recruited.actual]",
     "archetype_token": "ARCH_OUTCOMES_WITH_STORIES_AND_NUMBERS",
     "enum_value": "cannot_provide",
+    "spreadsheet_cell_ref": "Table2!C12",
+    "entity_facet_provenance": "Sessional youth workers — budget (Table2!C12)",
 }
 
 # --- Verbatim leaked strings from c1_nlcf_rewalk_export_d8e7518b.docx --------
@@ -53,6 +57,12 @@ LEGITIMATE_NGO_SENTENCES = [
     "We ran sessions on Mon, Wed and Fri; attendance grew steadily.",
     "The team agreed three priorities: outreach, training and follow-up.",
     "Note: the budget for the year was tight but manageable.",
+    # Package D false-positive guards: em-dash + facet word but NO cell ref, and
+    # numbers/ranges that must not look like A1 notation.
+    "We kept our spend tight — budget discipline mattered throughout the year.",
+    "The hall held 30 — capacity was reached by week three.",
+    "Attendance rose from 88 to 96 — a strong year for the whole team.",
+    "Our actual spend came in just under plan, which we were pleased about.",
 ]
 
 
@@ -97,6 +107,14 @@ def test_tripwire_fires_on_each_leak_shape(shape_name, shape):
 
 def test_tripwire_fires_on_generic_placeholder():
     assert scan_identifier_leaks("The template requires the required template items here.")
+
+
+def test_tripwire_fires_on_spreadsheet_provenance_silent_when_clean():
+    # Package D: the real funder-facing leak shape fires; the clean human name does not.
+    leaked = "Sessional youth workers — budget (Table2!C12)"
+    assert scan_identifier_leaks(leaked), leaked
+    assert scan_identifier_leaks("Table2!C12")
+    assert scan_identifier_leaks("Sessional youth workers") == []
 
 
 @pytest.mark.parametrize("sentence", LEGITIMATE_NGO_SENTENCES)

@@ -64,6 +64,39 @@ class ExtractedActivity(BaseModel):
     error_message: str | None = None
 
 
+class ExtractedPartner(BaseModel):
+    """A named external partner/collaborator stated in the proposal — never inferred.
+
+    Package B: feeds the ``partnerships`` namespace that merged-A routes to the
+    community-involvement section. Bounded to the page: only organisations the NGO
+    explicitly names appear; ``relationship`` is captured only when the text states one.
+    """
+
+    partner_key: str = Field(min_length=1)
+    name: str = Field(min_length=1)
+    relationship: str | None = None
+    status: ExtractionItemStatus = "extracted"
+    provenance: SourceProvenance
+    error_message: str | None = None
+
+
+class ExtractedEngagement(BaseModel):
+    """A stated community-consultation / involvement item — never inferred.
+
+    Package B: feeds the ``engagement`` namespace that merged-A routes to the
+    community-involvement section. ``value``/``unit`` carry a stated count only when
+    a number is written in the source; otherwise both stay null.
+    """
+
+    engagement_key: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    value: str | float | int | None = None
+    unit: str | None = None
+    status: ExtractionItemStatus = "extracted"
+    provenance: SourceProvenance
+    error_message: str | None = None
+
+
 class ExtractedIndicator(BaseModel):
     indicator_key: str = Field(min_length=1)
     label: str = Field(min_length=1)
@@ -87,6 +120,8 @@ class ProposalExtractionOutput(BaseModel):
     objectives: list[ExtractedObjective] = Field(default_factory=list)
     activities: list[ExtractedActivity] = Field(default_factory=list)
     indicators: list[ExtractedIndicator] = Field(default_factory=list)
+    partners: list[ExtractedPartner] = Field(default_factory=list)
+    consultation: list[ExtractedEngagement] = Field(default_factory=list)
     extraction_outcome: ExtractionOutcome = "complete"
     summary: ProposalExtractionSummary = Field(default_factory=ProposalExtractionSummary)
 

@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 from app.reports.extraction.docling_content_guard import UNREADABLE_DOCUMENT_LOW_CONTENT
+
+_SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _slug(text: str) -> str:
+    """Lowercase, non-alphanumeric -> single underscore; stable namespace component."""
+    slug = _SLUG_RE.sub("_", str(text or "").strip().lower()).strip("_")
+    return slug or "unknown"
 
 
 class FactCandidate(BaseModel):
@@ -213,6 +222,51 @@ def _flatten_proposal(doc_id: str, source_label: str, structured: dict) -> list[
                 provenance=_provenance_from_dict(ind.get("provenance")),
             )
         )
+    # Package B: promote named partners and the community-consultation narrative into
+    # the partnerships.* / engagement.* namespaces merged-A routes to the
+    # community-involvement section. Promotion only — every value is what the proposal
+    # states; nothing inferred. No source_section: these route by declared namespace.
+    for partner in structured.get("partners") or []:
+        if partner.get("status") != "extracted":
+            continue
+        name = partner.get("name")
+        if not name:
+            continue
+        out.append(
+            FactCandidate(
+                candidate_id=f"{doc_id}:partnerships:{partner.get('partner_key') or _slug(name)}",
+                document_id=doc_id,
+                source_label=source_label,
+                classification="proposal",
+                field_path=f"partnerships.{_slug(name)}",
+                semantic_hint="Named partner / collaborator",
+                value_raw=name,
+                value_normalized=name,
+                provenance=_provenance_from_dict(partner.get("provenance")),
+            )
+        )
+    for eng in structured.get("consultation") or []:
+        if eng.get("status") != "extracted":
+            continue
+        key = eng.get("engagement_key")
+        label = eng.get("label")
+        if not key and not label:
+            continue
+        value = eng.get("value")
+        out.append(
+            FactCandidate(
+                candidate_id=f"{doc_id}:engagement:{key or _slug(label)}",
+                document_id=doc_id,
+                source_label=source_label,
+                classification="proposal",
+                field_path=f"engagement.{_slug(key or label)}",
+                semantic_hint="Community consultation / involvement",
+                value_raw=(str(value) if value is not None else label),
+                value_normalized=(str(value) if value is not None else label),
+                unit=eng.get("unit"),
+                provenance=_provenance_from_dict(eng.get("provenance")),
+            )
+        )
     return out
 
 
@@ -265,6 +319,55 @@ def _flatten_indicator_data(
             if cand:
                 cand.source_section = source_section
                 out.append(cand)
+        # Package C: promote per-band demographic disaggregation (age/gender/etc.)
+        # into source-located candidates. Promotion only — every value traces to its
+        # own source cell, only bands present in the source appear, nothing inferred.
+        # stated_total is intentionally NOT promoted (it duplicates the row actual).
+        name_field = row.get("indicator_name") or {}
+        indicator_name = (
+            name_field.get("raw") if isinstance(name_field, dict) else None
+        ) or str(row_id)
+        for dimension in row.get("disaggregation") or []:
+            if not isinstance(dimension, dict):
+                continue
+            dim_name = str(dimension.get("dimension") or "breakdown")
+            dim_slug = _slug(dim_name)
+            for band in dimension.get("breakdown") or []:
+                if not isinstance(band, dict):
+                    continue
+                band_label = str(band.get("label") or "")
+                value_field = band.get("value") or {}
+                if not isinstance(value_field, dict) or value_field.get("absent"):
+                    continue
+                cand = _tabular_field_candidate(
+                    doc_id=doc_id,
+                    source_label=source_label,
+                    field_path=(
+                        f"indicators.{row_id}.disaggregation."
+                        f"{dim_slug}.{_slug(band_label)}"
+                    ),
+                    semantic_hint=f"{indicator_name} - {dim_name} - {band_label}",
+                    field=value_field,
+                )
+                if cand:
+                    cand.source_section = source_section
+                    out.append(cand)
+        # Package B: promote the row's evidence/note/change cell into a fact that
+        # merged-A routes to changes_and_next_steps via the declared indicators.*.note
+        # namespace. DELIBERATELY no source_section: a note inheriting the row's section
+        # (e.g. "Difference made" / "Spend summary") would be source-pinned there and
+        # stranded away from changes. The note cell_ref still lives in provenance.
+        note_field = row.get("note") or {}
+        if isinstance(note_field, dict) and not note_field.get("absent"):
+            note_cand = _tabular_field_candidate(
+                doc_id=doc_id,
+                source_label=source_label,
+                field_path=f"indicators.{row_id}.note",
+                semantic_hint=f"Evidence / delivery note ({row_id})",
+                field=note_field,
+            )
+            if note_cand:
+                out.append(note_cand)
     financials = structured.get("financials") or {}
     currency = financials.get("currency") or {}
     if not currency.get("absent"):
