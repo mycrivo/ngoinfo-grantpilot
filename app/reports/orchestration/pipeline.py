@@ -469,6 +469,10 @@ async def _run_synthesise_stage(
         "openai_input_tokens": result.openai_input_tokens,
         "openai_output_tokens": result.openai_output_tokens,
     }
+    # A-JSON: capture parse-failure diagnostics (finish_reason, raw head/tail, params)
+    # for the NEXT failure. Trace-only — never persisted onto content_json / sections.
+    if result.parse_failures:
+        synthesise_trace["parse_failures"] = result.parse_failures
     _append_stage_trace(job, stage, synthesise_trace)
     session.add(job)
     session.commit()

@@ -144,6 +144,13 @@ def compute_generation_summary_from_sections(
 
 _SKIP_IF_NON_EMPTY_TEXT = frozenset({"GENERATED", "AWAITING_REVIEW", "ACCEPTED"})
 
+# A-JSON: a synthesis_parse_failure section is retried on resume, but only a bounded
+# number of times. Once the counter reaches this ceiling the section SETTLES into the
+# honest parse-failure terminal state and the report completes with it surfaced —
+# never an indefinite retry loop.
+_STRUCTURED_BIND_STATUS_SYNTHESIS_PARSE_FAILURE = "synthesis_parse_failure"
+MAX_SYNTHESIS_PARSE_FAILURE_CYCLES = 2
+
 
 def section_needs_synthesis(existing: dict[str, Any] | None) -> bool:
     """True when F1 should call OpenAI for this section (resume: skip completed work)."""
@@ -153,7 +160,13 @@ def section_needs_synthesis(existing: dict[str, Any] | None) -> bool:
         return False
     if existing.get("generation_status") == "ACCEPTED":
         return False
-    text = str((existing.get("content") or {}).get("text") or "").strip()
+    content = existing.get("content") or {}
+    # A-JSON: parse-failure sections are eligible for a bounded resume retry. After the
+    # bound they settle (return False) so the report completes with the honest state.
+    if content.get("structured_bind_status") == _STRUCTURED_BIND_STATUS_SYNTHESIS_PARSE_FAILURE:
+        cycles = int(content.get("parse_failure_cycles") or 0)
+        return cycles < MAX_SYNTHESIS_PARSE_FAILURE_CYCLES
+    text = str(content.get("text") or "").strip()
     status = existing.get("generation_status")
     if status in _SKIP_IF_NON_EMPTY_TEXT and text:
         return False

@@ -14,6 +14,9 @@ MIN_SECTION_PROSE_CHARS = 40
 
 FAILURE_EMPTY_PROSE = "EMPTY_SECTION_PROSE"
 STRUCTURED_BIND_STATUS_INSUFFICIENT_DATA = "insufficient_data"
+# A-JSON: distinct from insufficient_data. This is a *system* failure to read the
+# drafting engine's own response, NOT a statement that evidence was missing.
+STRUCTURED_BIND_STATUS_SYNTHESIS_PARSE_FAILURE = "synthesis_parse_failure"
 
 
 def section_prose_text(section: dict[str, Any]) -> str:
@@ -121,3 +124,55 @@ def build_insufficient_data_section(
         word_limit=word_limit,
         word_limit_respected=True,
     )
+
+
+def build_parse_failure_statement(*, section: dict[str, Any]) -> str:
+    """Honest, engine-owned prose for an unreadable synthesis response (A-JSON).
+
+    Deliberately distinct from the insufficiency statement: this reports a limitation of
+    the automated drafting system, NOT that the supporting evidence was missing. It
+    fabricates no claims and carries no raw model payload or diagnostic identifiers.
+    """
+    label = str(section.get("label") or section.get("section_key") or "this section").strip()
+    statement = (
+        f"This section could not be finalised because the automated drafting system "
+        f"returned a response that could not be read for \"{label}\". This is a "
+        f"limitation of the drafting system, not an indication that the supporting "
+        f"evidence was missing or insufficient. No narrative has been generated here; "
+        f"the rest of the report has been completed. Please regenerate this section, "
+        f"and contact support if the issue persists."
+    )
+    return redact_internal_identifiers(statement)
+
+
+def build_synthesis_parse_failure_section(
+    *,
+    section: dict[str, Any],
+    parse_failure_cycles: int = 1,
+) -> dict[str, Any]:
+    """GENERATED section carrying honest parse-failure prose (A-JSON terminal state).
+
+    ``parse_failure_cycles`` is a bounded resume counter (plain integer, not raw
+    payload); it lets :func:`section_needs_synthesis` settle the section after a bounded
+    number of retry cycles so the report always completes. No raw model output, snippet,
+    or diagnostic identifier ever rides on this section.
+    """
+    section_key = str(section.get("section_key") or "")
+    label = str(section.get("label") or section_key)
+    word_limit = int(section.get("word_limit") or 0)
+    text = build_parse_failure_statement(section=section)
+    built = build_generated_section(
+        section_key=section_key,
+        label=label,
+        archetype=section.get("archetype"),
+        text=text,
+        assumptions=[],
+        evidence_used=[],
+        claims=[],
+        citation_mode="structured",
+        structured_bind_status=STRUCTURED_BIND_STATUS_SYNTHESIS_PARSE_FAILURE,
+        word_limit=word_limit,
+        word_limit_respected=True,
+    )
+    built["content"]["parse_failure_cycles"] = max(1, int(parse_failure_cycles))
+    return built

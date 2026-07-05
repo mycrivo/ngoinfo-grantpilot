@@ -6,7 +6,7 @@ import asyncio
 import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from sqlalchemy import text
@@ -39,8 +39,10 @@ from app.reports.services.report_inputs_builder import (
 from app.reports.services.section_prose import (
     FAILURE_EMPTY_PROSE,
     build_insufficient_data_section,
+    build_synthesis_parse_failure_section,
     has_non_empty_prose,
 )
+from app.reports.services.synthesis_parse import parse_synthesis_response
 from app.reports.services.remit_disclosure import build_owned_absent_disclosure
 from app.reports.services.synthesis_claim_binding import resolve_structured_synthesis
 from app.reports.services.synthesis_citation_emission import emit_claim_granular_evidence
@@ -56,8 +58,14 @@ DEFAULT_MAX_TOKENS = 2500
 MIN_MAX_TOKENS = 800
 SYNTHESIS_TEMPERATURE = 0.65
 SYNTHESIS_FREQUENCY_PENALTY = 0.4
+# A-JSON: one bounded identical retry per section run (2 attempts total). NO token-limit
+# change and NO prompt edit — the request is re-issued unchanged and re-parsed.
+MAX_SYNTHESIS_PARSE_ATTEMPTS = 2
 
 QueryFnSynthesis = Callable[[str, str, str], dict[str, Any]]
+# A-JSON test/injection seam: yields the raw OpenAI response (unparsed) + usage counts,
+# so the parse ladder can be exercised on the real truncated-string failure class.
+RawResponseFn = Callable[[str, str, str], "tuple[dict[str, Any], int, int]"]
 
 
 def get_synthesis_max_concurrency() -> int:
@@ -82,6 +90,9 @@ class ReportSynthesisStageResult:
     warnings: list[str]
     openai_input_tokens: int = 0
     openai_output_tokens: int = 0
+    # A-JSON: diagnostics for the internal job trace ONLY (finish_reason, head/tail,
+    # params). Never persisted onto content_json / sections / any NGO-facing surface.
+    parse_failures: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _extract_usage_counts(response: dict[str, Any]) -> tuple[int, int]:
@@ -113,7 +124,7 @@ def _extract_json_payload(response: dict[str, Any]) -> dict[str, Any]:
     return parsed
 
 
-def _call_openai_section(
+def _call_openai_section_raw(
     *,
     section_key: str,
     system_prompt: str,
@@ -121,6 +132,11 @@ def _call_openai_section(
     word_limit: int,
     user_id: str | None,
 ) -> tuple[dict[str, Any], int, int]:
+    """Issue one synthesis call and return the RAW OpenAI response (unparsed) + usage.
+
+    Parsing is deferred to the parse ladder so a malformed payload is recovered or
+    honestly surfaced rather than raising here.
+    """
     settings = get_settings()
     client = OpenAIClient()
     response = client.create_chat_completion(
@@ -139,7 +155,60 @@ def _call_openai_section(
         feature="report_synthesis",
         user_id=user_id,
     )
-    return _extract_json_payload(response), *_extract_usage_counts(response)
+    return response, *_extract_usage_counts(response)
+
+
+def _synthesise_with_parse_ladder(
+    *,
+    section_key: str,
+    system_prompt: str,
+    user_prompt: str,
+    word_limit: int,
+    user_id: str | None,
+    raw_response_fn: RawResponseFn | None,
+) -> tuple[dict[str, Any] | None, int, int, list[dict[str, Any]]]:
+    """Call synthesis, parse with the completeness-preserving ladder, one bounded retry.
+
+    Returns ``(payload | None, in_tok, out_tok, diagnostics)``. ``payload is None`` means
+    every attempt failed to produce a *provably complete* object (e.g. truncation) — the
+    caller must surface the honest synthesis_parse_failure terminal state. ``diagnostics``
+    is trace-only (raw head/tail, finish_reason, params). NO token-limit or prompt change
+    between attempts: the identical request is re-issued.
+    """
+    total_input = 0
+    total_output = 0
+    diagnostics: list[dict[str, Any]] = []
+    for attempt in range(1, MAX_SYNTHESIS_PARSE_ATTEMPTS + 1):
+        if raw_response_fn is not None:
+            response, in_tok, out_tok = raw_response_fn(
+                section_key, system_prompt, user_prompt
+            )
+        else:
+            response, in_tok, out_tok = _call_openai_section_raw(
+                section_key=section_key,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                word_limit=word_limit,
+                user_id=user_id,
+            )
+        total_input += in_tok
+        total_output += out_tok
+        parsed = parse_synthesis_response(response)
+        if parsed.ok and parsed.payload is not None:
+            return parsed.payload, total_input, total_output, diagnostics
+        diagnostics.append(
+            {
+                "section_key": section_key,
+                "attempt": attempt,
+                "word_limit": word_limit,
+                "max_tokens": _max_tokens_for_section(word_limit or 0),
+                "model": get_settings().OPENAI_MODEL_PRIMARY,
+                "input_tokens": in_tok,
+                "output_tokens": out_tok,
+                **parsed.to_trace_dict(),
+            }
+        )
+    return None, total_input, total_output, diagnostics
 
 
 def _merge_remit_disclosure(
@@ -161,6 +230,9 @@ def _generate_one_section(
     query_fn_synthesis: QueryFnSynthesis | None,
     user_id: str | None,
     report_sections: list[dict[str, Any]] | None = None,
+    raw_response_fn: RawResponseFn | None = None,
+    prior_parse_failure_cycles: int = 0,
+    diagnostics_out: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], int, int]:
     section_key = str(section.get("section_key") or "")
     label = str(section.get("label") or section_key)
@@ -192,13 +264,33 @@ def _generate_one_section(
                 user_prompt,
             )
         else:
-            raw, input_tokens, output_tokens = _call_openai_section(
+            payload, input_tokens, output_tokens, diagnostics = _synthesise_with_parse_ladder(
                 section_key=section_key,
                 system_prompt=REPORT_SYNTHESIS_SYSTEM_PROMPT,
                 user_prompt=user_prompt,
                 word_limit=word_limit,
                 user_id=user_id,
+                raw_response_fn=raw_response_fn,
             )
+            if diagnostics and diagnostics_out is not None:
+                diagnostics_out.extend(diagnostics)
+            if payload is None:
+                # A-JSON: no attempt produced a provably-complete object (e.g. truncation).
+                # Surface the honest terminal state — never a fabricated or empty section.
+                logger.warning(
+                    "report_synthesis section=%s synthesis_parse_failure attempts=%d",
+                    section_key,
+                    len(diagnostics),
+                )
+                return (
+                    build_synthesis_parse_failure_section(
+                        section=section,
+                        parse_failure_cycles=prior_parse_failure_cycles + 1,
+                    ),
+                    input_tokens,
+                    output_tokens,
+                )
+            raw = payload
     except OpenAIServiceError as exc:
         logger.warning(
             "report_synthesis section=%s openai_error=%s",
@@ -350,6 +442,14 @@ def _generate_one_section(
     ), input_tokens, output_tokens
 
 
+def _prior_parse_failure_cycles(existing: dict[str, Any] | None) -> int:
+    content = (existing or {}).get("content") or {}
+    try:
+        return int(content.get("parse_failure_cycles") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def _generate_all_sections(
     *,
     sections: list[dict[str, Any]],
@@ -358,10 +458,13 @@ def _generate_all_sections(
     db: Session,
     report_context: dict[str, Any],
     query_fn_synthesis: QueryFnSynthesis | None,
-) -> tuple[list[dict[str, Any]], list[str], int, int]:
+    existing_by_key: dict[str, dict[str, Any]] | None = None,
+    raw_response_fn: RawResponseFn | None = None,
+) -> tuple[list[dict[str, Any]], list[str], int, int, list[dict[str, Any]]]:
     if not sections:
-        return [], [], 0, 0
+        return [], [], 0, 0, []
 
+    existing_by_key = existing_by_key or {}
     kb_json = dict(report.knowledge_bank_json or {})
     inputs_by_key: dict[str, dict[str, Any]] = {}
     for section in sections:
@@ -374,6 +477,10 @@ def _generate_all_sections(
         )
 
     results_by_key: dict[str, dict[str, Any]] = {}
+    # Per-section diagnostics sinks — trace-only; each thread writes its own list.
+    diagnostics_by_key: dict[str, list[dict[str, Any]]] = {
+        str(section["section_key"]): [] for section in sections
+    }
     user_id = str(report.user_id)
     max_workers = min(len(sections), get_synthesis_max_concurrency())
     total_input_tokens = 0
@@ -390,6 +497,11 @@ def _generate_all_sections(
                 query_fn_synthesis=query_fn_synthesis,
                 user_id=user_id,
                 report_sections=sections,
+                raw_response_fn=raw_response_fn,
+                prior_parse_failure_cycles=_prior_parse_failure_cycles(
+                    existing_by_key.get(str(section["section_key"]))
+                ),
+                diagnostics_out=diagnostics_by_key[str(section["section_key"])],
             ): section
             for section in sections
         }
@@ -421,13 +533,20 @@ def _generate_all_sections(
 
     ordered: list[dict[str, Any]] = []
     warnings: list[str] = []
+    parse_failures: list[dict[str, Any]] = []
     for section in sections:
         key = str(section["section_key"])
-        ordered.append(results_by_key[key])
-        if results_by_key[key].get("generation_status") == "FAILED":
+        result = results_by_key[key]
+        ordered.append(result)
+        if result.get("generation_status") == "FAILED":
             warnings.append(f"section {key} failed")
+        elif (result.get("content") or {}).get(
+            "structured_bind_status"
+        ) == "synthesis_parse_failure":
+            warnings.append(f"section {key} synthesis_parse_failure")
+        parse_failures.extend(diagnostics_by_key.get(key) or [])
 
-    return ordered, warnings, total_input_tokens, total_output_tokens
+    return ordered, warnings, total_input_tokens, total_output_tokens, parse_failures
 
 
 def _acquire_synthesis_lock(db: Session, donor_report_id) -> None:
@@ -447,6 +566,7 @@ async def synthesise_and_persist(
     *,
     query_fn_synthesis: QueryFnSynthesis | None = None,
     synthesis_mode: str = "final",
+    raw_response_fn: RawResponseFn | None = None,
 ) -> ReportSynthesisStageResult:
     """Generate missing/failed template sections and merge into donor_reports.content_json."""
     _acquire_synthesis_lock(db, donor_report_id)
@@ -499,8 +619,15 @@ async def synthesise_and_persist(
 
     total_input_tokens = 0
     total_output_tokens = 0
+    parse_failures: list[dict[str, Any]] = []
     if to_generate:
-        ordered_new, warnings, total_input_tokens, total_output_tokens = await asyncio.to_thread(
+        (
+            ordered_new,
+            warnings,
+            total_input_tokens,
+            total_output_tokens,
+            parse_failures,
+        ) = await asyncio.to_thread(
             _generate_all_sections,
             sections=to_generate,
             report=report,
@@ -508,6 +635,8 @@ async def synthesise_and_persist(
             db=db,
             report_context=report_context,
             query_fn_synthesis=query_fn_synthesis,
+            existing_by_key=existing_by_key,
+            raw_response_fn=raw_response_fn,
         )
         new_results_by_key = {
             str(result["section_key"]): result for result in ordered_new
@@ -565,4 +694,5 @@ async def synthesise_and_persist(
         warnings=warnings,
         openai_input_tokens=total_input_tokens,
         openai_output_tokens=total_output_tokens,
+        parse_failures=parse_failures,
     )

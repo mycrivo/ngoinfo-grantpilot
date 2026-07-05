@@ -37,7 +37,15 @@ def _sections_not_export_ready(content_json: dict[str, Any]) -> list[str]:
         content = section.get("content") or {}
         if content.get("citation_mode") == "structured":
             bind_status = content.get("structured_bind_status")
-            if bind_status not in ("bound", "honest_empty", "insufficient_data"):
+            # A-JSON: synthesis_parse_failure is an honest, export-ready terminal state
+            # (engine-owned prose, zero fabricated claims) — it must not block export,
+            # so a single unreadable section can never freeze the whole report.
+            if bind_status not in (
+                "bound",
+                "honest_empty",
+                "insufficient_data",
+                "synthesis_parse_failure",
+            ):
                 blocked.append(key)
     return blocked
 
