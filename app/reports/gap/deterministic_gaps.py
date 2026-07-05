@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from app.reports.gap.gap_question_copy import build_gap_question
 from app.reports.gap.logframe_completeness import is_logframe_row_ref
 from app.reports.gap.requirement_metadata import is_ngo_data_gap_item
 from app.reports.gap.satisfaction import unsatisfied_requirements
@@ -11,22 +12,8 @@ from app.reports.gap.template_requirements import TemplateRequirement, ngo_data_
 from app.reports.schemas.gap_compliance_v1 import GapComplianceGapItem, GapComplianceOutput
 
 
-def _human_label(ref: str) -> str:
-    return ref.replace("_", " ").strip()
-
-
 def _default_question(requirement: TemplateRequirement) -> str:
-    label = _human_label(requirement.required_item_ref)
-    if is_logframe_row_ref(requirement.required_item_ref):
-        indicator_id = requirement.required_item_ref.split(":", 1)[-1].replace("_", ".").upper()
-        return (
-            f"What was the actual result for indicator {indicator_id} during this reporting period?"
-        )
-    if requirement.required_item_type == "table":
-        return f"Please confirm or provide the data for the {label} table in {requirement.section_label}."
-    if requirement.requirement_type == "data":
-        return f"What is the {label} for {requirement.section_label}?"
-    return f"Please provide information about {label} for {requirement.section_label}."
+    return build_gap_question(requirement)
 
 
 def _default_rationale(requirement: TemplateRequirement) -> str:
