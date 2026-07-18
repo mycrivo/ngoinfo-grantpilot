@@ -27,23 +27,27 @@ def test_normalize_email():
 
 
 def test_google_then_magic_link_links_same_user():
+    """AUTH_AND_SSO_STRATEGY: Google then Magic Link, same email → same account; google_sub preserved."""
     db = _db_session()
-    google_user = get_or_create_user_for_google(
+    google_user, _ = get_or_create_user_for_google(
         db,
         email="Test@Example.org",
         google_sub="sub-1",
         full_name="Test User",
         avatar_url=None,
     )
-    magic_user = get_or_create_user_for_magic_link(db, email="  test@example.org ")
+    magic_user, _ = get_or_create_user_for_magic_link(db, email="  test@example.org ")
     assert magic_user.id == google_user.id
     assert magic_user.google_sub == "sub-1"
+    assert magic_user.email == "test@example.org"
+    assert google_user.email == "test@example.org"
 
 
 def test_magic_link_then_google_links_same_user():
+    """AUTH_AND_SSO_STRATEGY: Magic Link then Google, same email → same account; google_sub set."""
     db = _db_session()
-    magic_user = get_or_create_user_for_magic_link(db, email="User@Example.org")
-    google_user = get_or_create_user_for_google(
+    magic_user, _ = get_or_create_user_for_magic_link(db, email="User@Example.org")
+    google_user, _ = get_or_create_user_for_google(
         db,
         email="user@example.org",
         google_sub="sub-2",
@@ -52,3 +56,4 @@ def test_magic_link_then_google_links_same_user():
     )
     assert magic_user.id == google_user.id
     assert google_user.google_sub == "sub-2"
+    assert google_user.email == "user@example.org"
