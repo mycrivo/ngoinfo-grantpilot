@@ -14,6 +14,8 @@ from app.reports.agents.gap_compliance_agent import (
     GapComplianceAgentResult,
     run_gap_compliance,
 )
+from app.reports.gap.proposal_failure_elevation import is_proposal_failure_proceeded
+from app.reports.models.report_job import ReportJob
 from app.reports.schemas.gap_compliance_v1 import envelope_to_gap_analysis_json
 from app.reports.services.gate_preconditions import require_gate1_confirmed
 
@@ -64,6 +66,19 @@ async def run_gap_compliance_and_persist(
         "terminology_map_json": template.terminology_map_json,
     }
 
+    latest_job = (
+        db.query(ReportJob)
+        .filter(ReportJob.donor_report_id == donor_report_id)
+        .order_by(
+            ReportJob.started_at.desc().nullslast(),
+            ReportJob.id.desc(),
+        )
+        .first()
+    )
+    proposal_failure_proceeded = is_proposal_failure_proceeded(
+        latest_job.agent_trace_json if latest_job is not None else None
+    )
+
     try:
         result = await run_gap_compliance(
             knowledge_bank_json=report.knowledge_bank_json,
@@ -71,6 +86,7 @@ async def run_gap_compliance_and_persist(
             report_context=report_context,
             query_fn=query_fn,
             model=model,
+            proposal_failure_proceeded=proposal_failure_proceeded,
         )
     except GapComplianceAgentError as exc:
         logger.warning(

@@ -72,7 +72,7 @@ Report creation against the sentinel template is blocked (`donor_report_lifecycl
 | `required_indicators` | array[string] | NO | Indicator slug strings | `[]` | Slugs are template-author-defined; satisfaction uses `DATA_BACKED_HINTS` (§8) |
 | `owner` | string | NO | `ngo` \| `funder` | **`ngo`** (implicit) | **v1.2.0 / P2.** `funder` sections excluded from NGO synthesis (`visible_sections_for_context(..., include_funder_owned=False)`) and NGO Gate 2 checklist |
 | `requirement_type_default` | string | NO | `data` \| `narrative` \| `funder_supplied` | Resolved via fallbacks (§2.1a) | **v1.2.0 / P2.** Section-level default for indicators/tables without per-item override |
-| `indicator_requirements` | object | NO | Keys = indicator slugs; values = `{owner?, requirement_type?}` | `{}` | **v1.2.0 / P2.** Per-indicator overrides |
+| `indicator_requirements` | object | NO | Keys = indicator slugs; values = `{owner?, requirement_type?, elevate_on_proposal_failure?}` | `{}` | **v1.2.0 / P2.** Per-indicator overrides. Optional `elevate_on_proposal_failure` (boolean, default false) — **D-053 / Track 3:** when true and the report’s extract checkpoint is acked `proceed_with_gap`, the narrative indicator becomes a mandatory Gate 2 question. Engine reads the flag generically; which slugs elevate is template data only. |
 | `table_requirements` | object | NO | Keys = `table_key`; values = `{owner?, requirement_type?}` | `{}` | **v1.2.0 / P2.** Per-table overrides |
 | `guidance` | string | NO | Free text | — | Passed via full section JSON in synthesis prompt; not parsed separately |
 | `conditional_display` | object | NO | §2.3 | Absent = always visible (subject to `required`) | **v1.1.0** |
@@ -262,7 +262,7 @@ One line per schema field → engine component → behavior.
 | `required_tables[]` | `template_requirements`, `report_inputs_builder`, `docx_renderer`, `logframe_completeness.resolve_logframe_output_section` | Gap checklist (if `min_rows >= 1`); fact prefixes via `data_source`; export table headings |
 | `owner` | `requirement_metadata.resolve_owner`, `section_visibility.visible_sections_for_context` | Gate 2 filtering; synthesis exclusion when `funder` |
 | `requirement_type_default` | `requirement_metadata.resolve_requirement_type` | Default typing for checklist items |
-| `indicator_requirements` | `requirement_metadata._indicator_meta` | Per-indicator owner/type overrides |
+| `indicator_requirements` | `requirement_metadata._indicator_meta`, `proposal_failure_elevation` | Per-indicator owner/type overrides; optional `elevate_on_proposal_failure` (D-053) |
 | `table_requirements` | `requirement_metadata._table_meta` | Per-table owner/type overrides |
 | `conditional_display` | `section_visibility.section_visible` | Hide/show sections by `report_type` |
 | `guidance` | `synthesis` (via serialized section JSON) | LLM context only |

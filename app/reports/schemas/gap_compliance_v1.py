@@ -108,10 +108,10 @@ def validate_gap_compliance_output(
         seen.add(identity)
         if not gap.question.strip():
             errors.append(f"gap {gap.item_key!r} missing question")
-    data_gaps = [g for g in output.gaps if (g.requirement_type or "data") == "data"]
-    if output.open_items_count != len(data_gaps):
+    # open_items_count counts every emitted gap (data + D-053 elevated narrative).
+    if output.open_items_count != len(output.gaps):
         errors.append(
-            f"open_items_count {output.open_items_count} != data gap count {len(data_gaps)}"
+            f"open_items_count {output.open_items_count} != gap count {len(output.gaps)}"
         )
     if output.open_items_count == 0 and output.gaps:
         errors.append("open_items_count 0 incompatible with non-empty gaps")

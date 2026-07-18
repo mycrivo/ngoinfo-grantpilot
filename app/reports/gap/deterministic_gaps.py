@@ -87,9 +87,9 @@ def build_deterministic_gap_compliance_output(
             gaps=[],
             readiness_basis=readiness_basis,
         )
-    data_gaps = [g for g in merged if (g.requirement_type or "data") == "data"]
+    # Every emitted gap is Gate-2-blocking (D-053 may add elevated narrative items).
     return GapComplianceOutput(
-        open_items_count=len(data_gaps),
+        open_items_count=len(merged),
         ready_for_gate2=False,
         gaps=merged,
         readiness_basis=readiness_basis,
