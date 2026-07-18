@@ -39,6 +39,16 @@
         "community_participation_examples",
         "partner_or_local_collaboration_examples"
       ],
+      "indicator_requirements": {
+        "community_participation_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        },
+        "partner_or_local_collaboration_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        }
+      },
       "source_section_labels": ["Community involvement"],
       "fact_namespaces": ["partnerships", "engagement"],
       "tone": "practical, specific, inclusive",

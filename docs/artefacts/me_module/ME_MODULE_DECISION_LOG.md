@@ -59,6 +59,8 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-050 | 2026-06-06 | **Plan 1 DOCX scope = structural hardening only** | Existing python-docx renderers (`export_service`, `docx_renderer`); **D-010 docxtpl** + **D-020** 10 funder templates remain long-run target, deferred post-Plan-2 quality gate. | H |
 | D-051 | 2026-06-07 | **REPORT_CREATE refund on pipeline failure** | Charge at report create (`report:create:{id}`); on any terminal `report_jobs.status = failed`, insert idempotent `REPORT_CREATE_REFUND` (`report:refund:{id}`). Net used = creates − refunds. List API exposes `latest_job_status` for failed UX. | J |
 | D-052 | 2026-06-07 | **REPORT_CREATE charge at first COMPLETE (D6 / P8)** | Charge `REPORT_CREATE` exactly once when `donor_reports.status` first becomes `COMPLETE` in `export_and_persist` (export stage). Idempotency key `report:create:{donor_report_id}`. Create-time charge and `mark_job_failed` refund path **removed**. Never-completed reports are never charged. **Supersedes D-051.** | J |
+| D-053 | 2026-07-18 | **Track 3 — narrative Gate 2 elevation on proposal-failure proceed** | Template-data flag `elevate_on_proposal_failure`; NLCF map exactly 2 community indicators; FCDO map empty by omission; trigger = checkpoint `proceed_with_gap` only. See narrative DECISION below. | G |
+| D-054 | 2026-07-05 | **Gate 2 gap question copy — readable English** (retro-log of `7570bec`) | Deterministic section-first phrasing via `gap_question_copy.py`; replaces underscore-swap f-strings. See narrative DECISION below. | E |
 
 ---
 
@@ -71,6 +73,8 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | ~~O-003~~ | ~~Report quota event types~~ | **Resolved Stage B:** REPORT_CREATE, REPORT_EXPORT — ENUM_REGISTRY §3.3, §5.10 |
 | O-004 | Stripe `STRIPE_PRICE_ID_IMPACT` | Stage J — Impact $79 includes bundled M&E (D-048) |
 | ~~O-005~~ | ~~Stage B-validation~~ | **Resolved 2026-05-24 (D-024):** NLCF + FCDO instances validated; see FUNDER_TEMPLATE_SCHEMA §6 |
+| O-006 | **Track 3.1** — shared-floor objectives/activities thinning when proposal fails | Deferred debt (D-053). Not part of Track 3 elevation build. Revisit separately. |
+| O-007 | Track 3 residual — never-uploaded proposal (no checkpoint → no elevation) | Conscious narrowing in D-053; revisit on evidence of real no-proposal runs. |
 
 ---
 
@@ -364,4 +368,30 @@ DECISION (2026-07-05) — Proposal extraction reliability + blocking checkpoint 
 **CI:** `tests/test_proposal_extractor_agent.py`, `tests/test_proposal_extraction_checkpoint.py` on Smoke P0 allowlist.
 
 **STOP:** owner approval before deploy.
+---
+DECISION (2026-07-18) — Track 3 STOP 1 adjudication + elevation mechanism (D-053). AMBER — gap path / moat.
+
+**Numbering note (collision audit):** Table IDs D-046 and D-049 already collide with older freeform labels — table D-046 = F1 reliability bundle (2026-06-04) while the 2026-07-05 proposal-checkpoint narrative also says “D-046”; table D-049 = Fit Scans 20→10 while the E3 gap narrative says “D-049”. New IDs assigned only after that check: **D-053** (this entry), **D-054** (gap-grammar retro-log). No renumbering of historical collisions in this build.
+
+**STOP 1 owner verdicts (verbatim, final):**
+- NLCF elevation map — ACCEPTED at exactly 2: `community_participation_examples` and `partner_or_local_collaboration_examples`. No additions.
+- FCDO elevation map — ACCEPTED at 0. Empty map is the correct answer, not a placeholder (omission of `elevate_on_proposal_failure` flags).
+- All four borderline exclusions ACCEPTED: `project_story`; section-level `community_involvement` row (double-ask); FCDO `partner_performance` (wrong content class); objectives/activities elevation.
+- Track 3.1 (shared-floor objectives/activities thinning on proposal failure) is named deferred debt (**O-006**) — not part of this build; Phase 2 must not reach toward it.
+
+**Mechanism (generic):** Optional per-indicator template flag `indicator_requirements.<slug>.elevate_on_proposal_failure` (boolean). Engine reads the flag generically; which refs elevate lives only in template JSON. Trigger: `report_jobs.agent_trace_json.stages.extract.proposal_checkpoint` with `acknowledged=true` and `ack_action=proceed_with_gap`. Post-pass after deterministic gap build emits those items as mandatory Gate 2 gaps (existing `build_gap_question` grammar); answers reuse `gap_answers` + `gap:` provenance (no new `facts{}` promotion). Healthy proposal path: detector false → no elevation → Gate 2 unchanged.
+
+**Trigger narrowing (conscious owner decision — residual debt O-007):** Trigger is checkpoint-acked failure only, not “failed or absent” in the broader sense. A never-uploaded proposal produces no checkpoint and no elevation. Accepted to preserve intake/checkpoint semantics; revisit on evidence of real no-proposal runs.
+
+**Rollout split:** Committed instance JSON + engine in repo. Live NLCF row `2d5d75b7-12f5-46b5-adaa-d5939a5249a8` mutation is **OWNER-TRIGGERED** only (pre-mutation snapshot first, same discipline as FCDO Phase B). Cursor never mutates prod `funder_report_templates`. FCDO prod: no mutation. Generic UK/US/India templates out of scope; mechanism must not prevent pure-JSON adoption later.
+
+**STOP:** PR-ready for independent audit; no merge/prod mutation in this build.
+---
+DECISION (2026-07-05) — Gate 2 gap question copy readable English (D-054). Retro-log of commit `7570bec`. AMBER — UX / Gate 2 surface.
+
+**Shipped at `7570bec` (not previously decision-logged):** Replaced underscore-swap f-string gap questions with deterministic section-first phrasing in new `app/reports/gap/gap_question_copy.py` (`build_gap_question` for data, table, narrative, and logframe shapes; `is_well_formed_gap_question` guardrails). `deterministic_gaps.requirement_to_gap_item` now delegates to that module. Regression tests in `tests/test_gap_question_copy.py` wired onto Smoke P0 M&E allowlist via `.github/workflows/smoke-test.yml`.
+
+**Rationale:** Gate 2 questions must be plain funder-facing English — no internal slug leakage via naive `ref.replace("_", " ")` phrasing.
+
+**STOP:** already on `main` at `7570bec`; this entry is documentation parity only.
 ---

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.reports.gap.deterministic_gaps import build_deterministic_gap_compliance_output
+from app.reports.gap.proposal_failure_elevation import apply_proposal_failure_elevation
 from app.reports.gap.logframe_completeness import (
     derive_missing_logframe_actuals,
     missing_to_gap_items,
@@ -93,6 +94,7 @@ def run_post_draft_gap_analysis(
     knowledge_bank_json: dict[str, Any],
     template_payload: dict[str, Any],
     report_context: dict[str, Any] | None = None,
+    proposal_failure_proceeded: bool = False,
 ) -> GapComplianceOutput:
     """Emit residual gaps from draft sections + confirmed KB."""
     ctx = report_context or {"report_type": "annual"}
@@ -121,18 +123,30 @@ def run_post_draft_gap_analysis(
     for gap in draft_gaps:
         by_key.setdefault(gap.item_key, gap)
     merged = list(by_key.values())
-    denominator = max(ngo_data_gap_denominator(requirements), len(merged), 1)
     if not merged:
-        return GapComplianceOutput(
+        baseline_empty = GapComplianceOutput(
             open_items_count=0,
             ready_for_gate2=True,
             gaps=[],
             readiness_basis="post_draft",
         )
-    data_gaps = [g for g in merged if (g.requirement_type or "data") == "data"]
-    return GapComplianceOutput(
-        open_items_count=len(data_gaps),
+        return apply_proposal_failure_elevation(
+            baseline_empty,
+            requirements=requirements,
+            knowledge_bank_json=knowledge_bank_json,
+            report_sections_json=[s for s in sections if isinstance(s, dict)],
+            elevate=proposal_failure_proceeded,
+        )
+    combined = GapComplianceOutput(
+        open_items_count=len(merged),
         ready_for_gate2=False,
         gaps=merged,
         readiness_basis="post_draft",
+    )
+    return apply_proposal_failure_elevation(
+        combined,
+        requirements=requirements,
+        knowledge_bank_json=knowledge_bank_json,
+        report_sections_json=[s for s in sections if isinstance(s, dict)],
+        elevate=proposal_failure_proceeded,
     )

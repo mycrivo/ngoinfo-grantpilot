@@ -21,6 +21,7 @@ from app.reports.gap.logframe_completeness import (
     missing_to_gap_items,
     missing_to_template_requirements,
 )
+from app.reports.gap.proposal_failure_elevation import apply_proposal_failure_elevation
 from app.reports.parsing.json_from_text import parse_json_object_from_text
 from app.reports.gap.template_requirements import (
     TemplateRequirement,
@@ -241,9 +242,8 @@ def _validate_llm_output(
             f"Gap agent LLM output invalid: {exc}",
         ) from exc
     gaps = [GapComplianceGapItem.model_validate(g.model_dump()) for g in llm.gaps]
-    data_gaps = [g for g in gaps if (g.requirement_type or "data") == "data"]
-    open_items_count = len(data_gaps)
-    ready_for_gate2 = open_items_count == 0 and not gaps
+    open_items_count = len(gaps)
+    ready_for_gate2 = open_items_count == 0
     structured = GapComplianceOutput(
         open_items_count=open_items_count,
         ready_for_gate2=ready_for_gate2,
@@ -289,9 +289,8 @@ def _merge_deterministic_logframe_gaps(
         if gap.item_key not in by_key:
             by_key[gap.item_key] = gap
     merged = list(by_key.values())
-    data_gaps = [g for g in merged if (g.requirement_type or "data") == "data"]
-    open_items_count = len(data_gaps)
-    ready = open_items_count == 0 and not merged
+    open_items_count = len(merged)
+    ready = open_items_count == 0
     return GapComplianceOutput(
         open_items_count=open_items_count,
         ready_for_gate2=ready,
@@ -432,6 +431,24 @@ def _build_gap_result(
     )
 
 
+def _apply_elevation(
+    output: GapComplianceOutput,
+    *,
+    requirements: list[TemplateRequirement],
+    knowledge_bank_json: dict[str, Any],
+    sections: list[Any],
+    proposal_failure_proceeded: bool,
+) -> GapComplianceOutput:
+    section_list = [s for s in sections if isinstance(s, dict)]
+    return apply_proposal_failure_elevation(
+        output,
+        requirements=requirements,
+        knowledge_bank_json=knowledge_bank_json,
+        report_sections_json=section_list,
+        elevate=proposal_failure_proceeded,
+    )
+
+
 async def run_gap_compliance(
     *,
     knowledge_bank_json: dict[str, Any],
@@ -439,6 +456,7 @@ async def run_gap_compliance(
     report_context: dict[str, Any] | None = None,
     query_fn: QueryFn | None = None,
     model: str | None = None,
+    proposal_failure_proceeded: bool = False,
 ) -> GapComplianceAgentResult:
     """Run E3 gap/compliance against confirmed KB + funder template."""
     ctx = report_context or {"report_type": "annual"}
@@ -461,6 +479,13 @@ async def run_gap_compliance(
         logframe_gaps=deterministic_gaps,
         checklist_non_section_count=checklist_non_section,
     )
+    deterministic_output = _apply_elevation(
+        deterministic_output,
+        requirements=requirements,
+        knowledge_bank_json=knowledge_bank_json,
+        sections=sections,
+        proposal_failure_proceeded=proposal_failure_proceeded,
+    )
     det_errors = validate_gap_compliance_output(
         deterministic_output, allowed_item_keys=allowed_item_keys
     )
@@ -473,9 +498,10 @@ async def run_gap_compliance(
     use_llm = query_fn is not None or (_gap_llm_enabled() and query_fn is None)
     if not use_llm:
         logger.info(
-            "gap_compliance_agent deterministic checklist=%d gaps=%d",
+            "gap_compliance_agent deterministic checklist=%d gaps=%d elevate=%s",
             checklist_non_section,
             len(deterministic_output.gaps),
+            proposal_failure_proceeded,
         )
         return _build_gap_result(
             deterministic_output,
@@ -565,6 +591,13 @@ async def run_gap_compliance(
                 structured,
                 deterministic_gaps,
                 checklist_non_section_count=checklist_non_section,
+            )
+            structured = _apply_elevation(
+                structured,
+                requirements=requirements,
+                knowledge_bank_json=knowledge_bank_json,
+                sections=sections,
+                proposal_failure_proceeded=proposal_failure_proceeded,
             )
             merge_errors = validate_gap_compliance_output(
                 structured, allowed_item_keys=allowed_item_keys

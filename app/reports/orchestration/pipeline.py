@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import DomainError
 from app.reports.agents.gap_compliance_agent import run_gap_compliance
+from app.reports.gap.proposal_failure_elevation import is_proposal_failure_proceeded
 from app.reports.models.donor_report import DonorReport
 from app.reports.models.enums import (
     DocumentClassification,
@@ -282,6 +283,9 @@ async def _run_gap_stage(
             knowledge_bank_json=report.knowledge_bank_json or {},
             template_payload=template_payload,
             report_context=report_context,
+            proposal_failure_proceeded=is_proposal_failure_proceeded(
+                job.agent_trace_json
+            ),
         )
         now = datetime.now(timezone.utc)
         envelope = GapCompliancePersistedEnvelope(
@@ -310,6 +314,9 @@ async def _run_gap_stage(
             knowledge_bank_json=report.knowledge_bank_json,
             template_payload=template_payload,
             query_fn=ctx.query_fn_gap,
+            proposal_failure_proceeded=is_proposal_failure_proceeded(
+                job.agent_trace_json
+            ),
         ),
         stage=stage,
     )

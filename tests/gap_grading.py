@@ -51,14 +51,13 @@ def grade_gap_compliance(
         return ["gaps must be a list"]
 
     open_items = gap_analysis.get("open_items_count")
-    data_gap_count = _data_gap_count(gaps)
     if open_items is None:
         errors.append("missing open_items_count")
     elif not isinstance(open_items, int) or open_items < 0:
         errors.append(f"invalid open_items_count: {open_items!r}")
-    elif open_items != data_gap_count:
+    elif open_items != len(gaps):
         errors.append(
-            f"open_items_count {open_items} != data gap count {data_gap_count}"
+            f"open_items_count {open_items} != gap count {len(gaps)}"
         )
 
     expected_identities = {
