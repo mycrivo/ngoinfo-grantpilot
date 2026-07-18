@@ -61,6 +61,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-052 | 2026-06-07 | **REPORT_CREATE charge at first COMPLETE (D6 / P8)** | Charge `REPORT_CREATE` exactly once when `donor_reports.status` first becomes `COMPLETE` in `export_and_persist` (export stage). Idempotency key `report:create:{donor_report_id}`. Create-time charge and `mark_job_failed` refund path **removed**. Never-completed reports are never charged. **Supersedes D-051.** | J |
 | D-053 | 2026-07-18 | **Track 3 — narrative Gate 2 elevation on proposal-failure proceed** | Template-data flag `elevate_on_proposal_failure`; NLCF map exactly 2 community indicators; FCDO map empty by omission; trigger = checkpoint `proceed_with_gap` only. See narrative DECISION below. | G |
 | D-054 | 2026-07-05 | **Gate 2 gap question copy — readable English** (retro-log of `7570bec`) | Deterministic section-first phrasing via `gap_question_copy.py`; replaces underscore-swap f-strings. See narrative DECISION below. | E |
+| D-055 | 2026-07-18 | **Track 3 prod NLCF scoped reconcile** — `community_involvement` only | Live row predated Package A/B template fields; owner Option 2 scoped. See narrative DECISION below. | G |
 
 ---
 
@@ -75,6 +76,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | ~~O-005~~ | ~~Stage B-validation~~ | **Resolved 2026-05-24 (D-024):** NLCF + FCDO instances validated; see FUNDER_TEMPLATE_SCHEMA §6 |
 | O-006 | **Track 3.1** — shared-floor objectives/activities thinning when proposal fails | Deferred debt (D-053). Not part of Track 3 elevation build. Revisit separately. |
 | O-007 | Track 3 residual — never-uploaded proposal (no checkpoint → no elevation) | Conscious narrowing in D-053; revisit on evidence of real no-proposal runs. |
+| O-008 | **NLCF live template drift (non-community sections)** | Live prod row `2d5d75b7…` missing `fact_namespaces` + `source_section_labels` on sections other than `community_involvement` vs committed `TEMPLATE_INSTANCE_NLCF.json`. Evidence: [`TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json`](audits/TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json). Scoped reconcile (D-055) fixed community only; remaining drift awaits owner adjudication. |
 
 ---
 
@@ -394,4 +396,14 @@ DECISION (2026-07-05) — Gate 2 gap question copy readable English (D-054). Ret
 **Rationale:** Gate 2 questions must be plain funder-facing English — no internal slug leakage via naive `ref.replace("_", " ")` phrasing.
 
 **STOP:** already on `main` at `7570bec`; this entry is documentation parity only.
+---
+DECISION (2026-07-18) — Track 3 prod NLCF scoped reconcile (D-055). Owner-triggered. AMBER — template data / prod seed.
+
+**(a) Drift discovery:** Pre-mutation snapshot of live `funder_report_templates.id = 2d5d75b7-12f5-46b5-adaa-d5939a5249a8` (SHA256 `64e6ebc60be775d20e451a51cd796f23e3829726c08617d8f580e8e808661afa`, path [`audits/snapshots/nlcf_2d5d75b7_pre_track3_2026-07-18.json`](audits/snapshots/nlcf_2d5d75b7_pre_track3_2026-07-18.json)) vs committed [`TEMPLATE_INSTANCE_NLCF.json`](TEMPLATE_INSTANCE_NLCF.json) showed the live row **predated Package A/B template fields** — missing `fact_namespaces` / `source_section_labels` on every section, and missing `community_involvement.indicator_requirements` (including both Track 3 `elevate_on_proposal_failure: true` entries). Full field-level evidence: [`audits/TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json`](audits/TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json) (13 divergences). Scalars / `format_rules_json` / `terminology_map_json` matched.
+
+**(b) Owner scoped-reconcile decision (verbatim Option 2):** Reconcile `community_involvement` to the committed instance for exactly three fields — `fact_namespaces`, `source_section_labels`, and `indicator_requirements` (both elevate flags). Committed instance is canonical authored template; live missing fields are un-applied Package A/B seed, not intended state. **Scope fence:** `community_involvement` only — no other section mutated regardless of remaining drift. Applied on prod: `version` 1→2; FCDO `55f891ac…` untouched. Evidence: [`audits/TRACK3_PHASE_A_SCOPED_RECONCILE_EVIDENCE_2026-07-18.json`](audits/TRACK3_PHASE_A_SCOPED_RECONCILE_EVIDENCE_2026-07-18.json). Rollback source remains the pre-Track3 snapshot (not re-snapshotted).
+
+**(c) Remaining drift — open adjudication:** Non-community sections still lack `fact_namespaces` / `source_section_labels` vs committed instance. Named open item **O-008**. Do not reconcile in this operation.
+
+**STOP:** confirming walk (Phase B) proceeds under owner release; no further template mutation.
 ---

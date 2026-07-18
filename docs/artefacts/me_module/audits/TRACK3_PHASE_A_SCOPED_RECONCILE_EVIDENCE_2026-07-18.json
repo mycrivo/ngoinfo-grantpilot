@@ -1,0 +1,76 @@
+{
+  "snapshot_sha256": "64e6ebc60be775d20e451a51cd796f23e3829726c08617d8f580e8e808661afa",
+  "snapshot_path": "C:\\Users\\prana\\OneDrive\\Desktop\\NGOInfo-Grantpilot\\docs\\artefacts\\me_module\\audits\\snapshots\\nlcf_2d5d75b7_pre_track3_2026-07-18.json",
+  "applied_diff": {
+    "community_involvement": {
+      "from": {
+        "fact_namespaces": "<MISSING>",
+        "source_section_labels": "<MISSING>",
+        "indicator_requirements": "<MISSING>"
+      },
+      "to": {
+        "fact_namespaces": [
+          "partnerships",
+          "engagement"
+        ],
+        "source_section_labels": [
+          "Community involvement"
+        ],
+        "indicator_requirements": {
+          "community_participation_examples": {
+            "requirement_type": "narrative",
+            "elevate_on_proposal_failure": true
+          },
+          "partner_or_local_collaboration_examples": {
+            "requirement_type": "narrative",
+            "elevate_on_proposal_failure": true
+          }
+        }
+      }
+    },
+    "version": {
+      "from": 1,
+      "to": 2
+    }
+  },
+  "readback": {
+    "three_fields_match_committed": true,
+    "reconciled_fields": {
+      "fact_namespaces": [
+        "partnerships",
+        "engagement"
+      ],
+      "source_section_labels": [
+        "Community involvement"
+      ],
+      "indicator_requirements": {
+        "community_participation_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        },
+        "partner_or_local_collaboration_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        }
+      }
+    },
+    "version": 2,
+    "other_sections_byte_identical": true,
+    "section_failures": [],
+    "other_columns_byte_identical": true,
+    "column_failures": [],
+    "fcdo_untouched": true
+  },
+  "fcdo_before": {
+    "id": "55f891ac-bb8b-4137-bc42-6de8ff935064",
+    "version": 2,
+    "sections_md5": "43586983aaedf4907874d495ea704aab",
+    "row_md5": "7197c0c5bf214804ebea8567953fda9d"
+  },
+  "fcdo_after": {
+    "id": "55f891ac-bb8b-4137-bc42-6de8ff935064",
+    "version": 2,
+    "sections_md5": "43586983aaedf4907874d495ea704aab",
+    "row_md5": "7197c0c5bf214804ebea8567953fda9d"
+  }
+}
