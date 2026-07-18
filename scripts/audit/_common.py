@@ -12,6 +12,7 @@ import os
 import shutil
 import subprocess
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -99,14 +100,42 @@ def ensure_plan(user_id: str, plan_name: str = "IMPACT") -> None:
             """), {"uid": user_id, "plan": plan_name})
 
 
+def _iso_utc(ts: float | None = None) -> str:
+    when = datetime.fromtimestamp(ts if ts is not None else time.time(), tz=timezone.utc)
+    return when.isoformat()
+
+
 def _apply_tokens(session: requests.Session, body: dict) -> None:
     session.headers["Authorization"] = f"Bearer {body['access_token']}"
     session.refresh_token = body.get("refresh_token")  # type: ignore[attr-defined]
     ttl = int(body.get("expires_in") or 900)
+    session.expires_in = ttl  # type: ignore[attr-defined]
     session.token_expires_at = time.time() + ttl  # type: ignore[attr-defined]
+    if not getattr(session, "mint_wall_clock", None):
+        session.mint_wall_clock = _iso_utc()  # type: ignore[attr-defined]
 
 
-def refresh_session_tokens(session: requests.Session) -> None:
+def _log_auth_refresh_diag(
+    session: requests.Session,
+    *,
+    trigger: str,
+    http_status: int | None,
+    error_body: Any,
+) -> None:
+    expires_at = getattr(session, "token_expires_at", None)
+    payload = {
+        "trigger": trigger,
+        "http_status": http_status,
+        "mint_wall_clock": getattr(session, "mint_wall_clock", None),
+        "expires_in": getattr(session, "expires_in", None),
+        "token_expires_at": _iso_utc(expires_at) if expires_at else None,
+        "attempt_wall_clock": _iso_utc(),
+        "error_body": error_body,
+    }
+    print(f"AUTH_REFRESH_DIAG {json.dumps(payload, default=str)}", flush=True)
+
+
+def refresh_session_tokens(session: requests.Session, *, trigger: str) -> None:
     refresh_token = getattr(session, "refresh_token", None)
     if not refresh_token:
         raise RuntimeError("audit session has no refresh_token")
@@ -115,6 +144,20 @@ def refresh_session_tokens(session: requests.Session) -> None:
         json={"refresh_token": refresh_token},
         timeout=60,
     )
+    error_body: Any = None
+    if r.status_code >= 400:
+        try:
+            error_body = r.json()
+        except ValueError:
+            error_body = (r.text or "")[:2000]
+    else:
+        error_body = None
+    _log_auth_refresh_diag(
+        session,
+        trigger=trigger,
+        http_status=r.status_code,
+        error_body=error_body,
+    )
     r.raise_for_status()
     _apply_tokens(session, r.json())
 
@@ -122,14 +165,14 @@ def refresh_session_tokens(session: requests.Session) -> None:
 def ensure_fresh_token(session: requests.Session) -> None:
     expires_at = getattr(session, "token_expires_at", 0)
     if time.time() >= expires_at - 90 and getattr(session, "refresh_token", None):
-        refresh_session_tokens(session)
+        refresh_session_tokens(session, trigger="proactive")
 
 
 def auth_request(session: requests.Session, method: str, url: str, **kwargs) -> requests.Response:
     ensure_fresh_token(session)
     r = session.request(method, url, **kwargs)
     if r.status_code == 401 and getattr(session, "refresh_token", None):
-        refresh_session_tokens(session)
+        refresh_session_tokens(session, trigger="reactive_401")
         r = session.request(method, url, **kwargs)
     return r
 
@@ -144,6 +187,7 @@ def mint_session(email: str, *, plan: str = "IMPACT", full_name: str = "Audit Wa
     )
     r.raise_for_status()
     body = r.json()
+    session.mint_wall_clock = _iso_utc()  # type: ignore[attr-defined]
     _apply_tokens(session, body)
     session.user_id = body["user"]["id"]  # type: ignore[attr-defined]
     session.user_email = body["user"]["email"]  # type: ignore[attr-defined]
