@@ -1,0 +1,362 @@
+{
+  "donor_report_id": "cb090edb-715b-41cb-b3be-61c006fbdb55",
+  "status": "DRAFT",
+  "has_reconciler": true,
+  "gate1_confirmed_at": null,
+  "conflict_count": 1,
+  "conflicts": [
+    {
+      "values": [
+        {
+          "unit": null,
+          "value": "2025-10-14",
+          "provenance": {
+            "page": null,
+            "excerpt": "first Annual Review will cover period...to 14 October 2025",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+          "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17"
+        },
+        {
+          "unit": null,
+          "value": null,
+          "provenance": {
+            "page": null,
+            "excerpt": "project team discussed 'October to September' in inception call",
+            "cell_ref": null,
+            "char_end": null,
+            "char_start": null,
+            "section_label": null
+          },
+          "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+          "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17"
+        }
+      ],
+      "fact_key": "reporting_period.end",
+      "annotation": "Both values originate from the same source document but represent two distinct stated values for the AR1 reporting period end: (1) the formal award-letter date of 14 October 2025, and (2) an ambiguous 'September' end-month referenced in an inception-call discussion of an 'October to September' cycle. The second value could not be fully normalised (normalization_ambiguous=true). Gate-1 reviewer should confirm which period governs AR1 reporting and whether the inception-call discussion reflects an agreed amendment or an informal note.",
+      "resolved_at": null,
+      "conflict_type": "VALUE_MISMATCH",
+      "resolved_value": null
+    }
+  ],
+  "related_facts_for_conflict_keys": {},
+  "periodish_facts": {
+    "grant_period.end": {
+      "semantic_label": "Programme end date",
+      "value": "2026-10-14",
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "grant_period.start": {
+      "semantic_label": "Programme start date",
+      "value": "2024-10-15",
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "reporting_period.start": {
+      "semantic_label": "First Annual Review reporting period start date",
+      "value": "2024-10-15",
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.1.actual": {
+      "semantic_label": "OP1.1 indicator AR1 actual \u2014 girls re-enrolled or newly retained",
+      "value": 684,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.1.target": {
+      "semantic_label": "OP1.1 indicator AR1 target \u2014 girls re-enrolled or newly retained",
+      "value": 650,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.2.actual": {
+      "semantic_label": "OP1.2 indicator AR1 actual \u2014 girls attending \u226580% of school days",
+      "value": 472,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.2.target": {
+      "semantic_label": "OP1.2 indicator AR1 target \u2014 girls attending \u226580% of school days",
+      "value": 500,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.3.actual": {
+      "semantic_label": "OP1.3 indicator AR1 actual \u2014 girls completing \u226520 remedial learning sessions",
+      "value": 438,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.OP1.3.target": {
+      "semantic_label": "OP1.3 indicator AR1 target \u2014 girls completing \u226520 remedial learning sessions",
+      "value": 420,
+      "unit": null,
+      "source_document_id": "cd71f88a-e5de-4b7c-8611-60c8901710fc",
+      "source_label": "BridgeLight Logframe and Finance AR1 Export.xlsx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "reporting_period.end_formal": {
+      "semantic_label": "First Annual Review reporting period end date (formal award letter)",
+      "value": "2025-10-14",
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "reporting_obligations.annual_review": {
+      "semantic_label": "Annual Review reporting obligation components",
+      "value": "Annual Review",
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "reporting_period.end_inception_call": {
+      "semantic_label": "First Annual Review reporting period end month discussed at inception call (ambiguous, not fully normalised)",
+      "value": null,
+      "unit": null,
+      "source_document_id": "c534314e-f6c7-4fc7-bdc1-fb84bbd91d17",
+      "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    "indicators.proposal.ocm3_school_safe_menstruation.target": {
+      "semantic_label": "Proposal target \u2013 % of girls reporting school is safe during menstruation and travel (OCM3)",
+      "value": 72,
+      "unit": "%",
+      "source_document_id": "e9591488-db79-4a16-8b44-e56d33373a57",
+      "source_label": "01_FCDO_BridgeLight_Winning_Proposal.docx",
+      "verification_status": "reconciled",
+      "coverage": "single_source",
+      "keys_present": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    }
+  },
+  "fact_count": 156
+}

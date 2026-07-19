@@ -1,0 +1,277 @@
+{
+  "donor_report_id": "cb090edb-715b-41cb-b3be-61c006fbdb55",
+  "fact_count": 156,
+  "counts_by_key_prefix_heuristic": {
+    "indicators": 144,
+    "programme": 5,
+    "reporting_period": 3,
+    "other": 2,
+    "award_budget": 1,
+    "reporting_obligations": 1
+  },
+  "field_non_null_counts": {
+    "value": 155,
+    "semantic_label": 156,
+    "coverage": 156,
+    "source_document_id": 156,
+    "source_label": 156,
+    "provenance": 156,
+    "verification_status": 156,
+    "confirmed": 156,
+    "confirmed_by_user": 156,
+    "unit": 16,
+    "interpretation_note": 4
+  },
+  "structured_disagg_fields_absent": {
+    "parent_indicator": 0,
+    "dimension": 0,
+    "cohort": 0,
+    "disaggregation": 0
+  },
+  "disaggregation_like_label_count_heuristic": 107,
+  "disaggregation_label_samples": [
+    {
+      "fact_key": "indicators.OP3.2.actual",
+      "semantic_label": "Indicator actual - Number of girls receiving school re-entry kit or learning materials package (OP3.2)",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP3.2.target",
+      "semantic_label": "Indicator target - Number of girls receiving school re-entry kit or learning materials package (OP3.2)",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP4.3.actual",
+      "semantic_label": "OP4.3 actual count \u2013 school/community actors trained on girls re-entry and safeguarding protocols",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.1.disaggregation.male_6_11",
+      "semantic_label": "OP1.1 actual disaggregation \u2014 Male age 6\u201311",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.2.disaggregation.male_6_11",
+      "semantic_label": "OP1.2 actual disaggregation \u2014 Male age 6\u201311",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.1.disaggregation.male_12_17",
+      "semantic_label": "OP1.1 actual disaggregation \u2014 Male age 12\u201317",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.1.disaggregation.male_18_24",
+      "semantic_label": "OP1.1 actual disaggregation \u2014 Male age 18\u201324",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.2.disaggregation.male_12_17",
+      "semantic_label": "OP1.2 actual disaggregation \u2014 Male age 12\u201317",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.2.disaggregation.male_18_24",
+      "semantic_label": "OP1.2 actual disaggregation \u2014 Male age 18\u201324",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.1.disaggregation.female_6_11",
+      "semantic_label": "OP1.1 actual disaggregation \u2014 Female age 6\u201311",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.2.disaggregation.female_6_11",
+      "semantic_label": "OP1.2 actual disaggregation \u2014 Female age 6\u201311",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    },
+    {
+      "fact_key": "indicators.OP1.3.disaggregation.female_6_11",
+      "semantic_label": "OP1.3 actual disaggregation \u2014 Female age 6\u201311",
+      "keys": [
+        "confirmed",
+        "confirmed_at",
+        "confirmed_by_user",
+        "coverage",
+        "interpretation_note",
+        "provenance",
+        "semantic_label",
+        "source_document_id",
+        "source_label",
+        "source_section",
+        "unit",
+        "value",
+        "verification_status"
+      ]
+    }
+  ],
+  "union_of_fact_keys_sample": [
+    "confirmed",
+    "confirmed_at",
+    "confirmed_by_user",
+    "coverage",
+    "interpretation_note",
+    "provenance",
+    "semantic_label",
+    "source_document_id",
+    "source_label",
+    "source_section",
+    "unit",
+    "value",
+    "verification_status"
+  ]
+}

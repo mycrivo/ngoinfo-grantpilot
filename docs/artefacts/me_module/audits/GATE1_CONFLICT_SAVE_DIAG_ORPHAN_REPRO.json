@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "action": "select_candidate_1",
+      "status": "domain_error",
+      "error_code": "KB_PATCH_VALIDATION_FAILED",
+      "message": "Conflict fact_key 'reporting_period.end' has no matching fact entry",
+      "http_status": 422,
+      "details": {
+        "fact_key": "reporting_period.end"
+      }
+    },
+    {
+      "action": "select_candidate_2_null",
+      "status": "domain_error",
+      "error_code": "KB_PATCH_VALIDATION_FAILED",
+      "message": "Conflict fact_key 'reporting_period.end' has no matching fact entry",
+      "http_status": 422,
+      "details": {
+        "fact_key": "reporting_period.end"
+      }
+    },
+    {
+      "action": "enter_another",
+      "status": "domain_error",
+      "error_code": "KB_PATCH_VALIDATION_FAILED",
+      "message": "Conflict fact_key 'reporting_period.end' has no matching fact entry",
+      "http_status": 422,
+      "details": {
+        "fact_key": "reporting_period.end"
+      }
+    }
+  ]
+}

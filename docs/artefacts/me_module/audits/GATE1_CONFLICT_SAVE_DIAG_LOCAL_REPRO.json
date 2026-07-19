@@ -1,0 +1,81 @@
+{
+  "synthetic_conflict_shape": {
+    "fact_key": "grant.reporting_period_end",
+    "conflict_type": "value_mismatch",
+    "annotation": "same-source synthetic for diagnosis",
+    "resolved_value": null,
+    "resolved_at": null,
+    "values": [
+      {
+        "value": "2025-10-14",
+        "unit": null,
+        "source_document_id": "doc-award-letter",
+        "source_label": "FCDO Award Letter",
+        "provenance": {
+          "excerpt": "14 October 2025"
+        }
+      },
+      {
+        "value": null,
+        "unit": null,
+        "source_document_id": "doc-award-letter",
+        "source_label": "FCDO Award Letter",
+        "provenance": {
+          "excerpt": "unnormalised raw"
+        },
+        "normalization_ambiguous": true
+      }
+    ]
+  },
+  "actions": [
+    {
+      "action": "select_candidate_1_date",
+      "resolved_value": "2025-10-14",
+      "resolved_value_repr": "'2025-10-14'",
+      "status": "ok",
+      "conflict_resolved_value": "2025-10-14",
+      "fact_value": "2025-10-14",
+      "fact_source_document_id": "doc-award-letter",
+      "fact_confirmed_by_user": null
+    },
+    {
+      "action": "select_candidate_2_null",
+      "resolved_value": null,
+      "resolved_value_repr": "None",
+      "status": "ok",
+      "conflict_resolved_value": null,
+      "fact_value": null,
+      "fact_source_document_id": "doc-award-letter",
+      "fact_confirmed_by_user": null
+    },
+    {
+      "action": "enter_another_figure",
+      "resolved_value": "2025-12-31",
+      "resolved_value_repr": "'2025-12-31'",
+      "status": "ok",
+      "conflict_resolved_value": "2025-12-31",
+      "fact_value": "2025-12-31",
+      "fact_source_document_id": "owner-attested",
+      "fact_confirmed_by_user": true
+    },
+    {
+      "action": "select_candidate_2_empty_string",
+      "resolved_value": "",
+      "resolved_value_repr": "''",
+      "status": "ok",
+      "conflict_resolved_value": "",
+      "fact_value": null,
+      "fact_source_document_id": "doc-award-letter",
+      "fact_confirmed_by_user": null
+    },
+    {
+      "action": "select_null_against_empty_string_candidate",
+      "status": "ok",
+      "note": "_normalize_snapshot(None)==_normalize_snapshot('') so null matches empty candidate",
+      "fact_value": "",
+      "fact_source_document_id": "doc-award-letter",
+      "conflict_resolved_value": null
+    }
+  ],
+  "inference": "If all three owner actions succeed at materialize layer, H2 payload-rejection at service layer is unlikely for this shape; look to HTTP/auth/transport or client-side request construction."
+}
