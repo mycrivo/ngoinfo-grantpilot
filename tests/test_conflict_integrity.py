@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import copy
 import logging
+import uuid
+from unittest.mock import MagicMock
 
-from app.reports.knowledge.conflict_integrity import ensure_conflicts_materializable
-from app.reports.knowledge.confirmed_kb import is_fact_citable
-from app.reports.services.knowledge_bank_patch_service import materialize_conflict_resolution
+import pytest
+
 from app.core.errors import DomainError
+from app.reports.knowledge.confirmed_kb import is_fact_citable
+from app.reports.knowledge.conflict_integrity import ensure_conflicts_materializable
+from app.reports.services.knowledge_bank_patch_service import materialize_conflict_resolution
+from app.reports.services.knowledge_bank_reconciliation_service import (
+    reconcile_and_persist,
+)
 
 
 def _orphan_kb() -> dict:
@@ -192,3 +200,85 @@ def test_missing_fact_guard_still_strict_without_normalizer():
     except DomainError as exc:
         assert exc.error_code == "KB_PATCH_VALIDATION_FAILED"
         assert "no matching fact entry" in exc.message
+
+
+def test_blank_conflict_fact_key_fails_closed():
+    """R4/F5: empty-string and whitespace-only fact_key raise loudly."""
+    for bad_key in ("", "   "):
+        kb = {
+            "facts": {},
+            "conflicts": [
+                {
+                    "fact_key": bad_key,
+                    "conflict_type": "VALUE_MISMATCH",
+                    "values": [
+                        {
+                            "value": "x",
+                            "source_document_id": "d1",
+                            "source_label": "a.docx",
+                        },
+                        {
+                            "value": "y",
+                            "source_document_id": "d2",
+                            "source_label": "b.docx",
+                        },
+                    ],
+                }
+            ],
+        }
+        with pytest.raises(ValueError, match="blank fact_key"):
+            ensure_conflicts_materializable(kb, donor_report_id="x", emit_log=False)
+
+
+@pytest.mark.asyncio
+async def test_reconcile_and_persist_normalizes_orphan_at_seam(monkeypatch, caplog):
+    """R3: orphan agent result through reconcile_and_persist — wiring regression guard."""
+    import app.reports.services.knowledge_bank_reconciliation_service as svc
+
+    db = MagicMock()
+    report_id = uuid.uuid4()
+
+    class Report:
+        def __init__(self) -> None:
+            self.id = report_id
+            self.knowledge_bank_json: dict = {}
+
+    report = Report()
+    db.get.return_value = report
+    db.query.return_value.filter.return_value.all.return_value = []
+
+    orphan = _orphan_kb()
+    assert "reporting_period.end" not in orphan["facts"]
+
+    async def _stub_reconcile(docs, **kwargs):
+        return MagicMock()
+
+    monkeypatch.setattr(svc, "reconcile_documents", _stub_reconcile)
+    monkeypatch.setattr(
+        svc,
+        "envelope_to_knowledge_bank_json",
+        lambda _env: copy.deepcopy(orphan),
+    )
+
+    with caplog.at_level(logging.WARNING, logger="reports.knowledge.conflict_integrity"):
+        await reconcile_and_persist(db, report_id)
+
+    persisted = report.knowledge_bank_json
+    stub = persisted["facts"]["reporting_period.end"]
+    assert stub["value"] is None
+    assert stub["verification_status"] == "unverified"
+    assert stub["confirmed"] is False
+    assert (
+        persisted["facts"]["reporting_period.end_formal"]["provenance_only_for"]
+        == "reporting_period.end"
+    )
+    assert (
+        persisted["facts"]["reporting_period.end_inception_call"]["provenance_only_for"]
+        == "reporting_period.end"
+    )
+    repairs = persisted["agent_trace"]["conflict_integrity_repairs"]
+    assert len(repairs) == 1
+    assert repairs[0]["conflict_key"] == "reporting_period.end"
+    assert repairs[0]["created_canonical_stub"] is True
+    assert "conflict_integrity_orphan_repaired" in caplog.text
+    db.commit.assert_called()

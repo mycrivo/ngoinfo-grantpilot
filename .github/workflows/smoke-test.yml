@@ -3,6 +3,8 @@ name: Smoke Test
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/30 * * * *"
@@ -20,7 +22,7 @@ jobs:
       - name: Run P0 M&E unit smoke
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: pytest tests/test_p0_me_smoke.py tests/test_classify_isolation.py tests/test_review_routes.py tests/test_confirmed_kb.py tests/test_conflict_integrity.py tests/test_p1_fence_eval.py tests/test_p1_claim_binding.py tests/test_p1_faithfulness_eval.py tests/test_p1_numeric_verifier.py tests/test_p1_critic_adversarial.py tests/test_p1_phase1_faithfulness.py tests/test_report_fact_safety_service.py tests/test_fact_safety_critic_agent.py tests/test_gate1_confirmation.py tests/test_knowledge_bank_patch.py tests/test_gap_check_routes.py tests/test_gap_question_copy.py tests/test_auth_account_linking.py tests/test_proposal_extractor_agent.py tests/test_proposal_extraction_checkpoint.py tests/test_proposal_failure_narrative_elevation.py tests/test_section_insufficiency.py tests/test_section_visibility.py tests/test_report_inputs_builder.py tests/test_disaggregation_promotion.py tests/test_proposal_content_capture.py tests/test_monitoring_notes_capture.py tests/test_synthesis_parse_resilience.py tests/test_export_identifier_leak.py tests/test_funder_table_rendering.py tests/test_full_walk_exit_codes.py tests/test_p3_eval_harness.py tests/test_gap_compliance_agent.py::test_fcdo_complete_distilled_gap_set_exact tests/test_orchestrator_critique.py::test_gate3_resume_does_not_re_run_critic -q
+        run: pytest tests/test_p0_me_smoke.py tests/test_classify_isolation.py tests/test_review_routes.py tests/test_confirmed_kb.py tests/test_conflict_integrity.py tests/test_gate1_orphan_repair_evidence.py tests/test_p1_fence_eval.py tests/test_p1_claim_binding.py tests/test_p1_faithfulness_eval.py tests/test_p1_numeric_verifier.py tests/test_p1_critic_adversarial.py tests/test_p1_phase1_faithfulness.py tests/test_report_fact_safety_service.py tests/test_fact_safety_critic_agent.py tests/test_gate1_confirmation.py tests/test_knowledge_bank_patch.py tests/test_gap_check_routes.py tests/test_gap_question_copy.py tests/test_auth_account_linking.py tests/test_proposal_extractor_agent.py tests/test_proposal_extraction_checkpoint.py tests/test_proposal_failure_narrative_elevation.py tests/test_section_insufficiency.py tests/test_section_visibility.py tests/test_report_inputs_builder.py tests/test_disaggregation_promotion.py tests/test_proposal_content_capture.py tests/test_monitoring_notes_capture.py tests/test_synthesis_parse_resilience.py tests/test_export_identifier_leak.py tests/test_funder_table_rendering.py tests/test_full_walk_exit_codes.py tests/test_p3_eval_harness.py tests/test_gap_compliance_agent.py::test_fcdo_complete_distilled_gap_set_exact tests/test_orchestrator_critique.py::test_gate3_resume_does_not_re_run_critic -q
       - name: P3-4 hard_red faithfulness gates (blocking)
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -29,19 +31,22 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python scripts/audit/offline_replay.py --fixture
+      # Live HTTP smoke needs production secrets; skip on pull_request so Layer-1 CI can certify PR heads.
       - name: Run smoke tests
+        if: github.event_name != 'pull_request'
         env:
           SMOKE_BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
           TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
         run: python scripts/smoke_test.py
       - name: Run optional Track B
+        if: github.event_name != 'pull_request'
         continue-on-error: true
         env:
           SMOKE_BASE_URL: ${{ secrets.SMOKE_BASE_URL }}
           TEST_MODE_SECRET: ${{ secrets.TEST_MODE_SECRET }}
         run: python scripts/e2e_auth_profile_test.py
       - name: Slack alert on failure
-        if: failure()
+        if: failure() && github.event_name != 'pull_request'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |

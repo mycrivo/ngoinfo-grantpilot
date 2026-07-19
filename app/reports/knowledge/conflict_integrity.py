@@ -151,10 +151,15 @@ def ensure_conflicts_materializable(
     for conflict in conflicts:
         if not isinstance(conflict, dict):
             continue
-        conflict_key = conflict.get("fact_key")
-        if not conflict_key or not str(conflict_key).strip():
+        raw_key = conflict.get("fact_key")
+        if raw_key is None:
             continue
-        conflict_key = str(conflict_key)
+        # R4 / F5: blank keys ("" or whitespace-only) fail closed — never skip silently.
+        if not isinstance(raw_key, str) or not raw_key.strip():
+            raise ValueError(
+                f"conflict integrity failed: blank fact_key {raw_key!r} is not materializable"
+            )
+        conflict_key = raw_key
         created_stub = False
         existing = facts.get(conflict_key)
         if not isinstance(existing, dict):
@@ -182,12 +187,16 @@ def ensure_conflicts_materializable(
     for conflict in conflicts:
         if not isinstance(conflict, dict):
             continue
-        conflict_key = conflict.get("fact_key")
-        if not conflict_key:
+        raw_key = conflict.get("fact_key")
+        if raw_key is None:
             continue
-        if not isinstance(facts.get(str(conflict_key)), dict):
+        if not isinstance(raw_key, str) or not raw_key.strip():
             raise ValueError(
-                f"conflict integrity failed: fact_key {conflict_key!r} has no materializable fact entry"
+                f"conflict integrity failed: blank fact_key {raw_key!r} is not materializable"
+            )
+        if not isinstance(facts.get(raw_key), dict):
+            raise ValueError(
+                f"conflict integrity failed: fact_key {raw_key!r} has no materializable fact entry"
             )
 
     if repairs:
