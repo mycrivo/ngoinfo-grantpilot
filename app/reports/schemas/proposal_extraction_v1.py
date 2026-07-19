@@ -169,6 +169,9 @@ class ProposalAgentTrace(BaseModel):
     degraded_code: str | None = None
     unreadable_code: str | None = None
     attempt_traces: list[ProposalAttemptTrace] = Field(default_factory=list)
+    # D-056 owner fault lever — permanently distinguishes induced vs natural degrade.
+    fault_injected: bool = False
+    fault_flag: str | None = None
 
 
 class ProposalExtractedEnvelope(BaseModel):
