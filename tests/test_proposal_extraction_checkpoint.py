@@ -174,3 +174,65 @@ def test_proposal_success_skips_checkpoint(checkpoint_db):
     extract_trace = job.agent_trace_json.get("stages", {}).get("extract", {})
     assert "proposal_checkpoint" not in extract_trace
     assert job.stage == ReportJobStage.GAP.value
+
+
+def test_fault_flag_induces_checkpoint_with_job_trace_tags(checkpoint_db, monkeypatch):
+    """D-056: env fault flag → real timeout degrade → checkpoint + job fault tags."""
+    from app.reports.agents.proposal_extractor import FAULT_FLAG_ENV
+    from app.reports.models.uploaded_document import UploadedDocument
+    from sqlalchemy import select
+
+    monkeypatch.setenv(FAULT_FLAG_ENV, "1")
+
+    async def _would_succeed_if_given_time(*, prompt: str, options=None):
+        """Completes under a normal 180s ceiling; flag clamp forces timeout."""
+        _ = prompt
+        _ = options
+        await __import__("asyncio").sleep(1.0)
+        from claude_agent_sdk import ResultMessage
+
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=1,
+            duration_api_ms=1,
+            is_error=False,
+            num_turns=1,
+            session_id="fault",
+            structured_output={},
+            usage={},
+        )
+
+    session = checkpoint_db()
+    fixture = seed_orchestrator_fixture(session)
+    job_id = fixture["job"].id
+    report_id = fixture["report"].id
+    grant_doc_id = str(fixture["documents"][1].id)
+    session.close()
+
+    ctx = OrchestrationContext(
+        query_fn_classifier=routing_classifier_query_fn(),
+        query_fn_proposal=_would_succeed_if_given_time,
+        query_fn_grant_terms=minimal_grant_terms_query_fn(),
+        query_fn_reconciler=reconciler_query_fn(source_document_id=grant_doc_id),
+        text_loader=_text_loader,
+        proposal_timeout_seconds=180.0,
+    )
+    run_pipeline_module.run_pipeline(job_id, orchestration_ctx=ctx)
+
+    verify = checkpoint_db()
+    job = verify.get(ReportJob, job_id)
+    docs = verify.scalars(
+        select(UploadedDocument).where(UploadedDocument.donor_report_id == report_id)
+    ).all()
+    proposal_doc = next(d for d in docs if d.classification == "proposal")
+    extract_trace = (job.agent_trace_json or {}).get("stages", {}).get("extract", {})
+    agent_trace = (proposal_doc.extracted_json or {}).get("agent_trace") or {}
+    verify.close()
+
+    assert job.stage == ReportJobStage.EXTRACT.value
+    assert job.status == ReportJobStatus.AWAITING_HUMAN.value
+    assert extract_trace.get("proposal_checkpoint") is not None
+    assert extract_trace.get("proposal_fault_injected") is True
+    assert extract_trace.get("proposal_fault_flag") == FAULT_FLAG_ENV
+    assert agent_trace.get("fault_injected") is True
+    assert agent_trace.get("fault_flag") == FAULT_FLAG_ENV

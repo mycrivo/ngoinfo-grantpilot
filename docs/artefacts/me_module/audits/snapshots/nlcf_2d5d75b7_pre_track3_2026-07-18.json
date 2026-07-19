@@ -1,0 +1,304 @@
+{
+  "created_at": "2026-06-04T12:09:34.902725+00:00",
+  "docx_template_ref": "app/reports/templates/docx/nlcf-progress-end-of-grant.docx",
+  "format_rules_json": {
+    "document_title": "NLCF Progress Update",
+    "extensions": {
+      "allows_existing_reports": true,
+      "annual_trigger": "for grants over \u00a320,000 lasting two years or more, progress update is normally requested every year",
+      "evidence_expectation": "proportionate_to_grant_size_and_project_context",
+      "final_update_mode": {
+        "additional_focus": [
+          "overall project reflection",
+          "additional evidence or learning",
+          "unspent funds"
+        ],
+        "enabled": true
+      },
+      "requires_budget_vs_actual_summary": true,
+      "requires_highlighting_relevant_sections_if_reusing_existing_report": true,
+      "requires_numbers_and_stories": true,
+      "source_note": "Normalized from WORKSTREAM_T2_NLCF_FCDO_REFERENCE_TEMPLATES.md \u00a72.1. End-of-grant handled via conditional_display on final_update_only section; reporting_frequency locked to annual per D-022.",
+      "submission_style": "flexible_narrative_or_existing_report"
+    },
+    "narrative_constraints": {
+      "learning_focus": true,
+      "strict_table_format": false,
+      "strict_word_limits": false,
+      "tense": "past_for_activities_present_for_plans",
+      "voice": "first_person_plural"
+    }
+  },
+  "funder_name": "The National Lottery Community Fund",
+  "id": "2d5d75b7-12f5-46b5-adaa-d5939a5249a8",
+  "is_active": true,
+  "region": "UK",
+  "report_sections_json": [
+    {
+      "archetype": "ARCH_PROGRESS_NARRATIVE",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "The story of your project this year",
+      "required": true,
+      "required_indicators": [],
+      "required_tables": [],
+      "section_key": "project_story",
+      "tone": "plain, reflective, community-centred, non-technical",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_PARTICIPATION_AND_COMMUNITY_VOICE",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "How you involved people from your community",
+      "required": true,
+      "required_indicators": [
+        "community_participation_examples",
+        "partner_or_local_collaboration_examples"
+      ],
+      "required_tables": [],
+      "section_key": "community_involvement",
+      "tone": "practical, specific, inclusive",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_OUTCOMES_WITH_STORIES_AND_NUMBERS",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "The differences you are making, both big and small",
+      "required": true,
+      "required_indicators": [
+        "beneficiary_numbers",
+        "community_feedback",
+        "staff_or_volunteer_feedback",
+        "outcome_indicators_where_available"
+      ],
+      "required_tables": [
+        {
+          "columns": [
+            {
+              "column_key": "planned_change",
+              "data_type": "text",
+              "label": "Planned change"
+            },
+            {
+              "column_key": "evidence_collected",
+              "data_type": "text",
+              "label": "Evidence collected"
+            },
+            {
+              "column_key": "numbers",
+              "data_type": "text",
+              "label": "Numbers"
+            },
+            {
+              "column_key": "story_or_quote",
+              "data_type": "text",
+              "label": "Story or quote"
+            },
+            {
+              "column_key": "what_changed",
+              "data_type": "text",
+              "label": "What changed"
+            }
+          ],
+          "data_source": "manual",
+          "label": "Outcomes, evidence and examples",
+          "min_rows": 0,
+          "table_key": "outcomes_summary"
+        }
+      ],
+      "section_key": "difference_made",
+      "tone": "balanced, evidence-informed, accessible",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_LEARNING_REFLECTION",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "What you learned",
+      "required": true,
+      "required_indicators": [
+        "what_worked",
+        "what_did_not_work",
+        "unexpected_findings",
+        "learning_useful_to_others"
+      ],
+      "required_tables": [],
+      "section_key": "learning",
+      "tone": "honest, reflective, non-defensive",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_ADAPTATION_AND_NEXT_STEPS",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "How you are changing what you do",
+      "required": true,
+      "required_indicators": [
+        "changes_made",
+        "planned_changes",
+        "support_needed"
+      ],
+      "required_tables": [],
+      "section_key": "changes_and_next_steps",
+      "tone": "practical, forward-looking, grounded in learning",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_BUDGET_VARIANCE_SUMMARY",
+      "conditional_display": {
+        "condition": null,
+        "enabled": false
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "What you spent this year",
+      "required": true,
+      "required_indicators": [
+        "budgeted_total",
+        "actual_spend_total",
+        "revenue_cost_variance",
+        "capital_cost_variance"
+      ],
+      "required_tables": [
+        {
+          "columns": [
+            {
+              "column_key": "cost_type",
+              "data_type": "text",
+              "label": "Cost type"
+            },
+            {
+              "column_key": "budgeted_amount",
+              "data_type": "number",
+              "label": "Budgeted amount"
+            },
+            {
+              "column_key": "actual_spend",
+              "data_type": "number",
+              "label": "Actual spend"
+            },
+            {
+              "column_key": "variance",
+              "data_type": "number",
+              "label": "Variance"
+            },
+            {
+              "column_key": "variance_explanation",
+              "data_type": "text",
+              "label": "Variance explanation"
+            }
+          ],
+          "data_source": "financials",
+          "label": "Budget compared with actual spend",
+          "min_rows": 1,
+          "table_key": "budget_vs_actual"
+        }
+      ],
+      "section_key": "spend_summary",
+      "tone": "simple, factual, transparent",
+      "word_limit": null
+    },
+    {
+      "archetype": "ARCH_END_OF_GRANT_REFLECTION",
+      "conditional_display": {
+        "condition": "report_type == 'final'",
+        "enabled": true
+      },
+      "evidence_rules": {
+        "allowed_sources": [
+          "uploaded_documents",
+          "human_confirmed_gap_answers"
+        ],
+        "claim_level_citation_required": false,
+        "numeric_claims_must_have_source": true
+      },
+      "label": "If this is your last progress update",
+      "required": false,
+      "required_indicators": [
+        "overall_project_reflection",
+        "unshared_evidence_or_learning",
+        "unspent_funds_status"
+      ],
+      "required_tables": [],
+      "section_key": "final_update_only",
+      "tone": "reflective, concise, transparent",
+      "word_limit": null
+    }
+  ],
+  "reporting_frequency": "annual",
+  "template_name": "NLCF Progress Update / End-of-Grant Learning Report",
+  "terminology_map_json": {
+    "canonical_to_funder": {
+      "beneficiaries": "people you support / community",
+      "funder": "The National Lottery Community Fund",
+      "grant": "National Lottery funding",
+      "monitoring": "learning / evidence",
+      "outcomes": "differences you are making",
+      "project": "project",
+      "report": "progress update",
+      "variance": "difference between budget and spend"
+    },
+    "forbidden_terms": [],
+    "preferred_terms": {}
+  },
+  "updated_at": "2026-06-04T12:09:34.902725+00:00",
+  "version": 1
+}

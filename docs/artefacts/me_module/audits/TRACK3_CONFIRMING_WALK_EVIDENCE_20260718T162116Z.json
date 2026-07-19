@@ -1,0 +1,115 @@
+{
+  "started_at": "2026-07-18T16:21:17.754368+00:00",
+  "strategies_tried": [
+    {
+      "strategy": "timeout_bait_docx",
+      "path": "C:\\Users\\prana\\OneDrive\\Desktop\\NGOInfo-Grantpilot\\docs\\artefacts\\me_module\\audits\\fixtures\\nlcf_timeout_bait_proposal.docx",
+      "verdict": "checkpoint_not_observed",
+      "checkpoint_stage": "gap",
+      "checkpoint_present": false
+    },
+    {
+      "strategy": "image_only_pdf_as_proposal",
+      "path": "C:\\Users\\prana\\OneDrive\\Desktop\\NGOInfo-Grantpilot\\docs\\artefacts\\me_module\\audits\\fixtures\\01_NLCF_Unreadable_Proposal.pdf",
+      "verdict": "checkpoint_not_observed",
+      "checkpoint_stage": "gap",
+      "checkpoint_present": false
+    }
+  ],
+  "branches": {
+    "answered__timeout_bait_docx_no_checkpoint": {
+      "branch": "answered",
+      "report_id": "0d4e654b-f643-4d5a-ac7f-f68e1d3fab8b",
+      "owner_email": "audit-track3-answered-1784391677@grantpilot-test.org",
+      "verdict": "checkpoint_not_observed",
+      "checkpoint": {
+        "job_status": "awaiting_human",
+        "job_stage": "gap",
+        "timeout": false,
+        "checkpoint": null,
+        "user_facing": {
+          "status": "awaiting_human",
+          "stage": "gap",
+          "error": null
+        }
+      },
+      "duration_seconds": 390.6,
+      "job": {
+        "job_id": "92537eed-7ba2-4e49-a309-30e6cbbf6d31",
+        "donor_report_id": "0d4e654b-f643-4d5a-ac7f-f68e1d3fab8b",
+        "stage": "gap",
+        "status": "awaiting_human",
+        "error": null,
+        "started_at": "2026-07-18T16:21:23.611107Z",
+        "finished_at": null,
+        "agent_trace_json": {
+          "stages": {
+            "extract": {
+              "completed_at": "2026-07-18T16:24:38.935004+00:00",
+              "degraded_documents": []
+            },
+            "classify": {
+              "completed_at": "2026-07-18T16:21:41.249492+00:00",
+              "degraded_notes": [],
+              "document_count": 3
+            },
+            "reconcile": {
+              "degraded": false,
+              "completed_at": "2026-07-18T16:27:39.211738+00:00"
+            }
+          }
+        }
+      }
+    },
+    "answered__image_only_pdf_as_proposal_no_checkpoint": {
+      "branch": "answered",
+      "report_id": "18976580-62af-4836-bdc3-9b35ee3f3f06",
+      "owner_email": "audit-track3-answered-1784392068@grantpilot-test.org",
+      "verdict": "checkpoint_not_observed",
+      "checkpoint": {
+        "job_status": "awaiting_human",
+        "job_stage": "gap",
+        "timeout": false,
+        "checkpoint": null,
+        "user_facing": {
+          "status": "awaiting_human",
+          "stage": "gap",
+          "error": null
+        }
+      },
+      "duration_seconds": 606.5,
+      "job": {
+        "job_id": "0fc45f15-2b28-4636-947f-0b7d9f465935",
+        "donor_report_id": "18976580-62af-4836-bdc3-9b35ee3f3f06",
+        "stage": "gap",
+        "status": "awaiting_human",
+        "error": null,
+        "started_at": "2026-07-18T16:27:54.293986Z",
+        "finished_at": null,
+        "agent_trace_json": {
+          "stages": {
+            "extract": {
+              "completed_at": "2026-07-18T16:31:24.672960+00:00",
+              "degraded_documents": []
+            },
+            "classify": {
+              "completed_at": "2026-07-18T16:28:05.872890+00:00",
+              "degraded_notes": [
+                "831b2378-6d40-49c6-be02-84a88595a8e1"
+              ],
+              "document_count": 3
+            },
+            "reconcile": {
+              "degraded": false,
+              "completed_at": "2026-07-18T16:37:51.595185+00:00"
+            }
+          }
+        }
+      }
+    }
+  },
+  "proposal_path_used": null,
+  "strategy_used": null,
+  "finished_at": "2026-07-18T16:37:54.815823+00:00",
+  "AUTH_REFRESH_DIAG": []
+}

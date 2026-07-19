@@ -11,6 +11,9 @@ import pytest
 from app.reports.agents.proposal_extractor import (
     AGENT_NAME,
     DEGRADED_EXTRACTION_TIMEOUT,
+    FAULT_FLAG_ENV,
+    FAULT_INJECT_WARNING,
+    INDUCED_TIMEOUT_SECONDS,
     MAX_EXTRACTION_ATTEMPTS,
     MAX_TURNS,
     ProposalExtractorError,
@@ -614,3 +617,61 @@ async def test_service_persists_unreadable_without_raise(monkeypatch):
     assert doc.extracted_json["structured"]["extraction_outcome"] == "unreadable"
     assert doc.extracted_json["error"] == UNREADABLE_DOCUMENT_LOW_CONTENT
     assert out.envelope.structured.extraction_outcome == "unreadable"
+
+
+# --- D-056 ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE ---------------------------------
+
+
+@pytest.mark.asyncio
+async def test_fault_flag_off_identity_success_untagged(monkeypatch, caplog):
+    """Flag absent/off → success path unchanged; no fault tags; no inject WARNING."""
+    monkeypatch.delenv(FAULT_FLAG_ENV, raising=False)
+    caplog.set_level("WARNING", logger="reports.agents.proposal_extractor")
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_mock_query_factory(_fcdo_mock_llm_response()),
+        per_attempt_timeout_seconds=100.0,
+    )
+    assert result.envelope.structured.extraction_outcome in ("complete", "partial")
+    assert result.envelope.error is None
+    trace = result.envelope.agent_trace
+    assert trace is not None
+    assert trace.fault_injected is False
+    assert trace.fault_flag is None
+    assert FAULT_INJECT_WARNING not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_fault_flag_on_forces_timeout_degrade_and_warns(monkeypatch, caplog):
+    """Flag on clamps ceiling; query that would succeed under 180s still degrades."""
+    monkeypatch.setenv(FAULT_FLAG_ENV, "true")
+    caplog.set_level("WARNING", logger="reports.agents.proposal_extractor")
+    call_count = 0
+
+    async def _would_succeed_if_given_time(*, prompt: str, options=None):
+        nonlocal call_count
+        _ = prompt
+        _ = options
+        call_count += 1
+        await __import__("asyncio").sleep(1.0)
+        yield _result_message(_fcdo_mock_llm_response())
+
+    result = await extract_proposal_text(
+        "sample text",
+        query_fn=_would_succeed_if_given_time,
+        per_attempt_timeout_seconds=180.0,
+    )
+    assert call_count == MAX_EXTRACTION_ATTEMPTS
+    assert result.envelope.structured.extraction_outcome == "degraded"
+    assert result.envelope.error == DEGRADED_EXTRACTION_TIMEOUT
+    trace = result.envelope.agent_trace
+    assert trace is not None
+    assert trace.fault_injected is True
+    assert trace.fault_flag == FAULT_FLAG_ENV
+    assert trace.degraded_code == DEGRADED_EXTRACTION_TIMEOUT
+    assert len(trace.attempt_traces) == MAX_EXTRACTION_ATTEMPTS
+    for row in trace.attempt_traces:
+        assert row.outcome == "timeout"
+        assert row.timeout_ceiling_seconds == INDUCED_TIMEOUT_SECONDS
+    assert FAULT_INJECT_WARNING in caplog.text

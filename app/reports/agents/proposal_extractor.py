@@ -54,6 +54,21 @@ TIMEOUT_SECONDS = int(os.getenv("ME_PROPOSAL_TIMEOUT_SECONDS", "180"))
 DEGRADED_EXTRACTION_TIMEOUT = "DEGRADED_EXTRACTION_TIMEOUT"
 MAX_INPUT_CHARS = 120_000
 
+# D-056 owner-only fault lever (env-only, default off). Clamps per-attempt timeout
+# so the real dual-TimeoutError → _build_degraded_timeout_result path runs.
+FAULT_FLAG_ENV = "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE"
+INDUCED_TIMEOUT_SECONDS = 0.05
+FAULT_INJECT_WARNING = (
+    "proposal_extractor FAULT INJECTION ACTIVE: "
+    f"{FAULT_FLAG_ENV} is set — forcing timeout-degrade path "
+    f"(per-attempt ceiling {INDUCED_TIMEOUT_SECONDS}s)"
+)
+
+
+def proposal_induce_timeout_degrade_enabled() -> bool:
+    """True when owner env fault flag is truthy. Never reads user/request input."""
+    return os.getenv(FAULT_FLAG_ENV, "").strip().lower() in {"1", "true", "yes"}
+
 DISALLOWED_TOOLS = [
     "Read",
     "Write",
@@ -631,6 +646,7 @@ def _build_degraded_timeout_result(
     attempt_count: int,
     model: str | None = None,
     attempt_traces: list[ProposalAttemptTrace] | None = None,
+    fault_injected: bool = False,
 ) -> ProposalExtractorResult:
     """Typed terminal outcome after bounded timeout retries — never raises."""
     structured = ProposalExtractionOutput(
@@ -656,6 +672,8 @@ def _build_degraded_timeout_result(
         attempt_count=attempt_count,
         degraded_code=DEGRADED_EXTRACTION_TIMEOUT,
         attempt_traces=traces,
+        fault_injected=fault_injected,
+        fault_flag=FAULT_FLAG_ENV if fault_injected else None,
     )
     envelope = ProposalExtractedEnvelope(
         extractor_agent=AGENT_NAME,
@@ -733,12 +751,17 @@ async def extract_proposal_text(
         if per_attempt_timeout_seconds is not None
         else float(TIMEOUT_SECONDS)
     )
+    fault_injected = proposal_induce_timeout_degrade_enabled()
+    if fault_injected:
+        attempt_timeout = INDUCED_TIMEOUT_SECONDS
+        logger.warning(FAULT_INJECT_WARNING)
 
     logger.info(
-        "proposal_extractor start filename=%s chars=%d truncated=%s",
+        "proposal_extractor start filename=%s chars=%d truncated=%s fault_injected=%s",
         filename,
         len(prepared),
         truncated,
+        fault_injected,
     )
 
     attempt_traces: list[ProposalAttemptTrace] = []
@@ -787,6 +810,7 @@ async def extract_proposal_text(
                     attempt_count=attempt,
                     model=model,
                     attempt_traces=attempt_traces,
+                    fault_injected=fault_injected,
                 )
             continue
         except ProposalExtractorError as exc:
@@ -810,6 +834,7 @@ async def extract_proposal_text(
         attempt_count=MAX_EXTRACTION_ATTEMPTS,
         model=model,
         attempt_traces=attempt_traces,
+        fault_injected=fault_injected,
     )
 
 

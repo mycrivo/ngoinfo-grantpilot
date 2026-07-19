@@ -1,0 +1,103 @@
+{
+  "snapshot_sha256": "64e6ebc60be775d20e451a51cd796f23e3829726c08617d8f580e8e808661afa",
+  "live_version": 1,
+  "committed_version": 1,
+  "divergence_count": 13,
+  "divergences": [
+    {
+      "path": "report_sections_json[changes_and_next_steps].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": [
+        "indicators.*.note"
+      ]
+    },
+    {
+      "path": "report_sections_json[changes_and_next_steps].source_section_labels",
+      "live": "<MISSING>",
+      "committed": []
+    },
+    {
+      "path": "report_sections_json[community_involvement].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": [
+        "partnerships",
+        "engagement"
+      ]
+    },
+    {
+      "path": "report_sections_json[community_involvement].indicator_requirements",
+      "live": "<MISSING>",
+      "committed": {
+        "community_participation_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        },
+        "partner_or_local_collaboration_examples": {
+          "requirement_type": "narrative",
+          "elevate_on_proposal_failure": true
+        }
+      }
+    },
+    {
+      "path": "report_sections_json[community_involvement].source_section_labels",
+      "live": "<MISSING>",
+      "committed": [
+        "Community involvement"
+      ]
+    },
+    {
+      "path": "report_sections_json[difference_made].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": [
+        "indicators.*.target",
+        "indicators.*.actual",
+        "indicators.*.disaggregation*"
+      ]
+    },
+    {
+      "path": "report_sections_json[difference_made].source_section_labels",
+      "live": "<MISSING>",
+      "committed": [
+        "Difference made"
+      ]
+    },
+    {
+      "path": "report_sections_json[learning].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": []
+    },
+    {
+      "path": "report_sections_json[learning].source_section_labels",
+      "live": "<MISSING>",
+      "committed": [
+        "Learning"
+      ]
+    },
+    {
+      "path": "report_sections_json[project_story].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": []
+    },
+    {
+      "path": "report_sections_json[project_story].source_section_labels",
+      "live": "<MISSING>",
+      "committed": [
+        "Project story"
+      ]
+    },
+    {
+      "path": "report_sections_json[spend_summary].fact_namespaces",
+      "live": "<MISSING>",
+      "committed": [
+        "financials"
+      ]
+    },
+    {
+      "path": "report_sections_json[spend_summary].source_section_labels",
+      "live": "<MISSING>",
+      "committed": [
+        "Spend summary"
+      ]
+    }
+  ]
+}

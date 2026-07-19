@@ -128,6 +128,7 @@ Future (post-MVP):
 | ME_ORPHAN_REAPER_MARGIN_SECONDS | Optional | 900 | Safety margin `M` added to stage-aware orphan reaper thresholds (P3). |
 | ME_ORPHAN_REAPER_DOCLING_DOC_SECONDS | Optional | 300 | Per-document Docling budget used in classify/extract reaper formulas. |
 | ME_ORPHAN_REAPER_MAX_SECONDS | Optional | 7200 | Absolute ceiling for `running` jobs with empty stage trace (pathological backstop). |
+| ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE | Optional | false | Default off. Owner-only ops lever (D-056): when `1`/`true`/`yes`, clamps proposal extract per-attempt timeout to 0.05s so the real dual-timeout path returns `extraction_outcome=degraded` (`DEGRADED_EXTRACTION_TIMEOUT`). Env-only; never user input. Emits WARNING on every extract invocation while active. Induced runs tagged on document `agent_trace` + job `stages.extract`. Unset outside declared witnessed-walk windows; re-evaluate window risk before any post-launch use. |
 
 **Namespace rule:** M&E document uploads use `ME_DOCUMENTS_S3_*` only. Generic `S3_*` names are **reserved** for a future core exports bucket (see GUARDRAILS_RUNTIME_AND_SECURITY.md) and must not be used by M&E.
 

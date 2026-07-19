@@ -189,11 +189,16 @@ def _halt_proposal_extraction_checkpoint(
     session.refresh(job)
     if _job_is_terminal(job):
         return
-    trace_entry = {
+    agent_trace = (document.extracted_json or {}).get("agent_trace") or {}
+    trace_entry: dict[str, Any] = {
         "completed_at": datetime.now(timezone.utc).isoformat(),
         "degraded_documents": degraded_documents,
         "proposal_checkpoint": _build_proposal_checkpoint_payload(document),
     }
+    # D-056: mirror extractor fault tags onto job extract stage (observability only).
+    if agent_trace.get("fault_injected") is True:
+        trace_entry["proposal_fault_injected"] = True
+        trace_entry["proposal_fault_flag"] = agent_trace.get("fault_flag")
     _append_stage_trace(job, ReportJobStage.EXTRACT.value, trace_entry)
     job.stage = ReportJobStage.EXTRACT.value
     job.status = ReportJobStatus.AWAITING_HUMAN.value
