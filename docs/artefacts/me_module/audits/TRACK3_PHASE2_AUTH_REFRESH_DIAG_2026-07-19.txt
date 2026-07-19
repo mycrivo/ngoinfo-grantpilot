@@ -1,0 +1,16 @@
+TRACK3 Phase 2 — AUTH_REFRESH_DIAG capture
+Source: docs/artefacts/me_module/audits/TRACK3_PHASE2_WITNESSED_WALK_2026-07-19.log
+Extracted: 2026-07-19T08:49:00Z (approx)
+
+AUTH_REFRESH_DIAG_COUNT=0
+
+Outcome: refresh path never invoked across both full-export runs (answered + skip).
+No reactive_401 lines. No proactive refresh lines.
+No HTTP 401 observed on the audit client during synthesis / Gate 3 / export.
+
+Related non-401 ops note (evidence only, not AUTH_REFRESH_DIAG):
+- First resume attempt for answered branch used a non-owner session → HTTP 404 on GET .../job
+  (see walk log RESUME_ANSWERED traceback). Second resume as report owner succeeded.
+- That 404 is not an auth-refresh 401 subtype.
+
+Instrumentation remains live on main via scripts/audit/_common.py refresh_session_tokens.

@@ -1,0 +1,148 @@
+
+TRACK3_PHASE2_WALK branch=answered start 2026-07-19T08:05:13.758464+00:00
+=== BRANCH answered report_id=b007f125-cf33-4bba-8acf-6eccde27d063 ===
+UPLOAD 01_NLCF_Southbank_Application_Proposal.docx -> 56119918-fe6f-4113-bfa4-41da6ff99b81
+UPLOAD 02_NLCF_Southbank_Award_Letter.docx -> 55aa2213-2935-4315-ba3e-69c148d14fe9
+UPLOAD 03_NLCF_Southbank_Monitoring_and_Spend_Table.docx -> 47986616-a39c-41c0-b76b-64a141cce82c
+ENQUEUE {'status_code': 200, 'body': {'job_id': 'c9bcbb2c-821a-4da4-8775-fc40b9e7d131', 'donor_report_id': 'b007f125-cf33-4bba-8acf-6eccde27d063', 'stage': 'classify', 'status': 'queued'}}
+  [answered-checkpoint] status=queued stage=classify error=None
+  [answered-checkpoint] status=running stage=classify error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+  [answered-checkpoint] status=running stage=extract error=None
+
+RESUME_ANSWERED start 2026-07-19T08:22:04.230265+00:00
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "c:\Users\prana\OneDrive\Desktop\NGOInfo-Grantpilot\scripts\audit\_tmp_resume_answered.py", line 240, in <module>
+  File "c:\Users\prana\OneDrive\Desktop\NGOInfo-Grantpilot\scripts\audit\_tmp_resume_answered.py", line 47, in main
+    job = C.poll_job(
+          ^^^^^^^^^^^
+  File "c:\Users\prana\OneDrive\Desktop\NGOInfo-Grantpilot\scripts\audit\_common.py", line 253, in poll_job
+    r.raise_for_status()
+  File "C:\Users\prana\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://ngoinfo-grantpilot-production.up.railway.app/api/reports/b007f125-cf33-4bba-8acf-6eccde27d063/job
+
+RESUME_ANSWERED start 2026-07-19T08:25:30.042541+00:00
+OWNER_EMAIL=audit-track3-p2-answered-1784448315@grantpilot-test.org
+JOB_GET status=200
+CHECKPOINT_STATE {"job_status": "awaiting_human", "job_stage": "extract", "checkpoint": {"attempts": 2, "acknowledged": false, "degraded_code": "DEGRADED_EXTRACTION_TIMEOUT", "original_filename": "01_NLCF_Southbank_Application_Proposal.docx", "failed_document_id": "56119918-fe6f-4113-bfa4-41da6ff99b81", "missing_content_keys": ["objectives", "activities", "indicators", "partners", "consultation"]}, "extract_stage_fault_injected": true, "extract_stage_fault_flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE", "extract_stage": {"completed_at": "2026-07-19T08:10:08.488278+00:00", "degraded_documents": ["56119918-fe6f-4113-bfa4-41da6ff99b81"], "proposal_checkpoint": {"attempts": 2, "acknowledged": false, "degraded_code": "DEGRADED_EXTRACTION_TIMEOUT", "original_filename": "01_NLCF_Southbank_Application_Proposal.docx", "failed_document_id": "56119918-fe6f-4113-bfa4-41da6ff99b81", "missing_content_keys": ["objectives", "activities", "indicators", "partners", "consultation"]}, "proposal_fault_flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE", "proposal_fault_injected": true}, "resumed": true}
+ACK_PROCEED {'status_code': 200, 'body': {'job_id': 'c9bcbb2c-821a-4da4-8775-fc40b9e7d131', 'donor_report_id': 'b007f125-cf33-4bba-8acf-6eccde27d063', 'stage': 'reconcile', 'status': 'queued'}}
+  [to-gate1] status=queued stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=running stage=reconcile error=None
+  [to-gate1] status=awaiting_human stage=gap error=None
+GATE1 conflicts_resolved=1 confirm=200
+  [to-gate2] status=queued stage=gap error=None
+  [to-gate2] status=awaiting_human stage=synthesise error=None
+ELEVATION {"elevated_count": 2, "elevated_refs": ["community_participation_examples", "partner_or_local_collaboration_examples"], "questions": ["For How you involved people from your community, please give examples of community participation.", "For How you involved people from your community, please give examples of partner or local collaboration."], "exact_two": true, "internal_identifier_leaks": []}
+GATE2_SUBMIT 200
+  [synth] status=queued stage=synthesise error=None
+  [synth] status=running stage=synthesise error=None
+  [synth] status=running stage=synthesise error=None
+  [synth] status=running stage=synthesise error=None
+  [synth] status=running stage=synthesise error=None
+  [synth] status=awaiting_human stage=critique error=None
+  [critique] status=queued stage=critique error=None
+  [critique] status=running stage=critique error=None
+  [critique] status=running stage=critique error=None
+  [critique] status=running stage=critique error=None
+  [critique] status=awaiting_human stage=export error=None
+  [export] status=queued stage=export error=None
+  [export] status=done stage=export error=None
+BRANCH_EVIDENCE=docs\artefacts\me_module\audits\TRACK3_PHASE2_ANSWERED_b007f125.json
+VERDICT=completed
+
+TRACK3_PHASE2_WALK branch=skip start 2026-07-19T08:33:30.737164+00:00
+=== BRANCH skip report_id=46fdb1b1-f03c-4266-bdfc-69ed3bbf549f ===
+UPLOAD 01_NLCF_Southbank_Application_Proposal.docx -> 87f3f31e-bf6a-46c3-8f29-5c665a90c2e8
+UPLOAD 02_NLCF_Southbank_Award_Letter.docx -> e54daf4f-6cb7-417f-81bb-393e1562acba
+UPLOAD 03_NLCF_Southbank_Monitoring_and_Spend_Table.docx -> 02a61169-2688-4c53-9b64-275373cbfdae
+ENQUEUE {'status_code': 200, 'body': {'job_id': 'd97771e7-1411-4704-a5f1-cb9e2815ad72', 'donor_report_id': '46fdb1b1-f03c-4266-bdfc-69ed3bbf549f', 'stage': 'classify', 'status': 'queued'}}
+  [skip-checkpoint] status=queued stage=classify error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=running stage=extract error=None
+  [skip-checkpoint] status=awaiting_human stage=extract error=None
+CHECKPOINT_STATE {"job_status": "awaiting_human", "job_stage": "extract", "timeout": false, "checkpoint": {"attempts": 2, "acknowledged": false, "degraded_code": "DEGRADED_EXTRACTION_TIMEOUT", "original_filename": "01_NLCF_Southbank_Application_Proposal.docx", "failed_document_id": "87f3f31e-bf6a-46c3-8f29-5c665a90c2e8", "missing_content_keys": ["objectives", "activities", "indicators", "partners", "consultation"]}, "extract_stage_fault_injected": true, "extract_stage_fault_flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE", "extract_stage": {"completed_at": "2026-07-19T08:37:00.175790+00:00", "degraded_documents": ["87f3f31e-bf6a-46c3-8f29-5c665a90c2e8"], "proposal_checkpoint": {"attempts": 2, "acknowledged": false, "degraded_code": "DEGRADED_EXTRACTION_TIMEOUT", "original_filename": "01_NLCF_Southbank_Application_Proposal.docx", "failed_document_id": "87f3f31e-bf6a-46c3-8f29-5c665a90c2e8", "missing_content_keys": ["objectives", "activities", "indicators", "partners", "consultation"]}, "proposal_fault_flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE", "proposal_fault_injected": true}}
+ACK_PROCEED {'status_code': 200, 'body': {'job_id': 'd97771e7-1411-4704-a5f1-cb9e2815ad72', 'donor_report_id': '46fdb1b1-f03c-4266-bdfc-69ed3bbf549f', 'stage': 'reconcile', 'status': 'queued'}}
+  [skip-to-gate1] status=queued stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=running stage=reconcile error=None
+  [skip-to-gate1] status=awaiting_human stage=gap error=None
+GATE1 conflicts_resolved=0 confirm=200
+  [skip-to-gate2] status=queued stage=gap error=None
+  [skip-to-gate2] status=awaiting_human stage=synthesise error=None
+ELEVATION {"elevated_count": 2, "elevated_refs": ["community_participation_examples", "partner_or_local_collaboration_examples"], "questions": ["For How you involved people from your community, please give examples of community participation.", "For How you involved people from your community, please give examples of partner or local collaboration."], "exact_two": true, "internal_identifier_leaks": []}
+GATE2_SUBMIT 200
+  [skip-synth] status=queued stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=running stage=synthesise error=None
+  [skip-synth] status=awaiting_human stage=critique error=None
+  [skip-critique] status=queued stage=critique error=None
+  [skip-critique] status=running stage=critique error=None
+  [skip-critique] status=running stage=critique error=None
+  [skip-critique] status=awaiting_human stage=export error=None
+  [skip-export] status=queued stage=export error=None
+  [skip-export] status=done stage=export error=None
+BRANCH_EVIDENCE=C:\Users\prana\OneDrive\Desktop\NGOInfo-Grantpilot\docs\artefacts\me_module\audits\TRACK3_PHASE2_SKIP_46fdb1b1.json
+VERDICT=completed duration=564.9

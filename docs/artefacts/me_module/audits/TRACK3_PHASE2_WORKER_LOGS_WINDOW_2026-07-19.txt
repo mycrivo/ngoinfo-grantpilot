@@ -1,0 +1,175 @@
+Starting Container
+proposal_extractor FAULT INJECTION ACTIVE: ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE is set — forcing timeout-degrade path (per-attempt ceiling 0.05s)
+proposal_extractor timeout attempt=1/2 ceiling=0.05s wall_ms=55 partial_output=False input_tokens=None output_tokens=None
+proposal_extractor timeout attempt=2/2 ceiling=0.05s wall_ms=55 partial_output=False input_tokens=None output_tokens=None
+    await self._connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+Task exception was never retrieved
+future: <Task finished name='Task-36' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+    self._check_closed()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+    await self._connection.aclose()
+Task exception was never retrieved
+future: <Task finished name='Task-54' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self._pool.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._check_closed()
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+    self._loop.call_soon(self._call_connection_lost, None)
+RuntimeError: Event loop is closed
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+Task exception was never retrieved
+future: <Task finished name='Task-55' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self._connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+    self._check_closed()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+proposal_extractor FAULT INJECTION ACTIVE: ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE is set — forcing timeout-degrade path (per-attempt ceiling 0.05s)
+proposal_extractor timeout attempt=1/2 ceiling=0.05s wall_ms=54 partial_output=False input_tokens=None output_tokens=None
+proposal_extractor timeout attempt=2/2 ceiling=0.05s wall_ms=55 partial_output=False input_tokens=None output_tokens=None
+    await self._network_stream.aclose()
+    await self._pool.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self._close_connections(closing_connections)
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+Task exception was never retrieved
+future: <Task finished name='Task-92' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+    self._check_closed()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+Task exception was never retrieved
+future: <Task finished name='Task-93' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+    await self._pool.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+    await self._connection.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+    self._check_closed()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 345, in _close_connections
+    await connection.aclose()
+    await self._stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection.py", line 173, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/anyio/streams/tls.py", line 248, in aclose
+    await self._connection.aclose()
+    await self._pool.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 353, in aclose
+    await self._close_connections(closing_connections)
+Task exception was never retrieved
+future: <Task finished name='Task-113' coro=<AsyncClient.aclose() done, defined at /app/.venv/lib/python3.11/site-packages/httpx/_client.py:1978> exception=RuntimeError('Event loop is closed')>
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1985, in aclose
+    await self._transport.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpx/_transports/default.py", line 406, in aclose
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_async/http11.py", line 258, in aclose
+    await self._network_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 53, in aclose
+    await self.transport_stream.aclose()
+  File "/app/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py", line 1397, in aclose
+    self._transport.close()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/selector_events.py", line 864, in close
+    self._loop.call_soon(self._call_connection_lost, None)
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 762, in call_soon
+    self._check_closed()
+  File "/mise/installs/python/3.11.8/lib/python3.11/asyncio/base_events.py", line 520, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed

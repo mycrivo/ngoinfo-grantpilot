@@ -1,0 +1,59 @@
+{
+  "found_count": 5,
+  "found": [
+    {
+      "path": "root.elevation.raw_elevated[0]",
+      "label": null,
+      "status": null,
+      "structured_bind_status": null,
+      "text_snip": "",
+      "evidence_used": null,
+      "claims": null
+    },
+    {
+      "path": "root.elevation.raw_elevated[1]",
+      "label": null,
+      "status": null,
+      "structured_bind_status": null,
+      "text_snip": "",
+      "evidence_used": null,
+      "claims": null
+    },
+    {
+      "path": "root.accept_all.body.content_json.sections[1]",
+      "label": "How you involved people from your community",
+      "status": null,
+      "structured_bind_status": "insufficient_data",
+      "text_snip": "This section could not be drafted from the material available in uploaded documents or confirmed gap answers for the reporting period. The template requires information on community participation examples, and partner or local collaboration examples, but no citable source supplied those items for \"How you involved people from your community\". Accordingly, no narrative is presented here: the organisation has left this section blank rather than report anything not supported by the available eviden",
+      "evidence_used": [],
+      "claims": []
+    },
+    {
+      "path": "root.accept_all.body.gap_analysis_json.gaps[11]",
+      "label": null,
+      "status": null,
+      "structured_bind_status": null,
+      "text_snip": "",
+      "evidence_used": null,
+      "claims": null
+    },
+    {
+      "path": "root.accept_all.body.gap_analysis_json.gaps[12]",
+      "label": null,
+      "status": null,
+      "structured_bind_status": null,
+      "text_snip": "",
+      "evidence_used": null,
+      "claims": null
+    }
+  ],
+  "insufficient_data_count": 4,
+  "has_southbank": true,
+  "has_track3_marker": false,
+  "community_checks": {
+    "section_present": true,
+    "status": null,
+    "insufficient_data": false,
+    "invented_markers_absent": true
+  }
+}

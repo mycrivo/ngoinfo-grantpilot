@@ -1,0 +1,4 @@
+Captured from: railway logs --service exemplary-encouragement --lines 200
+During Phase 2 answered-branch extract for report b007f125-cf33-4bba-8acf-6eccde27d063
+
+proposal_extractor FAULT INJECTION ACTIVE: ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE is set — forcing timeout-degrade path (per-attempt ceiling 0.05s)

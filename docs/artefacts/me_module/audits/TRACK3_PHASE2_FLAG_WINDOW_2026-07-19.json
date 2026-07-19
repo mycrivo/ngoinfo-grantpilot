@@ -1,0 +1,17 @@
+{
+  "flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE",
+  "service": "exemplary-encouragement",
+  "start_command": "python -m app.reports.worker",
+  "deploy_commit": "1a7ccdeee3e3919d0a785f480c813c4854007332",
+  "contains_feature_commit": "67f94ca",
+  "worker_flag_readback_start": "true",
+  "web_service_flag_set": false,
+  "window_start_utc": "2026-07-19T08:05:11.736690+00:00",
+  "window_end_utc": "2026-07-19T08:46:21.812309+00:00",
+  "window_duration_seconds": 2470.1,
+  "worker_flag_readback_end": null,
+  "worker_flag_absent_after_unset": true,
+  "web_has_flag_key_end": false,
+  "window_exposure": "Any concurrent real proposal extract on this worker would degrade while the flag is on. Acceptable pre-launch (no live customers); re-evaluate post-launch.",
+  "prod_mutation_scope": "Flag set/unset on worker service only; no other prod mutations."
+}

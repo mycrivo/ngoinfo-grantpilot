@@ -1,0 +1,4 @@
+Starting Container
+proposal_extractor FAULT INJECTION ACTIVE: ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE is set â€” forcing timeout-degrade path (per-attempt ceiling 0.05s)
+proposal_extractor timeout attempt=1/2 ceiling=0.05s wall_ms=55 partial_output=False input_tokens=None output_tokens=None
+proposal_extractor timeout attempt=2/2 ceiling=0.05s wall_ms=55 partial_output=False input_tokens=None output_tokens=None

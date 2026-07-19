@@ -1,0 +1,22 @@
+{
+  "completed_at": "2026-07-19T08:10:08.488278+00:00",
+  "degraded_documents": [
+    "56119918-fe6f-4113-bfa4-41da6ff99b81"
+  ],
+  "proposal_checkpoint": {
+    "attempts": 2,
+    "acknowledged": false,
+    "degraded_code": "DEGRADED_EXTRACTION_TIMEOUT",
+    "original_filename": "01_NLCF_Southbank_Application_Proposal.docx",
+    "failed_document_id": "56119918-fe6f-4113-bfa4-41da6ff99b81",
+    "missing_content_keys": [
+      "objectives",
+      "activities",
+      "indicators",
+      "partners",
+      "consultation"
+    ]
+  },
+  "proposal_fault_flag": "ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE",
+  "proposal_fault_injected": true
+}
