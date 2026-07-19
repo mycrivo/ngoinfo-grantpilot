@@ -207,3 +207,20 @@ def test_kb_logframe_table_renders_in_docx():
     assert not any("Risk rating / assumptions / controls" in h for h in headings)
     assert not any("Budget / forecast and actual costs" in h for h in headings)
     assert "Body text only." in _docx_plaintext(docx_bytes)
+
+
+def test_filter_exportable_facts_drops_provenance_only_siblings():
+    """D-060: export table input excludes provenance_only_for facts."""
+    from app.reports.knowledge.conflict_integrity import filter_exportable_facts
+
+    facts = {
+        "reporting_period.end": {"value": "2025-10-14", "semantic_label": "End"},
+        "reporting_period.end_formal": {
+            "value": "2025-10-14",
+            "semantic_label": "End formal",
+            "provenance_only_for": "reporting_period.end",
+        },
+    }
+    exportable = filter_exportable_facts(facts)
+    assert "reporting_period.end" in exportable
+    assert "reporting_period.end_formal" not in exportable

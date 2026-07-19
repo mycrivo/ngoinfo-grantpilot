@@ -524,3 +524,152 @@ def test_patch_add_fact_integration(patch_api):
     fact = response.json()["facts"]["user_fact_999"]
     assert fact["source_document_id"] == USER_PROVIDED_SOURCE_ID
     assert fact["confirmed_by_user"] is True
+
+
+def _period_end_orphan_kb() -> dict:
+    """Prod-shaped orphan before normalizer — conflict key missing from facts."""
+    return {
+        "schema_version": KNOWLEDGE_BANK_RECONCILIATION_VERSION,
+        "reconciliation_version": KNOWLEDGE_BANK_RECONCILIATION_VERSION,
+        "reconciler_agent": RECONCILER_AGENT_NAME,
+        "reconciled_at": "2026-01-01T00:00:00+00:00",
+        "facts": {
+            "reporting_period.end_formal": {
+                "value": "2025-10-14",
+                "unit": None,
+                "semantic_label": "Reporting period end (formal award letter)",
+                "coverage": "single_source",
+                "verification_status": "reconciled",
+                "source_document_id": "doc-award",
+                "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+                "provenance": {"excerpt": "to 14 October 2025"},
+                "confirmed": False,
+                "confirmed_at": None,
+                "confirmed_by_user": False,
+            },
+            "reporting_period.end_inception_call": {
+                "value": None,
+                "unit": None,
+                "semantic_label": "Reporting period end (inception call)",
+                "coverage": "single_source",
+                "verification_status": "reconciled",
+                "source_document_id": "doc-award",
+                "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+                "provenance": {"excerpt": "October to September"},
+                "confirmed": False,
+                "confirmed_at": None,
+                "confirmed_by_user": False,
+            },
+        },
+        "conflicts": [
+            {
+                "fact_key": "reporting_period.end",
+                "conflict_type": "VALUE_MISMATCH",
+                "values": [
+                    {
+                        "value": "2025-10-14",
+                        "unit": None,
+                        "source_document_id": "doc-award",
+                        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+                        "provenance": {"excerpt": "to 14 October 2025"},
+                    },
+                    {
+                        "value": None,
+                        "unit": None,
+                        "source_document_id": "doc-award",
+                        "source_label": "02_FCDO_BridgeLight_Award_Letter.docx",
+                        "provenance": {"excerpt": "October to September"},
+                    },
+                ],
+                "resolved_value": None,
+                "resolved_at": None,
+            }
+        ],
+    }
+
+
+def test_repaired_orphan_resolves_via_patch_candidate_and_explicit_entry(patch_api):
+    """D-058/D-059: after normalizer, candidate + explicit-entry PATCH succeed."""
+    from app.reports.knowledge.conflict_integrity import ensure_conflicts_materializable
+
+    kb = ensure_conflicts_materializable(
+        _period_end_orphan_kb(), donor_report_id="patch-test", emit_log=False
+    )
+    assert isinstance(kb["facts"].get("reporting_period.end"), dict)
+
+    report_id = _seed_report_with_kb(patch_api, kb)
+    candidate = patch_api.client.patch(
+        f"/api/reports/{report_id}/knowledge-bank",
+        headers=patch_api.auth_header,
+        json={
+            "conflict_resolutions": [
+                {"fact_key": "reporting_period.end", "resolved_value": "2025-10-14"},
+            ],
+        },
+    )
+    assert candidate.status_code == 200, candidate.text
+    fact = candidate.json()["facts"]["reporting_period.end"]
+    assert fact["value"] == "2025-10-14"
+    assert fact["confirmed_by_user"] is True
+    assert fact["source_document_id"] == "doc-award"
+    assert "provenance_only_for" not in fact
+    sibling = candidate.json()["facts"]["reporting_period.end_formal"]
+    assert sibling.get("provenance_only_for") == "reporting_period.end"
+
+    kb2 = ensure_conflicts_materializable(
+        _period_end_orphan_kb(), donor_report_id="patch-test-2", emit_log=False
+    )
+    report_id_2 = _seed_report_with_kb(patch_api, kb2)
+    explicit = patch_api.client.patch(
+        f"/api/reports/{report_id_2}/knowledge-bank",
+        headers=patch_api.auth_header,
+        json={
+            "conflict_resolutions": [
+                {"fact_key": "reporting_period.end", "resolved_value": "2025-09-30"},
+            ],
+        },
+    )
+    assert explicit.status_code == 200, explicit.text
+    fact2 = explicit.json()["facts"]["reporting_period.end"]
+    assert fact2["value"] == "2025-09-30"
+    assert fact2["source_document_id"] == OWNER_ATTESTED_SOURCE_ID
+    assert fact2["confirmed_by_user"] is True
+
+
+def test_null_and_blank_resolved_value_return_dedicated_code(patch_api):
+    """D-059: null/blank resolved_value → 422 KB_CONFLICT_RESOLUTION_VALUE_REQUIRED."""
+    from app.reports.knowledge.conflict_integrity import ensure_conflicts_materializable
+
+    kb = ensure_conflicts_materializable(
+        _period_end_orphan_kb(), donor_report_id="null-test", emit_log=False
+    )
+    report_id = _seed_report_with_kb(patch_api, kb)
+    for bad in (None, "", "   "):
+        response = patch_api.client.patch(
+            f"/api/reports/{report_id}/knowledge-bank",
+            headers=patch_api.auth_header,
+            json={
+                "conflict_resolutions": [
+                    {"fact_key": "reporting_period.end", "resolved_value": bad},
+                ],
+            },
+        )
+        assert response.status_code == 422, response.text
+        body = response.json()
+        assert body.get("error_code") == "KB_CONFLICT_RESOLUTION_VALUE_REQUIRED"
+
+
+def test_unrepaired_orphan_still_strict_missing_fact(patch_api):
+    """Anti-bent-ruler: PATCH moat unchanged without normalizer stub."""
+    report_id = _seed_report_with_kb(patch_api, _period_end_orphan_kb())
+    response = patch_api.client.patch(
+        f"/api/reports/{report_id}/knowledge-bank",
+        headers=patch_api.auth_header,
+        json={
+            "conflict_resolutions": [
+                {"fact_key": "reporting_period.end", "resolved_value": "2025-10-14"},
+            ],
+        },
+    )
+    assert response.status_code == 422, response.text
+    assert response.json().get("error_code") == "KB_PATCH_VALIDATION_FAILED"

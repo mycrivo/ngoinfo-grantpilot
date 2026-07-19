@@ -201,7 +201,10 @@ def render_donor_report_docx(
 
     collected_assumptions: list[str] = []
     table_caveats: list[str] = []
-    kb_facts = dict((knowledge_bank_json or {}).get("facts") or {})
+    from app.reports.knowledge.conflict_integrity import filter_exportable_facts
+
+    # D-060: exclude conflict-sibling provenance rows from export tables.
+    kb_facts = filter_exportable_facts((knowledge_bank_json or {}).get("facts"))
 
     for template_section in template_sections:
         if not isinstance(template_section, dict):

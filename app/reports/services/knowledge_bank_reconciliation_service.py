@@ -16,6 +16,7 @@ from app.reports.agents.knowledge_bank_reconciler import (
     envelope_to_knowledge_bank_json,
     reconcile_documents,
 )
+from app.reports.knowledge.conflict_integrity import ensure_conflicts_materializable
 from app.reports.models.uploaded_document import UploadedDocument
 
 logger = logging.getLogger("reports.services.knowledge_bank_reconciliation")
@@ -72,7 +73,12 @@ async def reconcile_and_persist(
         db.commit()
         raise
 
-    report.knowledge_bank_json = envelope_to_knowledge_bank_json(result.envelope)
+    kb = envelope_to_knowledge_bank_json(result.envelope)
+    report.knowledge_bank_json = ensure_conflicts_materializable(
+        kb,
+        donor_report_id=str(donor_report_id),
+        emit_log=True,
+    )
     db.add(report)
     db.commit()
     db.refresh(report)

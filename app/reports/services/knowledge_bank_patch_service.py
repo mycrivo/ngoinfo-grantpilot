@@ -69,6 +69,19 @@ def _find_conflict(conflicts: list[Any], fact_key: str) -> dict[str, Any] | None
     return None
 
 
+def _require_concrete_resolved_value(resolved_value: Any, *, fact_key: str) -> None:
+    """D-059: null/blank resolved_value is never acceptable on PATCH."""
+    if resolved_value is None or (
+        isinstance(resolved_value, str) and not resolved_value.strip()
+    ):
+        raise DomainError(
+            error_code="KB_CONFLICT_RESOLUTION_VALUE_REQUIRED",
+            message="Conflict resolution requires a concrete resolved_value",
+            status_code=422,
+            details={"fact_key": fact_key},
+        )
+
+
 def materialize_conflict_resolution(
     kb: dict[str, Any],
     *,
@@ -77,6 +90,8 @@ def materialize_conflict_resolution(
     resolved_at_iso: str,
 ) -> None:
     """Atomically set conflict resolution and materialize onto facts[fact_key]."""
+    _require_concrete_resolved_value(resolved_value, fact_key=fact_key)
+
     conflicts = kb.get("conflicts")
     if not isinstance(conflicts, list):
         conflicts = []
@@ -132,6 +147,12 @@ def materialize_conflict_resolution(
             "excerpt": f"Owner-entered value at Gate 1: {resolved_value}",
         }
         fact["confirmed_by_user"] = True
+
+    # Unresolved stub becomes human-confirmed after an owner choice (citability fence).
+    fact["confirmed"] = True
+    fact["confirmed_at"] = resolved_at_iso
+    fact["confirmed_by_user"] = True
+    fact.pop("provenance_only_for", None)
 
 
 def _build_user_provided_fact(*, value: Any, fact_key: str) -> dict[str, Any]:

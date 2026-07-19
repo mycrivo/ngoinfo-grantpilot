@@ -34,6 +34,10 @@ def effective_verification_status(fact: dict[str, Any]) -> FactVerificationStatu
 def is_fact_citable(fact: dict[str, Any], *, gate1_confirmed_at: str | None) -> bool:
     if not gate1_confirmed_at:
         return False
+    # D-060: conflict-sibling provenance must never flow as an independent claim.
+    provenance_only_for = fact.get("provenance_only_for")
+    if isinstance(provenance_only_for, str) and provenance_only_for.strip():
+        return False
     status = effective_verification_status(fact)
     if status == "reconciled":
         return True
