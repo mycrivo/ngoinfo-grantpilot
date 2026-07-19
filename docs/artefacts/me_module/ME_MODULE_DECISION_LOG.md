@@ -63,6 +63,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-054 | 2026-07-05 | **Gate 2 gap question copy — readable English** (retro-log of `7570bec`) | Deterministic section-first phrasing via `gap_question_copy.py`; replaces underscore-swap f-strings. See narrative DECISION below. | E |
 | D-055 | 2026-07-18 | **Track 3 prod NLCF scoped reconcile** — `community_involvement` only | Live row predated Package A/B template fields; owner Option 2 scoped. See narrative DECISION below. | G |
 | D-056 | 2026-07-19 | **Track 3 closure — proposal timeout-degrade fault flag** | Env-only `ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE` (Option B); retained default-off. See narrative DECISION below. | G |
+| D-057 | 2026-07-19 | **Track 3 Phase 2 witnessed walk — first prod checkpoint + validation** | Induced flag-window walk on worker; both branches exported. See narrative DECISION below. | G |
 
 ---
 
@@ -424,4 +425,30 @@ DECISION (2026-07-19) — Track 3 closure fault flag Option B (D-056). AMBER —
 **Scope fence:** proposal extractor seam (+ schema + halt-trace mirror only). No checkpoint/elevation/classifier semantics changes.
 
 **STOP:** PR-ready for independent audit; witnessed walk is owner-delegated after merge (flag window declared start/end UTC).
+---
+DECISION (2026-07-19) — Track 3 Phase 2 witnessed walk outcome (D-057). GREEN — prod validation closed under declared flag window.
+
+**Window (worker `exemplary-encouragement` only):**
+- Deploy verified containing feature commit `67f94ca` via merge `1a7ccde` before flag set.
+- `ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE=true` set → read-back `true` → WARNING audible on first induced extract.
+- Window start UTC: `2026-07-19T08:05:11.736690+00:00`
+- Window end UTC: `2026-07-19T08:46:21.812309+00:00` (duration **2470.1s**)
+- Flag unset → read-back absent/`None` on worker; web never had the key.
+- **Window-exposure statement:** any concurrent real proposal extract on this worker would have degraded while the flag was on. Acceptable pre-launch; re-evaluate post-launch.
+
+**Induced report IDs (named as induced — not organic customer traffic):**
+| Branch | donor_report_id |
+|--------|-----------------|
+| answered | `b007f125-cf33-4bba-8acf-6eccde27d063` |
+| skip | `46fdb1b1-f03c-4266-bdfc-69ed3bbf549f` |
+
+**First prod checkpoint firing:** both runs halted `awaiting_human`/`extract` with `proposal_checkpoint.degraded_code=DEGRADED_EXTRACTION_TIMEOUT`, `attempts=2`, `proposal_fault_injected=true`, flag name tagged. First captured payload: [`audits/TRACK3_PHASE2_FIRST_PROD_CHECKPOINT_b007f125.json`](audits/TRACK3_PHASE2_FIRST_PROD_CHECKPOINT_b007f125.json).
+
+**Track 3 prod-validation outcome:** after `proceed_with_gap`, Gate 2 showed exactly `community_participation_examples` + `partner_or_local_collaboration_examples`, funder-facing copy, zero internal-identifier leaks. Answered branch: both elevated items answered with distinct traceable text → synthesis/Gate 3/export **done**; community claims carry `gap:community_involvement:indicator:…` provenance. Skip branch: both elevated items skipped with valid reasons → community section `structured_bind_status=insufficient_data`, honest blank / no invented narrative → export **done**.
+
+**Auth diagnostics outcome:** `AUTH_REFRESH_DIAG` count **0** across both full-export walks (refresh never invoked; no 401 subtype). Ops note only: one mistaken non-owner resume → HTTP **404** (not 401); corrected by owner-session resume. Evidence: [`audits/TRACK3_PHASE2_AUTH_REFRESH_DIAG_2026-07-19.txt`](audits/TRACK3_PHASE2_AUTH_REFRESH_DIAG_2026-07-19.txt).
+
+**Prod mutation invariant held:** flag set/unset was the only prod mutation; flag not active outside the declared window; no product/auth fixes applied during the walk.
+
+**STOP:** full evidence pack [`audits/TRACK3_PHASE2_STOP3_EVIDENCE_PACK_2026-07-19.md`](audits/TRACK3_PHASE2_STOP3_EVIDENCE_PACK_2026-07-19.md). No further action.
 ---
