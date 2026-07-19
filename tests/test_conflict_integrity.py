@@ -203,8 +203,8 @@ def test_missing_fact_guard_still_strict_without_normalizer():
 
 
 def test_blank_conflict_fact_key_fails_closed():
-    """R4/F5: empty-string and whitespace-only fact_key raise loudly."""
-    for bad_key in ("", "   "):
+    """R4/F5 + DF-2: None, empty-string, and whitespace-only fact_key raise loudly."""
+    for bad_key in ("", "   ", None):
         kb = {
             "facts": {},
             "conflicts": [

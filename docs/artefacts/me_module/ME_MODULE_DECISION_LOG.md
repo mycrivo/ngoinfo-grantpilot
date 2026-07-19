@@ -486,3 +486,15 @@ DECISION (2026-07-19) — Package 1 Gate 1 conflict integrity (D-058…D-062). A
 
 **STOP:** Build + tests + deploy first; production scan/repair/witness only under D-061 bounds after deploy. No further product scope in this package.
 ---
+NARRATIVE (2026-07-19) — Gate-integrity: CI silently skipped async tests (Package 1 fix round 2). No new D-number.
+
+**Discovery:** Independent delta re-audit of PR #10 head `9316716` found CI Smoke Test reported **269 passed / 25 skipped**. The skips were `@pytest.mark.asyncio` tests collected without an async pytest plugin: pytest's default is to **skip** unhandled `async def` tests rather than fail. Among the skips were Package 1's seam regression `test_reconcile_and_persist_normalizes_orphan_at_seam` and pre-existing smoke-selection tests including `tests/test_gap_compliance_agent.py::test_fcdo_complete_distilled_gap_set_exact` and the proposal-extractor suite. Layer 1 had been claiming coverage it did not execute.
+
+**Cause:** `.github/workflows/smoke-test.yml` installs from `requirements.txt` verbatim; that file listed `pytest==7.4.3` but **no** `pytest-asyncio` (or other async plugin). Local developer environments that happened to have the plugin installed saw the full suite green (auditor: 294 passed / 0 skipped), masking the CI blind spot.
+
+**Since when (history):** `pytest-asyncio` never appears in `requirements.txt` history. Async smoke coverage entered the workflow install path earlier without a matching dependency: proposal-extractor async suite was added to the smoke selection in `fcf35e5` (Proposal extraction reliability…); the named FCDO gap-set gate entered in `bd72572` (Phase 3 P3-1..P3-6…). From those commits until this restoration, CI could silently skip those async tests whenever the runner lacked a locally preinstalled plugin.
+
+**Restoration (this round):** Add `pytest-asyncio==0.21.1` to `requirements.txt` (matches the locally verified pin). Configure `pytest.ini` with `asyncio_mode = auto` and elevate `pytest.PytestUnhandledCoroutineWarning` to **error** so an unrunnable async test fails the gate instead of skipping. No mass test rewrites; resurrected tests must pass unmodified.
+
+**STOP:** Delta re-audit #2 of the PR head after push; no merge from this narrative alone.
+---
