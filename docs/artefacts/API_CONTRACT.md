@@ -1415,16 +1415,13 @@ Request:
 
 Response 200: same shape as GET §12.4.
 
-**Rules:**
-- When `confirm_gate1: true`, server sets `gate1_confirmed_at` and advances pipeline if valid.
-- Pipeline MUST NOT advance without `confirm_gate1: true` recorded.
-- 409 `GATE_NOT_SATISFIED` if unresolved conflicts remain.
+**Rules (implemented):**
+- `confirm_gate1: true` on this PATCH is rejected with 422 `USE_GATE1_CONFIRM_ENDPOINT` — use POST §12.5a.
+- `conflict_resolutions[].resolved_value` must be a concrete non-null, non-blank value; otherwise 422 `KB_CONFLICT_RESOLUTION_VALUE_REQUIRED` (D-059).
+- Each conflict resolution requires a materializable `facts[fact_key]` entry; otherwise 422 `KB_PATCH_VALIDATION_FAILED` (strict — D-058; not loosened).
+- 409 `GATE_NOT_SATISFIED` if Gate 1 already confirmed or knowledge bank not yet reconciled.
 
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
-
----
-
-Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 · 500
+Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 422 `KB_CONFLICT_RESOLUTION_VALUE_REQUIRED` · 422 `KB_PATCH_VALIDATION_FAILED` · 422 `USE_GATE1_CONFIRM_ENDPOINT` · 422 `VALIDATION_ERROR` · 500
 
 ---
 
@@ -1779,6 +1776,10 @@ Errors: 401 · 403 · 404 · 409 `GATE_NOT_SATISFIED` · 409 `EXPORT_NOT_READY` 
 | `DOCUMENT_NOT_FOUND` | 404 | Document id invalid for this report |
 | `ACTIVE_JOB_EXISTS` | 409 | Report job in progress or awaiting human gate |
 | `REPORT_HAS_COMPLETED_RUN` | 409 | Document delete blocked after a completed run |
+| `KB_PATCH_VALIDATION_FAILED` | 422 | Gate 1 PATCH validation (unknown conflict key, missing materializable fact entry, empty body) |
+| `KB_CONFLICT_RESOLUTION_VALUE_REQUIRED` | 422 | Conflict resolution `resolved_value` is null or blank (D-059) |
+| `USE_GATE1_CONFIRM_ENDPOINT` | 422 | `confirm_gate1` sent on PATCH; use POST §12.5a |
+| `GATE1_VALIDATION_FAILED` | 422 | Gate 1 confirm payload invalid (e.g. unresolved conflicts) |
 
 Quota errors use existing `QUOTA_EXCEEDED` with `details.entitlement`: `reports` (at export completion when bundled report quota exhausted). `report_exports` is not metered.
 

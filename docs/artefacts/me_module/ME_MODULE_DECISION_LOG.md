@@ -64,6 +64,11 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-055 | 2026-07-18 | **Track 3 prod NLCF scoped reconcile** — `community_involvement` only | Live row predated Package A/B template fields; owner Option 2 scoped. See narrative DECISION below. | G |
 | D-056 | 2026-07-19 | **Track 3 closure — proposal timeout-degrade fault flag** | Env-only `ME_PROPOSAL_INDUCE_TIMEOUT_DEGRADE` (Option B); retained default-off. See narrative DECISION below. | G |
 | D-057 | 2026-07-19 | **Track 3 Phase 2 witnessed walk — first prod checkpoint + validation** | Induced flag-window walk on worker; both branches exported. See narrative DECISION below. | G |
+| D-058 | 2026-07-19 | **D-A — Write-time conflict integrity invariant** | Every conflict persisted to the knowledge bank must be resolvable through the standard resolution path. See narrative DECISION below. | G |
+| D-059 | 2026-07-19 | **D-B — Ambiguous/null candidates never directly acceptable** | Ambiguous candidate visible but routes to explicit entry; backend rejects null `resolved_value`. See narrative. | G |
+| D-060 | 2026-07-19 | **D-C — Sibling facts are provenance, not claims** | After resolution, exactly one canonical truth flows downstream; siblings retained as provenance only. | G |
+| D-061 | 2026-07-19 | **D-D — One-off owner-authorized orphan repair** | Scan + repair orphan conflict shape; creates resolvability only, never a resolved value. | G |
+| D-062 | 2026-07-19 | **D-E — Gate 1 save-path error experience designed** | Known domain codes map to NGO-safe messages; generic banner last resort; no internal identifiers. | G |
 
 ---
 
@@ -80,6 +85,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | O-007 | Track 3 residual — never-uploaded proposal (no checkpoint → no elevation) | Conscious narrowing in D-053; revisit on evidence of real no-proposal runs. |
 | O-008 | **NLCF live template drift (non-community sections)** | Live prod row `2d5d75b7…` missing `fact_namespaces` + `source_section_labels` on sections other than `community_involvement` vs committed `TEMPLATE_INSTANCE_NLCF.json`. Evidence: [`TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json`](audits/TRACK3_NLCF_LIVE_VS_COMMITTED_DRIFT_2026-07-18.json). Scoped reconcile (D-055) fixed community only; remaining drift awaits owner adjudication. |
 | O-009 | **Track 3.2** — intake-level “no readable proposal present” | Deferred. Covers unreadable→`classification=other` path (prod report `18976580-62af-4836-bdc3-9b35ee3f3f06`, [`TRACK3_STOP_B_EVIDENCE_PACK_2026-07-18.md`](audits/TRACK3_STOP_B_EVIDENCE_PACK_2026-07-18.md)). Reuse existing checkpoint + elevation plumbing. Sit next to O-007; **not built in D-056**. |
+| O-010 | **E1 grader alignment for observed-but-unnormalisable conflict parties** | D-059 refines D-043 for Gate 1 UX/PATCH. Grader `assert_no_spurious_conflicts` in `tests/reconciliation_grading.py` still rejects blank parties. Align grader/prompt/answer-key in a future package — **not changed in D-058–D-062**. |
 
 ---
 
@@ -451,4 +457,32 @@ DECISION (2026-07-19) — Track 3 Phase 2 witnessed walk outcome (D-057). GREEN 
 **Prod mutation invariant held:** flag set/unset was the only prod mutation; flag not active outside the declared window; no product/auth fixes applied during the walk.
 
 **STOP:** full evidence pack [`audits/TRACK3_PHASE2_STOP3_EVIDENCE_PACK_2026-07-19.md`](audits/TRACK3_PHASE2_STOP3_EVIDENCE_PACK_2026-07-19.md). No further action.
+---
+DECISION (2026-07-19) — Package 1 Gate 1 conflict integrity (D-058…D-062). AMBER — Gate 1 moat. Owner-approved with amendments.
+
+**Numbering note (Amendment 5):** Verified decision-log table head was **D-057** before append; next IDs are **D-058–D-062**. No renumbering of historical collisions.
+
+**D-058 (D-A, verbatim):** Write-time integrity invariant. Every conflict persisted to the knowledge bank must be resolvable through the standard resolution path. A conflict whose key has no materializable fact entry is an integrity violation that must be impossible to persist. The fix lands at emit time. The patch validator's strictness stays exactly as it is — it caught a real defect and must not be loosened to make the symptom pass.
+
+**Mechanism:** Deterministic normalizer `ensure_conflicts_materializable` at the final persistence seam in `knowledge_bank_reconciliation_service.reconcile_and_persist` (not a reconciler rewrite). Creates an unresolved canonical stub (`value=null`, `verification_status=unverified`) when needed. **Amendment 1:** every repair emits WARNING structured log + `agent_trace.conflict_integrity_repairs` entry (report id, conflict key, every provenance-only key). PATCH missing-fact `KB_PATCH_VALIDATION_FAILED` guard unchanged.
+
+**D-059 (D-B, verbatim):** Ambiguous and null candidates are never directly acceptable as resolved values. The ambiguous candidate remains visible in the conflict card for transparency, but selecting it routes the user into explicit entry, pre-contextualised with what is known (e.g. the ambiguous month reference). The backend independently rejects a null `resolved_value` with a specific domain code — defense in depth. An unnormalisable value must never become a stated fact.
+
+**Domain code:** `KB_CONFLICT_RESOLUTION_VALUE_REQUIRED` (422) for null or blank-string `resolved_value`.
+
+**D-043 quote (operative rule):** “A conflict requires ≥2 genuinely different non-empty values for the same quantity; lone values, blank/absence parties, and same-value representation variants are facts not conflicts.”
+
+**Scoped refinement:** Observed-but-unnormalisable evidence remains legitimate grounds to *surface* a conflict and appears as **non-selectable context** in the Gate 1 card, but is never a resolvable party and never becomes a stated fact via null PATCH. **Open follow-up (O-010):** E1 gate grader `assert_no_spurious_conflicts` still encodes the blank-party prohibition; no grader, reconciler, prompt, or answer-key change in this package.
+
+**D-060 (D-C, verbatim):** Sibling facts are provenance, not claims. After resolution, exactly one canonical truth for the disputed fact flows to gap logic, synthesis, summary, and export. The suffixed sibling rows are retained as provenance but must never surface downstream as independent or duplicate claims.
+
+**Mechanism:** Optional fact field `provenance_only_for` (canonical conflict key). **Amendment 2:** mark only on exact value AND source correspondence to a specific conflict candidate, together with key relationship (`key.startswith(conflict_key + "_"|".")`); otherwise do not mark (err toward visible duplication). Citability (`is_fact_citable`) and DOCX table inputs exclude provenance-only facts.
+
+**D-061 (D-D, verbatim):** Existing stuck data gets a one-off owner-authorized repair. Scan production knowledge banks for the orphan shape (conflict key with no fact entry) — expected blast radius is small — and repair affected reports so they become resolvable. Repair creates resolvability only; it never creates a resolved value and never invents data. `cb090edb…` must be resolvable by the owner after repair.
+
+**Bounds:** Fleet scan STOP if any orphan outside `cb090edb-715b-41cb-b3be-61c006fbdb55`. Repair reuses the same product normalizer; same loud telemetry as emit-time.
+
+**D-062 (D-E, verbatim):** Error experience is designed, not defaulted. On the Gate 1 save path, every known domain code maps to a specific, plain-English, NGO-appropriate message; the generic banner is the last resort for unknown codes only. No internal identifiers — fact keys, gate numbers, agent names, error slugs — ever appear in user-facing text. Error, loading, and disabled states on this journey follow the brand and frontend specs. The quality bar is world-class SaaS.
+
+**STOP:** Build + tests + deploy first; production scan/repair/witness only under D-061 bounds after deploy. No further product scope in this package.
 ---
