@@ -2,6 +2,7 @@
 
 **Date:** 2026-07-19
 **Auditor role:** Independent read-only auditor (Layer 2 merge gate). Findings only; no fixes, no product commits.
+**Prior verdicts:** original audit — APPROVE WITH FIXES; delta re-audit #1 on `9316716` — FINDINGS (DF-1 blocking). This audit decides whether the head below is merge-ready.
 **Scope:** `mycrivo/ngoinfo-grantpilot` PR #10 (`feat/gate1-conflict-integrity`), commits after `9316716` through head `340cc7f`:
 
 | Commit | Subject | Content |
@@ -14,9 +15,9 @@
 
 ---
 
-## VERDICT: **APPROVE** (this delta round)
+## VERDICT: **APPROVE** — head `340cc7fd74ddc34965733d9033011dbe4394dc6c` is merge-ready (backend)
 
-DF-1 and DF-2 are verified closed with direct evidence from the final head's own CI run; commit `655ea3c` carries nothing beyond the DF-1/DF-2 fix and its governance records; no invariant regressed. Two non-blocking notes below.
+The verdict applies to exactly that SHA (re-confirmed as the live branch head at audit time). DF-1 and DF-2 are verified closed with direct evidence from the final head's own CI run; commit `655ea3c` carries nothing beyond the DF-1/DF-2 fix and its governance records; no invariant regressed. Two non-blocking notes below. Merge-readiness is for the backend PR alone — the frontend PR #3 pairing reminder stands in the Disposition.
 
 ---
 
@@ -39,7 +40,7 @@ Auditor's local run of the identical smoke selection at `340cc7f`: 294 passed / 
 
 ## DF-2 — CLOSED
 
-Both loops in `ensure_conflicts_materializable` now share the merged condition `raw_key is None or not isinstance(raw_key, str) or not raw_key.strip()` → `ValueError` (`app/reports/knowledge/conflict_integrity.py`, repair loop and post-condition). Auditor probes: a literal-`None` key raises fail-closed in the repair loop and in a mixed KB (one valid conflict + one None-key conflict); empty-string and whitespace keys still raise. `test_blank_conflict_fact_key_fails_closed` now includes `None` alongside `""` and `"   "` and runs inside the CI smoke selection (all 8 tests in the file pass at head).
+Both loops in `ensure_conflicts_materializable` now share the merged condition `raw_key is None or not isinstance(raw_key, str) or not raw_key.strip()` → `ValueError` (`app/reports/knowledge/conflict_integrity.py`, repair loop and post-condition). Auditor probes (re-run against the checked-out head `340cc7f` during this audit execution): a literal-`None` key raises fail-closed in the repair loop and in a mixed KB (one valid conflict + one None-key conflict) — `ValueError: conflict integrity failed: blank fact_key None is not materializable` in both scenarios; empty-string and whitespace keys still raise. All 8 tests in `tests/test_conflict_integrity.py` pass at head. `test_blank_conflict_fact_key_fails_closed` now includes `None` alongside `""` and `"   "` and runs inside the CI smoke selection (all 8 tests in the file pass at head).
 
 ## Diff purity and commit `655ea3c`
 
@@ -52,7 +53,8 @@ Both loops in `ensure_conflicts_materializable` now share the merged condition `
 
 - `git diff 9316716..340cc7f` over `app/reports/services/knowledge_bank_patch_service.py`, `scripts/audit/`, `app/reports/knowledge/confirmed_kb.py`, `app/reports/export/docx_renderer.py`, and `app/reports/schemas/` is **zero lines**.
 - The patch service is zero-diff all the way back to `46157ab`, so the `KB_PATCH_VALIDATION_FAILED` missing-fact guard remains byte-identical to the version certified in the original audit.
-- The repair script is untouched this round — `prepare_repair`'s invented-value/`resolved_value` STOPs stand, and `test_prepare_repair_never_writes_resolved_value` executes in the CI selection. Repair still cannot write values.
+- The repair script is untouched this round — `prepare_repair`'s invented-value/`resolved_value` STOPs stand (`scripts/audit/gate1_orphan_repair_cb090edb.py`, STOP on stub value non-null and on `resolved_value` change), and `test_prepare_repair_never_writes_resolved_value` executes in the CI selection. Repair still cannot write a resolved value under any input.
+- Repair scope is still hard-bound to the constant report id `cb090edb-715b-41cb-b3be-61c006fbdb55` (`AUTHORIZED_REPORT_ID`, line 34); the only accepted arguments remain `--apply` and `--approved-preimage-sha256`, and the latter narrows rather than widens — no argument or environment variable can retarget the repair.
 - Sibling-marking probes at the final head produce identical results to prior rounds: source-mismatch → NOT marked; ambiguous double-match → NOT marked; normalized-representation variant → marked (per the owner-accepted F4 disposition); whitespace/empty/None keys → `ValueError`.
 
 ## Governance
