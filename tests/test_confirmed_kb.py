@@ -84,3 +84,24 @@ def test_build_confirmed_kb_view():
     }
     view = build_confirmed_kb_view(kb)
     assert list(view.facts.keys()) == ["a"]
+
+
+def test_provenance_only_fact_not_citable():
+    """D-060: sibling marked provenance_only_for is never an independent claim."""
+    gate = "2026-01-01T00:00:00+00:00"
+    sibling = _fact(status="reconciled", value="2025-10-14")
+    sibling["provenance_only_for"] = "reporting_period.end"
+    canonical = _fact(status="unverified", value="2025-10-14")
+    canonical["confirmed_by_user"] = True
+    assert not is_fact_citable(sibling, gate1_confirmed_at=gate)
+    assert is_fact_citable(canonical, gate1_confirmed_at=gate)
+    kb = {
+        "gate1_confirmed_at": gate,
+        "facts": {
+            "reporting_period.end": canonical,
+            "reporting_period.end_formal": sibling,
+        },
+    }
+    citable = filter_citable_facts(kb)
+    assert "reporting_period.end" in citable
+    assert "reporting_period.end_formal" not in citable

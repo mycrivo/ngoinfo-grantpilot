@@ -43,6 +43,8 @@ class KnowledgeBankFact(BaseModel):
     # to the candidate. NOT authored by the LLM (absent from _LLMFact). None when the
     # source carried no section signal -> declared-needs visibility fallback applies.
     source_section: str | None = None
+    # D-060: sibling retained as provenance under a canonical conflict key; not citable.
+    provenance_only_for: str | None = None
 
 
 class ConflictValueEntry(BaseModel):
