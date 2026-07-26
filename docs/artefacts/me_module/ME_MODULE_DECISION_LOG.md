@@ -403,6 +403,8 @@ DECISION (2026-07-18) — Track 3 STOP 1 adjudication + elevation mechanism (D-0
 
 **Numbering note (collision audit):** Table IDs D-046 and D-049 already collide with older freeform labels — table D-046 = F1 reliability bundle (2026-06-04) while the 2026-07-05 proposal-checkpoint narrative also says “D-046”; table D-049 = Fit Scans 20→10 while the E3 gap narrative says “D-049”. New IDs assigned only after that check: **D-053** (this entry), **D-054** (gap-grammar retro-log). No renumbering of historical collisions in this build.
 
+[2026-07-27 annotation — superseded: the collisions described here were resolved by renumbering to D-063/D-064 under D-074; see Revisions. Note retained as history.]
+
 **STOP 1 owner verdicts (verbatim, final):**
 - NLCF elevation map — ACCEPTED at exactly 2: `community_participation_examples` and `partner_or_local_collaboration_examples`. No additions.
 - FCDO elevation map — ACCEPTED at 0. Empty map is the correct answer, not a placeholder (omission of `elevate_on_proposal_failure` flags).

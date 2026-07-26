@@ -28,7 +28,7 @@ If a source field is missing:
 - Use `null` for scalars
 - Use `[]` for list-like fields
 - Use `{}` for objects
-…and flag the missingness inside the AI output using the relevant "MISSING_DATA" / warnings logic (as defined in LLM_PROMPTS_LIBRARY.md).
+…and flag the missingness inside the AI output using the relevant "MISSING_DATA" / warnings logic in the owning deployed prompt modules (indexed by `LLM_PROMPTS_LIBRARY.md` GP-F02 / GP-P02 failure-mode rows).
 
 ### 0.4 User vs Derived Distinction
 The prompt input object separates runtime user inputs from backend-computed values:

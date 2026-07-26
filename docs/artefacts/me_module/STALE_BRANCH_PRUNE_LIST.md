@@ -3,7 +3,7 @@
 **Status:** Owner sign-off list only — **no branches deleted in Package H0**.  
 **Generated:** 2026-07-26  
 **Scope:** Remote branches on `origin` not merged into `origin/main`.  
-**Method:** `git for-each-ref refs/remotes/origin` minus `git branch -r --merged origin/main` (excludes `origin/main` and the bare `origin` remote-tracking alias).
+**Method:** `git for-each-ref refs/remotes/origin` minus `git branch -r --merged origin/main`. **Explicit exclusions (not listed as stale):** `origin/main`; the bare `origin` remote-tracking alias; and the in-flight package branch `engine/h0-housekeeping` (merges with this PR; not stale).
 
 | Last commit | Branch | One-line description | Recommendation | Rationale |
 |---|---|---|---|---|
