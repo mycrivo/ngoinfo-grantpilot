@@ -519,29 +519,6 @@ NARRATIVE (2026-07-19) — Gate-integrity: CI silently skipped async tests (Pack
 
 **STOP:** Delta re-audit #2 of the PR head after push; no merge from this narrative alone.
 ---
-NARRATIVE (2026-07-20) — Package 1 Phase A fleet-scan disposition. No new D-number.
-
-**Context:** After Package 1 merge + Railway deploy of backend `a74d5e3` / frontend `4577161`, Phase A `gate1_orphan_fleet_scan.py` returned **STOP** with 8 orphan reports outside authorized id `cb090edb-715b-41cb-b3be-61c006fbdb55` (evidence: `audits/GATE1_ORPHAN_FLEET_SCAN_2026-07-20T110253Z.json`). Authorized report shape unchanged: orphan key `reporting_period.end`, Gate 1 unconfirmed, status `DRAFT`.
-
-**Owner decision (verbatim disposition):** Phase B is re-authorized for `cb090edb-715b-41cb-b3be-61c006fbdb55` **ONLY**. The eight additional orphan reports are declared **HISTORICAL** and **OUT OF SCOPE** — owner walk artifacts predating the seam gate, which prevents recurrence. **Do not mutate them.**
-
-**Historical / out-of-scope orphan reports (IDs + status at scan):**
-
-| donor_report_id | status | gate1_confirmed_at | orphan_conflict_keys |
-|-----------------|--------|--------------------|----------------------|
-| `1beb588b-68e1-4ad9-a43e-a6695aa15dd6` | COMPLETE | set | `indicators.op1_1_girls_reenrolled.target` |
-| `2d93db75-ffe0-4bce-a782-21d306945682` | DRAFT | null | `op1_1_girls_reenrolled_retained.target` |
-| `7cdcc3a8-e15e-449b-991c-b79d99c918ec` | COMPLETE | set | 10× `indicators.OP*.target` |
-| `b007f125-cf33-4bba-8acf-6eccde27d063` | COMPLETE | set | `financials.total_budget` |
-| `5cb5c9b4-3e07-4124-b15a-4cb84b3d27b7` | DEGRADED | set | 3× `indicators.op1_*` targets |
-| `e6c369aa-4923-4ad7-bc4a-f9cb2fc595f5` | DRAFT | null | `annual_review_period.end_month` |
-| `026af28c-0330-4271-bfe0-36334fe02284` | DRAFT | null | `indicators.op1_1_girls_reenrolled.target` |
-| `7fb24fe5-5a07-43f3-91d3-2ee24ea361f4` | DRAFT | null | `indicators.op1_1_outofschool_girls_reenrolled.target` |
-
-**Repair bound unchanged for mutation:** only `cb090edb…` may be dry-run/applied via `gate1_orphan_repair_cb090edb.py`. No product-code change; procedural override of the Phase A STOP for production surgery scope only.
-
-**STOP:** Phase B dry-run → owner supplies `--approved-preimage-sha256` → apply; then Phase C/D per Package 1 plan.
----
 
 DECISION (2026-07-26) — ME Engine Behavioural Contract v1.0 ratified (D-065).
 

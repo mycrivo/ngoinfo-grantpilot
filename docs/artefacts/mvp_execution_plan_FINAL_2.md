@@ -2,8 +2,8 @@
 
 HISTORICAL — MVP execution plan, completed. Statements about the prompts library predate the 2026-07 v2.0.0 registry restructure; where this document conflicts with the registry's canonical rule, deployed code and the registry govern.
 
-Status: **Canonical — LOCKED FOR BUILD**  
 Version: **4.0 (Strategic Rewrite)**  
+
 Last updated: **2026-02-07**  
 Timeline: **5 Days from restart**  
 Supersedes: Version 3.1 (2026-02-04)
@@ -264,7 +264,7 @@ Deployed prompt components (`app/ai/fit_scan_executor.py`, `app/ai/prompt_runner
 **What the prompt runner does:**
 1. Accept `prompt_inputs_json` (assembled by the backend adapter per PROMPT_INPUTS_FIELD_MAPPING.md)
 2. Select system prompt and user prompt template based on prompt ID (GP-F01/F02, GP-P01/P02, etc.)
-3. Call OpenAI API with model identity from `ENV_VARS_REFERENCE.md` § "Model configuration (env pointers only)" (`OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK`) and per-prompt parameters from the owning deployed runner (`app/ai/prompt_runner.py` / `app/ai/fit_scan_executor.py`)
+3. Call OpenAI API with model identity from `LLM_PROMPTS_LIBRARY.md` § "Model configuration (env pointers only)" (`OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK`) and per-prompt parameters from the owning deployed runner (`app/ai/prompt_runner.py` / `app/ai/fit_scan_executor.py`)
 4. Parse JSON response
 5. Validate response is valid JSON
 6. Return structured result or raise `DomainError` on failure
@@ -607,7 +607,7 @@ Indexes:
 This is a THIN wrapper over the `openai` Python SDK. It must:
 - Accept: prompt_id, system_prompt, user_prompt, model parameters
 - Call `openai.chat.completions.create()` with:
-  - Model: `OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK` only (see `ENV_VARS_REFERENCE.md` § "Model configuration (env pointers only)"; never a hardcoded model name)
+  - Model: `OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK` only (see `LLM_PROMPTS_LIBRARY.md` § "Model configuration (env pointers only)"; never a hardcoded model name)
   - Temperature, top_p, frequency_penalty, presence_penalty, max_tokens: from deployed `PROMPT_CONFIGS` / owning runner module (indexed by `LLM_PROMPTS_LIBRARY.md` rows; not from registry bodies)
   - `response_format: {"type": "json_object"}`
 - Parse JSON response
