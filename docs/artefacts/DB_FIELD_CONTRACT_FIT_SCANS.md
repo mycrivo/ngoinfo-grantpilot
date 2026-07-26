@@ -60,7 +60,7 @@ No other table may store Fit Scan outputs.
 | overall_recommendation | TEXT | RECOMMENDED \| APPLY_WITH_CAVEATS \| NOT_RECOMMENDED |
 
 **Rules**
-- `prompt_version` MUST equal the version string declared in `LLM_PROMPTS_LIBRARY.md` (e.g. `1.0.0`)
+- `prompt_version` MUST equal the runtime stamp `PROMPT_LIBRARY_VERSION` in `app/ai/fit_scan_executor.py` (currently `1.1.0`). `LLM_PROMPTS_LIBRARY.md` registry **document** version (e.g. `2.0.0`) is not the DB stamp.
 - No environment variable is used for prompt versioning in MVP
 - `model_rating` and `overall_recommendation` MUST BOTH be persisted
 - Mapping between the two is governed by `FIT_SCAN_CRITERIA_MATRIX.md`

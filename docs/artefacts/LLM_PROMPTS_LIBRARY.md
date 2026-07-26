@@ -1,11 +1,13 @@
 # LLM_PROMPTS_LIBRARY.md
 
 **Status:** Canonical registry (LOCKED FOR BUILD)  
-**Version:** 2.0.0  
+**Registry document version:** 2.0.0  
 **Last Updated:** 2026-07-26  
 **Decision:** D-072  
 **Depends on:** DB_FIELD_CONTRACT_FUNDING_OPPORTUNITY.md, PROMPT_INPUTS_FIELD_MAPPING.md, ENV_VARS_REFERENCE.md  
 **System of Record:** Railway Postgres (GrantPilot DB)  
+
+> **Versioning note:** `2.0.0` is this **registry document** version. Persisted `prompt_version` columns use the runtime constant `PROMPT_LIBRARY_VERSION` in the owning module (core GP path currently `1.1.0`). Do not write the registry document version into DB `prompt_version`.
 
 ---
 

@@ -226,7 +226,7 @@ If `funding_opportunities.requirements_json` is null/empty/invalid for a READY o
 prompt_inputs.requirements = null
 ```
 
-Downstream prompts must degrade gracefully per LLM_PROMPTS_LIBRARY.md (return `DEGRADED_MISSING_REQUIREMENTS`).
+Downstream prompts must degrade gracefully (return `DEGRADED_MISSING_REQUIREMENTS`). Failure-mode index: `LLM_PROMPTS_LIBRARY.md` GP-P02 / GP-F02 rows; runtime authority is the owning service module.
 
 ### 4.3 Schema Reference
 See DB_FIELD_CONTRACT_FUNDING_OPPORTUNITY.md Section 2 for the authoritative `requirements_json` schema, including:
@@ -430,7 +430,7 @@ Output:
 **Purpose:** Deterministically select which variant to use for generation when user hasn't explicitly chosen.
 
 **Computation Logic:**
-See LLM_PROMPTS_LIBRARY.md GP-U01 for full deterministic selection algorithm.
+Deterministic selection algorithm: the numbered summary below in this section (GP-U01 is unwired / not deployed; `LLM_PROMPTS_LIBRARY.md` indexes that status only).
 
 **Summary:**
 1. If `prompt_inputs.user.selected_variant_id` is provided and exists in `requirements.variants[]`:  
