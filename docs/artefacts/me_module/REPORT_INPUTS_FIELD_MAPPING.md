@@ -209,7 +209,7 @@ Cross-reference: section `required_indicators[]` in template must find matching 
 | terminology_resolved | object | Apply terminology_map to labels | {} |
 | linked_proposal_summary | string or null | Truncate linked proposal content_json | null |
 | evidence_index | array[object] | Index of confirmed facts + upload ids | [] |
-| synthesis_prompt_version | string | OPENAI_PROMPTS_LIBRARY report version | null |
+| synthesis_prompt_version | string | LLM_PROMPTS_LIBRARY report version | null |
 | gate_state | string | From report_jobs.stage + status | null |
 
 ---

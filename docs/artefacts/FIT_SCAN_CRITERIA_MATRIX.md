@@ -7,7 +7,7 @@ For MVP, the Fit Scan criteria are deterministic, non-probabilistic, and conserv
 
 The Fit Scan is implemented exactly as defined in:
 
-OPENAI_PROMPTS_LIBRARY.md — GP-F02 (authoritative logic)
+LLM_PROMPTS_LIBRARY.md — GP-F02 (authoritative logic)
 
 requirements_json (authoritative eligibility source)
 
@@ -187,7 +187,7 @@ Applies to: Fit Scan v1 only
 For MVP, the Fit Scan criteria are deterministic and limited.
 They are implemented exactly as defined in:
 
-OPENAI_PROMPTS_LIBRARY.md — GP-F02
+LLM_PROMPTS_LIBRARY.md — GP-F02
 
 This document serves as a human-readable reference, not an expansion of scope.
 

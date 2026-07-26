@@ -86,7 +86,7 @@ Three kill switches: un-mount router + UI flag off; scale worker to 0; drop 4 M&
 | Route → service pattern | Domain routers + services | [`app/api/routes/proposals.py`](app/api/routes/proposals.py), [`docs/artefacts/REPO_STRUCTURE_AND_SERVICE_PATTERNS.md`](docs/artefacts/REPO_STRUCTURE_AND_SERVICE_PATTERNS.md) |
 | Report service mirror | Proposal lifecycle + partial success | [`app/services/proposal_service.py`](app/services/proposal_service.py) — `create_proposal`, `_generate_sections`, `ThreadPoolExecutor`, `DEGRADED`-style persistence |
 | Input adapter mirror | Prompt inputs builder | [`app/ai/prompt_inputs_builder.py`](app/ai/prompt_inputs_builder.py) — `build_prompt_inputs()` |
-| Section synthesis | Prompt runner + archetypes + humaniser | [`app/ai/prompt_runner.py`](app/ai/prompt_runner.py), [`app/ai/prompts/proposal.py`](app/ai/prompts/proposal.py), [`docs/artefacts/OPENAI_PROMPTS_LIBRARY.md`](docs/artefacts/OPENAI_PROMPTS_LIBRARY.md) |
+| Section synthesis | Prompt runner + archetypes + humaniser | [`app/ai/prompt_runner.py`](app/ai/prompt_runner.py), [`app/ai/prompts/proposal.py`](app/ai/prompts/proposal.py), [`docs/artefacts/LLM_PROMPTS_LIBRARY.md`](docs/artefacts/LLM_PROMPTS_LIBRARY.md) |
 | OpenAI client | HTTP completions wrapper | [`app/integrations/openai_client.py`](app/integrations/openai_client.py) |
 | DOCX export *pattern* (quota, idempotency) | Export service | [`app/services/export_service.py`](app/services/export_service.py) — idempotency via [`record_usage`](app/services/quota_service.py) |
 | Auth + JWT plan claim | Auth service + security | [`app/services/auth_service.py`](app/services/auth_service.py), [`app/core/security.py`](app/core/security.py) — JWT `plan` claim |

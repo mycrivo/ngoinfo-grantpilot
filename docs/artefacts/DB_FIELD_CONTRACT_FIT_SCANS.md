@@ -60,7 +60,7 @@ No other table may store Fit Scan outputs.
 | overall_recommendation | TEXT | RECOMMENDED \| APPLY_WITH_CAVEATS \| NOT_RECOMMENDED |
 
 **Rules**
-- `prompt_version` MUST equal the version string declared in `OPENAI_PROMPTS_LIBRARY.md` (e.g. `1.0.0`)
+- `prompt_version` MUST equal the version string declared in `LLM_PROMPTS_LIBRARY.md` (e.g. `1.0.0`)
 - No environment variable is used for prompt versioning in MVP
 - `model_rating` and `overall_recommendation` MUST BOTH be persisted
 - Mapping between the two is governed by `FIT_SCAN_CRITERIA_MATRIX.md`
@@ -138,7 +138,7 @@ No other table may store Fit Scan outputs.
 This contract is governed by and MUST remain consistent with:
 
 - `PROMPT_INPUTS_FIELD_MAPPING.md`
-- `OPENAI_PROMPTS_LIBRARY.md`
+- `LLM_PROMPTS_LIBRARY.md`
 - `FIT_SCAN_CRITERIA_MATRIX.md`
 - `FIT_SCAN_PRODUCT_SPEC.md`
 - `API_CONTRACT.md`

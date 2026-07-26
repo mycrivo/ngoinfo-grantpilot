@@ -72,7 +72,7 @@ Three principles drive the ordering:
 | B3 | NLCF + FCDO reference templates expressed in the schema | BUILD | Claude | **Schema stress test.** NLCF (simple) and FCDO (complex/RAG/VfM) are the two extremes; if both fit with zero gaps, the schema holds. |
 | B4 | `REPORT_INPUTS_FIELD_MAPPING.md` | BUILD (mirrors EXISTING `PROMPT_INPUTS_FIELD_MAPPING.md`) | Claude | How NGO profile + template + confirmed knowledge bank assemble into the synthesis inputs. |
 | B5 | `API_CONTRACT.md` — M&E additions | EXISTING (extend) | Claude | The endpoints from spec Part E, in a clearly-marked M&E section. |
-| B6 | Just-in-time additions: `OPENAI_PROMPTS_LIBRARY` (report archetypes), `PRICING_AND_ENTITLEMENTS` (Impact Pro), `GUARDRAILS_RUNTIME_AND_SECURITY` (critic mandate, injection fence, worker kill switch), `ENV_VARS_REFERENCE` (storage/vision/SDK vars), `DEPENDENCIES_ME_MODULE`, `DEV_ENVIRONMENT_SETUP` (worker locally) | EXISTING (extend) + BUILD | Claude | Extend existing canon as each is needed; named, not valued, for secrets. |
+| B6 | Just-in-time additions: `LLM_PROMPTS_LIBRARY` (report archetypes), `PRICING_AND_ENTITLEMENTS` (Impact Pro), `GUARDRAILS_RUNTIME_AND_SECURITY` (critic mandate, injection fence, worker kill switch), `ENV_VARS_REFERENCE` (storage/vision/SDK vars), `DEPENDENCIES_ME_MODULE`, `DEV_ENVIRONMENT_SETUP` (worker locally) | EXISTING (extend) + BUILD | Claude | Extend existing canon as each is needed; named, not valued, for secrets. |
 
 **Exit gate:** both reference templates fit the schema with no gaps; every synthesis input has a mapped source; the API additions don't alter any existing contract.
 

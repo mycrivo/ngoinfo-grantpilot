@@ -27,7 +27,7 @@
 | Principle | Rationale |
 |-----------|-----------|
 | Ordered sections array | Synthesis runs one agent per section; order matches funder form |
-| Archetype per section | Reuses proposal humaniser/archetype library (`OPENAI_PROMPTS_LIBRARY.md` extensions) |
+| Archetype per section | Reuses proposal humaniser/archetype library (`LLM_PROMPTS_LIBRARY.md` extensions) |
 | Optional format blocks | FCDO RAG, ECHO Single Form blocks attach without schema change |
 | Terminology map | Same data, funder-specific labels in output |
 | Extensibility via `extensions` | Unknown funder quirks without migration |
@@ -341,7 +341,7 @@ Validated 2026-05-24 against [`TEMPLATE_INSTANCE_NLCF.json`](TEMPLATE_INSTANCE_N
 
 - `DB_FIELD_CONTRACT_FUNDER_REPORT_TEMPLATES.md`
 - `REPORT_INPUTS_FIELD_MAPPING.md`
-- `OPENAI_PROMPTS_LIBRARY.md` (report archetypes — Stage F extension)
+- `LLM_PROMPTS_LIBRARY.md` (report archetypes — Stage F extension)
 - `ME_MODULE_DECISION_LOG.md` D-006, D-021
 
 ---
