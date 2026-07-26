@@ -69,6 +69,19 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-060 | 2026-07-19 | **D-C — Sibling facts are provenance, not claims** | After resolution, exactly one canonical truth flows downstream; siblings retained as provenance only. | G |
 | D-061 | 2026-07-19 | **D-D — One-off owner-authorized orphan repair** | Scan + repair orphan conflict shape; creates resolvability only, never a resolved value. | G |
 | D-062 | 2026-07-19 | **D-E — Gate 1 save-path error experience designed** | Known domain codes map to NGO-safe messages; generic banner last resort; no internal identifiers. | G |
+| D-063 | 2026-06-08 | **E3 deterministic-first gap identification** (renumbered from colliding narrative label D-049) | Gap identification deterministic by default; LLM optional/fallback. See narrative DECISION below. | E |
+| D-064 | 2026-07-05 | **Proposal extraction reliability + blocking checkpoint** (renumbered from colliding narrative label D-046) | Mode C stream early-exit; timeout/retry; proposal-only blocking checkpoint. See narrative. | G |
+| D-065 | 2026-07-26 | **ME Engine Behavioural Contract v1.0 ratified** | Engine constitution; certification = contract + golden records. | H0 |
+| D-066 | 2026-07-26 | **Golden Record FCDO BridgeLight AR1 v1.0 adopted** | Measurement standard; Layer 5 → eighteen named harness assertions; v1.1 pending. | H0 |
+| D-067 | 2026-07-26 | **BridgeLight run dfd17248 adjudication v1.0 accepted** | Five-layer scorecard = CI assertion set; RC1–RC7 rebuild problem statement; PASS-BY-STARVATION. | H0 |
+| D-068 | 2026-07-26 | **Hypothesis audit at a74d5e3 accepted; P1–P6 authorised** | Code-evidence base; Completion Plan v1.0 + Addendum v1.1; Phase 0 opened 2026-07-26. | H0 |
+| D-069 | 2026-07-26 | **Value for Money restored as NGO-owned (partial supersession of D-075)** | Award-letter evidence; executes in Package P1. | H0 |
+| D-070 | 2026-07-26 | **Standing merge rule — BridgeLight five-layer floor** | Invariant vs baselined harness classes; no engine-path merge below same-or-better. | H0 |
+| D-071 | 2026-07-26 | **P1 baseline reset authorised** | First/only listed baseline decision; lineage required on every floor. | H0 |
+| D-072 | 2026-07-26 | **Prompts library → LLM_PROMPTS_LIBRARY registry** | Seven bounded-service fields; deployed code canonical; no duplicated prompt text. | H0 |
+| D-073 | 2026-07-26 | **Sealed NLCF golden policy** | Fixture/expected outputs only in harness fixtures; hook-enforced; proves contract §7. | H0 |
+| D-074 | 2026-07-26 | **Decision-ID collision policy** | Earliest keeps ID; later renumbers with Revisions cross-reference. Applied D-046/D-049 → D-064/D-063. | H0 |
+| D-075 | 2026-06-11 | **Phase B exec — B2b one-op template replace from fcdo_55f891ac_post_deletion_v1.2.0.json; kill-list included value_for_money; classification lineage: P2 owner-tagging adjudication artefacts.** | Retroactive ID under on-demand rule (see narrative). | H0 |
 
 ---
 
@@ -97,6 +110,10 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 |----|------|------------|--------------|-----|
 | D-048 | 2026-06-06 | D-004, D-005 | Two-plan model; M&E on Impact $79; enum FREE\|GROWTH\|IMPACT | A-00 contract reset |
 | D-052 | 2026-06-07 | D-051 | REPORT_CREATE at first COMPLETE; remove create charge + failure refund | P8 / locked D6 |
+| D-063 | 2026-07-26 | D-049 (narrative label only) | Renumber E3 gap narrative D-049 → D-063; table D-049 (Fit Scans) unchanged | collision policy — earliest keeps ID |
+| D-064 | 2026-07-26 | D-046 (narrative label only) | Renumber proposal-checkpoint narrative D-046 → D-064; table D-046 (F1 reliability) unchanged | collision policy — earliest keeps ID |
+| D-031 | 2026-07-26 | — | D-031 — never assigned; number permanently reserved, do not reuse. | H0 history check (`git log -S D-031`): nothing found |
+| D-069 | 2026-07-26 | D-075 (in part) | D-075 superseded in part by D-069 (2026-07-26): value_for_money section reclassified NGO-owned on award-letter evidence; all other items in the P2 funder-owned set unchanged; template restoration executes in Package P1. | H0 / VfM restore |
 
 ---
 
@@ -190,7 +207,7 @@ Context: M_E_Module/P4 plan; owner approved build including sentinel filter poli
 7. Export client uses GET to match live backend. Gate 3 display polish only — §12.11 PATCH out of scope.
 8. `UNSUPPORTED_DOCUMENT_FORMAT` passes through server lane-specific message on upload (`me-error-messages.ts`).
 ---
-DECISION (2026-06-08) — E3 deterministic-first gap identification (D-049).
+DECISION (2026-06-08) — E3 deterministic-first gap identification (D-063).
 Context: Report `230290ce-d28a-4138-ae08-901cf1ad69c0` failed at gap stage when Anthropic returned prose instead of JSON after degraded E1 reconcile.
 
 1. **Gap identification is deterministic by default** — `unsatisfied_requirements()` + logframe merge in `deterministic_gaps.py`; `run_gap_compliance` skips LLM unless `ME_GAP_COMPLIANCE_USE_LLM=1` or tests inject `query_fn`.
@@ -214,8 +231,10 @@ Context: walk `e7fa9bee`; owner line `NLCF RATIFIED: regression pin`.
 3. **Typing parity queued** — `budget_vs_actual` table vs indicator typing not enforced in pin gate until follow-up.
 4. **Fixture** — `tests/fixtures/gap/keys/nlcf_regression_pin_e7fa9bee.json`; offline replay `--nlcf-pin`.
 ---
-DECISION (2026-06-11) — Phase B exec: purge in-flight test reports + one-op template replace.
+DECISION (2026-06-11) — Phase B exec: purge in-flight test reports + one-op template replace (D-075).
 Context: Owner exec 2026-06-11; supersedes M1–M4 re-stage order and staged 8-delta intent.
+
+**Retroactive ID (H0):** D-075 assigned 2026-07-26 under the on-demand rule: "ID assigned retroactively under the on-demand rule: a historical un-numbered DECISION block receives the next free ID when, and only when, another entry must cite it. Retroactive IDs are never assigned in bulk; assignment order, not decision date, governs ID sequence." Classification lineage: P2 owner-tagging adjudication artefacts; B2b kill-list included `value_for_money`.
 
 1. **B2a authorized** — delete all `donor_reports` + `report_jobs` (+ FK children) referencing template `55f891ac` at execution time; guard stops on any owner email outside audit-mint `@grantpilot-test.org` or `pranabksingh@gmail.com`; pre-delete JSON dump; usage_ledger untouched; R2 objects deleted via storage lifecycle path with failures listed.
 2. **B2b authorized** — full JSONB replace from committed `tests/fixtures/templates/fcdo_55f891ac_post_deletion_v1.2.0.json` (6 sections, kill-list absent, 30/30 v1.2.0 tags); rollback from snapshot `aa6c9926…` ready before UPDATE; in-transaction read-back verification.
@@ -368,7 +387,7 @@ DECISION (2026-07-05) — Gate-1 PATCH knowledge-bank save (`PATCH /api/reports/
 
 **STOP:** owner live-walk on report `f33be000-4443-47d1-82f6-12f02947d972` after deploy approval.
 ---
-DECISION (2026-07-05) — Proposal extraction reliability + blocking checkpoint (D-046). AMBER — extract/degrade path + user-facing halt.
+DECISION (2026-07-05) — Proposal extraction reliability + blocking checkpoint (D-064). AMBER — extract/degrade path + user-facing halt.
 
 **Scope:** Mode C stream early-exit after successful `ResultMessage`; `ME_PROPOSAL_TIMEOUT_SECONDS` default 180 (Mode B — does not fix Mode A total silence); retry backoff (3s) + differentiated attempt-2 prompt; proposal-only blocking checkpoint at `EXTRACT`/`awaiting_human` with `proposal_checkpoint` trace; `POST .../jobs/proposal-checkpoint/ack` proceed path; unreadable_sources dedupe by `document_id`; Mode A instrumentation fields on `attempt_traces` (unsolved root).
 
@@ -383,6 +402,8 @@ DECISION (2026-07-05) — Proposal extraction reliability + blocking checkpoint 
 DECISION (2026-07-18) — Track 3 STOP 1 adjudication + elevation mechanism (D-053). AMBER — gap path / moat.
 
 **Numbering note (collision audit):** Table IDs D-046 and D-049 already collide with older freeform labels — table D-046 = F1 reliability bundle (2026-06-04) while the 2026-07-05 proposal-checkpoint narrative also says “D-046”; table D-049 = Fit Scans 20→10 while the E3 gap narrative says “D-049”. New IDs assigned only after that check: **D-053** (this entry), **D-054** (gap-grammar retro-log). No renumbering of historical collisions in this build.
+
+[2026-07-27 annotation — superseded: the collisions described here were resolved by renumbering to D-063/D-064 under D-074; see Revisions. Note retained as history.]
 
 **STOP 1 owner verdicts (verbatim, final):**
 - NLCF elevation map — ACCEPTED at exactly 2: `community_participation_examples` and `partner_or_local_collaboration_examples`. No additions.
@@ -497,4 +518,45 @@ NARRATIVE (2026-07-19) — Gate-integrity: CI silently skipped async tests (Pack
 **Restoration (this round):** Add `pytest-asyncio==0.21.1` to `requirements.txt` (matches the locally verified pin). Configure `pytest.ini` with `asyncio_mode = auto` and elevate `pytest.PytestUnhandledCoroutineWarning` to **error** so an unrunnable async test fails the gate instead of skipping. No mass test rewrites; resurrected tests must pass unmodified.
 
 **STOP:** Delta re-audit #2 of the PR head after push; no merge from this narrative alone.
+---
+
+DECISION (2026-07-26) — ME Engine Behavioural Contract v1.0 ratified (D-065).
+
+ME Engine Behavioural Contract v1.0 ratified as the engine constitution. Governs all rebuild packages; certification is contract conformance plus the golden records. Contract file status flipped DRAFT → RATIFIED.
+---
+DECISION (2026-07-26) — Golden Record FCDO BridgeLight AR1 v1.0 adopted (D-066).
+
+Golden Record FCDO BridgeLight AR1 v1.0 adopted as the measurement standard. Layer 5 becomes eighteen named harness assertions. v1.1 pending: V4 prose-conformance pass plus owner domain annotations (the 684 call, the no-derived-outcomes call, the ten-cluster confirmation).
+---
+DECISION (2026-07-26) — BridgeLight run dfd17248 adjudication v1.0 accepted (D-067).
+
+BridgeLight run dfd17248 adjudication v1.0 accepted. The five-layer scorecard becomes the CI assertion set; the run is the standing regression reference; RC1–RC7 are the rebuild problem statement. Invariant assertions carry a pass-by-starvation annotation: a forbidden-output check that passes only because upstream data never reached the stage under test records PASS-BY-STARVATION, not PASS, and does not count as a demonstrated safety property.
+---
+DECISION (2026-07-26) — Hypothesis audit at a74d5e3 accepted; P1–P6 authorised (D-068).
+
+Hypothesis audit at commit a74d5e3 accepted as the code-evidence base. Rebuild packages P1–P6 authorised under Completion Plan v1.0 plus Addendum v1.1. Phase 0 opened 2026-07-26.
+---
+DECISION (2026-07-26) — Value for Money restored as NGO-owned (D-069). Partial supersession of D-075.
+
+Value for Money restored as NGO-owned in the FCDO template, superseding the P2 funder-owned deletion, on award-letter evidence: the award letter requires the NGO to supply the four-Es assessment, and the proposal shows BridgeLight owned it. Executed in Package P1. Revisions row added against the superseded P2 decision (D-075, in part).
+---
+DECISION (2026-07-26) — Standing merge rule — BridgeLight five-layer floor (D-070).
+
+Standing merge rule: no engine-path merge below same-or-better on all five BridgeLight layers; regressions are reverted or bisected, never fixed forward. Harness assertions form two classes — invariant (Layer-5 forbidden outputs and honesty behaviours; never relaxed; starvation-annotated per D-067) and baselined (fidelity, recall, precision, prose; floor is the recorded baseline; moves only by explicit, singular, owner-signed decision).
+---
+DECISION (2026-07-26) — P1 baseline reset authorised (D-071).
+
+P1 baseline reset authorised — the first and only listed baseline decision. The pre-P1 coached baseline is archived as historical; the post-P1 run is recorded as the honest baseline and standing floor for P2–P6. Every recorded baseline carries commit SHA, golden dataset version, and model configuration; a floor without lineage is folklore. Future floor moves require the same explicit, singular, owner-signed treatment as this one.
+---
+DECISION (2026-07-26) — LLM_PROMPTS_LIBRARY registry restructure (D-072).
+
+Prompts library renamed to LLM_PROMPTS_LIBRARY.md and restructured as a registry: per prompt, the seven bounded-service header fields plus a pointer to deployed source. No duplicated prompt text anywhere; deployed code is canonical; the registry indexes it.
+---
+DECISION (2026-07-26) — Sealed NLCF golden policy (D-073).
+
+Sealed NLCF golden policy: the fixture and its expected outputs live only in harness fixtures; never quoted in any prompt, spec, or engine file; hook-enforced. Exists to prove contract §7 — the engine must score to standard on a funder it has never seen.
+---
+DECISION (2026-07-26) — Decision-ID collision policy (D-074).
+
+Decision-ID collision policy: the earliest-dated entry keeps its ID; the later duplicate renumbers to the next free ID with a Revisions cross-reference. Applied to the D-046/D-049 collision in this package. See also D-071 for the baseline-lineage rule this policy protects.
 ---

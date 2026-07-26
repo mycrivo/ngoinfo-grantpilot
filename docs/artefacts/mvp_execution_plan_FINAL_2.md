@@ -1,7 +1,9 @@
 # GrantPilot MVP Execution Plan
 
-Status: **Canonical — LOCKED FOR BUILD**  
+HISTORICAL — MVP execution plan, completed. Statements about the prompts library predate the 2026-07 v2.0.0 registry restructure; where this document conflicts with the registry's canonical rule, deployed code and the registry govern.
+
 Version: **4.0 (Strategic Rewrite)**  
+
 Last updated: **2026-02-07**  
 Timeline: **5 Days from restart**  
 Supersedes: Version 3.1 (2026-02-04)
@@ -10,7 +12,7 @@ Supersedes: Version 3.1 (2026-02-04)
 - All DB_FIELD_CONTRACT_*.md (field contracts — unchanged)
 - API_CONTRACT.md (endpoint contracts — auth + export updates pending)
 - MVP_SCOPE_LOCK.md, PRICING_AND_ENTITLEMENTS.md (business rules — unchanged)
-- OPENAI_PROMPTS_LIBRARY.md, PROMPT_INPUTS_FIELD_MAPPING.md (AI contracts — unchanged)
+- LLM_PROMPTS_LIBRARY.md, PROMPT_INPUTS_FIELD_MAPPING.md (AI contracts — unchanged)
 - AUTH_AND_SSO_STRATEGY.md (auth policy — implementation section updated)
 - STRIPE_INTEGRATION_SPEC.md (billing — rewritten for Stripe-as-SOT)
 
@@ -38,7 +40,7 @@ Version 3.1 assumed hand-rolled implementations for Google OAuth, Stripe billing
 | JWT + refresh tokens | Custom implementation | **Keep as-is** (already working) | No change needed |
 
 ### What We Are NOT Changing
-- **OPENAI_PROMPTS_LIBRARY.md** — Our crown jewel. Untouched.
+- **LLM_PROMPTS_LIBRARY.md** — Our crown jewel. Untouched.
 - **All DB field contracts** — Schema is schema. Untouched.
 - **PRICING_AND_ENTITLEMENTS.md** — Business rules don't change.
 - **FIT_SCAN_CRITERIA_MATRIX.md** — Evaluation logic untouched.
@@ -257,12 +259,12 @@ Billing events are high-stakes. A lost webhook means a user pays but never gets 
 **Decision:** Use the `openai` Python SDK directly with a thin wrapper. No LangChain.
 
 **Rationale:**
-Our prompt library (OPENAI_PROMPTS_LIBRARY.md) is meticulously engineered with specific temperatures, frequency penalties, token limits, and strict JSON schemas per prompt ID. LangChain's abstractions would fight this precision rather than help it.
+Deployed prompt components (`app/ai/fit_scan_executor.py`, `app/ai/prompt_runner.py`, `app/ai/prompts/proposal.py`; indexed as GP-F01/F02 and GP-P01/P02 in `LLM_PROMPTS_LIBRARY.md`) own temperatures, frequency penalties, token limits, and JSON schemas per prompt ID. The registry indexes those modules; it does not duplicate their parameters. LangChain's abstractions would fight this precision rather than help it.
 
 **What the prompt runner does:**
 1. Accept `prompt_inputs_json` (assembled by the backend adapter per PROMPT_INPUTS_FIELD_MAPPING.md)
 2. Select system prompt and user prompt template based on prompt ID (GP-F01/F02, GP-P01/P02, etc.)
-3. Call OpenAI API with exact parameters from OPENAI_PROMPTS_LIBRARY.md Section 1
+3. Call OpenAI API with model identity from `LLM_PROMPTS_LIBRARY.md` § "Model configuration (env pointers only)" (`OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK`) and per-prompt parameters from the owning deployed runner (`app/ai/prompt_runner.py` / `app/ai/fit_scan_executor.py`)
 4. Parse JSON response
 5. Validate response is valid JSON
 6. Return structured result or raise `DomainError` on failure
@@ -319,7 +321,7 @@ In-memory rate limiting (already working) requires shared memory across all requ
 |-----|-------|-----------|
 | Max generatable submission items per proposal | **5** | Items where `generation_allowed=true`. If opportunity has more, generate first 5 (by array order from requirements_json), mark rest as `MANUAL_REQUIRED` |
 | Max `prompt_inputs_json` payload size | **12,000 tokens** (estimated) | If over, truncate `overview_text` and `internal_notes` first (operational fields, not generation-critical) |
-| Cost ceiling per complete proposal | **$1.25 USD** | Per OPENAI_PROMPTS_LIBRARY.md Section 1. Includes fit scan + all sections + up to 3 regenerations |
+| Cost ceiling per complete proposal | **$1.25 USD** | Product/ops cap (see `PRICING_AND_ENTITLEMENTS.md` and service quota paths). Includes fit scan + all sections + up to 3 regenerations. Not sourced from the prompts registry. |
 
 **If cap is hit:**
 - Items beyond the 5-item limit get `generation_status: "MANUAL_REQUIRED"` with a note: "This section exceeds the generation limit. Please write it manually."
@@ -582,7 +584,7 @@ Indexes:
 **Persistence rules:**
 - Proposals are versioned: regeneration updates `content_json`, increments `version` and `regeneration_count`, updates `updated_at`
 - `plan_at_creation` captured at first creation time (never updated)
-- `prompt_version` must match OPENAI_PROMPTS_LIBRARY.md version string
+- `prompt_version` must equal the runtime stamp `PROMPT_LIBRARY_VERSION` in `app/ai/prompt_runner.py` / `app/ai/fit_scan_executor.py` (registry document version is not the DB stamp; see `LLM_PROMPTS_LIBRARY.md` versioning note)
 - If ALL sections fail during generation → do NOT persist, do NOT consume quota
 - If at least 1 section succeeds → persist (partial success), consume quota
 
@@ -604,9 +606,9 @@ Indexes:
 
 This is a THIN wrapper over the `openai` Python SDK. It must:
 - Accept: prompt_id, system_prompt, user_prompt, model parameters
-- Call `openai.chat.completions.create()` with exact parameters from OPENAI_PROMPTS_LIBRARY.md Section 1:
-  - Model: `gpt-5.2` (hardcoded constant, not env var, per OPENAI_PROMPTS_LIBRARY.md)
-  - Temperature, top_p, frequency_penalty, presence_penalty, max_tokens: per prompt ID table
+- Call `openai.chat.completions.create()` with:
+  - Model: `OPENAI_MODEL_PRIMARY` / `OPENAI_MODEL_FALLBACK` only (see `LLM_PROMPTS_LIBRARY.md` § "Model configuration (env pointers only)"; never a hardcoded model name)
+  - Temperature, top_p, frequency_penalty, presence_penalty, max_tokens: from deployed `PROMPT_CONFIGS` / owning runner module (indexed by `LLM_PROMPTS_LIBRARY.md` rows; not from registry bodies)
   - `response_format: {"type": "json_object"}`
 - Parse JSON response
 - Validate response is valid JSON
@@ -633,7 +635,7 @@ This is the critical data mapping layer:
 
 **Part 3: Create `app/ai/prompts/` directory** with prompt templates
 
-Store system and user prompt templates as Python constants, matching OPENAI_PROMPTS_LIBRARY.md exactly:
+Store system and user prompt templates as Python constants in the deployed modules named below (`LLM_PROMPTS_LIBRARY.md` indexes them; deployed code is canonical):
 - `fit_scan.py` — GP-F01 (system) + GP-F02 (user template)
 - `proposal.py` — GP-P01 (system) + GP-P02 (user template)
 - `user_input_norm.py` — GP-U01 (system + user template)

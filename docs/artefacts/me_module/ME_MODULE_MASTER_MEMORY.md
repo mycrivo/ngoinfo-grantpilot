@@ -397,7 +397,7 @@ Authenticated + entitlement-gated:
 
 ### Existing GrantPilot tech context (for reference)
 Next.js frontend + FastAPI/Python backend on Railway (GitHub CI/CD); PostgreSQL; OpenAI Chat Completions (`gpt-5.4`, env `OPENAI_MODEL_PRIMARY`, `response_format: json_object`); ThreadPoolExecutor for concurrent section generation; Resend (`support@ngoinfo.org`) for email; Stripe (hosted checkout + portal); Google OAuth + magic link; GTM/GA4 cross-domain. Core engine production-ready (22/22 smoke checks green). Humaniser framework governs both GrantPilot generation and Pranab's Accenture writing.
-**Key existing spec docs:** `API_CONTRACT.md`, `OPENAI_PROMPTS_LIBRARY.md`, `FUNDING_OPPORTUNITY_GOLDEN_RULES.md`, `ENV_VARS_REFERENCE.md`, `GUARDRAILS_RUNTIME_AND_SECURITY.md`, `PROMPT_INPUTS_FIELD_MAPPING.md`, plus DB field contracts.
+**Key existing spec docs:** `API_CONTRACT.md`, `LLM_PROMPTS_LIBRARY.md`, `FUNDING_OPPORTUNITY_GOLDEN_RULES.md`, `ENV_VARS_REFERENCE.md`, `GUARDRAILS_RUNTIME_AND_SECURITY.md`, `PROMPT_INPUTS_FIELD_MAPPING.md`, plus DB field contracts.
 
 ---
 

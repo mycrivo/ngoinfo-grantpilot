@@ -80,7 +80,7 @@ AUTH_JWT_SIGNING_KEY | Yes | <secret> | Strong secret (min 64 chars, cryptograph
 
 Note:
 - Model selection is now environment-driven (changed from hardcoded constant in v1.0.2, 2026-03-23).
-- See OPENAI_PROMPTS_LIBRARY.md Section 1 for the full model strategy including upgrade procedure.
+- See LLM_PROMPTS_LIBRARY.md § "Model configuration (env pointers only)" for the env-var index; upgrade procedure remains: PRIMARY + FALLBACK swap (no code deploy).
 - When upgrading models: set new model as PRIMARY, move previous model to FALLBACK. No code deploy needed.
 - Monitor Railway logs for `openai_primary_model_failed` warnings — this means the fallback activated and PRIMARY needs updating.
 

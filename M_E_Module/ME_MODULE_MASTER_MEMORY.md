@@ -416,7 +416,7 @@ Authenticated + entitlement-gated:
 ### Existing GrantPilot tech context (for reference)
 Next.js frontend + FastAPI/Python backend on Railway (GitHub CI/CD); PostgreSQL; OpenAI Chat Completions (`gpt-5.4`, env `OPENAI_MODEL_PRIMARY`, `response_format: json_object`); ThreadPoolExecutor for concurrent section generation; Resend (`support@ngoinfo.org`) for email; Stripe (hosted checkout + portal); Google OAuth + magic link; GTM/GA4 cross-domain. Core engine production-ready (22/22 smoke checks green). Humaniser framework governs both GrantPilot generation and Pranab's Accenture writing.
 **M&E runtime additions (live):** Railway **worker service** (separate service from the same image, start command `python -m app.reports.worker`, 1 replica) polling `report_jobs`; **Railway Buckets** (`ME_DOCUMENTS_S3_*`) for uploads; **Anthropic Messages API** (`ANTHROPIC_API_KEY`, not boot-validated) for D1/E1/E3; **Claude Agent SDK** subprocess for D2–D4; `ME_MODULE_ENABLED=true` mounts `/api/reports*`. Backend `origin/main` on `mycrivo/ngoinfo-grantpilot`.
-**Key existing spec docs:** `API_CONTRACT.md`, `OPENAI_PROMPTS_LIBRARY.md`, `FUNDING_OPPORTUNITY_GOLDEN_RULES.md`, `ENV_VARS_REFERENCE.md`, `GUARDRAILS_RUNTIME_AND_SECURITY.md`, `PROMPT_INPUTS_FIELD_MAPPING.md`, plus DB field contracts.
+**Key existing spec docs:** `API_CONTRACT.md`, `LLM_PROMPTS_LIBRARY.md`, `FUNDING_OPPORTUNITY_GOLDEN_RULES.md`, `ENV_VARS_REFERENCE.md`, `GUARDRAILS_RUNTIME_AND_SECURITY.md`, `PROMPT_INPUTS_FIELD_MAPPING.md`, plus DB field contracts.
 
 ---
 
