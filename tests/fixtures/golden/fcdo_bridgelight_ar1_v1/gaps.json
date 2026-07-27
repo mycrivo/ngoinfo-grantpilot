@@ -1,0 +1,148 @@
+{
+  "clusters": [
+    {
+      "id": "G-01",
+      "gap": "Achieved values for the three outcome indicators (OCM1, OCM2, OCM3)",
+      "why_real": "The results export is output-level only. The Annual Review must assess the Outcome. No proxy is legitimate.",
+      "severity": "Critical",
+      "question_intent": "Obtain endline or annual survey figures for the three outcome indicators (attendance ≥80%, progression/re-entry, safety during menstruation and travel); if unavailable, report honestly rather than estimate.",
+      "correct_period_comparator": "Year 1 milestone / outcome targets for the review year (not endline-only; not output proxies)"
+    },
+    {
+      "id": "G-02",
+      "gap": "OP2.3 achieved value — schools with an active safeguarding referral pathway tested through a termly case-review meeting",
+      "why_real": "Indicator exists in the framework with a Year 1 milestone of 18; absent from the export",
+      "severity": "High",
+      "question_intent": "Obtain achieved figure for OP2.3; Year 1 target was 18.",
+      "correct_period_comparator": "Year 1 milestone of 18 (not endline 40)"
+    },
+    {
+      "id": "G-03",
+      "gap": "OP4.2 achieved value — learning briefs produced and shared",
+      "why_real": "Indicator exists with a Year 1 milestone of 2; absent from the export",
+      "severity": "High",
+      "question_intent": "Obtain achieved figure for OP4.2; Year 1 target was 2.",
+      "correct_period_comparator": "Year 1 milestone of 2 (not endline 5)"
+    },
+    {
+      "id": "G-04",
+      "gap": "Current risk ratings and a risk register update for the period",
+      "why_real": "Only design-stage ratings and an initial programme rating exist. The template requires previous and current ratings with mitigation, owner and status.",
+      "severity": "High",
+      "question_intent": "Where each risk stands today — moved up/down, mitigations, owner.",
+      "correct_period_comparator": "Current period status vs design/award ratings"
+    },
+    {
+      "id": "G-05",
+      "gap": "Safeguarding activity during the review period — concerns raised, cases referred, outcomes",
+      "why_real": "Design-stage controls are documented; nothing about the period. FCDO names safeguarding as a review-pack requirement.",
+      "severity": "High",
+      "question_intent": "Safeguarding update for the period; nil return is valid.",
+      "correct_period_comparator": "Activity during the review period (not design-stage controls alone)"
+    },
+    {
+      "id": "G-06",
+      "gap": "Partner and supplier performance assessment",
+      "why_real": "£214,000 budgeted for local partner delivery; no partner is named and no performance view exists",
+      "severity": "Medium",
+      "question_intent": "Partner performance this year — delivery quality, commercial/procurement issues.",
+      "correct_period_comparator": "Period performance against partner delivery budget"
+    },
+    {
+      "id": "G-07",
+      "gap": "Total programme expenditure against the £1,240,000 approved envelope",
+      "why_real": "Only indicator-attributed AR1 costs exist. The award letter requires a forecast-versus-actual expenditure statement.",
+      "severity": "High",
+      "question_intent": "Programme-level expenditure statement vs full £1,240,000 award.",
+      "correct_period_comparator": "Forecast vs actual against approved £1,240,000 (not indicator-attributed AR1-only)"
+    },
+    {
+      "id": "G-08",
+      "gap": "Explanation of the OP1.1 movement from 612 to 684, and of the disaggregation shortfalls",
+      "why_real": "Both are unexplained in the documents and both are the kind of thing an FCDO reviewer asks about",
+      "severity": "Medium",
+      "question_intent": "Confirm what changed 612→684; address age/sex shortfalls on two indicators.",
+      "correct_period_comparator": "N/A — explanation of existing figures"
+    },
+    {
+      "id": "G-09",
+      "gap": "Confirmation of the reporting period position — has FCDO agreed the October–September cut in writing, or will data be recut?",
+      "why_real": "D2 requires written amendment; no amendment is in the bundle",
+      "severity": "Critical",
+      "question_intent": "Has FCDO agreed Oct–Sep in writing, or should the mismatch be flagged?",
+      "correct_period_comparator": "Contractual 15 Oct–14 Oct vs data 1 Oct–30 Sep"
+    },
+    {
+      "id": "G-10",
+      "gap": "Evaluation activity and new evidence generated during the period, or confirmation that none was produced",
+      "why_real": "Required by the template and named in the review-pack list",
+      "severity": "Medium",
+      "question_intent": "Any evaluation or external evidence this year? If not, say so.",
+      "correct_period_comparator": "Activity during the review period"
+    }
+  ],
+  "counter_list": [
+    {
+      "do_not_ask_for": "Impact weightings",
+      "because": "Present in both D1 and D3, and they agree"
+    },
+    {
+      "do_not_ask_for": "Baselines or targets for any indicator",
+      "because": "All twelve are in D1"
+    },
+    {
+      "do_not_ask_for": "Achieved values for the ten reported indicators",
+      "because": "All in D3"
+    },
+    {
+      "do_not_ask_for": "Output scores",
+      "because": "Present as proposed values; the final score is FCDO's to set"
+    },
+    {
+      "do_not_ask_for": "Evidence sources for the ten reported indicators",
+      "because": "Every row carries one"
+    },
+    {
+      "do_not_ask_for": "Variance explanations for the ten reported indicators",
+      "because": "Every row carries one"
+    },
+    {
+      "do_not_ask_for": "Updates on previous recommendations",
+      "because": "This is the first Annual Review. There are none. The correct output is 'not applicable', not a question."
+    },
+    {
+      "do_not_ask_for": "The programme budget",
+      "because": "£1,240,000 in D2"
+    },
+    {
+      "do_not_ask_for": "Programme dates or the review due date",
+      "because": "All in D2"
+    },
+    {
+      "do_not_ask_for": "Organisation background, charity number, districts, schools",
+      "because": "All in D1"
+    },
+    {
+      "do_not_ask_for": "Outcome or impact statements",
+      "because": "D1 §4"
+    },
+    {
+      "do_not_ask_for": "The activity list",
+      "because": "D1 §6"
+    },
+    {
+      "do_not_ask_for": "Design-stage risks or safeguarding controls",
+      "because": "D1 §9"
+    },
+    {
+      "do_not_ask_for": "Named cost drivers or the VfM approach",
+      "because": "D1 §8"
+    },
+    {
+      "do_not_ask_for": "Value-for-money measures, scoring rubric, DevTracker flags",
+      "because": "Funder-owned. Never surface to the NGO."
+    }
+  ],
+  "question_script_prose": "## 3.2 The question script\n\nHow these are asked matters as much as which are asked. This is the Gate 2 ground truth — questions from an analyst, not fields on a form.\n\n> **Your outcome results for the year**\n> Your report needs to show how the programme performed against its three outcome indicators — attendance, progression, and girls feeling safe. We found the targets in your proposal but no results for this year in the documents you uploaded. Do you have the endline or annual survey figures for: girls attending at least 80% of school days; girls progressing to the next grade or completing re-entry; girls reporting school is safe during menstruation and travel?\n> *If you don't have them yet, say so — we will report that honestly rather than estimate.*\n\n> **Two indicators missing from your results export**\n> Your results framework has twelve output indicators; the spreadsheet you uploaded reports ten. We are missing: schools with an active safeguarding referral pathway tested through a case-review meeting (target for the year was 18), and learning briefs produced and shared with district stakeholders (target was 2). Do you have figures for these?\n\n> **Your reporting period**\n> Your award letter sets the review period as 15 October 2024 to 14 October 2025, but your results and finance data cover 1 October 2024 to 30 September 2025. Has FCDO agreed the October to September cycle in writing, or should we flag this in the report as a difference for them to note?\n\n> **Risk position now**\n> We have the risk ratings from your proposal and the Medium-High rating in your award letter. For the review we need where each risk stands today — has anything moved up or down, what are you doing about it, and who owns it?\n\n> **Safeguarding this year**\n> FCDO will expect a safeguarding update for the period. Were any concerns raised or cases referred, and how were they handled? A nil return is a valid answer and we will report it as one.\n\n> **Money against the full award**\n> Your spreadsheet gives costs by indicator, totalling £920,420 against a forecast of £880,000. FCDO also wants forecast against actual for the whole £1,240,000 award. Do you have the programme-level expenditure statement?\n\n> **Your delivery partners**\n> Your budget includes £214,000 for local partner delivery. How have your partners performed this year — anything FCDO should know about delivery quality, or any commercial or procurement issues?\n\n> **Two numbers we want to get right**\n> Your proposal pack notes 612 girls re-enrolled by mid-September; your results export says 684 after cleaning. We are reporting 684 as the verified figure — can you confirm what changed? Separately, the age and sex breakdowns for two indicators are slightly short of the headline totals.\n\n> **Evaluation and learning**\n> Was any evaluation carried out or external evidence generated this year? If not, we will say so.",
+  "target_note": "no more than the ten clusters above, phrased in the NGO's language, with anything already in the knowledge bank offered as a confirm rather than a question."
+}

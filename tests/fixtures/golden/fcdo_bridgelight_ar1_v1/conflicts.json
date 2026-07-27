@@ -1,0 +1,184 @@
+[
+  {
+    "id": "C-01",
+    "title": "Approved budget: £1,184,000 versus £1,240,000",
+    "sides": [
+      {
+        "value": "£1,184,000",
+        "source": "D1 §2 and §10 (proposal budget; worksheet rounded £1.18 million)"
+      },
+      {
+        "value": "£1,240,000",
+        "source": "D2 (approved FCDO contribution, inclusive of delivery, management, M&E, contingency)"
+      }
+    ],
+    "adjudication": "£1,240,000 is the approved contribution. The award letter is the contracting instrument and post-dates the proposal by five weeks. The proposal itself signals its own figure is stale. The £1,184,000 remains a true fact about the proposal position and must not be deleted — it is the correct basis for the business-case cost-per-girl figure — but it is not the approved budget.",
+    "resolution_type": "prefer_award_letter_keep_proposal_as_true_fact",
+    "reportable_form": "FCDO approved £1,240,000. Never 'the programme budget is £1,184,000.'",
+    "defects": []
+  },
+  {
+    "id": "C-02",
+    "title": "Reporting period: 15 Oct–14 Oct versus 1 Oct–30 Sep",
+    "sides": [
+      {
+        "value": "15 October 2024 to 14 October 2025",
+        "source": "D2 contractual AR1 period"
+      },
+      {
+        "value": "1 October 2024 to 30 September 2025",
+        "source": "D3 cell A2 — period covered by reported data"
+      },
+      {
+        "value": "October 2024 to September 2025 anticipated",
+        "source": "D1 §6 (exact cut-off may be confirmed after contracting)"
+      }
+    ],
+    "adjudication": "Two different facts, both true, and they must both be stated. Contractual review period is 15 Oct 2024–14 Oct 2025. Period actually covered by every reported figure is 1 Oct 2024–30 Sep 2025. No written amendment exists.",
+    "resolution_type": "both_are_true_different_facts",
+    "reportable_form": "Mismatch disclosed in Section A before any result, carried into evidence-quality table and recommendations.",
+    "defects": []
+  },
+  {
+    "id": "C-03",
+    "title": "OP1.1 re-enrolment: 612 versus 684",
+    "sides": [
+      {
+        "value": "612",
+        "source": "D1 §5 internal note by 16 September 2025 (pre-verification)"
+      },
+      {
+        "value": "684",
+        "source": "D3 achieved value, AR1 export 3 October 2025, post-cleaning"
+      }
+    ],
+    "adjudication": "684 is the reportable actual. Cleaning described as removing double-counts produced a figure 72 higher, not lower — unexplained movement must survive as a provenance flag. D1 dated 19 August 2024 containing Sep 2025 data means D1 cannot be treated as a single fixed-date document.",
+    "resolution_type": "prefer_later_export_with_provenance_flag",
+    "reportable_form": "684 as verified figure; unexplained 612→684 movement flagged in evidence quality.",
+    "defects": []
+  },
+  {
+    "id": "C-04",
+    "title": "Disaggregation that does not survive inspection",
+    "sides": [
+      {
+        "value": "Headline actuals 392 / 3 / 684 / 472",
+        "source": "D3 achieved values"
+      },
+      {
+        "value": "Disaggregation cells as exported",
+        "source": "D3 sex/age columns"
+      }
+    ],
+    "adjudication": "Report the headline, refuse the breakdown for OP3.1 and OP4.1. Note OP1.1 and OP1.2 shortfalls. State disaggregated data is not currently reliable enough for the funder's disaggregation requirement.",
+    "resolution_type": "report_headline_refuse_breakdown",
+    "reportable_form": "Report 392 caregivers, 3 meetings, 684 girls and 472 girls. Do not report OP3.1 or OP4.1 disaggregation as valid.",
+    "defects": [
+      {
+        "id": "C-04a",
+        "subject": "OP3.1 caregivers",
+        "detail": "392 recorded as 96 males aged 6–11, 118 aged 12–17, 178 aged 18–24, no females. Caregivers in child age bands not credible; all-male caregivers via mother groups not credible. Arithmetic reconciles; substance fails."
+      },
+      {
+        "id": "C-04b",
+        "subject": "OP4.1 meetings",
+        "detail": "Three meetings disaggregated across six person-bands totalling 39. Meetings do not have sex or age; cells presumably describe attendees (different indicator)."
+      },
+      {
+        "id": "C-04c",
+        "subject": "OP1.1 and OP1.2 shortfalls",
+        "detail": "Sex and age cells fall short of headline by 3 and 1 respectively. Disaggregation incomplete against reported total."
+      }
+    ]
+  },
+  {
+    "id": "C-05",
+    "title": "Community actor target: 160 versus 240",
+    "sides": [
+      {
+        "value": "160",
+        "source": "D1 §2 school and community actor target"
+      },
+      {
+        "value": "240",
+        "source": "OP4.3 endline target (same document)"
+      }
+    ],
+    "adjudication": "Report against the logframe endline of 240, since the logframe is the results framework FCDO assesses, and flag the inconsistency. Do not silently pick one.",
+    "resolution_type": "prefer_logframe_endline_flag_inconsistency",
+    "reportable_form": "Report against 240 endline; flag 160 vs 240 inconsistency.",
+    "defects": []
+  },
+  {
+    "id": "C-06",
+    "title": "Age bands versus target population",
+    "sides": [
+      {
+        "value": "10–19 target population",
+        "source": "D1 §2"
+      },
+      {
+        "value": "Monitoring bands 6–11, 12–17, 18–24",
+        "source": "D1 §7"
+      }
+    ],
+    "adjudication": "Report the data as banded, note that monitoring bands do not align with stated target population, and do not attempt to re-band or estimate an in-range figure.",
+    "resolution_type": "report_as_banded_note_misalignment",
+    "reportable_form": "Data as banded; note misalignment; no re-banding.",
+    "defects": []
+  },
+  {
+    "id": "C-07",
+    "title": "OP2.1 baseline treatment",
+    "sides": [
+      {
+        "value": "Baseline 6 functional stances; achieved 31; milestone 24",
+        "source": "D1/D3 OP2.1"
+      },
+      {
+        "value": "Indicator wording 'rehabilitated or newly functional' ambiguous on cumulative vs new",
+        "source": "Indicator definition"
+      }
+    ],
+    "adjudication": "Report 31 as stated against milestone of 24, and flag the definitional ambiguity. Do not adjust the figure in either direction.",
+    "resolution_type": "report_as_stated_flag_definitional_ambiguity",
+    "reportable_form": "31 against milestone 24 with definitional caveat.",
+    "defects": []
+  },
+  {
+    "id": "C-08",
+    "title": "The TOTAL row",
+    "sides": [
+      {
+        "value": "Column totals e.g. Female 12–17 = 1,944; ultra-poor = 2,376",
+        "source": "D3 TOTAL row"
+      },
+      {
+        "value": "Programme targets 1,200 girls total",
+        "source": "D1 design"
+      }
+    ],
+    "adjudication": "TOTAL row excluded from the knowledge bank as a reportable fact. Retained only as an arithmetic artefact. 227-versus-291 previously-married discrepancy reported as data-quality finding. Never report TOTAL as beneficiary counts.",
+    "resolution_type": "exclude_from_reportable_facts_retain_as_artefact",
+    "reportable_form": "Do not report TOTAL-row figures as reach. Report 227 vs 291 as data-quality finding.",
+    "defects": []
+  },
+  {
+    "id": "C-09",
+    "title": "Proposed output scores",
+    "sides": [
+      {
+        "value": "Per-indicator scores A/B/C on DRAFT worksheet",
+        "source": "D3 AR1_OutputScore_DRAFT_do_not_overwrite"
+      },
+      {
+        "value": "Final scores agreed with FCDO; FCDO scores at Output level",
+        "source": "D1 §7, D2"
+      }
+    ],
+    "adjudication": "Two resolutions. First: proposed and draft — reportable as BridgeLight's proposed position, never as agreed scores. Second: Output-level score cannot be derived from indicator-level scores without a weighting rule the documents do not contain. Output 2 and 4 incomplete. Do not aggregate.",
+    "resolution_type": "draft_proposed_only_do_not_aggregate",
+    "reportable_form": "Proposed/draft only; never agreed/final/FCDO-assigned; no indicator-to-output aggregation.",
+    "defects": []
+  }
+]

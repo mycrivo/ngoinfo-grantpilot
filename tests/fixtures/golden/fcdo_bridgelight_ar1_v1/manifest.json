@@ -1,0 +1,60 @@
+{
+  "dataset_id": "fcdo_bridgelight_ar1",
+  "dataset_version": "1.0",
+  "content_checksum": "9437de2f5fd7642f5d5bb0b2369963cc42bff3124dacdfcd5f2b87b898d81f01",
+  "checksum_algorithm": "sha256",
+  "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(metadata + full_markdown_sha256)",
+  "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+  "source_document_version": "1.0",
+  "authored": "2026-07-25",
+  "adopted": "2026-07-26",
+  "layer_provenance": {
+    "layer_1_facts": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "Transcribed from LAYER 1; one record per (F-id, facet)."
+    },
+    "layer_2_conflicts": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "C-01…C-09; C-04 carries defects[]."
+    },
+    "layer_3_gaps": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "G-01…G-10 + 15-item counter-list + question script prose."
+    },
+    "layer_4_report": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "file": "report_reference.json",
+      "prose_uncalibrated": true,
+      "notes": "Own file so v1.1 Layer-4-only swap touches nothing else. VfM workaround inside Section F.",
+      "vfm_section_f_workaround": true,
+      "vfm_amendment_when": "P1 restores VfM section (D-069) → Layer 4 requires golden amendment"
+    },
+    "layer_5_forbidden": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "FB-01…FB-18 with detection_method."
+    }
+  },
+  "structural_findings": {
+    "vfm_template_gap": {
+      "summary": "Live FCDO template omits NGO-owned VfM section required by award letter.",
+      "golden_workaround": "VfM material carried in Layer 4 Section F",
+      "owner_amendment_item": "When P1 restores VfM (D-069), amend Layer 4; not an engine defect"
+    }
+  },
+  "counts": {
+    "fact_records": 242,
+    "distinct_fact_ids": 106,
+    "conflicts": 9,
+    "gap_clusters": 10,
+    "counter_list": 15,
+    "forbidden": 18
+  },
+  "fabrication_semantics": {
+    "layer_1_fabrications": "REVIEW-REQUIRED — never auto-PASS, never auto-FAIL; owner bins: golden amendment | invention; counted separately from recall"
+  }
+}
