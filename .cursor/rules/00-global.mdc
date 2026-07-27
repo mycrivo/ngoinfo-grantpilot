@@ -1,21 +1,25 @@
 ---
-description: GrantPilot global build discipline — spec-first, outcome-driven, decision log
+description: Builder wrapper — AGENTS.md constitution pointer + builder charter + repo discipline
 alwaysApply: true
 ---
 
-# Global build discipline
+# Global build discipline (builder)
 
-## Spec → code (never reverse)
+**Mandatory read:** [`AGENTS.md`](AGENTS.md) — GrantPilot Engine Constitution (distilled). Do not duplicate constitution text here.
+
+## Builder charter
+
+Builds from versioned package specs only, scoped to the spec. Plan-first; AMBER plans halt for owner approval. Runs /review before every push. Never certifies, never audits, never edits goldens, the constitution, or hook configs. When the spec and observed behaviour disagree, stops and reports — the spec is amended, not the chat.
+
+## Spec locations and contract hygiene
 
 - Contract docs in `docs/artefacts/` and `docs/artefacts/me_module/` are truth; code obeys them.
 - Do not retroactively change contracts to match code without a decision-log entry and explicit approval.
 - M&E contracts lock in Stage B; no M&E product code before Stage B exit.
 
-## Outcome-driven prompts
+## Diagnose before fixing
 
-- Specify **what** must be true when done, not step-by-step pseudocode.
-- One scoped outcome per task; include explicit **STOP** conditions and non-goals.
-- Diagnose before fixing — structured root-cause before any patch.
+Diagnose before fixing — structured root-cause before any patch.
 
 ## Backend is source of truth
 

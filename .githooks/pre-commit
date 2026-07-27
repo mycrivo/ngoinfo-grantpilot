@@ -1,0 +1,57 @@
+#!/bin/sh
+# GrantPilot governance pre-commit (Windows-viable).
+# Resolves python / py -3 / python3. Never silent-pass if none resolve.
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+if [ -z "$REPO_ROOT" ]; then
+  echo "governance pre-commit: cannot resolve git repo root" >&2
+  exit 1
+fi
+
+cd "$REPO_ROOT" || exit 1
+
+resolve_python() {
+  if command -v python >/dev/null 2>&1; then
+    if python -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" 2>/dev/null; then
+      echo "python"
+      return 0
+    fi
+  fi
+  if command -v py >/dev/null 2>&1; then
+    if py -3 -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" 2>/dev/null; then
+      echo "py -3"
+      return 0
+    fi
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    if python3 -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" 2>/dev/null; then
+      echo "python3"
+      return 0
+    fi
+  fi
+  return 1
+}
+
+PY=$(resolve_python)
+if [ -z "$PY" ]; then
+  cat >&2 <<'EOF'
+governance pre-commit: no usable Python interpreter found.
+
+Tried: python, py -3, python3
+Install Python 3.10+ and ensure one of those commands works from Git Bash / cmd,
+then re-run the commit. Example (Command Prompt):
+
+  py -3 --version
+  py -3 scripts\install_git_hooks.py
+
+This is a hard fail — not a silent pass. Local bypass: git commit --no-verify
+(CI governance-guards job remains non-bypassable).
+EOF
+  exit 1
+fi
+
+# shellcheck disable=SC2086
+# --allow-env-override: local pre-commit uses GOVERNANCE_OVERRIDE env (commit
+# message alone is not available reliably at this hook). CI clears env and
+# binds overrides per commit message.
+exec $PY scripts/governance/run_guards.py --staged --layer pre-commit --allow-env-override

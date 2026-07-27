@@ -4,14 +4,34 @@
     "preToolUse": [
       {
         "command": "python .cursor/hooks/isolation_veto.py",
-        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|search_replace",
-        "failClosed": false
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|Edit|MultiEdit|NotebookEdit|search_replace",
+        "failClosed": true
+      },
+      {
+        "command": "python .cursor/hooks/funder_fixture_guard.py",
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|Edit|MultiEdit|NotebookEdit|search_replace",
+        "failClosed": true
+      },
+      {
+        "command": "python .cursor/hooks/protected_file_guard.py",
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|Edit|MultiEdit|NotebookEdit|search_replace",
+        "failClosed": true
+      },
+      {
+        "command": "python .cursor/hooks/harness_import_guard.py",
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|Edit|MultiEdit|NotebookEdit|search_replace",
+        "failClosed": true
+      },
+      {
+        "command": "python .cursor/hooks/secret_write_guard.py",
+        "matcher": "Write|StrReplace|ApplyPatch|EditNotebook|Edit|MultiEdit|NotebookEdit|search_replace",
+        "failClosed": true
       }
     ],
     "postToolUse": [
       {
         "command": "python .cursor/hooks/migration_parity_check.py",
-        "matcher": "Write|StrReplace|ApplyPatch|search_replace",
+        "matcher": "Write|StrReplace|ApplyPatch|Edit|MultiEdit|search_replace",
         "failClosed": false
       }
     ],
