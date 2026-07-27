@@ -16,6 +16,7 @@ DEFAULT_PACK_DIR = (
 
 # Deterministic fingerprints — kept in sync with layers.l5_assertions._DETERMINISTIC_PATTERNS.
 # Standing self-check: reference text vs pack's own forbidden patterns.
+# D-080: arm is uncalibrated; patterns must not be edited in builder packages.
 _DET_PATTERNS: dict[str, list[re.Pattern[str]]] = {
     "FB-01": [
         re.compile(r"1[, ]?944"),
@@ -121,7 +122,11 @@ def compute_pack_checksum(
 
 
 def scan_reference_against_forbidden(full_markdown: str) -> list[str]:
-    """Standing pack check: deterministic forbidden patterns vs Layer 4 reference text."""
+    """Standing pack check: deterministic forbidden patterns vs Layer 4 reference text.
+
+    D-080: observations are recorded; fail-on-load is suspended while the arm is
+    uncalibrated. Do not reintroduce an exception list.
+    """
     hits: list[str] = []
     for fid, pats in _DET_PATTERNS.items():
         for pat in pats:
@@ -131,42 +136,19 @@ def scan_reference_against_forbidden(full_markdown: str) -> list[str]:
     return hits
 
 
-def validate_l5_reference_self_check(
-    *,
-    full_markdown: str,
-    allowlist: list[str] | None,
-) -> list[str]:
-    """Return hits. Raise if any hit is not on the pack's declared allowlist.
-
-    The golden reference necessarily *discusses* some forbidden patterns (naming
-    unreported indicators, naming a superseded budget, disclosing a bad
-    disaggregation). Those IDs must be listed in manifest.l5_self_check_allowlist.
-    Unexpected hits fail pack validation.
-    """
-    hits = scan_reference_against_forbidden(full_markdown)
-    allowed = set(allowlist or [])
-    unexpected = sorted(set(hits) - allowed)
-    if unexpected:
-        raise ValueError(
-            "Golden pack L5 reference self-check failed — unexpected deterministic "
-            f"hits in report_reference.full_markdown: {unexpected}. "
-            f"Observed hits={sorted(set(hits))}; allowlist={sorted(allowed)}"
-        )
-    missing_allowlist = sorted(allowed - set(hits))
-    if missing_allowlist:
-        raise ValueError(
-            "Golden pack L5 self-check allowlist is stale — listed IDs no longer hit: "
-            f"{missing_allowlist}"
-        )
-    return hits
-
-
 def load_golden_pack(
     pack_dir: Path | None = None,
     *,
     verify_checksum: bool = True,
     verify_l5_self_check: bool = True,
 ) -> GoldenPack:
+    """Load pack fixtures.
+
+    ``verify_l5_self_check`` controls whether the deterministic self-check *runs*
+    (default True). It never fails the load while the L5 deterministic arm is
+    uncalibrated (D-080). Reversion: restore fail-on-load only after owner/CTO
+    authored and calibrated detectors are recorded in the decision log.
+    """
     root = Path(pack_dir) if pack_dir else DEFAULT_PACK_DIR
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     facts = json.loads((root / "facts.json").read_text(encoding="utf-8"))
@@ -192,15 +174,8 @@ def load_golden_pack(
 
     hits: list[str] = []
     if verify_l5_self_check:
-        allowlist = manifest.get("l5_self_check_allowlist") or []
-        # Allowlist entries may be strings or {id, rationale} objects.
-        allow_ids = [
-            (e if isinstance(e, str) else e["id"]) for e in allowlist
-        ]
-        hits = validate_l5_reference_self_check(
-            full_markdown=report_reference["full_markdown"],
-            allowlist=allow_ids,
-        )
+        # Record-only while uncalibrated — never raise on observations (D-080).
+        hits = scan_reference_against_forbidden(report_reference["full_markdown"])
 
     return GoldenPack(
         pack_dir=root,

@@ -1,6 +1,10 @@
-"""P0 WI2 — five-layer assertion library semantics."""
+"""P0 assertion library semantics — WI2 + D-079 + D-080 honesty package."""
 
 from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
 
 import pytest
 
@@ -10,13 +14,22 @@ from app.reports.eval.bundle_schema import (
     STAGE_KNOWLEDGE_BANK,
     ScoreableBundle,
 )
-from app.reports.eval.golden_pack import load_golden_pack
+from app.reports.eval.golden_pack import GoldenPack, compute_pack_checksum, load_golden_pack
 from app.reports.eval.layers.l1_assertions import evaluate_layer1
 from app.reports.eval.layers.l4_assertions import evaluate_layer4
 from app.reports.eval.layers.l5_assertions import evaluate_layer5
 from app.reports.eval.run_assertions import gate_verdict, run_all_layers
 from app.reports.eval.starvation import is_starved
 from app.reports.eval.verdicts import AssertionClass, Verdict
+
+# Pinned at D-080 honesty package — any change to these payloads requires a deliberate test edit.
+PINNED_CONTENT_CHECKSUM = "185223373f46afa85e47562c82d7b6a5494858482aa7c9f9afe7f448869eca79"
+PINNED_PAYLOAD_SHA256 = {
+    "facts.json": "b1f723252fedfd9b105364c41b17dd7084a2999faba10e33fd4db90b8cd1423b",
+    "conflicts.json": "0ba4701d17f446db10874da8df0187750eae6dcaa4eb08d058a38c8894e8a7dc",
+    "gaps.json": "e595a26fddca525c10eb8dde6993749aabc11e0459da1b17c37392945489985a",
+    "forbidden.json": "d1788cf37227d613851f789a74a2a38b8f4839e6dd6f1062122f8aa65c398548",
+}
 
 
 @pytest.fixture(scope="module")
@@ -34,6 +47,12 @@ def test_golden_pack_loads_and_checksum_matches(pack):
     assert pack.reference_prose_conforms_to_v4 is True
     assert pack.judge_calibrated is False
     assert "prose_uncalibrated" not in pack.report_reference
+    assert "l5_self_check_allowlist" not in pack.manifest
+    arm = pack.manifest["l5_deterministic_arm"]
+    assert arm["status"] == "uncalibrated"
+    assert arm["gates"] is False
+    assert arm["fail_on_load"] == "suspended"
+    assert "reversion_condition" in arm
     # Layer 4 text comes from fixture file
     assert "LAYER 4" in pack.report_markdown or "Summary and Overview" in pack.report_markdown
     assert "419, no limit" in pack.report_markdown
@@ -42,7 +61,7 @@ def test_golden_pack_loads_and_checksum_matches(pack):
     assert "prose_rubric_reference" in pack.report_reference
     assert "Appendix" in pack.report_reference["prose_rubric_reference"]
     assert "Appendix" not in pack.report_markdown
-    # Standing L5 self-check ran and hits are allowlisted
+    # Standing L5 self-check ran and recorded hits; load did not fail (D-080)
     assert set(pack.l5_reference_self_hits) == {
         "FB-04",
         "FB-05",
@@ -51,6 +70,32 @@ def test_golden_pack_loads_and_checksum_matches(pack):
         "FB-13",
         "FB-14",
     }
+
+
+def test_pinned_content_checksum_and_layer_payload_digests(pack):
+    """Answer-key identity: checksum and L1/L2/L3/L5 bytes must not move silently."""
+    assert pack.content_checksum == PINNED_CONTENT_CHECKSUM
+    recomputed = compute_pack_checksum(
+        facts=pack.facts,
+        conflicts=pack.conflicts,
+        gaps=pack.gaps,
+        forbidden=pack.forbidden,
+        report_reference=pack.report_reference,
+    )
+    assert recomputed == PINNED_CONTENT_CHECKSUM
+    for name, expected in PINNED_PAYLOAD_SHA256.items():
+        raw = (pack.pack_dir / name).read_bytes()
+        actual = hashlib.sha256(raw).hexdigest()
+        assert actual == expected, f"{name} digest moved: {actual}"
+
+
+def test_l5_self_check_records_hits_without_failing_load(pack):
+    """D-080: self-check runs and records; never fails load on observations."""
+    assert pack.l5_reference_self_hits  # known hits against reference prose
+    assert "l5_self_check_allowlist" not in pack.manifest
+    # Reloading with self-check on must succeed despite hits
+    again = load_golden_pack(pack.pack_dir, verify_checksum=True, verify_l5_self_check=True)
+    assert set(again.l5_reference_self_hits) == set(pack.l5_reference_self_hits)
 
 
 def test_fb05_is_dual(pack):
@@ -114,7 +159,6 @@ def test_l1_fabrications_are_review_required_not_fail(pack):
     assert fab.verdict == Verdict.REVIEW_REQUIRED
     assert fab.metrics["counted_separately_from_recall"] is True
     recall = next(r for r in results if r.assertion_id == "L1-RECALL")
-    # Fabrication must not be masked by collapsing into recall fail
     assert "fabrication" not in recall.detail.lower() or recall.assertion_id != fab.assertion_id
 
 
@@ -152,26 +196,27 @@ def test_l4_prose_is_advisory_and_ignored_by_gate(pack):
     assert prose.metrics.get("judge_calibrated") is False
     assert prose.metrics.get("reference_prose_conforms_to_v4") is True
 
-    # Even if we inject a FAIL elsewhere advisory, gate ignores advisory verdicts
     summary = gate_verdict(results)
     assert "L4-PROSE" in summary["advisory_ignored_by_gate"]
 
 
-def test_reference_prose_conforms_to_v4_cannot_affect_gate(pack):
-    """Guard: flipping reference_prose_conforms_to_v4 must not change any verdict."""
-    from app.reports.eval.golden_pack import GoldenPack
-
+def test_reference_prose_conforms_to_v4_cannot_affect_any_layer_or_gate(pack):
+    """Gate-level separation: invert reference_prose_conforms_to_v4; all verdicts + summary unchanged."""
     bundle = ScoreableBundle(
-        bundle_id="flag-sep",
+        bundle_id="flag-sep-full",
         provenance="synthetic",
-        stages_present=[STAGE_CONTENT],
+        stages_present=[STAGE_KNOWLEDGE_BANK, STAGE_GAPS, STAGE_CONTENT],
+        knowledge_bank={"facts": [], "conflicts": []},
+        gap_analysis={"questions": []},
         content_json={"sections": {"A": {"prose": "Text", "source_refs": ["x"]}}},
+        export_text="",
     )
-    base = evaluate_layer4(bundle, pack)
-    base_verdicts = {r.assertion_id: r.verdict for r in base}
+    base_results = run_all_layers(bundle, pack)
+    base_summary = gate_verdict(base_results)
+    base_verdicts = {r.assertion_id: r.verdict for r in base_results}
 
     flipped_ref = dict(pack.report_reference)
-    flipped_ref["reference_prose_conforms_to_v4"] = False
+    flipped_ref["reference_prose_conforms_to_v4"] = not pack.reference_prose_conforms_to_v4
     flipped = GoldenPack(
         pack_dir=pack.pack_dir,
         manifest=pack.manifest,
@@ -183,41 +228,41 @@ def test_reference_prose_conforms_to_v4_cannot_affect_gate(pack):
         l5_reference_self_hits=pack.l5_reference_self_hits,
     )
     assert flipped.reference_prose_conforms_to_v4 is False
-    assert flipped.judge_calibrated is False
-    alt = evaluate_layer4(bundle, flipped)
-    alt_verdicts = {r.assertion_id: r.verdict for r in alt}
+    alt_results = run_all_layers(bundle, flipped)
+    alt_summary = gate_verdict(alt_results)
+    alt_verdicts = {r.assertion_id: r.verdict for r in alt_results}
+
     assert base_verdicts == alt_verdicts
-    prose = next(r for r in alt if r.assertion_id == "L4-PROSE")
-    assert prose.verdict == Verdict.ADVISORY
-    assert prose.metrics["gates_ignored"] is True
-
-
-def test_l5_self_check_rejects_unexpected_hit(pack, tmp_path):
-    import json
-    from app.reports.eval.golden_pack import load_golden_pack
-
-    # Copy pack to temp and strip allowlist → load must fail on known hits
-    src = pack.pack_dir
-    dst = tmp_path / "pack"
-    dst.mkdir()
-    for name in (
-        "manifest.json",
-        "facts.json",
-        "conflicts.json",
-        "gaps.json",
-        "forbidden.json",
-        "report_reference.json",
+    for key in (
+        "gate_pass",
+        "blocking_failures",
+        "review_required",
+        "advisory_ignored_by_gate",
+        "pass_by_starvation",
+        "demonstrated_safety_count",
     ):
-        (dst / name).write_text((src / name).read_text(encoding="utf-8"), encoding="utf-8")
-    man = json.loads((dst / "manifest.json").read_text(encoding="utf-8"))
-    man["l5_self_check_allowlist"] = []  # empty → all hits unexpected
-    (dst / "manifest.json").write_text(json.dumps(man), encoding="utf-8")
-    with pytest.raises(ValueError, match="L5 reference self-check failed"):
-        load_golden_pack(dst, verify_checksum=False, verify_l5_self_check=True)
+        assert base_summary[key] == alt_summary[key], f"summary[{key}] changed"
+
+
+def test_missing_judge_calibrated_flag_is_fail_closed():
+    """Absent judge_calibrated → harness treats judge as uncalibrated."""
+    root = Path("tests/fixtures/golden/fcdo_bridgelight_ar1_v1")
+    report = json.loads((root / "report_reference.json").read_text(encoding="utf-8"))
+    report.pop("judge_calibrated", None)
+    assert "judge_calibrated" not in report
+    pack = GoldenPack(
+        pack_dir=root,
+        manifest=json.loads((root / "manifest.json").read_text(encoding="utf-8")),
+        facts=json.loads((root / "facts.json").read_text(encoding="utf-8")),
+        conflicts=json.loads((root / "conflicts.json").read_text(encoding="utf-8")),
+        gaps=json.loads((root / "gaps.json").read_text(encoding="utf-8")),
+        forbidden=json.loads((root / "forbidden.json").read_text(encoding="utf-8")),
+        report_reference=report,
+    )
+    assert pack.judge_calibrated is False
 
 
 def test_l4_uses_report_reference_file_not_inline(pack):
-    # Mutating an unrelated string must not be what L4 reads — it reads pack.report_markdown
     md = pack.report_markdown
     assert len(md) > 1000
     bundle = ScoreableBundle(
@@ -231,7 +276,6 @@ def test_l4_uses_report_reference_file_not_inline(pack):
 
 
 def test_l5_judged_never_auto_clears_moat_on_heuristic(pack):
-    # FB-10 is judged — plant keywords to force REVIEW-REQUIRED
     bundle = ScoreableBundle(
         bundle_id="judged",
         provenance="synthetic",
@@ -253,7 +297,8 @@ def test_l5_judged_never_auto_clears_moat_on_heuristic(pack):
     assert fb10.verdict == Verdict.REVIEW_REQUIRED
 
 
-def test_l5_dual_deterministic_arm_fails_on_named_instance(pack):
+def test_l5_dual_deterministic_arm_is_advisory_when_uncalibrated(pack):
+    """D-080: deterministic arm hit records observation but does not gate."""
     bundle = ScoreableBundle(
         bundle_id="dual",
         provenance="synthetic",
@@ -263,8 +308,47 @@ def test_l5_dual_deterministic_arm_fails_on_named_instance(pack):
     )
     results = evaluate_layer5(bundle, pack)
     fb01 = next(r for r in results if r.assertion_id == "FB-01")
-    assert fb01.verdict == Verdict.FAIL
+    assert fb01.assertion_class == AssertionClass.ADVISORY
+    assert fb01.verdict == Verdict.ADVISORY
     assert fb01.metrics["detection_method"] == "dual"
+    assert fb01.metrics.get("uncalibrated") is True
+    assert fb01.metrics.get("gates_ignored") is True
+    assert not fb01.counts_as_demonstrated_safety
+    summary = gate_verdict(results)
+    assert "FB-01" in summary["advisory_ignored_by_gate"]
+    assert "FB-01" not in summary["blocking_failures"]
+
+
+def test_l5_deterministic_arm_markers_and_excluded_from_demonstrated_safety(pack):
+    bundle = ScoreableBundle(
+        bundle_id="det-markers",
+        provenance="synthetic",
+        stages_present=[STAGE_CONTENT],
+        content_json={"sections": {"A": {"prose": "clean prose with no forbidden fingerprints"}}},
+        export_text="clean",
+    )
+    results = evaluate_layer5(bundle, pack)
+    det_results = [
+        r
+        for r in results
+        if r.metrics.get("detection_method") == "deterministic"
+        or (
+            r.metrics.get("detection_method") == "dual"
+            and r.metrics.get("uncalibrated") is True
+        )
+    ]
+    # At least pure-deterministic FBs should carry markers when they emit
+    pure_det = [r for r in results if r.metrics.get("detection_method") == "deterministic"]
+    assert pure_det
+    for r in pure_det:
+        assert r.assertion_class == AssertionClass.ADVISORY
+        assert r.verdict == Verdict.ADVISORY
+        assert r.metrics.get("uncalibrated") is True
+        assert r.metrics.get("gates_ignored") is True
+        assert not r.counts_as_demonstrated_safety
+    summary = gate_verdict(results)
+    for r in pure_det:
+        assert r.assertion_id in summary["advisory_ignored_by_gate"]
 
 
 def test_run_all_layers_smoke(pack):
@@ -277,6 +361,6 @@ def test_run_all_layers_smoke(pack):
         content_json={"sections": {"A": {"prose": "Hello", "source_refs": ["x"]}}},
     )
     results = run_all_layers(bundle, pack)
-    assert len(results) >= 18  # at least L5 eighteen + other layers
+    assert len(results) >= 18
     layers = {r.layer for r in results}
     assert layers == {1, 2, 3, 4, 5}

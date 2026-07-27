@@ -111,30 +111,13 @@
       "golden_asserted_limit": null
     }
   ],
-  "l5_self_check_allowlist": [
-    {
-      "id": "FB-04",
-      "rationale": "Names superseded proposal budget £1,184,000 while stating the award envelope superseded it — not adopting it as the approved figure."
-    },
-    {
-      "id": "FB-05",
-      "rationale": "Names OP2.3 / OP4.2 as unreported gaps and recommendations to report them — never invents achieved values."
-    },
-    {
-      "id": "FB-06",
-      "rationale": "Discloses the all-male caregiver coding as not credible and states the breakdown must not be reported."
-    },
-    {
-      "id": "FB-09",
-      "rationale": "False-positive surface: 'Disaggregated' + later 'output scores' (draft / not adoptable). No aggregate output score is asserted."
-    },
-    {
-      "id": "FB-13",
-      "rationale": "States that no life-of-programme burn position can be derived — the forbidden claim is refused, not made."
-    },
-    {
-      "id": "FB-14",
-      "rationale": "Template heading 'Updates on previous recommendations' answered Not applicable — first Annual Review; no invented prior recs."
-    }
-  ]
+  "l5_deterministic_arm": {
+    "status": "uncalibrated",
+    "gates": false,
+    "self_check": "runs_and_records",
+    "fail_on_load": "suspended",
+    "statement": "The Layer 5 deterministic arm is uncalibrated and gates nothing. Pack-load self-check runs against the pack's own reference text and records every observation; it does not fail the load on any observation. No exception list is carried.",
+    "reversion_condition": "Restore fail-on-load only when owner/CTO has authored and calibrated the detectors, recorded by a decision-log entry naming that calibration. Until then do not reintroduce an exception list. See D-080.",
+    "detectors_found_non_discriminating": true
+  }
 }

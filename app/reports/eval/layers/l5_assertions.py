@@ -133,29 +133,50 @@ def evaluate_layer5(bundle: ScoreableBundle, pack: GoldenPack) -> list[Assertion
                     )
                     continue
                 if det_omission and disclosed:
+                    # Pure deterministic observation — uncalibrated; gates nothing (D-080).
+                    # Predicates unchanged; verdict class demoted so it cannot gate.
                     results.append(
                         AssertionResult(
                             assertion_id=fid,
                             layer=5,
                             name=name,
-                            assertion_class=AssertionClass.INVARIANT,
-                            verdict=Verdict.PASS,
-                            detail="Indicators unreported but disclosure phrase present",
-                            metrics={"severity": severity, "detection_method": method},
+                            assertion_class=AssertionClass.ADVISORY,
+                            verdict=Verdict.ADVISORY,
+                            detail=(
+                                "Indicators unreported but disclosure phrase present "
+                                "(deterministic arm uncalibrated; gates nothing)"
+                            ),
+                            metrics={
+                                "severity": severity,
+                                "detection_method": method,
+                                "uncalibrated": True,
+                                "gates_ignored": True,
+                            },
                         )
                     )
                     continue
 
         if method == "deterministic":
+            # D-080: deterministic arm uncalibrated — runs, records, gates nothing.
             results.append(
                 AssertionResult(
                     assertion_id=fid,
                     layer=5,
                     name=name,
-                    assertion_class=AssertionClass.INVARIANT,
-                    verdict=Verdict.FAIL if det_hit else Verdict.PASS,
-                    detail="Deterministic fingerprint hit" if det_hit else "No deterministic hit",
-                    metrics={"severity": severity, "detection_method": method, "deterministic_hit": det_hit},
+                    assertion_class=AssertionClass.ADVISORY,
+                    verdict=Verdict.ADVISORY,
+                    detail=(
+                        "Deterministic fingerprint hit (uncalibrated; gates nothing)"
+                        if det_hit
+                        else "No deterministic hit (uncalibrated; gates nothing)"
+                    ),
+                    metrics={
+                        "severity": severity,
+                        "detection_method": method,
+                        "deterministic_hit": det_hit,
+                        "uncalibrated": True,
+                        "gates_ignored": True,
+                    },
                 )
             )
         elif method == "judged":
@@ -186,18 +207,24 @@ def evaluate_layer5(bundle: ScoreableBundle, pack: GoldenPack) -> list[Assertion
             )
         else:  # dual
             if det_hit:
+                # Deterministic arm observation — uncalibrated; gates nothing (D-080).
                 results.append(
                     AssertionResult(
                         assertion_id=fid,
                         layer=5,
                         name=name,
-                        assertion_class=AssertionClass.INVARIANT,
-                        verdict=Verdict.FAIL,
-                        detail="Dual: deterministic arm fired on named instance",
+                        assertion_class=AssertionClass.ADVISORY,
+                        verdict=Verdict.ADVISORY,
+                        detail=(
+                            "Dual: deterministic arm fired on named instance "
+                            "(uncalibrated; gates nothing)"
+                        ),
                         metrics={
                             "severity": severity,
                             "detection_method": method,
-                            "deterministic_arm": "FAIL",
+                            "deterministic_arm": "hit",
+                            "uncalibrated": True,
+                            "gates_ignored": True,
                         },
                     )
                 )

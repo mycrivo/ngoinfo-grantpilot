@@ -31,7 +31,7 @@ aggregates (F-052…F-056, F-094…F-097); `true` elsewhere.
 | `gaps.json` | 3 — clusters + counter-list + question script |
 | `report_reference.json` | 4 — V4 prose; `reference_prose_conforms_to_v4` + `judge_calibrated`; appendix in `prose_rubric_reference` |
 | `forbidden.json` | 5 — FB-01…FB-18 (`deterministic` / `judged` / `dual`) |
-| `manifest.json` | dataset version 1.1, per-layer provenance, checksum, L5 self-check allowlist |
+| `manifest.json` | dataset version 1.1, per-layer provenance, checksum; L5 deterministic arm uncalibrated (D-080) |
 | `RECONCILIATION.md` | owner verification (layers 1–3, 5) |
 | `RECONCILIATION_V11_LAYER4.md` | Layer 4 v1.1 prose-pass verification |
 
@@ -42,3 +42,4 @@ aggregates (F-052…F-056, F-094…F-097); `true` elsewhere.
 - Baselines (later WI) must store dataset version + checksum scored against.
 - Cross-version same-or-better comparisons are forbidden (D-071); scorecard must warn.
 - Gate reads `judge_calibrated` only; `reference_prose_conforms_to_v4` is metadata.
+- Layer 5 deterministic arm is **uncalibrated** and gates nothing (D-080). Self-check runs and records; fail-on-load is suspended. No exception list.

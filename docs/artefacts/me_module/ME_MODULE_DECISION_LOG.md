@@ -86,6 +86,8 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-077 | 2026-07-27 | **Dead Claude Code hooks — parents[1] path bug** | Pre-existing hooks never executed; fixed to parents[2]. Standing: a guard is not in force until a planted violation is blocked at each claimed layer. | G1 |
 | D-078 | 2026-07-28 | **Protected-file guard is PR-time blocking; post-merge reporting** | Non-PR CI (push/schedule): protected-file reports only. Funder/fixture, harness-import, secret remain blocking on all events. Squash-merge + review is the protected-path authorisation signal. | G1-FIX |
 | D-079 | 2026-07-28 | **Golden Layer 4 v1.1 (V4 prose pass) + prose-flag split** | Layer-4-only swap to dataset 1.1; `prose_uncalibrated` replaced by `reference_prose_conforms_to_v4` + `judge_calibrated`; gate reads `judge_calibrated` only (fail-closed); ngo-reviewer stays NOT YET CALIBRATED with RUBRIC SOURCE pointer; standing L5 reference self-check with allowlist. Calibration not moved. P0 WI8 decision IDs shift to D-080/D-081. | P0 |
+| D-080 | 2026-07-28 | **Layer 5 deterministic arm uncalibrated; exception list deleted** | Deterministic L5 arm found non-discriminating (honest disclosure vs forbidden claim). Arm uncalibrated and gates nothing; self-check runs and records; fail-on-load suspended; `l5_self_check_allowlist` deleted. Judged arm untouched. Reversion: restore fail-on-load only after owner/CTO authored+calibrated detectors are decision-logged. Checksum and L1/L2/L3/L5 payloads unmoved. | P0 |
+| D-081 | 2026-07-28 | **Standing rule — builder implements measurements, never authors them** | Authoring what a measurement means (detector patterns, predicates, corpus routing, identifier lists) is owner/CTO work. A package that appears to require it is a stop condition, not a build step. | P0 |
 
 ---
 
@@ -119,6 +121,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-031 | 2026-07-26 | — | D-031 — never assigned; number permanently reserved, do not reuse. | H0 history check (`git log -S D-031`): nothing found |
 | D-069 | 2026-07-26 | D-075 (in part) | D-075 superseded in part by D-069 (2026-07-26): value_for_money section reclassified NGO-owned on award-letter evidence; all other items in the P2 funder-owned set unchanged; template restoration executes in Package P1. | H0 / VfM restore |
 | D-079 | 2026-07-28 | D-066 (Layer 4 only) | Layer 4 v1.1 V4 prose pass adopted; layers 1/2/3/5 remain on v1.0 source; prose-flag split; calibration unmoved. | P0 / golden v1.1 |
+| D-080 | 2026-07-28 | D-079 (L5 allowlist only) | L5 deterministic self-check allowlist deleted; arm declared uncalibrated; fail-on-load suspended. D-079 Layer 4 prose rulings unchanged. | P0 / L5 honesty |
 
 ---
 
@@ -580,4 +583,12 @@ The protected-file guard is a PR-time control: on `pull_request` events (and loc
 DECISION (2026-07-28) — Golden Layer 4 v1.1 V4 prose pass + prose-flag split (D-079).
 
 Discharges the "v1.1 pending" note on D-066 for Layer 4 only. Dataset version → 1.1; layers 1/2/3/5 fixture bytes unchanged. `prose_uncalibrated` replaced by `reference_prose_conforms_to_v4` (true — golden's own V4 caveat discharged) and `judge_calibrated` (false — no owner-rated samples). Gate reads `judge_calibrated` and nothing else; fail-closed default false. ngo-reviewer charter stays `CALIBRATION: NOT YET CALIBRATED` with a RUBRIC SOURCE pointer to the v1.1 document and its appendix. Standing L5 reference self-check runs on pack load; known contextual hits allowlisted in manifest. Owner Corrections 1–2 applied before transcription (Recommendations `419, no limit`; en-dash ranges). Calibration is a separate future decision; P0 WI8 IDs shift to D-080/D-081.
+---
+DECISION (2026-07-28) — Layer 5 deterministic arm uncalibrated; exception list deleted (D-080).
+
+Independent review of PR #14 at `f27b51c` found the Layer 5 deterministic forbidden-output detectors cannot discriminate honest disclosure from a forbidden claim; six fire against the golden's own reference text. The exception list (`l5_self_check_allowlist`) suppressed detector defects, not legitimate contextual matches, and is deleted rather than governed. The deterministic arm is uncalibrated and gates nothing (same footing as the prose judge): it continues to run and record observations; pack-load fail-on-load is suspended. Judged arm remains REVIEW-REQUIRED and untouched. No detector pattern, predicate, corpus routing, or identifier list is adjusted in this package. Content checksum and layers 1/2/3/5 payloads are unmoved. Reversion condition (for the next builder, recorded in `manifest.l5_deterministic_arm`): restore fail-on-load only when owner/CTO has authored and calibrated the detectors, named in a decision-log entry; until then do not reintroduce an exception list. Evidence: `docs/artefacts/me_module/audits/P0_PR14_INDEPENDENT_REVIEW_2026-07-28.md`.
+---
+DECISION (2026-07-28) — Builder implements measurements, never authors them (D-081).
+
+Standing rule. The builder implements measurements that owner/CTO have authored. Authoring what a measurement means — detector patterns, predicates, corpus routing, identifier lists, expected counts — is owner and CTO work. A package that appears to require authoring a measurement is a stop condition, not a build step.
 ---

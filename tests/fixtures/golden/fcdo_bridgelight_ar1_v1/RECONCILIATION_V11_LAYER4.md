@@ -43,8 +43,10 @@ Recomputed from git HEAD v1.0 `full_markdown` vs v1.1 fixture. Section word-coun
 
 ## Layer 5 self-consistency (standing pack check)
 
-- Deterministic-arm hits against v1.1 reference text: ['FB-04:1[, ]?184[, ]?000', 'FB-05:op2\\.?3|op2_3', 'FB-06:392.*male', 'FB-09:aggregat\\w+.*output.?score|output.?score.*aggregat', 'FB-13:life[- ]of[- ]programme|burn\\s*rate|remaining budget', 'FB-14:previous recommendations']
-- This check is standing: `load_golden_pack` validates every pack's reference text against its own forbidden-output deterministic patterns.
+- Deterministic-arm hits against v1.1 reference text are **recorded** on load (`GoldenPack.l5_reference_self_hits`). Observed at v1.1 authorship: FB-04, FB-05, FB-06, FB-09, FB-13, FB-14.
+- **D-080:** the Layer 5 deterministic arm is uncalibrated and gates nothing. Fail-on-load is **suspended**. The former `l5_self_check_allowlist` exception list is **deleted**.
+- Reversion: restore fail-on-load only when owner/CTO has authored and calibrated the detectors (decision-log entry naming that calibration). Until then, do not reintroduce an exception list.
+- See `manifest.l5_deterministic_arm`.
 
 ## Prose edit classes (from appendix — rubric derivation)
 
