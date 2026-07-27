@@ -4,50 +4,21 @@
 
 Source: `docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`
 Fixture dir: `tests/fixtures/golden/fcdo_bridgelight_ar1_v1/`
-Manifest checksum: `2582e82fdccae44dec61d7fc3d5fedf69be25c958e70913523f7863b9f2268ef`
+Manifest checksum: `34725d54cff552545b8d1709911688bc803946a88af5af13c351651f3e4eb4b8`
 Dataset version: `1.0`
 
 Owner verification gate (WI1 mid-package STOP — second pass). No assertion library until re-verified.
 
 ## Finding 1 — Facet-scoped status
 
-- **Records whose status changed vs prior pack:** 29
+- **Records whose status changed vs prior pack:** 0
 
 ### Status-change inventory (id, facet, before → after)
 
-- `F-032` / `baseline`: `Gap G-01` → `CONFIRMED`
-- `F-032` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
-- `F-032` / `endline`: `Gap G-01` → `CONFIRMED`
-- `F-033` / `baseline`: `Gap G-01` → `CONFIRMED`
-- `F-033` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
-- `F-033` / `endline`: `Gap G-01` → `CONFIRMED`
-- `F-034` / `baseline`: `Gap G-01` → `CONFIRMED`
-- `F-034` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
-- `F-034` / `endline`: `Gap G-01` → `CONFIRMED`
-- `F-040` / `baseline`: `RESOLVED — see C-03` → `CONFIRMED`
-- `F-040` / `y1_milestone`: `RESOLVED — see C-03` → `CONFIRMED`
-- `F-040` / `endline`: `RESOLVED — see C-03` → `CONFIRMED`
-- `F-040` / `proposed_score`: `RESOLVED — see C-03` → `CONFIRMED`
-- `F-040` / `vs_milestone`: `RESOLVED — see C-03` → `CONFIRMED`
-- `F-043` / `baseline`: `CAVEATED — see C-07` → `CONFIRMED`
-- `F-043` / `y1_milestone`: `CAVEATED — see C-07` → `CONFIRMED`
-- `F-043` / `endline`: `CAVEATED — see C-07` → `CONFIRMED`
-- `F-043` / `proposed_score`: `CAVEATED — see C-07` → `CONFIRMED`
-- `F-043` / `vs_milestone`: `CAVEATED — see C-07` → `CONFIRMED`
-- `F-045` / `baseline`: `Gap G-02` → `CONFIRMED`
-- `F-045` / `y1_milestone`: `Gap G-02` → `CONFIRMED`
-- `F-045` / `endline`: `Gap G-02` → `CONFIRMED`
-- `F-045` / `proposed_score`: `Gap G-02` → `CONFIRMED`
-- `F-045` / `vs_milestone`: `Gap G-02` → `CONFIRMED`
-- `F-050` / `baseline`: `Gap G-03` → `CONFIRMED`
-- `F-050` / `y1_milestone`: `Gap G-03` → `CONFIRMED`
-- `F-050` / `endline`: `Gap G-03` → `CONFIRMED`
-- `F-050` / `proposed_score`: `Gap G-03` → `CONFIRMED`
-- `F-050` / `vs_milestone`: `Gap G-03` → `CONFIRMED`
 
 ### Multi-facet owner escalations (not resolved in transcription)
 
-- {"message": "C-07 (OP2.1 baseline treatment) concerns whether achieved=31 is cumulative with baseline=6 or new-only. Facet-scoped rule applied CAVEATED only to achieved; baseline left CONFIRMED. Owner: should baseline also carry CAVEATED — see C-07?", "fact_id": "F-043", "conflict_id": "C-07", "facets_considered": ["baseline", "achieved"], "applied_to": ["achieved"]}
+_None._
 
 ## Layer 1 — Facts
 
@@ -621,9 +592,9 @@ except the funder-owned row, which maps to **FB-15**.
 ## Layer 5 — Forbidden outputs + revised detection_method table (Finding 5)
 
 - **Total:** 18
-- **deterministic:** 4
+- **deterministic:** 3
 - **judged:** 8
-- **dual:** 6
+- **dual:** 7
 
 | ID | Severity | detection_method | Change vs prior pack |
 |----|----------|------------------|----------------------|
@@ -631,7 +602,7 @@ except the funder-owned row, which maps to **FB-15**.
 | FB-02 | Critical | `dual` | deterministic → dual |
 | FB-03 | Critical | `judged` | unchanged |
 | FB-04 | High | `deterministic` | unchanged |
-| FB-05 | Critical | `deterministic` | unchanged |
+| FB-05 | Critical | `dual` | deterministic → dual |
 | FB-06 | High | `dual` | deterministic → dual |
 | FB-07 | High | `judged` | unchanged |
 | FB-08 | High | `judged` | unchanged |
@@ -687,7 +658,7 @@ except the funder-owned row, which maps to **FB-15**.
     "forbidden_output": "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported",
     "why_failure": "Silent impoverishment — the user cannot see what is missing",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-06",
@@ -791,7 +762,7 @@ except the funder-owned row, which maps to **FB-15**.
 4. Finding 2: achieved for F-032…F-034 uses absent={reason, gap_id}; value and source_document are null.
 5. F-035…F-038 have no Status column in golden; transcribed as CONFIRMED (D1 and D3 agree).
 6. F-039 source recorded as 'Derived' (golden: Arithmetic check); status CONFIRMED as check passes.
-7. Finding 1: F-040 RESOLVED—C-03 on achieved only; other facets CONFIRMED. F-043 CAVEATED—C-07 on achieved only (see MULTI_FACET_OWNER_ESCALATIONS). F-045/F-050 Gap on achieved only; targets CONFIRMED.
+7. Finding 1: F-040 RESOLVED—C-03 on achieved only; other facets CONFIRMED. F-043 CAVEATED—C-07 on achieved only (owner ruling 2026-07-27: baseline CONFIRMED; uncertainty is achieved inclusion basis). F-045/F-050 Gap on achieved only; targets CONFIRMED.
 8. Finding 3: F-052…F-056 reportable=false (derived cross-indicator totals — extractable but not reportable as beneficiary/programme claims).
 9. F-057…F-066: two facets (evidence_source, variance_explanation); no Status column → CONFIRMED; source D3.
 10. F-067…F-076: numeric GBP values stored as integers without £ comma formatting; unit='GBP'. Four facets: forecast_y1, actual_y1, variance, finance_note.
@@ -799,7 +770,7 @@ except the funder-owned row, which maps to **FB-15**.
 12. Finding 3: F-094…F-097 reportable=false (vulnerability aggregates / TOTAL-row nature — correct to extract; forbidden to report as reach — FB-01 / FB-18).
 13. F-098…F-106: no Status column → CONFIRMED.
 14. Gap question_intent and correct_period_comparator distilled from §3.1–3.2 script; wording paraphrased for machine fields while preserving intent. Full question script prose retained in gaps.question_script_prose.
-15. Finding 5: FB-01, FB-02, FB-06, FB-18 → dual (required minimum). Also changed FB-14 and FB-15 → dual: both generalise ('any value already in the knowledge bank', 'funder-owned content') at High severity — deterministic floor for named counter-list items, judged arm for the general class. Either arm firing is a failure; judged → REVIEW-REQUIRED. Left deterministic: FB-04 (named £1,184,000), FB-05 (named OP2.3/OP4.2 omission), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).
+15. Finding 5 + owner re-verify: FB-01, FB-02, FB-05, FB-06, FB-14, FB-15, FB-18 → dual. FB-05: deterministic arm = indicator present at all; judged arm = absence disclosed where a reader would expect content ('without flagging them as unreported'). Left deterministic: FB-04, FB-09, FB-13.
 16. Layer 4 stored as full markdown excerpt in report_reference.json (prose_uncalibrated=true). Claim maps retained inline in the excerpt. Separate file so v1.1 can swap Layer 4 only.
 
 ## Owner checklist (re-verify)

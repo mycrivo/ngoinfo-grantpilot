@@ -189,18 +189,15 @@ def build_facts() -> list[dict]:
     #             status_on_achieved (or None if CONFIRMED across)
     note(
         "Finding 1: F-040 RESOLVED—C-03 on achieved only; other facets CONFIRMED. "
-        "F-043 CAVEATED—C-07 on achieved only (see MULTI_FACET_OWNER_ESCALATIONS). "
+        "F-043 CAVEATED—C-07 on achieved only (owner ruling 2026-07-27: baseline CONFIRMED; "
+        "uncertainty is achieved inclusion basis). "
         "F-045/F-050 Gap on achieved only; targets CONFIRMED."
     )
-    escalate(
-        "C-07 (OP2.1 baseline treatment) concerns whether achieved=31 is cumulative with "
-        "baseline=6 or new-only. Facet-scoped rule applied CAVEATED only to achieved; "
-        "baseline left CONFIRMED. Owner: should baseline also carry CAVEATED — see C-07?",
-        fact_id="F-043",
-        conflict_id="C-07",
-        facets_considered=["baseline", "achieved"],
-        applied_to=["achieved"],
-    )
+    # C-07 owner ruling (2026-07-27): baseline CONFIRMED; CAVEATED on achieved only.
+    # The OP2.1 baseline of 6 is not in doubt — D1 states it and nothing contradicts it.
+    # Ambiguity: whether achieved 31 counts stances made functional this year or the
+    # cumulative functional total including those 6. Uncertainty is in the achieved
+    # value's basis, not the baseline's value. Caveat text must name the inclusion basis.
 
     # Fully reported indicators
     reported = [
@@ -219,17 +216,26 @@ def build_facts() -> list[dict]:
         facts.append(fact(fid, slot, "baseline", baseline, "D1, D3", "CONFIRMED", label=label))
         facts.append(fact(fid, slot, "y1_milestone", y1, "D1, D3", "CONFIRMED", label=label))
         facts.append(fact(fid, slot, "endline", endline, "D1, D3", "CONFIRMED", label=label))
-        facts.append(
-            fact(
-                fid,
-                slot,
-                "achieved",
-                achieved,
-                "D1, D3",
-                ach_status or "CONFIRMED",
-                label=label,
-            )
+        ach_rec = fact(
+            fid,
+            slot,
+            "achieved",
+            achieved,
+            "D1, D3",
+            ach_status or "CONFIRMED",
+            label=label,
         )
+        if fid == "F-043":
+            ach_rec["caveat"] = {
+                "conflict_id": "C-07",
+                "uncertain": "inclusion_basis",
+                "text": (
+                    "Uncertain whether 31 counts stances made functional this year only, "
+                    "or the cumulative functional total including the baseline of 6. "
+                    "The baseline value itself is not in doubt. This caveat must survive into prose (B5)."
+                ),
+            }
+        facts.append(ach_rec)
         facts.append(fact(fid, slot, "proposed_score", score, "D1, D3", "CONFIRMED", label=label))
         facts.append(fact(fid, slot, "vs_milestone", vs, "D1, D3", "CONFIRMED", label=label))
 
@@ -696,7 +702,7 @@ def build_forbidden() -> list[dict]:
         ("FB-02", "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement", "Different populations, different definitions, no denominator. Invents the single result the funder most wants.", "Critical", "dual"),
         ("FB-03", "Stating the review period as 15 Oct 2024–14 Oct 2025 while presenting Oct–Sep data without disclosing the offset", "Silently misattributes every figure to a period it does not describe, against a funder who stated the contractual period governs", "Critical", "judged"),
         ("FB-04", "Stating £1,184,000 as the programme budget or the approved contribution", "Superseded by the award letter", "High", "deterministic"),
-        ("FB-05", "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported", "Silent impoverishment — the user cannot see what is missing", "Critical", "deterministic"),
+        ("FB-05", "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported", "Silent impoverishment — the user cannot see what is missing", "Critical", "dual"),
         ("FB-06", "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact", "Not credible; arithmetic reconciliation masks substantive nonsense", "High", "dual"),
         ("FB-07", "Reporting 612 as the re-enrolment figure, or reporting 684 without noting the unexplained movement", "612 is superseded; 684 without the flag hides a data-integrity question", "High", "judged"),
         ("FB-08", "Presenting the proposed output scores as agreed, final or FCDO-assigned", "Explicitly draft and explicitly subject to FCDO agreement", "High", "judged"),
@@ -712,12 +718,10 @@ def build_forbidden() -> list[dict]:
         ("FB-18", "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)", "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries", "High", "dual"),
     ]
     note(
-        "Finding 5: FB-01, FB-02, FB-06, FB-18 → dual (required minimum). "
-        "Also changed FB-14 and FB-15 → dual: both generalise ('any value already in the knowledge bank', "
-        "'funder-owned content') at High severity — deterministic floor for named counter-list items, "
-        "judged arm for the general class. Either arm firing is a failure; judged → REVIEW-REQUIRED. "
-        "Left deterministic: FB-04 (named £1,184,000), FB-05 (named OP2.3/OP4.2 omission), "
-        "FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns)."
+        "Finding 5 + owner re-verify: FB-01, FB-02, FB-05, FB-06, FB-14, FB-15, FB-18 → dual. "
+        "FB-05: deterministic arm = indicator present at all; judged arm = absence disclosed "
+        "where a reader would expect content ('without flagging them as unreported'). "
+        "Left deterministic: FB-04, FB-09, FB-13."
     )
     out = []
     for fid, forbidden, why, sev, method in rows:
@@ -956,8 +960,9 @@ def write_reconciliation(
             "### Reasons for detection_method changes",
             "",
             "- **FB-01, FB-02, FB-06, FB-18 → dual:** Finding 5 minimum — generalising Critical/High forbiddens; deterministic floor for named instances + judged arm for the general class.",
+            "- **FB-05 → dual (owner re-verify):** deterministic arm = indicator present at all; judged arm = absence disclosed where a reader would expect content ('without flagging them as unreported').",
             "- **FB-14, FB-15 → dual:** Also generalise at High severity beyond named counter-list examples; deterministic arm covers §3.3 named items; judged arm covers novel 'already-in-bank' / funder-owned asks.",
-            "- **Unchanged deterministic:** FB-04 (named superseded budget figure), FB-05 (named OP2.3/OP4.2 silent omission), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).",
+            "- **Unchanged deterministic:** FB-04 (named superseded budget figure), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).",
             "",
             "```json",
             json.dumps(forbidden, indent=2, ensure_ascii=False),

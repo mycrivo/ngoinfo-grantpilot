@@ -32,7 +32,7 @@
     "forbidden_output": "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported",
     "why_failure": "Silent impoverishment — the user cannot see what is missing",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-06",

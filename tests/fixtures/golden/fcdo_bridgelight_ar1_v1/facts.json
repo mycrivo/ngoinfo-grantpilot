@@ -753,7 +753,12 @@
     "source_document": "D1, D3",
     "status": "CAVEATED — see C-07",
     "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
-    "reportable": true
+    "reportable": true,
+    "caveat": {
+      "conflict_id": "C-07",
+      "uncertain": "inclusion_basis",
+      "text": "Uncertain whether 31 counts stances made functional this year only, or the cumulative functional total including the baseline of 6. The baseline value itself is not in doubt. This caveat must survive into prose (B5)."
+    }
   },
   {
     "id": "F-043",

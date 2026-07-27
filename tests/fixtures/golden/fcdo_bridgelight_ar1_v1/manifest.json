@@ -1,7 +1,7 @@
 {
   "dataset_id": "fcdo_bridgelight_ar1",
   "dataset_version": "1.0",
-  "content_checksum": "2582e82fdccae44dec61d7fc3d5fedf69be25c958e70913523f7863b9f2268ef",
+  "content_checksum": "34725d54cff552545b8d1709911688bc803946a88af5af13c351651f3e4eb4b8",
   "checksum_algorithm": "sha256",
   "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(metadata + full_markdown_sha256)",
   "transcription_correction": "WI1 verification findings 1–5 (2026-07-27); version remains 1.0",
@@ -52,7 +52,7 @@
     "distinct_fact_ids": 106,
     "absent_records": 9,
     "nonreportable_records": 9,
-    "status_changes_vs_prior_pack": 29,
+    "status_changes_vs_prior_pack": 0,
     "conflicts": 9,
     "gap_clusters": 10,
     "counter_list": 15,
