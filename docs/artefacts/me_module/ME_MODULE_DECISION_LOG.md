@@ -82,6 +82,8 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-073 | 2026-07-26 | **Sealed NLCF golden policy** | Fixture/expected outputs only in harness fixtures; hook-enforced; proves contract §7. | H0 |
 | D-074 | 2026-07-26 | **Decision-ID collision policy** | Earliest keeps ID; later renumbers with Revisions cross-reference. Applied D-046/D-049 → D-064/D-063. | H0 |
 | D-075 | 2026-06-11 | **Phase B exec — B2b one-op template replace from fcdo_55f891ac_post_deletion_v1.2.0.json; kill-list included value_for_money; classification lineage: P2 owner-tagging adjudication artefacts.** | Retroactive ID under on-demand rule (see narrative). | H0 |
+| D-076 | 2026-07-27 | **Harness exemption + one-way import guard** | `app/reports/eval/**` exempt from funder/fixture string guard; paired with no-override structural guard (engine never imports harness). | G1 |
+| D-077 | 2026-07-27 | **Dead Claude Code hooks — parents[1] path bug** | Pre-existing hooks never executed; fixed to parents[2]. Standing: a guard is not in force until a planted violation is blocked at each claimed layer. | G1 |
 
 ---
 
@@ -559,4 +561,12 @@ Sealed NLCF golden policy: the fixture and its expected outputs live only in har
 DECISION (2026-07-26) — Decision-ID collision policy (D-074).
 
 Decision-ID collision policy: the earliest-dated entry keeps its ID; the later duplicate renumbers to the next free ID with a Revisions cross-reference. Applied to the D-046/D-049 collision in this package. See also D-071 for the baseline-lineage rule this policy protects.
+---
+DECISION (2026-07-27) — Harness exemption + one-way import guard (D-076).
+
+`app/reports/eval/**` is exempt from the funder/fixture string guard because a fixture string in the harness is inert while the same string in a prompt is contamination; the exemption is paired with a no-override structural guard — the harness may import the engine, the engine may never import the harness. Rationale: the boundary law protects engine behaviour, not file contents. Sealed-pack tokens under D-073 remain a separate, stricter scope (Group 5); the sealed pack itself is a new bundle yet to be authored.
+---
+DECISION (2026-07-27) — Dead Claude Code hooks finding (D-077).
+
+All three pre-existing Claude Code hooks resolved an invalid path (`parents[1]` from `.claude/hooks/`, yielding `.claude/.cursor/hooks/...`) and had never executed; fixed to `parents[2]` in Package G1. Standing consequence: a guard is not in force until a planted violation is observed to be blocked at each layer it claims to cover.
 ---

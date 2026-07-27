@@ -1,0 +1,442 @@
+{
+  "engine_violations": [
+    {
+      "path": "app/reports/agents/gap_compliance_agent.py",
+      "guard": "funder_fixture",
+      "detail": "anchored pattern 'logframe_row_template_form'",
+      "line": "as a gap using the supplied item_key and required_item_ref (logframe_row:opN_N). Name"
+    },
+    {
+      "path": "app/reports/agents/gap_compliance_agent.py",
+      "guard": "funder_fixture",
+      "detail": "anchored pattern 'op_dotted_indicator'",
+      "line": "the OP indicator id (e.g. OP2.3) in the question and rationale."
+    },
+    {
+      "path": "app/reports/agents/grant_terms_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token '15 October 2024 to 14 October 2025'",
+      "line": "8b. If the letter gives a contractual review period AND mentions an alternative period discussed (e.g. \"October to September\" in an inception call vs \"15 October 2024 to 14 October 2025\" in the letter"
+    },
+    {
+      "path": "app/reports/agents/indicator_data_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'NLCF'",
+      "line": "Package A carrier: reads the funder's source-declared section column (e.g. NLCF"
+    },
+    {
+      "path": "app/reports/agents/indicator_data_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'NLCF'",
+      "line": "\"Section for NLCF update\") verbatim. The LLM never authors section membership."
+    },
+    {
+      "path": "app/reports/agents/proposal_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'Expected objective count'",
+      "line": "- Expected objective count: 2 (one impact, one outcome). Set level to impact or outcome on each row."
+    },
+    {
+      "path": "app/reports/agents/proposal_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'girls with disabilities / ultra-poor / previously out-of-school'",
+      "line": "- Extract exactly ONE additional targetless indicator from Value for Money \u00a78: the equity-assessment line only, as indicator_key equity_support_reach_qualitative with target.absent=true (share of supp"
+    },
+    {
+      "path": "app/reports/agents/proposal_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'Expected total'",
+      "line": "- Expected total: 15 logframe indicators with targets + 1 targetless equity indicator = 16 indicators."
+    },
+    {
+      "path": "app/reports/agents/proposal_extractor.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'op1_1_girls_reenrolled'",
+      "line": "3. Use stable snake_case keys (e.g. ocm1_attendance_80pct, op1_1_girls_reenrolled, equity_support_reach_qualitative)."
+    },
+    {
+      "path": "app/reports/ai/prompts/synthesis.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token '684 girls were re-enrolled against a target of 650'",
+      "line": "\"text\": \"684 girls were re-enrolled against a target of 650.\","
+    },
+    {
+      "path": "app/reports/ai/prompts/synthesis.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'fact:indicators.op1_1'",
+      "line": "\"fact:indicators.op1_1.ar1_actual\","
+    },
+    {
+      "path": "app/reports/ai/prompts/synthesis.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'fact:indicators.op1_1'",
+      "line": "\"fact:indicators.op1_1.ar1_target\""
+    },
+    {
+      "path": "app/reports/ai/prompts/synthesis.py",
+      "guard": "funder_fixture",
+      "detail": "bare fixture number '684' in prompt-component path",
+      "line": "\"text\": \"684 girls were re-enrolled against a target of 650.\","
+    },
+    {
+      "path": "app/reports/ai/prompts/synthesis.py",
+      "guard": "funder_fixture",
+      "detail": "bare fixture number '684' in prompt-component path",
+      "line": "\"value_tokens\": [\"684\", \"650\"]"
+    },
+    {
+      "path": "app/reports/extraction/spreadsheet_input.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'NLCF'",
+      "line": "# (e.g. NLCF monitoring \"Section for NLCF update\"). Markdown-stripped, lower-cased,"
+    },
+    {
+      "path": "app/reports/gap/gap_question_copy.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'FCDO'",
+      "line": "\"\"\"Logframe row ref question (FCDO-style OP1.1 actuals).\"\"\""
+    },
+    {
+      "path": "app/reports/gap/gap_question_copy.py",
+      "guard": "funder_fixture",
+      "detail": "anchored pattern 'op_dotted_indicator'",
+      "line": "\"\"\"Logframe row ref question (FCDO-style OP1.1 actuals).\"\"\""
+    },
+    {
+      "path": "app/reports/gap/logframe_completeness.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'Detailed Output Scoring'",
+      "line": "return \"detailed_output_scoring\", \"Detailed Output Scoring\""
+    },
+    {
+      "path": "app/reports/gap/requirement_metadata.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'FCDO'",
+      "line": "\"FCDO_management_actions\","
+    },
+    {
+      "path": "app/reports/gap/requirement_satisfaction.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'progress_against_expected_results'",
+      "line": "\"progress_against_expected_results\": [\"ar1_actual\", \"ar1_milestone_target\"],"
+    },
+    {
+      "path": "app/reports/schemas/indicator_data_extraction_v1.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'NLCF'",
+      "line": "# Package B: the row's evidence/note/commentary cell (e.g. NLCF monitoring column"
+    },
+    {
+      "path": "app/reports/schemas/indicator_data_extraction_v1.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'NLCF'",
+      "line": "# assignment for this row (e.g. NLCF monitoring column \"Section for NLCF update\")."
+    },
+    {
+      "path": "app/reports/schemas/proposal_extraction_v1.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'FCDO'",
+      "line": "Aligned with FCDO logframe columns: indicator, baseline, milestone, target."
+    },
+    {
+      "path": "app/reports/services/report_inputs_builder.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'FCDO'",
+      "line": "# fact_namespaces key at all (e.g. FCDO). A section that declares the key (even"
+    },
+    {
+      "path": "app/reports/services/report_inputs_builder.py",
+      "guard": "funder_fixture",
+      "detail": "blocklisted token 'FCDO'",
+      "line": "# fact_namespaces key (e.g. FCDO archetype-driven). Sections that declare the key"
+    },
+    {
+      "path": "app/reports/services/synthesis_citation_emission.py",
+      "guard": "funder_fixture",
+      "detail": "anchored pattern 'op_dotted_indicator'",
+      "line": "\"\"\"Split prose without breaking OP2.1-style dotted indicator ids.\"\"\""
+    }
+  ],
+  "harness_informational": [
+    {
+      "path": "app/reports/eval/fixtures.py",
+      "token": "FCDO",
+      "line": "\"\"\"Build six-section FCDO NGO content for section-count gates.\"\"\""
+    },
+    {
+      "path": "app/reports/eval/fixtures.py",
+      "token": "fcdo",
+      "line": "def pad_fcdo_ngo_sections("
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "\"\"\"P3-1 named FCDO eval gates \u2014 content-keyed assertions only.\"\"\""
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "FCDO_COMPLETE_GAP_REFS = frozenset("
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "progress_against_expected_results",
+      "line": "\"progress_against_expected_results\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "logframe_row:op2_3",
+      "line": "\"logframe_row:op2_3\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "logframe_row:op4_2",
+      "line": "\"logframe_row:op4_2\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "FCDO_NGO_SECTION_COUNT = 6"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "NLCF_REGRESSION_PIN_REFS = frozenset("
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "NLCF_NGO_SECTION_COUNT = 6"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "NLCF_PIN_STATUS = \"matches_observed_e7fa9bee\""
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "NLCF_PIN_DOCSET_BASIS = \"default (proposal + award + monitoring)\""
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "fcdo",
+      "line": "def gate_fcdo_gap_exact(gap_analysis: dict[str, Any]) -> GateResult:"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "passed = refs == set(FCDO_COMPLETE_GAP_REFS)"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "fcdo",
+      "line": "name=\"G-fcdo-gap-exact\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "summary={\"gap_refs\": sorted(refs), \"expected\": sorted(FCDO_COMPLETE_GAP_REFS)},"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "nlcf",
+      "line": "def gate_nlcf_gap_regression_pin(gap_analysis: dict[str, Any]) -> GateResult:"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "passed = refs == set(NLCF_REGRESSION_PIN_REFS)"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "nlcf",
+      "line": "name=\"G-nlcf-gap-regression-pin\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "\"expected\": sorted(NLCF_REGRESSION_PIN_REFS),"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "\"status\": NLCF_PIN_STATUS,"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "\"docset_basis\": NLCF_PIN_DOCSET_BASIS,"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "FCDO",
+      "line": "expected_count: int = FCDO_NGO_SECTION_COUNT,"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "fcdo",
+      "line": "def run_fcdo_gates("
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "fcdo",
+      "line": "gate_fcdo_gap_exact(gap_analysis),"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "nlcf",
+      "line": "def run_nlcf_regression_pin_gates("
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "nlcf",
+      "line": "gate_nlcf_gap_regression_pin(gap_analysis),"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "NLCF",
+      "line": "expected_count=NLCF_NGO_SECTION_COUNT,"
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "logframe_row_concrete",
+      "line": "\"logframe_row:op2_3\","
+    },
+    {
+      "path": "app/reports/eval/gates.py",
+      "token": "logframe_row_concrete",
+      "line": "\"logframe_row:op4_2\","
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "run_fcdo_gates,"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "run_nlcf_regression_pin_gates,"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "from app.reports.eval.fixtures import pad_fcdo_ngo_sections"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "def _default_fcdo_template() -> list[dict[str, Any]]:"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "FCDO",
+      "line": "template_path = _repo_root() / \"docs\" / \"artefacts\" / \"me_module\" / \"TEMPLATE_INSTANCE_FCDO.json\""
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "def _default_nlcf_template() -> list[dict[str, Any]]:"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "NLCF",
+      "line": "template_path = _repo_root() / \"docs\" / \"artefacts\" / \"me_module\" / \"TEMPLATE_INSTANCE_NLCF.json\""
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "def replay_nlcf_regression_pin() -> tuple[dict[str, Any], int]:"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "/ \"nlcf_regression_pin_e7fa9bee.json\""
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "template = _default_nlcf_template()"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "report = run_nlcf_regression_pin_gates("
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "template = _default_fcdo_template()"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "content_json = pad_fcdo_ngo_sections("
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "progress_against_expected_results",
+      "line": "\"required_item_ref\": \"progress_against_expected_results\","
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "logframe_row:op2_3",
+      "line": "\"required_item_ref\": \"logframe_row:op2_3\","
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "logframe_row:op4_2",
+      "line": "\"required_item_ref\": \"logframe_row:op4_2\","
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "fcdo",
+      "line": "report = run_fcdo_gates("
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "if args[0] == \"--nlcf-pin\":"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "nlcf",
+      "line": "_, code = replay_nlcf_regression_pin()"
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "logframe_row_concrete",
+      "line": "\"required_item_ref\": \"logframe_row:op2_3\","
+    },
+    {
+      "path": "app/reports/eval/offline_replay.py",
+      "token": "logframe_row_concrete",
+      "line": "\"required_item_ref\": \"logframe_row:op4_2\","
+    },
+    {
+      "path": "app/reports/eval/output_rubric.py",
+      "token": "FCDO",
+      "line": "# P3-8 moat \u2014 complete FCDO forbidden gap refs (see ME_MODULE_DECISION_LOG P3-8):"
+    },
+    {
+      "path": "app/reports/eval/output_rubric.py",
+      "token": "FCDO",
+      "line": "FCDO_FORBIDDEN_GAP_REFS = frozenset({\"outcome_indicators\"})"
+    },
+    {
+      "path": "app/reports/eval/output_rubric.py",
+      "token": "FCDO",
+      "line": "FCDO_LITERAL_FORBIDDEN_GAP_REFS = frozenset("
+    },
+    {
+      "path": "app/reports/eval/output_rubric.py",
+      "token": "FCDO",
+      "line": "if ref in FCDO_LITERAL_FORBIDDEN_GAP_REFS:"
+    },
+    {
+      "path": "app/reports/eval/output_rubric.py",
+      "token": "FCDO",
+      "line": "if ref in FCDO_FORBIDDEN_GAP_REFS:"
+    }
+  ]
+}

@@ -2,11 +2,27 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|ApplyPatch|StrReplace",
         "hooks": [
           {
             "type": "command",
             "command": "python .claude/hooks/isolation_veto.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/funder_fixture_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/protected_file_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/harness_import_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "python .claude/hooks/secret_write_guard.py"
           }
         ]
       },
@@ -22,7 +38,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit",
+        "matcher": "Edit|Write|MultiEdit|ApplyPatch|StrReplace",
         "hooks": [
           {
             "type": "command",

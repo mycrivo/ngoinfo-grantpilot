@@ -10,6 +10,100 @@ on:
     - cron: "*/30 * * * *"
 
 jobs:
+  governance-guards:
+    name: governance-guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Diff-aware governance guards (blocking)
+        env:
+          # Never honour a workflow-injected override; per-commit message only.
+          GOVERNANCE_OVERRIDE: ""
+        run: |
+          unset GOVERNANCE_OVERRIDE || true
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.sha }}"
+            MB=$(git merge-base "$BASE" "$HEAD")
+            RANGE="$MB..$HEAD"
+          else
+            BEFORE="${{ github.event.before }}"
+            HEAD="${{ github.sha }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+                BEFORE=$(git rev-parse HEAD~1)
+                echo "before SHA missing; falling back to HEAD~1 ($BEFORE)"
+              else
+                echo "No parent commit available; failing closed."
+                exit 1
+              fi
+            fi
+            MB=$(git merge-base "$BEFORE" "$HEAD")
+            RANGE="$MB..$HEAD"
+          fi
+          echo "Scanning range: $RANGE (merge-base two-dot)"
+          python scripts/governance/run_guards.py --range "$RANGE" --layer ci
+      - name: Render override trail from PR commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          MB=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
+          echo "## GOVERNANCE_OVERRIDE trail (merge-base..head = $MB..$HEAD_SHA)"
+          git log "${MB}..${HEAD_SHA}" --format="%H %s" | while read -r sha subject; do
+            body=$(git log -1 --format=%B "$sha")
+            echo "$body" | grep -E '^GOVERNANCE_OVERRIDE:' | while read -r line; do
+              echo "- sha=${sha:0:12} $line"
+            done
+          done
+          if ! git log "${MB}..${HEAD_SHA}" --format=%B | grep -q '^GOVERNANCE_OVERRIDE:'; then
+            echo "_No GOVERNANCE_OVERRIDE lines in this range._"
+          fi
+
+  governance-tree-audit:
+    name: governance-tree-audit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Report-only tree audit
+        run: |
+          mkdir -p docs/artefacts/me_module/audits
+          python scripts/governance/tree_audit.py \
+            --md-out docs/artefacts/me_module/audits/G1_TREE_AUDIT_CI.md \
+            --json-out docs/artefacts/me_module/audits/G1_TREE_AUDIT_CI.json
+      - name: Upload tree-audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: g1-tree-audit
+          path: docs/artefacts/me_module/audits/G1_TREE_AUDIT_CI.*
+      - name: Comment tree audit on PR
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BODY=$(python - <<'PY'
+          from pathlib import Path
+          text = Path("docs/artefacts/me_module/audits/G1_TREE_AUDIT_CI.md").read_text(encoding="utf-8")
+          # Keep comment bounded
+          lines = text.splitlines()
+          if len(lines) > 120:
+              text = "\n".join(lines[:120]) + "\n\n_(truncated; full report in workflow artifact `g1-tree-audit`)_\n"
+          print(text)
+          PY
+          )
+          gh pr comment "${{ github.event.pull_request.number }}" --body "$BODY"
+
   smoke:
     runs-on: ubuntu-latest
     steps:

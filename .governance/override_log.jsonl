@@ -1,0 +1,68 @@
+{"timestamp": "2026-07-27T12:26:14.558621+00:00", "actor": "unknown", "path": ".claude/agents/adjudicator.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.560640+00:00", "actor": "unknown", "path": ".claude/agents/auditor.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.560640+00:00", "actor": "unknown", "path": ".claude/agents/harness-runner.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.565747+00:00", "actor": "unknown", "path": ".claude/agents/ngo-reviewer.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.567768+00:00", "actor": "unknown", "path": ".claude/agents/security-reviewer.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.567768+00:00", "actor": "unknown", "path": ".claude/hooks/funder_fixture_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.569827+00:00", "actor": "unknown", "path": ".claude/hooks/harness_import_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.569827+00:00", "actor": "unknown", "path": ".claude/hooks/isolation_veto.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.572705+00:00", "actor": "unknown", "path": ".claude/hooks/migration_parity_check.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.575409+00:00", "actor": "unknown", "path": ".claude/hooks/protected_file_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.575409+00:00", "actor": "unknown", "path": ".claude/hooks/secret_scan.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.577433+00:00", "actor": "unknown", "path": ".claude/hooks/secret_write_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.579453+00:00", "actor": "unknown", "path": ".claude/settings.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.581470+00:00", "actor": "unknown", "path": ".cursor/hooks.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.581470+00:00", "actor": "unknown", "path": ".cursor/hooks/funder_fixture_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.581470+00:00", "actor": "unknown", "path": ".cursor/hooks/governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.592683+00:00", "actor": "unknown", "path": ".cursor/hooks/harness_import_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.594698+00:00", "actor": "unknown", "path": ".cursor/hooks/protected_file_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.598143+00:00", "actor": "unknown", "path": ".cursor/hooks/secret_write_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.604129+00:00", "actor": "unknown", "path": ".cursor/rules/00-global.mdc", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.604129+00:00", "actor": "unknown", "path": ".cursor/rules/30-agents.mdc", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.604129+00:00", "actor": "unknown", "path": ".githooks/pre-commit", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.609763+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.609763+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.609763+00:00", "actor": "unknown", "path": "AGENTS.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.609763+00:00", "actor": "unknown", "path": "CLAUDE.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.619990+00:00", "actor": "unknown", "path": "scripts/governance/run_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.619990+00:00", "actor": "unknown", "path": "scripts/governance/tree_audit.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.623990+00:00", "actor": "unknown", "path": "scripts/install_git_hooks.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:14.623990+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/agents/adjudicator.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/agents/auditor.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/agents/harness-runner.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/agents/ngo-reviewer.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/agents/security-reviewer.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.520829+00:00", "actor": "unknown", "path": ".claude/hooks/funder_fixture_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.536631+00:00", "actor": "unknown", "path": ".claude/hooks/harness_import_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.536631+00:00", "actor": "unknown", "path": ".claude/hooks/isolation_veto.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.538843+00:00", "actor": "unknown", "path": ".claude/hooks/migration_parity_check.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.538843+00:00", "actor": "unknown", "path": ".claude/hooks/protected_file_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.538843+00:00", "actor": "unknown", "path": ".claude/hooks/secret_scan.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.538843+00:00", "actor": "unknown", "path": ".claude/hooks/secret_write_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.538843+00:00", "actor": "unknown", "path": ".claude/settings.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.552503+00:00", "actor": "unknown", "path": ".cursor/hooks.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.553520+00:00", "actor": "unknown", "path": ".cursor/hooks/funder_fixture_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.553520+00:00", "actor": "unknown", "path": ".cursor/hooks/governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".cursor/hooks/harness_import_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".cursor/hooks/protected_file_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".cursor/hooks/secret_write_guard.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".cursor/rules/00-global.mdc", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".cursor/rules/30-agents.mdc", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.568196+00:00", "actor": "unknown", "path": ".githooks/pre-commit", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.583988+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.586791+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.592028+00:00", "actor": "unknown", "path": "AGENTS.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.594056+00:00", "actor": "unknown", "path": "CLAUDE.md", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.599764+00:00", "actor": "unknown", "path": "scripts/governance/run_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.599764+00:00", "actor": "unknown", "path": "scripts/governance/tree_audit.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.599764+00:00", "actor": "unknown", "path": "scripts/install_git_hooks.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:40.615562+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
+{"timestamp": "2026-07-27T12:26:46.706725+00:00", "actor": "unknown", "path": "AGENTS.md", "reason": "g1-proof-transcript-precommit", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:35:14.223609+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 fix smoke-test.yml YAML break", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:39:56.996727+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 dispositions: CI proof fill + notes + revert plant", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:40:33.806256+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 dispositions: rewrite history without CI plant", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:40:33.822608+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 dispositions: rewrite history without CI plant", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:47:59.308043+00:00", "actor": "unknown", "path": ".cursor/hooks/governance_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:47:59.318557+00:00", "actor": "unknown", "path": "scripts/governance/run_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:47:59.322337+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
