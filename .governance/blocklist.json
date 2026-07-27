@@ -2,11 +2,11 @@
   "version": "1.1.0",
   "notes": {
     "group5": "D-073 sealed pack is a NEW bundle yet to be authored. Existing Southbank fixture is a development fixture, not the sealed pack. Group 5 gains real sealed tokens when that bundle is authored. Bare funder token NLCF stays in group1 (D-076 / Flagged Item 1).",
-    "override": "GOVERNANCE_OVERRIDE applies only to the protected-file guard. Funder/fixture, harness-import, sealed, and secret guards have no override path.",
-    "token_list_authority": "Blocklist tokens and scopes are authoritative for PR #12 / D-076 / D-077. Docs describe intent; this file and the guards govern.",
-    "group4_flag_fatigue": "Exclude 120/400/500/550/420/800/900 from group4_bare_numbers_prompt_only because they collide with HTTP status codes, common timeouts, and word-length defaults. Recorded in group4_excluded_for_flag_fatigue.",
+    "override": "GOVERNANCE_OVERRIDE applies only to the protected-file guard. Funder/fixture, harness-import, and sealed guards have no override path. Secret guard likewise has no GOVERNANCE_OVERRIDE path; the planted_secret path allowlist is a test-fixture exception only (not an operator override).",
+    "token_list_authority": "AMBER-approved token list authority: PR #12 + decision-log D-076 / D-077 (and Group 5 empty disposition under D-073). Docs describe intent; this file and the guards govern. Future reconciliation: diff tokens against those IDs.",
+    "group4_flag_fatigue": "Exclude 120/400/500/550/420/800/900 from group4_bare_numbers_prompt_only because they collide with HTTP status codes, common timeouts, and word-length defaults (flag fatigue). Recorded in group4_excluded_for_flag_fatigue; do not re-add without a new decision-log entry.",
     "group3_anchored_patterns_hit_counts_2026-07-27": "OP_dotted=3, OCM=0, logframe_row:opN_N=1; no exclusions. Patterns seeded after indicator-id audit; hit counts are observational floor for P1 decontamination.",
-    "fail_closed_asymmetry": "Protected-file, funder/fixture, harness-import, and secret guards fail closed when an edit cannot be projected (e.g. ApplyPatch). Override exists only for protected-file; all other guards remain non-overridable.",
+    "fail_closed_asymmetry": "Fail-closed asymmetry by class: funder/fixture fails closed on engine paths (app/ minus harness exempt); harness-import fails closed on app/ engine→eval imports; secret fails closed unconditionally (all paths including docs/); protected-file fails closed unless GOVERNANCE_OVERRIDE is present. Unprojectable edits (e.g. ApplyPatch) also fail closed for every class.",
     "planted_secret": "Known fake secret allowlisted only on tests/test_governance_guards.py. Guard builds the allow regex from fragments (re.compile('sk-' + 'abcdefghijklmnopqrstuvwxyz0123456789')) so the contiguous token is not reintroduced in engine/hook code. docs/ is scanned for secrets (not string-scan-excluded for the secret guard)."
   },
   "path_scopes": {

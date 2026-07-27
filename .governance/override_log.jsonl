@@ -59,3 +59,4 @@
 {"timestamp": "2026-07-27T12:26:40.599764+00:00", "actor": "unknown", "path": "scripts/install_git_hooks.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
 {"timestamp": "2026-07-27T12:26:40.615562+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
 {"timestamp": "2026-07-27T12:26:46.706725+00:00", "actor": "unknown", "path": "AGENTS.md", "reason": "g1-proof-transcript-precommit", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:35:14.223609+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 fix smoke-test.yml YAML break", "layer": "pre-commit"}

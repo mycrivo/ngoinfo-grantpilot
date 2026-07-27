@@ -66,6 +66,22 @@ governance: OK
 
 ## Layer: CI
 
-Plant a funder-string commit with `git commit --no-verify`, push, capture the `governance-guards` job failure URL / log excerpt, then revert. Filled in by the disposition runner after push.
+Planted funder-string commit with `git commit --no-verify` (`c2b1958` → tip `7284b6b` still containing `app/reports/gap/_g1_ci_plant.py`), push, observed `governance-guards` exit non-zero, then revert in the next commit.
 
-PLACEHOLDER_CI_RUN_URL
+**Job URL:** https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/30266529052/job/89978423265  
+**Run:** https://github.com/mycrivo/ngoinfo-grantpilot/actions/runs/30266529052  
+**Conclusion:** failure (exit code 1)
+
+Log excerpt:
+
+```
+Run unset GOVERNANCE_OVERRIDE || true
+python scripts/governance/run_guards.py --range "$RANGE" --layer ci
+…
+Governance guard denied the write:
+- THE BOUNDARY (AGENTS.md): Nowhere, ever: funder names, slugs, expected counts, or quoted fixture phrases in engine code or prompts. Docs don't govern; gates govern.
+- [funder_fixture] app/reports/gap/_g1_ci_plant.py: blocklisted token 'FCDO' | line: x = "FCDO Annual Review"
+##[error]Process completed with exit code 1.
+```
+
+CI also rendered per-commit override reasons in the same job (every protected-path override in the merge-base..head range, not last-only).

@@ -55,28 +55,16 @@ jobs:
           HEAD_SHA: ${{ github.sha }}
         run: |
           MB=$(git merge-base "$BASE_SHA" "$HEAD_SHA")
-          export MB
-          python -c "import os, subprocess, sys
-mb = os.environ['MB']
-head = os.environ['HEAD_SHA']
-raw = subprocess.check_output(
-    ['git', 'log', f'{mb}..{head}', '--format=%H%x00%B%x00'],
-    text=True,
-    errors='replace',
-)
-parts = [p for p in raw.split('\x00') if p.strip()]
-# pairs: sha, body, sha, body, ...
-i = 0
-found = 0
-while i + 1 < len(parts):
-    sha, body = parts[i].strip(), parts[i + 1]
-    i += 2
-    for line in body.splitlines():
-        if line.strip().startswith('GOVERNANCE_OVERRIDE:'):
-            print(f'{sha} {line.strip()}')
-            found += 1
-print(f'override_trail_lines={found}', file=sys.stderr)
-"
+          echo "## GOVERNANCE_OVERRIDE trail (merge-base..head = $MB..$HEAD_SHA)"
+          git log "${MB}..${HEAD_SHA}" --format="%H %s" | while read -r sha subject; do
+            body=$(git log -1 --format=%B "$sha")
+            echo "$body" | grep -E '^GOVERNANCE_OVERRIDE:' | while read -r line; do
+              echo "- sha=${sha:0:12} $line"
+            done
+          done
+          if ! git log "${MB}..${HEAD_SHA}" --format=%B | grep -q '^GOVERNANCE_OVERRIDE:'; then
+            echo "_No GOVERNANCE_OVERRIDE lines in this range._"
+          fi
 
   governance-tree-audit:
     name: governance-tree-audit
