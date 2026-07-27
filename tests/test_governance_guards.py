@@ -242,3 +242,55 @@ def test_proof_suite_is_protected(cfg):
     assert check_protected_write(
         "tests/test_governance_guards.py", cfg=cfg, layer="test", log=False
     )
+
+
+def test_ci_protected_file_report_mode_scopes_softening_only():
+    """Push/schedule: protected-file is report-only; funder/harness/secret still block."""
+    import importlib.util
+
+    from governance_guards import Violation
+
+    path = REPO_ROOT / "scripts" / "governance" / "run_guards.py"
+    spec = importlib.util.spec_from_file_location("run_guards_mod", path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    protected = Violation(
+        guard="protected_file", path="AGENTS.md", detail="needs override"
+    )
+    funder = Violation(
+        guard="funder_fixture", path="app/reports/gap/x.py", detail="FCDO"
+    )
+    harness = Violation(
+        guard="harness_import",
+        path="app/reports/services/x.py",
+        detail="engine imports eval",
+    )
+    secret = Violation(guard="secret", path="docs/x.md", detail="sk-…")
+
+    # Report mode (push/schedule): protected soft; invariants hard.
+    blocking, report_only = mod.partition_ci_violations(
+        [protected, funder, harness, secret], protected_file_mode="report"
+    )
+    assert report_only == [protected]
+    assert blocking == [funder, harness, secret]
+    assert all(v.guard != "protected_file" for v in blocking)
+
+    # Each invariant alone still blocks under report mode.
+    for alone in (funder, harness, secret):
+        b, r = mod.partition_ci_violations([alone], protected_file_mode="report")
+        assert b == [alone]
+        assert r == []
+
+    # Protected alone under report mode does not block.
+    b, r = mod.partition_ci_violations([protected], protected_file_mode="report")
+    assert b == []
+    assert r == [protected]
+
+    # Pull-request / blocking mode: protected still fails the job.
+    b, r = mod.partition_ci_violations(
+        [protected, funder], protected_file_mode="blocking"
+    )
+    assert b == [protected, funder]
+    assert r == []
