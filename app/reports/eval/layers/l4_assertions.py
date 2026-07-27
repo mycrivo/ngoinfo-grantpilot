@@ -1,4 +1,8 @@
-"""Layer 4 — report assertions. Prose is advisory until ngo-reviewer calibration."""
+"""Layer 4 — report assertions.
+
+Prose quality stays ADVISORY and gates nothing while judge_calibrated is false.
+reference_prose_conforms_to_v4 is scorecard metadata only — never read on a gate path.
+"""
 
 from __future__ import annotations
 
@@ -139,21 +143,49 @@ def evaluate_layer4(bundle: ScoreableBundle, pack: GoldenPack) -> list[Assertion
         )
     )
 
-    # Prose — advisory until ngo-reviewer charter records calibration
-    prose_uncalibrated = bool(pack.report_reference.get("prose_uncalibrated", True))
-    results.append(
-        AssertionResult(
-            assertion_id="L4-PROSE",
-            layer=4,
-            name="Prose quality (ngo-reviewer)",
-            assertion_class=AssertionClass.ADVISORY,
-            verdict=Verdict.ADVISORY,
-            detail=(
-                "Prose assertions are advisory and gate nothing while uncalibrated "
-                f"(report_reference.prose_uncalibrated={prose_uncalibrated})"
-            ),
-            metrics={"uncalibrated": prose_uncalibrated, "gates_ignored": True},
+    # Prose — gate reads judge_calibrated and nothing else (fail-closed default).
+    judge_calibrated = pack.judge_calibrated
+    ref_v4 = pack.reference_prose_conforms_to_v4
+    if not judge_calibrated:
+        results.append(
+            AssertionResult(
+                assertion_id="L4-PROSE",
+                layer=4,
+                name="Prose quality (ngo-reviewer)",
+                assertion_class=AssertionClass.ADVISORY,
+                verdict=Verdict.ADVISORY,
+                detail=(
+                    "Prose assertions are advisory and gate nothing while "
+                    f"judge_calibrated=false (reference_prose_conforms_to_v4={ref_v4}; "
+                    "metadata only, not a gate input)"
+                ),
+                metrics={
+                    "judge_calibrated": False,
+                    "reference_prose_conforms_to_v4": ref_v4,
+                    "gates_ignored": True,
+                },
+            )
         )
-    )
+    else:
+        # Calibration not yet recorded in charter — should not reach here for this pack.
+        results.append(
+            AssertionResult(
+                assertion_id="L4-PROSE",
+                layer=4,
+                name="Prose quality (ngo-reviewer)",
+                assertion_class=AssertionClass.ADVISORY,
+                verdict=Verdict.REVIEW_REQUIRED,
+                detail=(
+                    "judge_calibrated=true but ngo-reviewer charter still lacks a "
+                    "recorded calibration (sample set, agreement score, date) — "
+                    "REVIEW-REQUIRED; do not auto-gate"
+                ),
+                metrics={
+                    "judge_calibrated": True,
+                    "reference_prose_conforms_to_v4": ref_v4,
+                    "gates_ignored": True,
+                },
+            )
+        )
 
     return results

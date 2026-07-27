@@ -387,6 +387,8 @@ Asking any of these is a false positive. This list exists so gap precision can b
 
 # LAYER 4 — The report
 
+SUPERSEDED by GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md (2026-07-28, V4 prose pass). Layers 1, 2, 3 and 5 in this document remain current.
+
 Ground truth for synthesis and prose. Written against the live six-section template, within its word limits.
 
 ---

@@ -85,6 +85,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-076 | 2026-07-27 | **Harness exemption + one-way import guard** | `app/reports/eval/**` exempt from funder/fixture string guard; paired with no-override structural guard (engine never imports harness). | G1 |
 | D-077 | 2026-07-27 | **Dead Claude Code hooks — parents[1] path bug** | Pre-existing hooks never executed; fixed to parents[2]. Standing: a guard is not in force until a planted violation is blocked at each claimed layer. | G1 |
 | D-078 | 2026-07-28 | **Protected-file guard is PR-time blocking; post-merge reporting** | Non-PR CI (push/schedule): protected-file reports only. Funder/fixture, harness-import, secret remain blocking on all events. Squash-merge + review is the protected-path authorisation signal. | G1-FIX |
+| D-079 | 2026-07-28 | **Golden Layer 4 v1.1 (V4 prose pass) + prose-flag split** | Layer-4-only swap to dataset 1.1; `prose_uncalibrated` replaced by `reference_prose_conforms_to_v4` + `judge_calibrated`; gate reads `judge_calibrated` only (fail-closed); ngo-reviewer stays NOT YET CALIBRATED with RUBRIC SOURCE pointer; standing L5 reference self-check with allowlist. Calibration not moved. P0 WI8 decision IDs shift to D-080/D-081. | P0 |
 
 ---
 
@@ -117,6 +118,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-064 | 2026-07-26 | D-046 (narrative label only) | Renumber proposal-checkpoint narrative D-046 → D-064; table D-046 (F1 reliability) unchanged | collision policy — earliest keeps ID |
 | D-031 | 2026-07-26 | — | D-031 — never assigned; number permanently reserved, do not reuse. | H0 history check (`git log -S D-031`): nothing found |
 | D-069 | 2026-07-26 | D-075 (in part) | D-075 superseded in part by D-069 (2026-07-26): value_for_money section reclassified NGO-owned on award-letter evidence; all other items in the P2 funder-owned set unchanged; template restoration executes in Package P1. | H0 / VfM restore |
+| D-079 | 2026-07-28 | D-066 (Layer 4 only) | Layer 4 v1.1 V4 prose pass adopted; layers 1/2/3/5 remain on v1.0 source; prose-flag split; calibration unmoved. | P0 / golden v1.1 |
 
 ---
 
@@ -574,4 +576,8 @@ All three pre-existing Claude Code hooks resolved an invalid path (`parents[1]` 
 DECISION (2026-07-28) — Protected-file CI event asymmetry (D-078).
 
 The protected-file guard is a PR-time control: on `pull_request` events (and local pre-commit / PreToolUse) it remains blocking unless `GOVERNANCE_OVERRIDE` is present. On non-PR CI events (`push` to main, `schedule`) the protected-file check reports findings but does not fail the job. Rationale: squash-merge discards per-commit `GOVERNANCE_OVERRIDE` tokens; an independently reviewed, squash-merged PR is a stronger authorisation signal than a commit-message token, and squash-merge is standard practice. The three no-override guards — funder/fixture, harness-import, and secret — remain blocking on every event type without exception or soft mode.
+---
+DECISION (2026-07-28) — Golden Layer 4 v1.1 V4 prose pass + prose-flag split (D-079).
+
+Discharges the "v1.1 pending" note on D-066 for Layer 4 only. Dataset version → 1.1; layers 1/2/3/5 fixture bytes unchanged. `prose_uncalibrated` replaced by `reference_prose_conforms_to_v4` (true — golden's own V4 caveat discharged) and `judge_calibrated` (false — no owner-rated samples). Gate reads `judge_calibrated` and nothing else; fail-closed default false. ngo-reviewer charter stays `CALIBRATION: NOT YET CALIBRATED` with a RUBRIC SOURCE pointer to the v1.1 document and its appendix. Standing L5 reference self-check runs on pack load; known contextual hits allowlisted in manifest. Owner Corrections 1–2 applied before transcription (Recommendations `419, no limit`; en-dash ranges). Calibration is a separate future decision; P0 WI8 IDs shift to D-080/D-081.
 ---

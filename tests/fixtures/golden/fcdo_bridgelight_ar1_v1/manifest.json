@@ -1,14 +1,25 @@
 {
   "dataset_id": "fcdo_bridgelight_ar1",
-  "dataset_version": "1.0",
-  "content_checksum": "34725d54cff552545b8d1709911688bc803946a88af5af13c351651f3e4eb4b8",
+  "dataset_version": "1.1",
+  "content_checksum": "185223373f46afa85e47562c82d7b6a5494858482aa7c9f9afe7f448869eca79",
   "checksum_algorithm": "sha256",
-  "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(metadata + full_markdown_sha256)",
-  "transcription_correction": "WI1 verification findings 1–5 (2026-07-27); version remains 1.0",
+  "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(reference_prose_conforms_to_v4, judge_calibrated, full_markdown_sha256, prose_rubric_reference_sha256, sections_present)",
+  "layer_4_change_scope": "prose only; no fact, conflict, gap or forbidden-output content altered",
+  "superseded_layer_4_sha256": "866a51298324c32e55239756c7d39d8ce6ffdfc0ed21c5169baf3350074e070c",
+  "transcription_correction": "v1.1 Layer 4 V4 prose pass (2026-07-28); owner Corrections 1–2 applied before transcription; Layers 1/2/3/5 unchanged",
   "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
   "source_document_version": "1.0",
+  "layer_4_source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md",
   "authored": "2026-07-25",
+  "layer_4_prose_pass": "2026-07-28",
   "adopted": "2026-07-26",
+  "preamble_metadata": {
+    "supersedes": "Layer 4 of `GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`",
+    "change_scope": "prose only. No fact, conflict, gap or forbidden-output content is altered. Layers 1, 2, 3 and 5 are untouched, and every claim map below is carried over unchanged.",
+    "standard_applied": "Human Writing Instructions V4, in full. Owner ruling 2026-07-28.",
+    "prose_conformance": "the golden's v1.0 caveat (\"written to my best understanding of the house prose standard; V4 was not supplied\") is now discharged. This text is the reference register for the Writer (P4) and the calibration reference for the ngo-reviewer judge.",
+    "tables": "unchanged in register. V4 governs prose; table cells stay terse and structured."
+  },
   "layer_provenance": {
     "layer_1_facts": {
       "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
@@ -26,11 +37,12 @@
       "notes": "G-01…G-10 + 15-item counter-list + question script prose."
     },
     "layer_4_report": {
-      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
-      "source_version": "1.0",
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md",
+      "source_version": "1.1",
       "file": "report_reference.json",
-      "prose_uncalibrated": true,
-      "notes": "Own file so v1.1 Layer-4-only swap touches nothing else. VfM workaround inside Section F.",
+      "reference_prose_conforms_to_v4": true,
+      "judge_calibrated": false,
+      "notes": "V4 prose pass; prose_rubric_reference holds appendix; gate reads judge_calibrated only.",
       "vfm_section_f_workaround": true,
       "vfm_amendment_when": "P1 restores VfM section (D-069) → Layer 4 requires golden amendment"
     },
@@ -60,5 +72,69 @@
   },
   "fabrication_semantics": {
     "layer_1_fabrications": "REVIEW-REQUIRED — never auto-PASS, never auto-FAIL; owner bins: golden amendment | invention; counted separately from recall"
-  }
+  },
+  "word_limit_assertions": [
+    {
+      "section_key": "A",
+      "template_section_key": "summary_and_overview",
+      "golden_word_count": 743,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "B",
+      "template_section_key": "performance_and_conclusions",
+      "golden_word_count": 869,
+      "golden_asserted_limit": 1200
+    },
+    {
+      "section_key": "Evidence",
+      "template_section_key": "evidence_and_evaluation",
+      "golden_word_count": 597,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "Risk",
+      "template_section_key": "risk_and_safeguarding",
+      "golden_word_count": 592,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "F",
+      "template_section_key": "programme_management_delivery_commercial_financial",
+      "golden_word_count": 656,
+      "golden_asserted_limit": 1200
+    },
+    {
+      "section_key": "Recommendations",
+      "template_section_key": "recommendations_and_actions",
+      "golden_word_count": 419,
+      "golden_asserted_limit": null
+    }
+  ],
+  "l5_self_check_allowlist": [
+    {
+      "id": "FB-04",
+      "rationale": "Names superseded proposal budget £1,184,000 while stating the award envelope superseded it — not adopting it as the approved figure."
+    },
+    {
+      "id": "FB-05",
+      "rationale": "Names OP2.3 / OP4.2 as unreported gaps and recommendations to report them — never invents achieved values."
+    },
+    {
+      "id": "FB-06",
+      "rationale": "Discloses the all-male caregiver coding as not credible and states the breakdown must not be reported."
+    },
+    {
+      "id": "FB-09",
+      "rationale": "False-positive surface: 'Disaggregated' + later 'output scores' (draft / not adoptable). No aggregate output score is asserted."
+    },
+    {
+      "id": "FB-13",
+      "rationale": "States that no life-of-programme burn position can be derived — the forbidden claim is refused, not made."
+    },
+    {
+      "id": "FB-14",
+      "rationale": "Template heading 'Updates on previous recommendations' answered Not applicable — first Annual Review; no invented prior recs."
+    }
+  ]
 }

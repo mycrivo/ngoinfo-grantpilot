@@ -1,7 +1,8 @@
-# Golden pack — FCDO BridgeLight AR1 v1.0
+# Golden pack — FCDO BridgeLight AR1 v1.1
 
-Transcription of `docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`.
-**No interpretation beyond recorded judgment calls in `RECONCILIATION.md`.**
+Layers 1–3 and 5 transcribed from `docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`.
+Layer 4 from `docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md` (V4 prose pass, D-079).
+**No interpretation beyond recorded judgment calls in `RECONCILIATION.md` / `RECONCILIATION_V11_LAYER4.md`.**
 
 ## Facet grain (owner ruling)
 
@@ -28,14 +29,16 @@ aggregates (F-052…F-056, F-094…F-097); `true` elsewhere.
 | `facts.json` | 1 — fact records (id × facet) |
 | `conflicts.json` | 2 — C-01…C-09 (`defects[]` on C-04) |
 | `gaps.json` | 3 — clusters + counter-list + question script |
-| `report_reference.json` | 4 — **own file** for v1.1 Layer-4-only swap |
+| `report_reference.json` | 4 — V4 prose; `reference_prose_conforms_to_v4` + `judge_calibrated`; appendix in `prose_rubric_reference` |
 | `forbidden.json` | 5 — FB-01…FB-18 (`deterministic` / `judged` / `dual`) |
-| `manifest.json` | dataset version, per-layer provenance, checksum |
-| `RECONCILIATION.md` | owner verification |
+| `manifest.json` | dataset version 1.1, per-layer provenance, checksum, L5 self-check allowlist |
+| `RECONCILIATION.md` | owner verification (layers 1–3, 5) |
+| `RECONCILIATION_V11_LAYER4.md` | Layer 4 v1.1 prose-pass verification |
 
 ## Dataset versioning
 
 - Manifest carries **per-layer provenance** (source version per layer).
+- Dataset version **1.1** = Layer 4 V4 prose pass only; layers 1/2/3/5 source_version remain 1.0.
 - Baselines (later WI) must store dataset version + checksum scored against.
 - Cross-version same-or-better comparisons are forbidden (D-071); scorecard must warn.
-- Dataset version remains **1.0** for transcription corrections (not a content change).
+- Gate reads `judge_calibrated` only; `reference_prose_conforms_to_v4` is metadata.

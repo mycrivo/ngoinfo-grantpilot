@@ -25,15 +25,32 @@ def pack():
 
 
 def test_golden_pack_loads_and_checksum_matches(pack):
-    assert pack.dataset_version == "1.0"
+    assert pack.dataset_version == "1.1"
     assert len(pack.facts) == 242
     assert len(pack.conflicts) == 9
     assert len(pack.gaps["clusters"]) == 10
     assert len(pack.gaps["counter_list"]) == 15
     assert len(pack.forbidden) == 18
-    assert pack.report_reference.get("prose_uncalibrated") is True
+    assert pack.reference_prose_conforms_to_v4 is True
+    assert pack.judge_calibrated is False
+    assert "prose_uncalibrated" not in pack.report_reference
     # Layer 4 text comes from fixture file
     assert "LAYER 4" in pack.report_markdown or "Summary and Overview" in pack.report_markdown
+    assert "419, no limit" in pack.report_markdown
+    assert "419 of 900" not in pack.report_markdown
+    # Appendix is separate from scored markdown
+    assert "prose_rubric_reference" in pack.report_reference
+    assert "Appendix" in pack.report_reference["prose_rubric_reference"]
+    assert "Appendix" not in pack.report_markdown
+    # Standing L5 self-check ran and hits are allowlisted
+    assert set(pack.l5_reference_self_hits) == {
+        "FB-04",
+        "FB-05",
+        "FB-06",
+        "FB-09",
+        "FB-13",
+        "FB-14",
+    }
 
 
 def test_fb05_is_dual(pack):
@@ -132,10 +149,71 @@ def test_l4_prose_is_advisory_and_ignored_by_gate(pack):
     assert prose.assertion_class == AssertionClass.ADVISORY
     assert prose.verdict == Verdict.ADVISORY
     assert prose.metrics.get("gates_ignored") is True
+    assert prose.metrics.get("judge_calibrated") is False
+    assert prose.metrics.get("reference_prose_conforms_to_v4") is True
 
     # Even if we inject a FAIL elsewhere advisory, gate ignores advisory verdicts
     summary = gate_verdict(results)
     assert "L4-PROSE" in summary["advisory_ignored_by_gate"]
+
+
+def test_reference_prose_conforms_to_v4_cannot_affect_gate(pack):
+    """Guard: flipping reference_prose_conforms_to_v4 must not change any verdict."""
+    from app.reports.eval.golden_pack import GoldenPack
+
+    bundle = ScoreableBundle(
+        bundle_id="flag-sep",
+        provenance="synthetic",
+        stages_present=[STAGE_CONTENT],
+        content_json={"sections": {"A": {"prose": "Text", "source_refs": ["x"]}}},
+    )
+    base = evaluate_layer4(bundle, pack)
+    base_verdicts = {r.assertion_id: r.verdict for r in base}
+
+    flipped_ref = dict(pack.report_reference)
+    flipped_ref["reference_prose_conforms_to_v4"] = False
+    flipped = GoldenPack(
+        pack_dir=pack.pack_dir,
+        manifest=pack.manifest,
+        facts=pack.facts,
+        conflicts=pack.conflicts,
+        gaps=pack.gaps,
+        forbidden=pack.forbidden,
+        report_reference=flipped_ref,
+        l5_reference_self_hits=pack.l5_reference_self_hits,
+    )
+    assert flipped.reference_prose_conforms_to_v4 is False
+    assert flipped.judge_calibrated is False
+    alt = evaluate_layer4(bundle, flipped)
+    alt_verdicts = {r.assertion_id: r.verdict for r in alt}
+    assert base_verdicts == alt_verdicts
+    prose = next(r for r in alt if r.assertion_id == "L4-PROSE")
+    assert prose.verdict == Verdict.ADVISORY
+    assert prose.metrics["gates_ignored"] is True
+
+
+def test_l5_self_check_rejects_unexpected_hit(pack, tmp_path):
+    import json
+    from app.reports.eval.golden_pack import load_golden_pack
+
+    # Copy pack to temp and strip allowlist → load must fail on known hits
+    src = pack.pack_dir
+    dst = tmp_path / "pack"
+    dst.mkdir()
+    for name in (
+        "manifest.json",
+        "facts.json",
+        "conflicts.json",
+        "gaps.json",
+        "forbidden.json",
+        "report_reference.json",
+    ):
+        (dst / name).write_text((src / name).read_text(encoding="utf-8"), encoding="utf-8")
+    man = json.loads((dst / "manifest.json").read_text(encoding="utf-8"))
+    man["l5_self_check_allowlist"] = []  # empty → all hits unexpected
+    (dst / "manifest.json").write_text(json.dumps(man), encoding="utf-8")
+    with pytest.raises(ValueError, match="L5 reference self-check failed"):
+        load_golden_pack(dst, verify_checksum=False, verify_l5_self_check=True)
 
 
 def test_l4_uses_report_reference_file_not_inline(pack):

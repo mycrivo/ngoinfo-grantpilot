@@ -781,3 +781,9 @@ except the funder-owned row, which maps to **FB-15**.
 - [ ] Full 15-entry counter-list + FB-14/FB-15 mapping acceptable
 - [ ] detection_method table (incl. dual) acceptable; escalations for multi-facet ruled
 - [ ] Checksum noted for baseline lineage later
+
+---
+
+## Addendum — Layer 4 v1.1
+
+Layer 4 superseded by V4 prose pass. See [RECONCILIATION_V11_LAYER4.md](RECONCILIATION_V11_LAYER4.md). Layers 1, 2, 3 and 5 reconciliation above remains current.

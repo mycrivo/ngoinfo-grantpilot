@@ -1,6 +1,9 @@
 """Value normalisation for golden↔bundle matching (D-040 / D-041 pattern).
 
 Match by normalised value + source document — never by engine fact_key.
+
+B6 (verify meaning, not tokens): numeric ranges normalise before comparison —
+en dash / em dash / ASCII hyphen are equivalent. Typography must never decide a match.
 """
 
 from __future__ import annotations
