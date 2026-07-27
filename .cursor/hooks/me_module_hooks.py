@@ -269,7 +269,8 @@ def scan_staged_files_for_secrets() -> list[str]:
 
     for rel_path in result.stdout.splitlines():
         rel_path = rel_path.strip()
-        if not rel_path or rel_path.startswith("docs/"):
+        # docs/ is scanned: audit transcripts and run evidence land there.
+        if not rel_path:
             continue
         full = REPO_ROOT / rel_path
         if not full.is_file():

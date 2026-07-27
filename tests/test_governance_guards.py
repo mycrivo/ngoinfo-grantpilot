@@ -203,6 +203,9 @@ def test_pretool_protected_deny_and_allow(monkeypatch, tmp_path):
     )
     assert code2 == 0
     assert out2.get("permission") == "allow"
+    assert "Governance override accepted (PreToolUse)" in out2.get("user_message", "")
+    assert "g1-pretool-proof" in out2.get("user_message", "")
+    assert (tmp_path / "override_log.jsonl").exists()
 
 
 def test_run_guards_script_help():

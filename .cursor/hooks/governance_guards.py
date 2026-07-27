@@ -631,8 +631,13 @@ def emit_deny(user_message: str, agent_message: str) -> None:
     )
 
 
-def emit_allow() -> None:
-    emit_json({"permission": "allow"})
+def emit_allow(*, user_message: str | None = None, agent_message: str | None = None) -> None:
+    payload: dict = {"permission": "allow"}
+    if user_message:
+        payload["user_message"] = user_message
+    if agent_message:
+        payload["agent_message"] = agent_message
+    emit_json(payload)
 
 
 def tool_target_path(tool_input: dict) -> str:
@@ -666,12 +671,20 @@ def run_pretool_guard(
     added = added_lines_for_tool(full, tool_name, tool_input if isinstance(tool_input, dict) else {})
 
     violations: list[Violation] = []
+    override_flag: str | None = None
 
     if which in {"protected_file", "all"}:
         # Protected: deny if targeting protected path without override, regardless of diff.
-        violations.extend(
-            check_protected_write(rel, cfg=cfg, layer="pretooluse", log=True)
-        )
+        prot = check_protected_write(rel, cfg=cfg, layer="pretooluse", log=True)
+        if not prot and is_protected_path(rel, cfg):
+            ok, reason = resolve_override(None)
+            if ok and reason:
+                override_flag = (
+                    f"Governance override accepted (PreToolUse): "
+                    f"path={normalize_path(rel)} reason={reason!r} "
+                    f"(logged to .governance/override_log.jsonl)"
+                )
+        violations.extend(prot)
 
     if added is None:
         # Cannot project (e.g. ApplyPatch) — fail closed for content guards.
@@ -727,7 +740,10 @@ def run_pretool_guard(
         message = format_violations(violations, cfg)
         emit_deny(message, message)
         return 2
-    emit_allow()
+    if override_flag:
+        emit_allow(user_message=override_flag, agent_message=override_flag)
+    else:
+        emit_allow()
     return 0
 
 

@@ -136,6 +136,18 @@ def main() -> int:
                 f"governance: protected-file override accepted ({result.override_reason!r})",
                 file=sys.stderr,
             )
+        # log_override() appends after the staged snapshot is fixed; re-stage so
+        # the audit trail ships in the same commit (AGENTS.md: logged + visible).
+        if result.overrides or result.override_used:
+            log_rel = ".governance/override_log.jsonl"
+            subprocess.run(
+                ["git", "add", "--", log_rel],
+                cwd=REPO_ROOT,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            print(f"governance: restaged {log_rel} for commit", file=sys.stderr)
         print("governance: OK")
         return 0
 
