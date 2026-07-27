@@ -60,3 +60,6 @@
 {"timestamp": "2026-07-27T12:26:40.615562+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1 squash: constitution + hooks + review dispositions", "layer": "ci"}
 {"timestamp": "2026-07-27T12:26:46.706725+00:00", "actor": "unknown", "path": "AGENTS.md", "reason": "g1-proof-transcript-precommit", "layer": "pre-commit"}
 {"timestamp": "2026-07-27T12:35:14.223609+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 fix smoke-test.yml YAML break", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:39:56.996727+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 dispositions: CI proof fill + notes + revert plant", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:40:33.806256+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "G1 dispositions: rewrite history without CI plant", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T12:40:33.822608+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "G1 dispositions: rewrite history without CI plant", "layer": "pre-commit"}
