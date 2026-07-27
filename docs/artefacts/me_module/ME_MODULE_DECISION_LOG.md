@@ -84,6 +84,7 @@ Append-only record of deliberate choices. Do not silently pivot — add a row an
 | D-075 | 2026-06-11 | **Phase B exec — B2b one-op template replace from fcdo_55f891ac_post_deletion_v1.2.0.json; kill-list included value_for_money; classification lineage: P2 owner-tagging adjudication artefacts.** | Retroactive ID under on-demand rule (see narrative). | H0 |
 | D-076 | 2026-07-27 | **Harness exemption + one-way import guard** | `app/reports/eval/**` exempt from funder/fixture string guard; paired with no-override structural guard (engine never imports harness). | G1 |
 | D-077 | 2026-07-27 | **Dead Claude Code hooks — parents[1] path bug** | Pre-existing hooks never executed; fixed to parents[2]. Standing: a guard is not in force until a planted violation is blocked at each claimed layer. | G1 |
+| D-078 | 2026-07-28 | **Protected-file guard is PR-time blocking; post-merge reporting** | Non-PR CI (push/schedule): protected-file reports only. Funder/fixture, harness-import, secret remain blocking on all events. Squash-merge + review is the protected-path authorisation signal. | G1-FIX |
 
 ---
 
@@ -569,4 +570,8 @@ DECISION (2026-07-27) — Harness exemption + one-way import guard (D-076).
 DECISION (2026-07-27) — Dead Claude Code hooks finding (D-077).
 
 All three pre-existing Claude Code hooks resolved an invalid path (`parents[1]` from `.claude/hooks/`, yielding `.claude/.cursor/hooks/...`) and had never executed; fixed to `parents[2]` in Package G1. Standing consequence: a guard is not in force until a planted violation is observed to be blocked at each layer it claims to cover.
+---
+DECISION (2026-07-28) — Protected-file CI event asymmetry (D-078).
+
+The protected-file guard is a PR-time control: on `pull_request` events (and local pre-commit / PreToolUse) it remains blocking unless `GOVERNANCE_OVERRIDE` is present. On non-PR CI events (`push` to main, `schedule`) the protected-file check reports findings but does not fail the job. Rationale: squash-merge discards per-commit `GOVERNANCE_OVERRIDE` tokens; an independently reviewed, squash-merged PR is a stronger authorisation signal than a commit-message token, and squash-merge is standard practice. The three no-override guards — funder/fixture, harness-import, and secret — remain blocking on every event type without exception or soft mode.
 ---

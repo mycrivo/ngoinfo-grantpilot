@@ -71,6 +71,37 @@ def commit_added_map(sha: str) -> dict[str, list[str]]:
     return parse_unified_diff_added(diff)
 
 
+PROTECTED_FILE_POST_MERGE_NOTE = (
+    "Protected-file authorisation is established by review at PR time "
+    "(D-078); on non-PR CI events the protected-file check reports only. "
+    "Funder/fixture, harness-import, and secret guards remain blocking "
+    "on every event — no override, no soft mode."
+)
+
+
+def partition_ci_violations(
+    violations: list,
+    *,
+    protected_file_mode: str,
+) -> tuple[list, list]:
+    """Split violations into (blocking, report_only) for CI event asymmetry.
+
+    protected_file_mode:
+      - "blocking": all guards fail the job (pull_request)
+      - "report": protected_file is report-only; other guards still block (push/schedule)
+    """
+    mode = (protected_file_mode or "blocking").strip().lower()
+    if mode not in {"blocking", "report"}:
+        raise ValueError(
+            f"protected_file_mode must be 'blocking' or 'report', got {protected_file_mode!r}"
+        )
+    if mode == "blocking":
+        return list(violations), []
+    blocking = [v for v in violations if v.guard != "protected_file"]
+    report_only = [v for v in violations if v.guard == "protected_file"]
+    return blocking, report_only
+
+
 def _print_overrides(overrides: list[dict], *, sha: str | None = None) -> None:
     for ov in overrides:
         path = ov.get("path", "")
@@ -101,6 +132,16 @@ def main() -> int:
         "--allow-env-override",
         action="store_true",
         help="Allow GOVERNANCE_OVERRIDE from the environment (local pre-commit only)",
+    )
+    parser.add_argument(
+        "--protected-file-mode",
+        choices=("blocking", "report"),
+        default="blocking",
+        help=(
+            "CI only: 'blocking' fails on protected-file (pull_request); "
+            "'report' prints protected-file findings without failing "
+            "(push/schedule). Other guards always block."
+        ),
     )
     args = parser.parse_args()
 
@@ -186,8 +227,19 @@ def main() -> int:
             )
         all_violations.extend(result.violations)
 
-    if all_violations:
-        print(format_violations(all_violations, load_blocklist()), file=sys.stderr)
+    blocking, report_only = partition_ci_violations(
+        all_violations, protected_file_mode=args.protected_file_mode
+    )
+    if args.protected_file_mode == "report":
+        print(f"governance: {PROTECTED_FILE_POST_MERGE_NOTE}", file=sys.stderr)
+        if report_only:
+            print(
+                "governance: protected-file findings (report-only on this event):",
+                file=sys.stderr,
+            )
+            print(format_violations(report_only, load_blocklist()), file=sys.stderr)
+    if blocking:
+        print(format_violations(blocking, load_blocklist()), file=sys.stderr)
         return 1
     if any_override:
         print("governance: protected-file override(s) accepted (see trail above)", file=sys.stderr)

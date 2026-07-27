@@ -47,7 +47,13 @@ jobs:
             RANGE="$MB..$HEAD"
           fi
           echo "Scanning range: $RANGE (merge-base two-dot)"
-          python scripts/governance/run_guards.py --range "$RANGE" --layer ci
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            MODE=blocking
+          else
+            MODE=report
+            echo "Protected-file mode=report (D-078): PR review authorises protected paths; funder/fixture, harness-import, and secret remain blocking on all events."
+          fi
+          python scripts/governance/run_guards.py --range "$RANGE" --layer ci --protected-file-mode "$MODE"
       - name: Render override trail from PR commits
         if: github.event_name == 'pull_request'
         env:

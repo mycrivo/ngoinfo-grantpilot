@@ -66,3 +66,7 @@
 {"timestamp": "2026-07-27T12:47:59.308043+00:00", "actor": "unknown", "path": ".cursor/hooks/governance_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
 {"timestamp": "2026-07-27T12:47:59.318557+00:00", "actor": "unknown", "path": "scripts/governance/run_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
 {"timestamp": "2026-07-27T12:47:59.322337+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "G1: restage override_log; PreToolUse flag; docs secret_scan", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T17:13:38.391987+00:00", "actor": "unknown", "path": ".github/workflows/smoke-test.yml", "reason": "D-078: protected-file PR-time blocking; post-merge report-only", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T17:13:38.391987+00:00", "actor": "unknown", "path": ".governance/blocklist.json", "reason": "D-078: protected-file PR-time blocking; post-merge report-only", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T17:13:38.404982+00:00", "actor": "unknown", "path": "scripts/governance/run_guards.py", "reason": "D-078: protected-file PR-time blocking; post-merge report-only", "layer": "pre-commit"}
+{"timestamp": "2026-07-27T17:13:38.404982+00:00", "actor": "unknown", "path": "tests/test_governance_guards.py", "reason": "D-078: protected-file PR-time blocking; post-merge report-only", "layer": "pre-commit"}
