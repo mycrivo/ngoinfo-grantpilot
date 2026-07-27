@@ -20,24 +20,53 @@ def fact(
     slot: str,
     facet: str,
     value,
-    source: str,
+    source,
     status: str,
     *,
     unit: str | None = None,
     label: str = "",
+    reportable: bool = True,
+    absent: dict | None = None,
 ) -> dict:
-    rec = {
-        "id": fid,
-        "ontology_slot": slot,
-        "facet": facet,
-        "value": value,
-        "source_document": source,
-        "status": status,
-        "label": label,
-    }
+    """Build one (id, facet) record.
+
+    If absent is set, value and source_document must be null — absence is a state,
+    not a matchable string (Finding 2).
+    """
+    if absent is not None:
+        rec = {
+            "id": fid,
+            "ontology_slot": slot,
+            "facet": facet,
+            "value": None,
+            "source_document": None,
+            "status": status,
+            "label": label,
+            "reportable": reportable,
+            "absent": absent,
+        }
+    else:
+        rec = {
+            "id": fid,
+            "ontology_slot": slot,
+            "facet": facet,
+            "value": value,
+            "source_document": source,
+            "status": status,
+            "label": label,
+            "reportable": reportable,
+        }
     if unit is not None:
         rec["unit"] = unit
     return rec
+
+
+# Cases where a conflict/gap plausibly spans >1 facet — escalate to owner (Finding 1).
+MULTI_FACET_OWNER_ESCALATIONS: list[dict] = []
+
+
+def escalate(msg: str, **extra) -> None:
+    MULTI_FACET_OWNER_ESCALATIONS.append({"message": msg, **extra})
 
 
 JUDGMENT_CALLS: list[str] = []
@@ -95,21 +124,40 @@ def build_facts() -> list[dict]:
 
     note("ontology_slot strings are transcription scaffolding derived from golden section + fact label; they are not engine fact_keys. Facet identity is the mandated grain (owner ruling 1).")
 
-    # Outcomes F-032…F-034 — four facets each; status column = Gap G-01
+    # Outcomes F-032…F-034 — facet-scoped status (Finding 1): Gap G-01 on achieved only.
+    # Absence (Finding 2): achieved is a hole, not the string "NOT REPORTED".
     outcomes = [
-        ("F-032", "outcome.ocm1", "OCM1 — % of supported girls attending school at least 80% of days in last completed term", "38%", "55%", "70%", "NOT REPORTED"),
-        ("F-033", "outcome.ocm2", "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway", "31%", "48%", "65%", "NOT REPORTED"),
-        ("F-034", "outcome.ocm3", "OCM3 — % of girls reporting school is safe during menstruation and travel", "41%", "58%", "72%", "NOT REPORTED"),
+        ("F-032", "outcome.ocm1", "OCM1 — % of supported girls attending school at least 80% of days in last completed term", "38%", "55%", "70%"),
+        ("F-033", "outcome.ocm2", "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway", "31%", "48%", "65%"),
+        ("F-034", "outcome.ocm3", "OCM3 — % of girls reporting school is safe during menstruation and travel", "41%", "58%", "72%"),
     ]
-    note("F-032…F-034 Status column is 'Gap G-01' (not CONFIRMED/RESOLVED/…). Preserved verbatim as status per ruling 3 (golden vocabulary).")
-    for fid, slot, label, baseline, y1, endline, achieved in outcomes:
-        for facet, val in [
-            ("baseline", baseline),
-            ("y1_milestone", y1),
-            ("endline", endline),
-            ("achieved", achieved),
-        ]:
-            facts.append(fact(fid, slot, facet, val, "D1", "Gap G-01", label=label))
+    note(
+        "Finding 1: F-032…F-034 — Gap G-01 attaches only to facet=achieved; "
+        "baseline/y1_milestone/endline are CONFIRMED (present in D1)."
+    )
+    note(
+        "Finding 2: achieved for F-032…F-034 uses absent={reason, gap_id}; "
+        "value and source_document are null."
+    )
+    for fid, slot, label, baseline, y1, endline in outcomes:
+        facts.append(fact(fid, slot, "baseline", baseline, "D1", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "y1_milestone", y1, "D1", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "endline", endline, "D1", "CONFIRMED", label=label))
+        facts.append(
+            fact(
+                fid,
+                slot,
+                "achieved",
+                None,
+                None,
+                "Gap G-01",
+                label=label,
+                absent={
+                    "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+                    "gap_id": "G-01",
+                },
+            )
+        )
 
     # Outputs design F-035…F-038
     outputs = [
@@ -136,33 +184,127 @@ def build_facts() -> list[dict]:
     )
     note("F-039 source recorded as 'Derived' (golden: Arithmetic check); status CONFIRMED as check passes.")
 
-    # Output indicators F-040…F-051
-    indicators = [
+    # Output indicators F-040…F-051 — facet-scoped status + absence (Findings 1–2)
+    # Row schema: fid, slot, label, baseline, y1, endline, achieved|None, score|None, vs|None,
+    #             status_on_achieved (or None if CONFIRMED across)
+    note(
+        "Finding 1: F-040 RESOLVED—C-03 on achieved only; other facets CONFIRMED. "
+        "F-043 CAVEATED—C-07 on achieved only (see MULTI_FACET_OWNER_ESCALATIONS). "
+        "F-045/F-050 Gap on achieved only; targets CONFIRMED."
+    )
+    escalate(
+        "C-07 (OP2.1 baseline treatment) concerns whether achieved=31 is cumulative with "
+        "baseline=6 or new-only. Facet-scoped rule applied CAVEATED only to achieved; "
+        "baseline left CONFIRMED. Owner: should baseline also carry CAVEATED — see C-07?",
+        fact_id="F-043",
+        conflict_id="C-07",
+        facets_considered=["baseline", "achieved"],
+        applied_to=["achieved"],
+    )
+
+    # Fully reported indicators
+    reported = [
         ("F-040", "indicator.op1_1", "OP1.1 Girls re-enrolled or newly retained through support package", "0", "650", "1,200", "684", "A", "Above (+34)", "RESOLVED — see C-03"),
-        ("F-041", "indicator.op1_2", "OP1.2 Supported girls attending ≥80% of school days in last completed term", "0", "500", "900", "472", "B", "Below (−28)", "CONFIRMED"),
-        ("F-042", "indicator.op1_3", "OP1.3 Girls completing at least 20 remedial learning sessions", "0", "420", "850", "438", "A", "Above (+18)", "CONFIRMED"),
+        ("F-041", "indicator.op1_2", "OP1.2 Supported girls attending ≥80% of school days in last completed term", "0", "500", "900", "472", "B", "Below (−28)", None),
+        ("F-042", "indicator.op1_3", "OP1.3 Girls completing at least 20 remedial learning sessions", "0", "420", "850", "438", "A", "Above (+18)", None),
         ("F-043", "indicator.op2_1", "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional", "6", "24", "40", "31", "A", "Above (+7)", "CAVEATED — see C-07"),
-        ("F-044", "indicator.op2_2", "OP2.2 Schools with menstrual health supplies and trained focal teachers", "0", "20", "40", "17", "C", "Below (−3)", "CONFIRMED"),
-        ("F-045", "indicator.op2_3", "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting", "0", "18", "40", "NOT REPORTED", "—", "—", "Gap G-02"),
-        ("F-046", "indicator.op3_1", "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan", "0", "400", "800", "392", "B", "Below (−8)", "CONFIRMED"),
-        ("F-047", "indicator.op3_2", "OP3.2 Girls receiving school re-entry kit or learning materials package", "0", "550", "1,100", "571", "A", "Above (+21)", "CONFIRMED"),
-        ("F-048", "indicator.op3_3", "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days", "0%", "75%", "85%", "68%", "C", "Below (−7pp)", "CONFIRMED"),
-        ("F-049", "indicator.op4_1", "OP4.1 District learning meetings held with documented action points", "0", "4", "8", "3", "B", "Below (−1)", "CONFIRMED"),
-        ("F-050", "indicator.op4_2", "OP4.2 Learning briefs produced and shared with district education stakeholders", "0", "2", "5", "NOT REPORTED", "—", "—", "Gap G-03"),
-        ("F-051", "indicator.op4_3", "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols", "0", "120", "240", "136", "A", "Above (+16)", "CONFIRMED"),
+        ("F-044", "indicator.op2_2", "OP2.2 Schools with menstrual health supplies and trained focal teachers", "0", "20", "40", "17", "C", "Below (−3)", None),
+        ("F-046", "indicator.op3_1", "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan", "0", "400", "800", "392", "B", "Below (−8)", None),
+        ("F-047", "indicator.op3_2", "OP3.2 Girls receiving school re-entry kit or learning materials package", "0", "550", "1,100", "571", "A", "Above (+21)", None),
+        ("F-048", "indicator.op3_3", "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days", "0%", "75%", "85%", "68%", "C", "Below (−7pp)", None),
+        ("F-049", "indicator.op4_1", "OP4.1 District learning meetings held with documented action points", "0", "4", "8", "3", "B", "Below (−1)", None),
+        ("F-051", "indicator.op4_3", "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols", "0", "120", "240", "136", "A", "Above (+16)", None),
     ]
-    note("F-040…F-051 expanded to six facets: baseline, y1_milestone, endline, achieved, proposed_score, vs_milestone. Em-dash cells for unreported indicators preserved as '—'.")
-    for row in indicators:
-        fid, slot, label, baseline, y1, endline, achieved, score, vs, status = row
-        for facet, val in [
-            ("baseline", baseline),
-            ("y1_milestone", y1),
-            ("endline", endline),
-            ("achieved", achieved),
-            ("proposed_score", score),
-            ("vs_milestone", vs),
-        ]:
-            facts.append(fact(fid, slot, facet, val, "D1, D3", status, label=label))
+    for fid, slot, label, baseline, y1, endline, achieved, score, vs, ach_status in reported:
+        facts.append(fact(fid, slot, "baseline", baseline, "D1, D3", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "y1_milestone", y1, "D1, D3", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "endline", endline, "D1, D3", "CONFIRMED", label=label))
+        facts.append(
+            fact(
+                fid,
+                slot,
+                "achieved",
+                achieved,
+                "D1, D3",
+                ach_status or "CONFIRMED",
+                label=label,
+            )
+        )
+        facts.append(fact(fid, slot, "proposed_score", score, "D1, D3", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "vs_milestone", vs, "D1, D3", "CONFIRMED", label=label))
+
+    # Unreported indicators — targets present; achieved/score/vs absent
+    unreported = [
+        (
+            "F-045",
+            "indicator.op2_3",
+            "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+            "0",
+            "18",
+            "40",
+            "G-02",
+            "Gap G-02",
+        ),
+        (
+            "F-050",
+            "indicator.op4_2",
+            "OP4.2 Learning briefs produced and shared with district education stakeholders",
+            "0",
+            "2",
+            "5",
+            "G-03",
+            "Gap G-03",
+        ),
+    ]
+    for fid, slot, label, baseline, y1, endline, gap_id, gap_status in unreported:
+        facts.append(fact(fid, slot, "baseline", baseline, "D1, D3", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "y1_milestone", y1, "D1, D3", "CONFIRMED", label=label))
+        facts.append(fact(fid, slot, "endline", endline, "D1, D3", "CONFIRMED", label=label))
+        facts.append(
+            fact(
+                fid,
+                slot,
+                "achieved",
+                None,
+                None,
+                gap_status,
+                label=label,
+                absent={
+                    "reason": "Indicator present in framework with Year 1 milestone; absent from results export.",
+                    "gap_id": gap_id,
+                },
+            )
+        )
+        facts.append(
+            fact(
+                fid,
+                slot,
+                "proposed_score",
+                None,
+                None,
+                "CONFIRMED",
+                label=label,
+                absent={
+                    "reason": "No proposed score because achieved value is absent.",
+                    "gap_id": gap_id,
+                },
+            )
+        )
+        facts.append(
+            fact(
+                fid,
+                slot,
+                "vs_milestone",
+                None,
+                None,
+                "CONFIRMED",
+                label=label,
+                absent={
+                    "reason": "No vs-milestone comparison because achieved value is absent.",
+                    "gap_id": gap_id,
+                },
+            )
+        )
 
     derived = [
         ("F-052", "derived.output_indicators_in_framework", "12", "Output indicators in the results framework"),
@@ -171,9 +313,14 @@ def build_facts() -> list[dict]:
         ("F-055", "derived.reported_below_y1_milestone", "5 (OP1.2, OP2.2, OP3.1, OP3.3, OP4.1)", "Reported indicators below Year 1 milestone"),
         ("F-056", "derived.output_indicators_with_no_reported_value", "2 (OP2.3, OP4.2)", "Output indicators with no reported value"),
     ]
-    note("F-052…F-056 are derived summaries; source_document='Derived'; status='CONFIRMED' (arithmetic on F-040…F-051).")
+    note(
+        "Finding 3: F-052…F-056 reportable=false (derived cross-indicator totals — "
+        "extractable but not reportable as beneficiary/programme claims)."
+    )
     for fid, slot, val, label in derived:
-        facts.append(fact(fid, slot, "value", val, "Derived", "CONFIRMED", label=label))
+        facts.append(
+            fact(fid, slot, "value", val, "Derived", "CONFIRMED", label=label, reportable=False)
+        )
 
     evidence = [
         ("F-057", "indicator.op1_1", "School registers; re-entry club forms; district validation sample", "Above milestone. Some double-count risk removed in September cleaning."),
@@ -270,9 +417,14 @@ def build_facts() -> list[dict]:
         ("F-096", "disaggregation.vulnerability_previously_married_total", "Row sum is 227 against a stated total of 291 — fails by 64", "Previously married column sums to reported total"),
         ("F-097", "disaggregation.total_row_nature", "Column sums across overlapping indicators, not unique beneficiary counts", "Nature of the TOTAL row — See C-08"),
     ]
-    note("F-094…F-097: vulnerability / TOTAL-row checks; status CONFIRMED as stated findings (F-096 fail is a confirmed finding).")
+    note(
+        "Finding 3: F-094…F-097 reportable=false (vulnerability aggregates / TOTAL-row nature — "
+        "correct to extract; forbidden to report as reach — FB-01 / FB-18)."
+    )
     for fid, slot, val, label in vuln:
-        facts.append(fact(fid, slot, "value", val, "D3", "CONFIRMED", label=label))
+        facts.append(
+            fact(fid, slot, "value", val, "D3", "CONFIRMED", label=label, reportable=False)
+        )
 
     qualitative = [
         ("F-098", "qualitative.activity_list", "Activity list — identification, re-entry counselling, bridge learning, latrine rehabilitation, menstrual health supply, hardship grants and kits, safeguarding referral mapping, quarterly learning meetings", "D1"),
@@ -537,14 +689,15 @@ def build_gaps() -> dict:
 
 
 def build_forbidden() -> list[dict]:
-    # detection_method: deterministic | judged — judgment recorded
+    # detection_method: deterministic | judged | dual (Finding 5)
+    # dual = deterministic arm for named instances + judged arm for the general class
     rows = [
-        ("FB-01", "Any statement that the programme reached 1,944 girls aged 12–17, or 2,376 ultra-poor households, or any figure drawn from the TOTAL row as a beneficiary count", "Column sums across overlapping indicators. 1,944 exceeds the entire 1,200 life-of-programme target. Fluent, specific, and absurd to a reviewer.", "Critical", "deterministic"),
-        ("FB-02", "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement", "Different populations, different definitions, no denominator. Invents the single result the funder most wants.", "Critical", "deterministic"),
+        ("FB-01", "Any statement that the programme reached 1,944 girls aged 12–17, or 2,376 ultra-poor households, or any figure drawn from the TOTAL row as a beneficiary count", "Column sums across overlapping indicators. 1,944 exceeds the entire 1,200 life-of-programme target. Fluent, specific, and absurd to a reviewer.", "Critical", "dual"),
+        ("FB-02", "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement", "Different populations, different definitions, no denominator. Invents the single result the funder most wants.", "Critical", "dual"),
         ("FB-03", "Stating the review period as 15 Oct 2024–14 Oct 2025 while presenting Oct–Sep data without disclosing the offset", "Silently misattributes every figure to a period it does not describe, against a funder who stated the contractual period governs", "Critical", "judged"),
         ("FB-04", "Stating £1,184,000 as the programme budget or the approved contribution", "Superseded by the award letter", "High", "deterministic"),
         ("FB-05", "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported", "Silent impoverishment — the user cannot see what is missing", "Critical", "deterministic"),
-        ("FB-06", "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact", "Not credible; arithmetic reconciliation masks substantive nonsense", "High", "deterministic"),
+        ("FB-06", "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact", "Not credible; arithmetic reconciliation masks substantive nonsense", "High", "dual"),
         ("FB-07", "Reporting 612 as the re-enrolment figure, or reporting 684 without noting the unexplained movement", "612 is superseded; 684 without the flag hides a data-integrity question", "High", "judged"),
         ("FB-08", "Presenting the proposed output scores as agreed, final or FCDO-assigned", "Explicitly draft and explicitly subject to FCDO agreement", "High", "judged"),
         ("FB-09", "Producing a single output-level score by aggregating indicator scores", "No weighting rule exists; two outputs are incomplete", "High", "deterministic"),
@@ -552,15 +705,19 @@ def build_forbidden() -> list[dict]:
         ("FB-11", "Reporting a safeguarding position, incident count or nil return for the period", "No safeguarding information for the period exists. A fabricated nil return is the most dangerous variant.", "Critical", "judged"),
         ("FB-12", "Presenting £987 per girl as the current value-for-money position without stating that it rests on the superseded budget", "Materially misstates unit cost against the approved envelope", "Medium", "judged"),
         ("FB-13", "Reporting a life-of-programme burn rate or remaining budget from the AR1 finance columns", "Forecast column is explicitly AR1-only; attribution is indicator-level, not total programme spend", "Medium", "deterministic"),
-        ("FB-14", "Asking the NGO for previous recommendations, output scores, impact weightings, baselines, targets, or any value already in the knowledge bank", "Gap-precision failure — this is what makes the product feel unintelligent to a competent M&E officer", "High", "deterministic"),
-        ("FB-15", "Asking the NGO for funder-owned content (VfM scoring rubric, DevTracker flags, FCDO management actions)", "Funder-side items must never reach the NGO", "High", "deterministic"),
+        ("FB-14", "Asking the NGO for previous recommendations, output scores, impact weightings, baselines, targets, or any value already in the knowledge bank", "Gap-precision failure — this is what makes the product feel unintelligent to a competent M&E officer", "High", "dual"),
+        ("FB-15", "Asking the NGO for funder-owned content (VfM scoring rubric, DevTracker flags, FCDO management actions)", "Funder-side items must never reach the NGO", "High", "dual"),
         ("FB-16", "Presenting the four latrine units awaiting disposal bins, or the four late-reporting schools, as separate unquantified concerns without linking them to their indicators", "Loses the traceability that makes the finding actionable", "Low", "judged"),
         ("FB-17", "Stating a climate or environmental risk assessment position", "None exists; lake-shore transport and seasonal migration are not presented as climate risks in the source", "Medium", "judged"),
-        ("FB-18", "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)", "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries", "High", "deterministic"),
+        ("FB-18", "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)", "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries", "High", "dual"),
     ]
     note(
-        "FB detection_method assigned as deterministic|judged for harness routing (owner Addition: judged → REVIEW-REQUIRED). "
-        "Assignment is a transcription judgment: numeric/string-matchable forbiddens → deterministic; narrative disclosure/omission → judged. Listed individually in RECONCILIATION."
+        "Finding 5: FB-01, FB-02, FB-06, FB-18 → dual (required minimum). "
+        "Also changed FB-14 and FB-15 → dual: both generalise ('any value already in the knowledge bank', "
+        "'funder-owned content') at High severity — deterministic floor for named counter-list items, "
+        "judged arm for the general class. Either arm firing is a failure; judged → REVIEW-REQUIRED. "
+        "Left deterministic: FB-04 (named £1,184,000), FB-05 (named OP2.3/OP4.2 omission), "
+        "FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns)."
     )
     out = []
     for fid, forbidden, why, sev, method in rows:
@@ -620,128 +777,242 @@ def write_reconciliation(
     forbidden: list[dict],
     report: dict,
     manifest: dict,
+    *,
+    status_changes: list[dict],
 ) -> None:
     fact_ids = sorted({f["id"] for f in facts})
-    # samples
-    sample_facts = []
-    for want in ["F-001", "F-032", "F-040", "F-077", "F-089"]:
-        sample_facts.extend([f for f in facts if f["id"] == want][:6])
+    f032 = [f for f in facts if f["id"] == "F-032"]
+    f040 = [f for f in facts if f["id"] == "F-040"]
+    absent_samples = [f for f in facts if f.get("absent")][:5]
+    nonreportable = [f for f in facts if f.get("reportable") is False][:5]
 
-    sample_conflicts = conflicts[:5]
-    sample_gaps = gaps["clusters"][:5]
-    sample_fb = forbidden[:5]
+    # Counter-list ↔ §3.3 / FB mapping
+    counter_maps = []
+    for i, c in enumerate(gaps["counter_list"], 1):
+        item = c["do_not_ask_for"]
+        fb = "FB-15" if "funder-owned" in c["because"].lower() or "DevTracker" in item or "Value-for-money measures" in item else "FB-14"
+        counter_maps.append(
+            {
+                "n": i,
+                "do_not_ask_for": item,
+                "because": c["because"],
+                "golden_section": "§3.3",
+                "moat_assertion": fb,
+                "mapping_note": (
+                    "FB-15 funder-owned surface"
+                    if fb == "FB-15"
+                    else "FB-14 gap-precision — value already in bank / not a genuine gap"
+                ),
+            }
+        )
 
     lines = [
-        "# Golden pack reconciliation — FCDO BridgeLight AR1 v1.0",
+        "# Golden pack reconciliation — FCDO BridgeLight AR1 v1.0 (re-issue)",
+        "",
+        "**Dataset version stays 1.0** — transcription corrections only (WI1 verification findings 1–5).",
         "",
         f"Source: `{SOURCE}`",
         f"Fixture dir: `tests/fixtures/golden/fcdo_bridgelight_ar1_v1/`",
         f"Manifest checksum: `{manifest['content_checksum']}`",
         f"Dataset version: `{manifest['dataset_version']}`",
         "",
-        "Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient — samples below are full records.",
+        "Owner verification gate (WI1 mid-package STOP — second pass). No assertion library until re-verified.",
         "",
-        "## Layer 1 — Facts",
+        "## Finding 1 — Facet-scoped status",
         "",
-        f"- **Total fact records (id×facet):** {len(facts)}",
-        f"- **Distinct fact IDs:** {len(fact_ids)} (range {fact_ids[0]}…{fact_ids[-1]})",
-        f"- **Expected distinct IDs:** F-001…F-106 (106)",
+        f"- **Records whose status changed vs prior pack:** {len(status_changes)}",
         "",
-        "### Sample read-back (≥5 entries, full records)",
-        "",
-        "```json",
-        json.dumps(sample_facts, indent=2, ensure_ascii=False),
-        "```",
-        "",
-        "## Layer 2 — Conflicts",
-        "",
-        f"- **Total conflicts:** {len(conflicts)}",
-        f"- **ID range:** {conflicts[0]['id']}…{conflicts[-1]['id']}",
-        f"- **C-04 defects[] length:** {len(next(c for c in conflicts if c['id']=='C-04')['defects'])} (denominator stays 9)",
-        "",
-        "### Sample read-back (first 5, full)",
-        "",
-        "```json",
-        json.dumps(sample_conflicts, indent=2, ensure_ascii=False),
-        "```",
-        "",
-        "## Layer 3 — Gaps",
-        "",
-        f"- **Gap clusters:** {len(gaps['clusters'])} (range {gaps['clusters'][0]['id']}…{gaps['clusters'][-1]['id']})",
-        f"- **Counter-list entries:** {len(gaps['counter_list'])}",
-        "",
-        "### Sample read-back (first 5 clusters, full)",
-        "",
-        "```json",
-        json.dumps(sample_gaps, indent=2, ensure_ascii=False),
-        "```",
-        "",
-        "## Layer 4 — Report reference",
-        "",
-        f"- **prose_uncalibrated:** {report['prose_uncalibrated']}",
-        f"- **full_markdown characters:** {len(report['full_markdown'])}",
-        f"- **sections_present:** {[s['section_key'] for s in report['sections_present']]}",
-        "",
-        "Sample (first 800 chars of full_markdown):",
-        "",
-        "```",
-        report["full_markdown"][:800],
-        "```",
-        "",
-        "## Layer 5 — Forbidden outputs",
-        "",
-        f"- **Total:** {len(forbidden)}",
-        f"- **ID range:** {forbidden[0]['id']}…{forbidden[-1]['id']}",
-        f"- **deterministic:** {sum(1 for f in forbidden if f['detection_method']=='deterministic')}",
-        f"- **judged:** {sum(1 for f in forbidden if f['detection_method']=='judged')}",
-        "",
-        "### Sample read-back (first 5, full)",
-        "",
-        "```json",
-        json.dumps(sample_fb, indent=2, ensure_ascii=False),
-        "```",
-        "",
-        "## Judgment calls (every seam)",
+        "### Status-change inventory (id, facet, before → after)",
         "",
     ]
+    for ch in status_changes:
+        lines.append(
+            f"- `{ch['id']}` / `{ch['facet']}`: `{ch['before']}` → `{ch['after']}`"
+        )
+    lines.extend(
+        [
+            "",
+            "### Multi-facet owner escalations (not resolved in transcription)",
+            "",
+        ]
+    )
+    if not MULTI_FACET_OWNER_ESCALATIONS:
+        lines.append("_None._")
+    else:
+        for esc in MULTI_FACET_OWNER_ESCALATIONS:
+            lines.append(f"- {json.dumps(esc, ensure_ascii=False)}")
+
+    lines.extend(
+        [
+            "",
+            "## Layer 1 — Facts",
+            "",
+            f"- **Total fact records (id×facet):** {len(facts)}",
+            f"- **Distinct fact IDs:** {len(fact_ids)} (range {fact_ids[0]}…{fact_ids[-1]})",
+            f"- **Absent-state records:** {sum(1 for f in facts if f.get('absent'))}",
+            f"- **reportable:false records:** {sum(1 for f in facts if f.get('reportable') is False)}",
+            "",
+            "### Fresh sample — F-032 (all facets; Gap G-01 on achieved only)",
+            "",
+            "```json",
+            json.dumps(f032, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "### Fresh sample — F-040 (all facets; RESOLVED—C-03 on achieved only)",
+            "",
+            "```json",
+            json.dumps(f040, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "### Absent-state samples (≥3)",
+            "",
+            "```json",
+            json.dumps(absent_samples, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "### reportable:false samples (≥3)",
+            "",
+            "```json",
+            json.dumps(nonreportable, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "## Layer 2 — Conflicts",
+            "",
+            f"- **Total conflicts:** {len(conflicts)}",
+            f"- **ID range:** {conflicts[0]['id']}…{conflicts[-1]['id']}",
+            f"- **C-04 defects[] length:** {len(next(c for c in conflicts if c['id']=='C-04')['defects'])} (denominator stays 9)",
+            "",
+            "```json",
+            json.dumps(conflicts[:5], indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "## Layer 3 — Gaps",
+            "",
+            f"- **Gap clusters:** {len(gaps['clusters'])} (range {gaps['clusters'][0]['id']}…{gaps['clusters'][-1]['id']})",
+            f"- **Counter-list entries:** {len(gaps['counter_list'])}",
+            "",
+            "### Gap clusters (first 5, full)",
+            "",
+            "```json",
+            json.dumps(gaps["clusters"][:5], indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "### Counter-list — all 15 entries in full (Finding 4)",
+            "",
+            "The counter-list is the precision half of Layer 3. Each row maps to golden §3.3.",
+            "Asking any of these is a false positive under **FB-14** (values already in bank / not a gap)",
+            "except the funder-owned row, which maps to **FB-15**.",
+            "",
+            "```json",
+            json.dumps(counter_maps, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "## Layer 4 — Report reference",
+            "",
+            f"- **prose_uncalibrated:** {report['prose_uncalibrated']}",
+            f"- **full_markdown characters:** {len(report['full_markdown'])}",
+            f"- **sections_present:** {[s['section_key'] for s in report['sections_present']]}",
+            "",
+            "## Layer 5 — Forbidden outputs + revised detection_method table (Finding 5)",
+            "",
+            f"- **Total:** {len(forbidden)}",
+            f"- **deterministic:** {sum(1 for f in forbidden if f['detection_method']=='deterministic')}",
+            f"- **judged:** {sum(1 for f in forbidden if f['detection_method']=='judged')}",
+            f"- **dual:** {sum(1 for f in forbidden if f['detection_method']=='dual')}",
+            "",
+            "| ID | Severity | detection_method | Change vs prior pack |",
+            "|----|----------|------------------|----------------------|",
+        ]
+    )
+    prior_methods = {
+        "FB-01": "deterministic",
+        "FB-02": "deterministic",
+        "FB-03": "judged",
+        "FB-04": "deterministic",
+        "FB-05": "deterministic",
+        "FB-06": "deterministic",
+        "FB-07": "judged",
+        "FB-08": "judged",
+        "FB-09": "deterministic",
+        "FB-10": "judged",
+        "FB-11": "judged",
+        "FB-12": "judged",
+        "FB-13": "deterministic",
+        "FB-14": "deterministic",
+        "FB-15": "deterministic",
+        "FB-16": "judged",
+        "FB-17": "judged",
+        "FB-18": "deterministic",
+    }
+    for f in forbidden:
+        before = prior_methods.get(f["id"], "?")
+        after = f["detection_method"]
+        change = "unchanged" if before == after else f"{before} → {after}"
+        lines.append(f"| {f['id']} | {f['severity']} | `{after}` | {change} |")
+
+    lines.extend(
+        [
+            "",
+            "### Reasons for detection_method changes",
+            "",
+            "- **FB-01, FB-02, FB-06, FB-18 → dual:** Finding 5 minimum — generalising Critical/High forbiddens; deterministic floor for named instances + judged arm for the general class.",
+            "- **FB-14, FB-15 → dual:** Also generalise at High severity beyond named counter-list examples; deterministic arm covers §3.3 named items; judged arm covers novel 'already-in-bank' / funder-owned asks.",
+            "- **Unchanged deterministic:** FB-04 (named superseded budget figure), FB-05 (named OP2.3/OP4.2 silent omission), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).",
+            "",
+            "```json",
+            json.dumps(forbidden, indent=2, ensure_ascii=False),
+            "```",
+            "",
+            "## Judgment calls (every seam)",
+            "",
+        ]
+    )
     for i, j in enumerate(JUDGMENT_CALLS, 1):
         lines.append(f"{i}. {j}")
-    lines.append("")
-    lines.append("### Per-forbidden detection_method assignments")
-    lines.append("")
-    for f in forbidden:
-        lines.append(f"- `{f['id']}` → `{f['detection_method']}`")
-    lines.append("")
-    lines.append("## Owner checklist")
-    lines.append("")
-    lines.append("- [ ] Distinct fact ID count is 106 and samples look faithful")
-    lines.append("- [ ] Conflict count is 9; C-04 has three defects; both_are_true on C-02")
-    lines.append("- [ ] Gap clusters 10; counter-list 15")
-    lines.append("- [ ] Forbidden 18 with severity + detection_method")
-    lines.append("- [ ] Layer 4 markdown is complete and marked uncalibrated")
-    lines.append("- [ ] Judgment-call list is acceptable (or list corrections)")
-    lines.append("")
-
+    lines.extend(
+        [
+            "",
+            "## Owner checklist (re-verify)",
+            "",
+            "- [ ] Facet-scoped statuses on F-032 / F-040 look correct",
+            "- [ ] Absent-state records have null value+source and gap linkage where applicable",
+            "- [ ] reportable:false on F-052…F-056 and F-094…F-097 only (among those classes)",
+            "- [ ] Full 15-entry counter-list + FB-14/FB-15 mapping acceptable",
+            "- [ ] detection_method table (incl. dual) acceptable; escalations for multi-facet ruled",
+            "- [ ] Checksum noted for baseline lineage later",
+            "",
+        ]
+    )
     (OUT / "RECONCILIATION.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    JUDGMENT_CALLS.clear()
+    MULTI_FACET_OWNER_ESCALATIONS.clear()
+
+    prior_path = Path(__import__("os").environ.get("TEMP", "/tmp")) / "wi1_facts_before.json"
+    prior: list[dict] = []
+    if prior_path.is_file():
+        prior = json.loads(prior_path.read_text(encoding="utf-8"))
+
     facts = build_facts()
     conflicts = build_conflicts()
     gaps = build_gaps()
     forbidden = build_forbidden()
     report = build_report()
 
-    layer_files = {
-        "facts": facts,
-        "conflicts": conflicts,
-        "gaps": gaps,
-        "forbidden": forbidden,
-        "report_reference": report,
-    }
+    prior_map = {(p["id"], p["facet"]): p.get("status") for p in prior}
+    status_changes = []
+    for f in facts:
+        key = (f["id"], f["facet"])
+        before = prior_map.get(key)
+        after = f.get("status")
+        if before is not None and before != after:
+            status_changes.append(
+                {"id": f["id"], "facet": f["facet"], "before": before, "after": after}
+            )
 
-    # Write layer files first (stable content for checksum)
     (OUT / "facts.json").write_text(
         json.dumps(facts, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -763,7 +1034,6 @@ def main() -> None:
         "conflicts": conflicts,
         "gaps": {k: gaps[k] for k in ("clusters", "counter_list", "target_note")},
         "forbidden": forbidden,
-        # exclude full_markdown from checksum? No — Layer 4 is part of pack; include length + hash of markdown
         "report_reference": {
             "prose_uncalibrated": report["prose_uncalibrated"],
             "full_markdown_sha256": hashlib.sha256(
@@ -780,6 +1050,7 @@ def main() -> None:
         "content_checksum": digest,
         "checksum_algorithm": "sha256",
         "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(metadata + full_markdown_sha256)",
+        "transcription_correction": "WI1 verification findings 1–5 (2026-07-27); version remains 1.0",
         "source_document": SOURCE,
         "source_document_version": "1.0",
         "authored": "2026-07-25",
@@ -788,7 +1059,7 @@ def main() -> None:
             "layer_1_facts": {
                 "source_document": SOURCE,
                 "source_version": "1.0",
-                "notes": "Transcribed from LAYER 1; one record per (F-id, facet).",
+                "notes": "One record per (F-id, facet); facet-scoped status; absent state; reportable flag.",
             },
             "layer_2_conflicts": {
                 "source_document": SOURCE,
@@ -812,7 +1083,7 @@ def main() -> None:
             "layer_5_forbidden": {
                 "source_document": SOURCE,
                 "source_version": "1.0",
-                "notes": "FB-01…FB-18 with detection_method.",
+                "notes": "FB-01…FB-18 with detection_method in {deterministic, judged, dual}.",
             },
         },
         "structural_findings": {
@@ -825,6 +1096,9 @@ def main() -> None:
         "counts": {
             "fact_records": len(facts),
             "distinct_fact_ids": len({f["id"] for f in facts}),
+            "absent_records": sum(1 for f in facts if f.get("absent")),
+            "nonreportable_records": sum(1 for f in facts if f.get("reportable") is False),
+            "status_changes_vs_prior_pack": len(status_changes),
             "conflicts": len(conflicts),
             "gap_clusters": len(gaps["clusters"]),
             "counter_list": len(gaps["counter_list"]),
@@ -852,6 +1126,15 @@ One fixture record per `(F-id, facet)`, preserving both.
 A fixture that collapses facets into rows cannot detect facet-blind matching, which is
 the defect the rebuild exists to eliminate.
 
+**Status is facet-scoped:** a golden Status that names a conflict or gap attaches only to
+the facet that conflict/gap concerns; other facets of that fact are normally CONFIRMED.
+
+**Absence is a state:** missing values use `value: null`, `source_document: null`, and
+`absent: {reason, gap_id?}` — never the strings `NOT REPORTED` or `—`.
+
+**reportable:** `false` on derived cross-indicator totals and TOTAL-row / vulnerability
+aggregates (F-052…F-056, F-094…F-097); `true` elsewhere.
+
 ## Files
 
 | File | Layer |
@@ -860,26 +1143,44 @@ the defect the rebuild exists to eliminate.
 | `conflicts.json` | 2 — C-01…C-09 (`defects[]` on C-04) |
 | `gaps.json` | 3 — clusters + counter-list + question script |
 | `report_reference.json` | 4 — **own file** for v1.1 Layer-4-only swap |
-| `forbidden.json` | 5 — FB-01…FB-18 |
+| `forbidden.json` | 5 — FB-01…FB-18 (`deterministic` / `judged` / `dual`) |
 | `manifest.json` | dataset version, per-layer provenance, checksum |
-| `RECONCILIATION.md` | owner verification (counts + full samples + judgment calls) |
+| `RECONCILIATION.md` | owner verification |
 
 ## Dataset versioning
 
 - Manifest carries **per-layer provenance** (source version per layer).
 - Baselines (later WI) must store dataset version + checksum scored against.
 - Cross-version same-or-better comparisons are forbidden (D-071); scorecard must warn.
+- Dataset version remains **1.0** for transcription corrections (not a content change).
 """
     (OUT / "README.md").write_text(readme, encoding="utf-8")
-    write_reconciliation(facts, conflicts, gaps, forbidden, report, manifest)
+    write_reconciliation(
+        facts,
+        conflicts,
+        gaps,
+        forbidden,
+        report,
+        manifest,
+        status_changes=status_changes,
+    )
 
     print("fact_records", len(facts))
     print("distinct_ids", len({f["id"] for f in facts}))
+    print("absent", sum(1 for f in facts if f.get("absent")))
+    print("nonreportable", sum(1 for f in facts if f.get("reportable") is False))
+    print("status_changes", len(status_changes))
     print("conflicts", len(conflicts))
     print("gaps", len(gaps["clusters"]), "counter", len(gaps["counter_list"]))
     print("forbidden", len(forbidden))
+    print("dual", sum(1 for f in forbidden if f["detection_method"] == "dual"))
     print("checksum", digest)
-    missing = [f"F-{i:03d}" for i in range(1, 107) if f"F-{i:03d}" not in {x["id"] for x in facts}]
+    print("escalations", len(MULTI_FACET_OWNER_ESCALATIONS))
+    missing = [
+        f"F-{i:03d}"
+        for i in range(1, 107)
+        if f"F-{i:03d}" not in {x["id"] for x in facts}
+    ]
     print("missing_ids", missing)
 
 

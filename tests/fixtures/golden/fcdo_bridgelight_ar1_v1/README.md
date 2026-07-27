@@ -12,6 +12,15 @@ One fixture record per `(F-id, facet)`, preserving both.
 A fixture that collapses facets into rows cannot detect facet-blind matching, which is
 the defect the rebuild exists to eliminate.
 
+**Status is facet-scoped:** a golden Status that names a conflict or gap attaches only to
+the facet that conflict/gap concerns; other facets of that fact are normally CONFIRMED.
+
+**Absence is a state:** missing values use `value: null`, `source_document: null`, and
+`absent: {reason, gap_id?}` — never the strings `NOT REPORTED` or `—`.
+
+**reportable:** `false` on derived cross-indicator totals and TOTAL-row / vulnerability
+aggregates (F-052…F-056, F-094…F-097); `true` elsewhere.
+
 ## Files
 
 | File | Layer |
@@ -20,12 +29,13 @@ the defect the rebuild exists to eliminate.
 | `conflicts.json` | 2 — C-01…C-09 (`defects[]` on C-04) |
 | `gaps.json` | 3 — clusters + counter-list + question script |
 | `report_reference.json` | 4 — **own file** for v1.1 Layer-4-only swap |
-| `forbidden.json` | 5 — FB-01…FB-18 |
+| `forbidden.json` | 5 — FB-01…FB-18 (`deterministic` / `judged` / `dual`) |
 | `manifest.json` | dataset version, per-layer provenance, checksum |
-| `RECONCILIATION.md` | owner verification (counts + full samples + judgment calls) |
+| `RECONCILIATION.md` | owner verification |
 
 ## Dataset versioning
 
 - Manifest carries **per-layer provenance** (source version per layer).
 - Baselines (later WI) must store dataset version + checksum scored against.
 - Cross-version same-or-better comparisons are forbidden (D-071); scorecard must warn.
+- Dataset version remains **1.0** for transcription corrections (not a content change).

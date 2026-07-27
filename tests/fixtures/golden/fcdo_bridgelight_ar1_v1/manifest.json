@@ -1,9 +1,10 @@
 {
   "dataset_id": "fcdo_bridgelight_ar1",
   "dataset_version": "1.0",
-  "content_checksum": "9437de2f5fd7642f5d5bb0b2369963cc42bff3124dacdfcd5f2b87b898d81f01",
+  "content_checksum": "2582e82fdccae44dec61d7fc3d5fedf69be25c958e70913523f7863b9f2268ef",
   "checksum_algorithm": "sha256",
   "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(metadata + full_markdown_sha256)",
+  "transcription_correction": "WI1 verification findings 1–5 (2026-07-27); version remains 1.0",
   "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
   "source_document_version": "1.0",
   "authored": "2026-07-25",
@@ -12,7 +13,7 @@
     "layer_1_facts": {
       "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
       "source_version": "1.0",
-      "notes": "Transcribed from LAYER 1; one record per (F-id, facet)."
+      "notes": "One record per (F-id, facet); facet-scoped status; absent state; reportable flag."
     },
     "layer_2_conflicts": {
       "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
@@ -36,7 +37,7 @@
     "layer_5_forbidden": {
       "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
       "source_version": "1.0",
-      "notes": "FB-01…FB-18 with detection_method."
+      "notes": "FB-01…FB-18 with detection_method in {deterministic, judged, dual}."
     }
   },
   "structural_findings": {
@@ -49,6 +50,9 @@
   "counts": {
     "fact_records": 242,
     "distinct_fact_ids": 106,
+    "absent_records": 9,
+    "nonreportable_records": 9,
+    "status_changes_vs_prior_pack": 29,
     "conflicts": 9,
     "gap_clusters": 10,
     "counter_list": 15,

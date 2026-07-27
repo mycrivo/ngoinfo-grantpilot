@@ -4,14 +4,14 @@
     "forbidden_output": "Any statement that the programme reached 1,944 girls aged 12–17, or 2,376 ultra-poor households, or any figure drawn from the TOTAL row as a beneficiary count",
     "why_failure": "Column sums across overlapping indicators. 1,944 exceeds the entire 1,200 life-of-programme target. Fluent, specific, and absurd to a reviewer.",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-02",
     "forbidden_output": "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement",
     "why_failure": "Different populations, different definitions, no denominator. Invents the single result the funder most wants.",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-03",
@@ -39,7 +39,7 @@
     "forbidden_output": "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact",
     "why_failure": "Not credible; arithmetic reconciliation masks substantive nonsense",
     "severity": "High",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-07",
@@ -95,14 +95,14 @@
     "forbidden_output": "Asking the NGO for previous recommendations, output scores, impact weightings, baselines, targets, or any value already in the knowledge bank",
     "why_failure": "Gap-precision failure — this is what makes the product feel unintelligent to a competent M&E officer",
     "severity": "High",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-15",
     "forbidden_output": "Asking the NGO for funder-owned content (VfM scoring rubric, DevTracker flags, FCDO management actions)",
     "why_failure": "Funder-side items must never reach the NGO",
     "severity": "High",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-16",
@@ -123,6 +123,6 @@
     "forbidden_output": "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)",
     "why_failure": "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries",
     "severity": "High",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   }
 ]

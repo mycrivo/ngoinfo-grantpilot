@@ -6,7 +6,8 @@
     "value": "BridgeLight Education Trust",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Implementing organisation"
+    "label": "Implementing organisation",
+    "reportable": true
   },
   {
     "id": "F-002",
@@ -15,7 +16,8 @@
     "value": "1198427",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Charity registration (England and Wales)"
+    "label": "Charity registration (England and Wales)",
+    "reportable": true
   },
   {
     "id": "F-003",
@@ -24,7 +26,8 @@
     "value": "Bristol",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "UK base"
+    "label": "UK base",
+    "reportable": true
   },
   {
     "id": "F-004",
@@ -33,7 +36,8 @@
     "value": "Girls Return to Learning and Safety Programme",
     "source_document": "D1, D2",
     "status": "CONFIRMED",
-    "label": "Programme title"
+    "label": "Programme title",
+    "reportable": true
   },
   {
     "id": "F-005",
@@ -42,7 +46,8 @@
     "value": "MWI-EDU-AR-4471",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "FCDO programme code"
+    "label": "FCDO programme code",
+    "reportable": true
   },
   {
     "id": "F-006",
@@ -51,7 +56,8 @@
     "value": "Malawi: Machinga and Mangochi",
     "source_document": "D1, D2",
     "status": "CONFIRMED",
-    "label": "Country and districts"
+    "label": "Country and districts",
+    "reportable": true
   },
   {
     "id": "F-007",
@@ -60,7 +66,8 @@
     "value": "£1,240,000",
     "source_document": "D2",
     "status": "RESOLVED — see C-01",
-    "label": "Approved FCDO contribution"
+    "label": "Approved FCDO contribution",
+    "reportable": true
   },
   {
     "id": "F-008",
@@ -69,7 +76,8 @@
     "value": "15 October 2024",
     "source_document": "D2",
     "status": "RESOLVED — see C-02",
-    "label": "Programme start date"
+    "label": "Programme start date",
+    "reportable": true
   },
   {
     "id": "F-009",
@@ -78,7 +86,8 @@
     "value": "14 October 2026",
     "source_document": "D2",
     "status": "RESOLVED — see C-02",
-    "label": "Programme end date"
+    "label": "Programme end date",
+    "reportable": true
   },
   {
     "id": "F-010",
@@ -87,7 +96,8 @@
     "value": "15 October 2024 to 31 December 2024",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "Inception period"
+    "label": "Inception period",
+    "reportable": true
   },
   {
     "id": "F-011",
@@ -96,7 +106,8 @@
     "value": "15 October 2024 to 14 October 2025",
     "source_document": "D2",
     "status": "RESOLVED — see C-02",
-    "label": "AR1 contractual review period"
+    "label": "AR1 contractual review period",
+    "reportable": true
   },
   {
     "id": "F-012",
@@ -105,7 +116,8 @@
     "value": "21 November 2025",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "AR1 review pack due date"
+    "label": "AR1 review pack due date",
+    "reportable": true
   },
   {
     "id": "F-013",
@@ -114,7 +126,8 @@
     "value": "1 October 2024 to 30 September 2025",
     "source_document": "D3",
     "status": "CAVEATED — see C-02",
-    "label": "Period actually covered by reported data"
+    "label": "Period actually covered by reported data",
+    "reportable": true
   },
   {
     "id": "F-014",
@@ -123,7 +136,8 @@
     "value": "Medium-High",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "Initial programme risk rating"
+    "label": "Initial programme risk rating",
+    "reportable": true
   },
   {
     "id": "F-015",
@@ -132,7 +146,8 @@
     "value": "Helen Armitage, Education and Gender Equality Programmes",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "FCDO Senior Responsible Owner"
+    "label": "FCDO Senior Responsible Owner",
+    "reportable": true
   },
   {
     "id": "F-016",
@@ -141,7 +156,8 @@
     "value": "Chief Executive, BridgeLight Education Trust (Dr Patel)",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "Award letter addressee"
+    "label": "Award letter addressee",
+    "reportable": true
   },
   {
     "id": "F-017",
@@ -150,7 +166,8 @@
     "value": "27 September 2024",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "Award letter date"
+    "label": "Award letter date",
+    "reportable": true
   },
   {
     "id": "F-018",
@@ -159,7 +176,8 @@
     "value": "19 August 2024",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Proposal date"
+    "label": "Proposal date",
+    "reportable": true
   },
   {
     "id": "F-019",
@@ -168,7 +186,8 @@
     "value": "3 October 2025",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Results export date"
+    "label": "Results export date",
+    "reportable": true
   },
   {
     "id": "F-020",
@@ -177,7 +196,8 @@
     "value": "AR1_OutputScore_DRAFT_do_not_overwrite",
     "source_document": "D3",
     "status": "CONFIRMED — draft status is explicit",
-    "label": "Results export worksheet name"
+    "label": "Results export worksheet name",
+    "reportable": true
   },
   {
     "id": "F-021",
@@ -186,7 +206,8 @@
     "value": "40 primary and community day secondary",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Schools in scope"
+    "label": "Schools in scope",
+    "reportable": true
   },
   {
     "id": "F-022",
@@ -195,7 +216,8 @@
     "value": "1,200 girls and young women aged 10–19",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Direct girl beneficiary target"
+    "label": "Direct girl beneficiary target",
+    "reportable": true
   },
   {
     "id": "F-023",
@@ -204,7 +226,8 @@
     "value": "800",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Caregiver target"
+    "label": "Caregiver target",
+    "reportable": true
   },
   {
     "id": "F-024",
@@ -213,7 +236,8 @@
     "value": "160",
     "source_document": "D1",
     "status": "CAVEATED — conflicts with OP4.3 endline of 240; see C-05",
-    "label": "School and community actor target"
+    "label": "School and community actor target",
+    "reportable": true
   },
   {
     "id": "F-025",
@@ -222,7 +246,8 @@
     "value": "Girls with disabilities; married adolescent girls seeking re-entry; ultra-poor households; girls affected by seasonal migration around Lake Malawi",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Priority groups"
+    "label": "Priority groups",
+    "reportable": true
   },
   {
     "id": "F-026",
@@ -231,7 +256,8 @@
     "value": "Adolescent girls in Machinga and Mangochi complete basic education in safer, more supportive learning environments",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Impact statement"
+    "label": "Impact statement",
+    "reportable": true
   },
   {
     "id": "F-027",
@@ -240,7 +266,8 @@
     "value": "By September 2026, adolescent girls targeted by the programme demonstrate improved school retention, attendance and learning continuity, with reduced practical and safeguarding barriers to education",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Outcome statement"
+    "label": "Outcome statement",
+    "reportable": true
   },
   {
     "id": "F-028",
@@ -249,7 +276,8 @@
     "value": "Safe Steps to School pilot, Machinga, supported 1,480 learners to return after COVID-19 closures",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Prior organisational track record"
+    "label": "Prior organisational track record",
+    "reportable": true
   },
   {
     "id": "F-029",
@@ -258,7 +286,8 @@
     "value": "44% of girls interviewed across 18 schools had missed at least five school days in the previous month (2023)",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Baseline assessment finding"
+    "label": "Baseline assessment finding",
+    "reportable": true
   },
   {
     "id": "F-030",
@@ -267,7 +296,8 @@
     "value": "6–11, 12–17, 18–24",
     "source_document": "D1",
     "status": "CAVEATED — does not align with the 10–19 target population; see C-06",
-    "label": "Monitoring age bands for girls"
+    "label": "Monitoring age bands for girls",
+    "reportable": true
   },
   {
     "id": "F-031",
@@ -276,7 +306,8 @@
     "value": "Disability; ultra-poor household; married or previously married adolescent; orphaned or separated child; high dropout-risk household",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Vulnerability categories"
+    "label": "Vulnerability categories",
+    "reportable": true
   },
   {
     "id": "F-032",
@@ -284,8 +315,9 @@
     "facet": "baseline",
     "value": "38%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
@@ -293,8 +325,9 @@
     "facet": "y1_milestone",
     "value": "55%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
@@ -302,17 +335,23 @@
     "facet": "endline",
     "value": "70%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
     "ontology_slot": "outcome.ocm1",
     "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1",
+    "value": null,
+    "source_document": null,
     "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
   },
   {
     "id": "F-033",
@@ -320,8 +359,9 @@
     "facet": "baseline",
     "value": "31%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway"
+    "status": "CONFIRMED",
+    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway",
+    "reportable": true
   },
   {
     "id": "F-033",
@@ -329,8 +369,9 @@
     "facet": "y1_milestone",
     "value": "48%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway"
+    "status": "CONFIRMED",
+    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway",
+    "reportable": true
   },
   {
     "id": "F-033",
@@ -338,17 +379,23 @@
     "facet": "endline",
     "value": "65%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway"
+    "status": "CONFIRMED",
+    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway",
+    "reportable": true
   },
   {
     "id": "F-033",
     "ontology_slot": "outcome.ocm2",
     "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1",
+    "value": null,
+    "source_document": null,
     "status": "Gap G-01",
-    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway"
+    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
   },
   {
     "id": "F-034",
@@ -356,8 +403,9 @@
     "facet": "baseline",
     "value": "41%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel"
+    "status": "CONFIRMED",
+    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel",
+    "reportable": true
   },
   {
     "id": "F-034",
@@ -365,8 +413,9 @@
     "facet": "y1_milestone",
     "value": "58%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel"
+    "status": "CONFIRMED",
+    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel",
+    "reportable": true
   },
   {
     "id": "F-034",
@@ -374,17 +423,23 @@
     "facet": "endline",
     "value": "72%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel"
+    "status": "CONFIRMED",
+    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel",
+    "reportable": true
   },
   {
     "id": "F-034",
     "ontology_slot": "outcome.ocm3",
     "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1",
+    "value": null,
+    "source_document": null,
     "status": "Gap G-01",
-    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel"
+    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
   },
   {
     "id": "F-035",
@@ -394,6 +449,7 @@
     "source_document": "D1, D3",
     "status": "CONFIRMED",
     "label": "Output 1 — Girls re-enter and remain in education",
+    "reportable": true,
     "unit": "percent"
   },
   {
@@ -403,7 +459,8 @@
     "value": "Medium",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "Output 1 — Girls re-enter and remain in education"
+    "label": "Output 1 — Girls re-enter and remain in education",
+    "reportable": true
   },
   {
     "id": "F-036",
@@ -413,6 +470,7 @@
     "source_document": "D1, D3",
     "status": "CONFIRMED",
     "label": "Output 2 — Schools provide safer WASH and safeguarding conditions for girls",
+    "reportable": true,
     "unit": "percent"
   },
   {
@@ -422,7 +480,8 @@
     "value": "Medium",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "Output 2 — Schools provide safer WASH and safeguarding conditions for girls"
+    "label": "Output 2 — Schools provide safer WASH and safeguarding conditions for girls",
+    "reportable": true
   },
   {
     "id": "F-037",
@@ -432,6 +491,7 @@
     "source_document": "D1, D3",
     "status": "CONFIRMED",
     "label": "Output 3 — Households reduce immediate cost barriers to girls' attendance",
+    "reportable": true,
     "unit": "percent"
   },
   {
@@ -441,7 +501,8 @@
     "value": "High",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "Output 3 — Households reduce immediate cost barriers to girls' attendance"
+    "label": "Output 3 — Households reduce immediate cost barriers to girls' attendance",
+    "reportable": true
   },
   {
     "id": "F-038",
@@ -451,6 +512,7 @@
     "source_document": "D1, D3",
     "status": "CONFIRMED",
     "label": "Output 4 — District education actors use evidence to improve girls' re-entry practice",
+    "reportable": true,
     "unit": "percent"
   },
   {
@@ -460,7 +522,8 @@
     "value": "Low",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "Output 4 — District education actors use evidence to improve girls' re-entry practice"
+    "label": "Output 4 — District education actors use evidence to improve girls' re-entry practice",
+    "reportable": true
   },
   {
     "id": "F-039",
@@ -469,7 +532,8 @@
     "value": "100%",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Impact weightings sum — Arithmetic check on F-035…F-038: passes"
+    "label": "Impact weightings sum — Arithmetic check on F-035…F-038: passes",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -477,8 +541,9 @@
     "facet": "baseline",
     "value": "0",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -486,8 +551,9 @@
     "facet": "y1_milestone",
     "value": "650",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -495,8 +561,9 @@
     "facet": "endline",
     "value": "1,200",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -505,7 +572,8 @@
     "value": "684",
     "source_document": "D1, D3",
     "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -513,8 +581,9 @@
     "facet": "proposed_score",
     "value": "A",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -522,8 +591,9 @@
     "facet": "vs_milestone",
     "value": "Above (+34)",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -532,7 +602,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -541,7 +612,8 @@
     "value": "500",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -550,7 +622,8 @@
     "value": "900",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -559,7 +632,8 @@
     "value": "472",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -568,7 +642,8 @@
     "value": "B",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-041",
@@ -577,7 +652,8 @@
     "value": "Below (−28)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term"
+    "label": "OP1.2 Supported girls attending ≥80% of school days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -586,7 +662,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -595,7 +672,8 @@
     "value": "420",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -604,7 +682,8 @@
     "value": "850",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -613,7 +692,8 @@
     "value": "438",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -622,7 +702,8 @@
     "value": "A",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-042",
@@ -631,7 +712,8 @@
     "value": "Above (+18)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP1.3 Girls completing at least 20 remedial learning sessions"
+    "label": "OP1.3 Girls completing at least 20 remedial learning sessions",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -639,8 +721,9 @@
     "facet": "baseline",
     "value": "6",
     "source_document": "D1, D3",
-    "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "status": "CONFIRMED",
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -648,8 +731,9 @@
     "facet": "y1_milestone",
     "value": "24",
     "source_document": "D1, D3",
-    "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "status": "CONFIRMED",
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -657,8 +741,9 @@
     "facet": "endline",
     "value": "40",
     "source_document": "D1, D3",
-    "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "status": "CONFIRMED",
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -667,7 +752,8 @@
     "value": "31",
     "source_document": "D1, D3",
     "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -675,8 +761,9 @@
     "facet": "proposed_score",
     "value": "A",
     "source_document": "D1, D3",
-    "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "status": "CONFIRMED",
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-043",
@@ -684,8 +771,9 @@
     "facet": "vs_milestone",
     "value": "Above (+7)",
     "source_document": "D1, D3",
-    "status": "CAVEATED — see C-07",
-    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional"
+    "status": "CONFIRMED",
+    "label": "OP2.1 Separate, lockable girls' latrine stances rehabilitated or newly functional",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -694,7 +782,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -703,7 +792,8 @@
     "value": "20",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -712,7 +802,8 @@
     "value": "40",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -721,7 +812,8 @@
     "value": "17",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -730,7 +822,8 @@
     "value": "C",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-044",
@@ -739,61 +832,8 @@
     "value": "Below (−3)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "baseline",
-    "value": "0",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "y1_milestone",
-    "value": "18",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "endline",
-    "value": "40",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "proposed_score",
-    "value": "—",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
-  },
-  {
-    "id": "F-045",
-    "ontology_slot": "indicator.op2_3",
-    "facet": "vs_milestone",
-    "value": "—",
-    "source_document": "D1, D3",
-    "status": "Gap G-02",
-    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting"
+    "label": "OP2.2 Schools with menstrual health supplies and trained focal teachers",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -802,7 +842,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -811,7 +852,8 @@
     "value": "400",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -820,7 +862,8 @@
     "value": "800",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -829,7 +872,8 @@
     "value": "392",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -838,7 +882,8 @@
     "value": "B",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-046",
@@ -847,7 +892,8 @@
     "value": "Below (−8)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan"
+    "label": "OP3.1 Caregivers receiving education hardship grant linked to girls' attendance plan",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -856,7 +902,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -865,7 +912,8 @@
     "value": "550",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -874,7 +922,8 @@
     "value": "1,100",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -883,7 +932,8 @@
     "value": "571",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -892,7 +942,8 @@
     "value": "A",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-047",
@@ -901,7 +952,8 @@
     "value": "Above (+21)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package"
+    "label": "OP3.2 Girls receiving school re-entry kit or learning materials package",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -910,7 +962,8 @@
     "value": "0%",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -919,7 +972,8 @@
     "value": "75%",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -928,7 +982,8 @@
     "value": "85%",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -937,7 +992,8 @@
     "value": "68%",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -946,7 +1002,8 @@
     "value": "C",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-048",
@@ -955,7 +1012,8 @@
     "value": "Below (−7pp)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days"
+    "label": "OP3.3 % of hardship grant households with verified attendance follow-up within 45 days",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -964,7 +1022,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -973,7 +1032,8 @@
     "value": "4",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -982,7 +1042,8 @@
     "value": "8",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -991,7 +1052,8 @@
     "value": "3",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -1000,7 +1062,8 @@
     "value": "B",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-049",
@@ -1009,61 +1072,8 @@
     "value": "Below (−1)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.1 District learning meetings held with documented action points"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "baseline",
-    "value": "0",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "y1_milestone",
-    "value": "2",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "endline",
-    "value": "5",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "proposed_score",
-    "value": "—",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
-  },
-  {
-    "id": "F-050",
-    "ontology_slot": "indicator.op4_2",
-    "facet": "vs_milestone",
-    "value": "—",
-    "source_document": "D1, D3",
-    "status": "Gap G-03",
-    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders"
+    "label": "OP4.1 District learning meetings held with documented action points",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1072,7 +1082,8 @@
     "value": "0",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1081,7 +1092,8 @@
     "value": "120",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1090,7 +1102,8 @@
     "value": "240",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1099,7 +1112,8 @@
     "value": "136",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1108,7 +1122,8 @@
     "value": "A",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
   },
   {
     "id": "F-051",
@@ -1117,7 +1132,152 @@
     "value": "Above (+16)",
     "source_document": "D1, D3",
     "status": "CONFIRMED",
-    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols"
+    "label": "OP4.3 School and community actors trained on girls' re-entry and safeguarding protocols",
+    "reportable": true
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "baseline",
+    "value": "0",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "y1_milestone",
+    "value": "18",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "endline",
+    "value": "40",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "achieved",
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-02",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true,
+    "absent": {
+      "reason": "Indicator present in framework with Year 1 milestone; absent from results export.",
+      "gap_id": "G-02"
+    }
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "proposed_score",
+    "value": null,
+    "source_document": null,
+    "status": "CONFIRMED",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true,
+    "absent": {
+      "reason": "No proposed score because achieved value is absent.",
+      "gap_id": "G-02"
+    }
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "vs_milestone",
+    "value": null,
+    "source_document": null,
+    "status": "CONFIRMED",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true,
+    "absent": {
+      "reason": "No vs-milestone comparison because achieved value is absent.",
+      "gap_id": "G-02"
+    }
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "baseline",
+    "value": "0",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "y1_milestone",
+    "value": "2",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "endline",
+    "value": "5",
+    "source_document": "D1, D3",
+    "status": "CONFIRMED",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "achieved",
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-03",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true,
+    "absent": {
+      "reason": "Indicator present in framework with Year 1 milestone; absent from results export.",
+      "gap_id": "G-03"
+    }
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "proposed_score",
+    "value": null,
+    "source_document": null,
+    "status": "CONFIRMED",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true,
+    "absent": {
+      "reason": "No proposed score because achieved value is absent.",
+      "gap_id": "G-03"
+    }
+  },
+  {
+    "id": "F-050",
+    "ontology_slot": "indicator.op4_2",
+    "facet": "vs_milestone",
+    "value": null,
+    "source_document": null,
+    "status": "CONFIRMED",
+    "label": "OP4.2 Learning briefs produced and shared with district education stakeholders",
+    "reportable": true,
+    "absent": {
+      "reason": "No vs-milestone comparison because achieved value is absent.",
+      "gap_id": "G-03"
+    }
   },
   {
     "id": "F-052",
@@ -1126,7 +1286,8 @@
     "value": "12",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Output indicators in the results framework"
+    "label": "Output indicators in the results framework",
+    "reportable": false
   },
   {
     "id": "F-053",
@@ -1135,7 +1296,8 @@
     "value": "10",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Output indicators with a reported achieved value"
+    "label": "Output indicators with a reported achieved value",
+    "reportable": false
   },
   {
     "id": "F-054",
@@ -1144,7 +1306,8 @@
     "value": "5 (OP1.1, OP1.3, OP2.1, OP3.2, OP4.3)",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Reported indicators at or above Year 1 milestone"
+    "label": "Reported indicators at or above Year 1 milestone",
+    "reportable": false
   },
   {
     "id": "F-055",
@@ -1153,7 +1316,8 @@
     "value": "5 (OP1.2, OP2.2, OP3.1, OP3.3, OP4.1)",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Reported indicators below Year 1 milestone"
+    "label": "Reported indicators below Year 1 milestone",
+    "reportable": false
   },
   {
     "id": "F-056",
@@ -1162,7 +1326,8 @@
     "value": "2 (OP2.3, OP4.2)",
     "source_document": "Derived",
     "status": "CONFIRMED",
-    "label": "Output indicators with no reported value"
+    "label": "Output indicators with no reported value",
+    "reportable": false
   },
   {
     "id": "F-057",
@@ -1171,7 +1336,8 @@
     "value": "School registers; re-entry club forms; district validation sample",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-057"
+    "label": "F-057",
+    "reportable": true
   },
   {
     "id": "F-057",
@@ -1180,7 +1346,8 @@
     "value": "Above milestone. Some double-count risk removed in September cleaning.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-057"
+    "label": "F-057",
+    "reportable": true
   },
   {
     "id": "F-058",
@@ -1189,7 +1356,8 @@
     "value": "Term 3 attendance registers from 36 schools",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-058"
+    "label": "F-058",
+    "reportable": true
   },
   {
     "id": "F-058",
@@ -1198,7 +1366,8 @@
     "value": "Under milestone due to late register submission from four schools.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-058"
+    "label": "F-058",
+    "reportable": true
   },
   {
     "id": "F-059",
@@ -1207,7 +1376,8 @@
     "value": "Remedial class attendance sheets",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-059"
+    "label": "F-059",
+    "reportable": true
   },
   {
     "id": "F-059",
@@ -1216,7 +1386,8 @@
     "value": "Slightly above milestone.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-059"
+    "label": "F-059",
+    "reportable": true
   },
   {
     "id": "F-060",
@@ -1225,7 +1396,8 @@
     "value": "WASH engineer completion certificates; school verification photos",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-060"
+    "label": "F-060",
+    "reportable": true
   },
   {
     "id": "F-060",
@@ -1234,7 +1406,8 @@
     "value": "Above milestone, but four units still need disposal bins.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-060"
+    "label": "F-060",
+    "reportable": true
   },
   {
     "id": "F-061",
@@ -1243,7 +1416,8 @@
     "value": "Training attendance sheets; supply distribution records",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-061"
+    "label": "F-061",
+    "reportable": true
   },
   {
     "id": "F-061",
@@ -1252,7 +1426,8 @@
     "value": "Below milestone because three schools had no female focal teacher available.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-061"
+    "label": "F-061",
+    "reportable": true
   },
   {
     "id": "F-062",
@@ -1261,7 +1436,8 @@
     "value": "Mobile money payment list; school attendance follow-up sample",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-062"
+    "label": "F-062",
+    "reportable": true
   },
   {
     "id": "F-062",
@@ -1270,7 +1446,8 @@
     "value": "Slightly below target after deduplication of 16 caregiver records.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-062"
+    "label": "F-062",
+    "reportable": true
   },
   {
     "id": "F-063",
@@ -1279,7 +1456,8 @@
     "value": "Kit distribution forms; headteacher confirmations",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-063"
+    "label": "F-063",
+    "reportable": true
   },
   {
     "id": "F-063",
@@ -1288,7 +1466,8 @@
     "value": "Above milestone.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-063"
+    "label": "F-063",
+    "reportable": true
   },
   {
     "id": "F-064",
@@ -1297,7 +1476,8 @@
     "value": "Follow-up tracker; district officer sample",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-064"
+    "label": "F-064",
+    "reportable": true
   },
   {
     "id": "F-064",
@@ -1306,7 +1486,8 @@
     "value": "Below milestone because September follow-ups incomplete.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-064"
+    "label": "F-064",
+    "reportable": true
   },
   {
     "id": "F-065",
@@ -1315,7 +1496,8 @@
     "value": "Meeting minutes; attendance sheets",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-065"
+    "label": "F-065",
+    "reportable": true
   },
   {
     "id": "F-065",
@@ -1324,7 +1506,8 @@
     "value": "One meeting cancelled during district exam period.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-065"
+    "label": "F-065",
+    "reportable": true
   },
   {
     "id": "F-066",
@@ -1333,7 +1516,8 @@
     "value": "Training attendance sheets; pre/post quiz forms",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-066"
+    "label": "F-066",
+    "reportable": true
   },
   {
     "id": "F-066",
@@ -1342,7 +1526,8 @@
     "value": "Above target.",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "F-066"
+    "label": "F-066",
+    "reportable": true
   },
   {
     "id": "F-067",
@@ -1352,6 +1537,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1362,6 +1548,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1372,6 +1559,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1381,7 +1569,8 @@
     "value": "Transport costs higher due to lake-shore schools",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.1"
+    "label": "OP1.1",
+    "reportable": true
   },
   {
     "id": "F-068",
@@ -1391,6 +1580,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1401,6 +1591,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1411,6 +1602,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1420,7 +1612,8 @@
     "value": "Staff time loaded here, may belong in Output 4",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.2"
+    "label": "OP1.2",
+    "reportable": true
   },
   {
     "id": "F-069",
@@ -1430,6 +1623,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1440,6 +1634,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1450,6 +1645,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP1.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1459,7 +1655,8 @@
     "value": "Teacher stipends lower than forecast",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.3"
+    "label": "OP1.3",
+    "reportable": true
   },
   {
     "id": "F-070",
@@ -1469,6 +1666,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1479,6 +1677,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1489,6 +1688,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1498,7 +1698,8 @@
     "value": "Cement and transport over budget",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.1"
+    "label": "OP2.1",
+    "reportable": true
   },
   {
     "id": "F-071",
@@ -1508,6 +1709,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1518,6 +1720,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1528,6 +1731,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP2.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1537,7 +1741,8 @@
     "value": "Supplies procured late",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.2"
+    "label": "OP2.2",
+    "reportable": true
   },
   {
     "id": "F-072",
@@ -1547,6 +1752,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1557,6 +1763,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1567,6 +1774,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1576,7 +1784,8 @@
     "value": "Payment fees higher than forecast",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.1"
+    "label": "OP3.1",
+    "reportable": true
   },
   {
     "id": "F-073",
@@ -1586,6 +1795,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1596,6 +1806,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1606,6 +1817,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.2",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1615,7 +1827,8 @@
     "value": "Extra notebooks bought locally",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.2"
+    "label": "OP3.2",
+    "reportable": true
   },
   {
     "id": "F-074",
@@ -1625,6 +1838,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1635,6 +1849,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1645,6 +1860,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP3.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1654,7 +1870,8 @@
     "value": "Underspend due to vacant M&E assistant post",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.3"
+    "label": "OP3.3",
+    "reportable": true
   },
   {
     "id": "F-075",
@@ -1664,6 +1881,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1674,6 +1892,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1684,6 +1903,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1693,7 +1913,8 @@
     "value": "Venue costs lower",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.1"
+    "label": "OP4.1",
+    "reportable": true
   },
   {
     "id": "F-076",
@@ -1703,6 +1924,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1713,6 +1935,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1723,6 +1946,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "OP4.3",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1732,7 +1956,8 @@
     "value": "Facilitator travel higher",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.3"
+    "label": "OP4.3",
+    "reportable": true
   },
   {
     "id": "F-077",
@@ -1742,6 +1967,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "Total AR1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1752,6 +1978,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "Total AR1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1762,6 +1989,7 @@
     "source_document": "D3",
     "status": "CONFIRMED",
     "label": "Total AR1",
+    "reportable": true,
     "unit": "GBP"
   },
   {
@@ -1771,7 +1999,8 @@
     "value": "Forecast is AR1 only, not full life-of-project",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Total AR1"
+    "label": "Total AR1",
+    "reportable": true
   },
   {
     "id": "F-078",
@@ -1780,7 +2009,8 @@
     "value": "4.6%",
     "source_document": "Derived",
     "status": "DERIVED — derivation stated",
-    "label": "AR1 overspend as % of forecast"
+    "label": "AR1 overspend as % of forecast",
+    "reportable": true
   },
   {
     "id": "F-079",
@@ -1789,7 +2019,8 @@
     "value": "£1,184,000",
     "source_document": "D1",
     "status": "RESOLVED — see C-01",
-    "label": "Proposal budget total (superseded)"
+    "label": "Proposal budget total (superseded)",
+    "reportable": true
   },
   {
     "id": "F-080",
@@ -1798,7 +2029,8 @@
     "value": "Staff/TA £338,000; Local partner £214,000; School WASH £226,000; Hardship grants and kits £238,000; MEL £82,000; Operations/travel/audit £86,000",
     "source_document": "D1",
     "status": "CONFIRMED as the proposal position; superseded as the approved position",
-    "label": "Proposal budget lines"
+    "label": "Proposal budget lines",
+    "reportable": true
   },
   {
     "id": "F-081",
@@ -1807,7 +2039,8 @@
     "value": "Proposal workbook, tab Budget_Final_v5",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Proposal budget source"
+    "label": "Proposal budget source",
+    "reportable": true
   },
   {
     "id": "F-082",
@@ -1816,7 +2049,8 @@
     "value": "approximately £987 over two years, using £1,184,000 and 1,200 girls",
     "source_document": "D1",
     "status": "CAVEATED — basis is the superseded budget; see C-01",
-    "label": "Cost per directly supported girl, business-case basis"
+    "label": "Cost per directly supported girl, business-case basis",
+    "reportable": true
   },
   {
     "id": "F-083",
@@ -1825,7 +2059,8 @@
     "value": "School rehabilitation works; hardship grants; district field transport; local partner facilitation",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Named cost drivers"
+    "label": "Named cost drivers",
+    "reportable": true
   },
   {
     "id": "F-084",
@@ -1834,7 +2069,8 @@
     "value": "684",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.1"
+    "label": "OP1.1",
+    "reportable": true
   },
   {
     "id": "F-084",
@@ -1843,7 +2079,8 @@
     "value": "681 (F6-11 58; F12-17 590; F18-24 33)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.1"
+    "label": "OP1.1",
+    "reportable": true
   },
   {
     "id": "F-084",
@@ -1852,7 +2089,8 @@
     "value": "No — short by 3",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.1"
+    "label": "OP1.1",
+    "reportable": true
   },
   {
     "id": "F-085",
@@ -1861,7 +2099,8 @@
     "value": "472",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.2"
+    "label": "OP1.2",
+    "reportable": true
   },
   {
     "id": "F-085",
@@ -1870,7 +2109,8 @@
     "value": "471 (39; 410; 22)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.2"
+    "label": "OP1.2",
+    "reportable": true
   },
   {
     "id": "F-085",
@@ -1879,7 +2119,8 @@
     "value": "No — short by 1",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.2"
+    "label": "OP1.2",
+    "reportable": true
   },
   {
     "id": "F-086",
@@ -1888,7 +2129,8 @@
     "value": "438",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.3"
+    "label": "OP1.3",
+    "reportable": true
   },
   {
     "id": "F-086",
@@ -1897,7 +2139,8 @@
     "value": "438 (35; 382; 21)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.3"
+    "label": "OP1.3",
+    "reportable": true
   },
   {
     "id": "F-086",
@@ -1906,7 +2149,8 @@
     "value": "Yes",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP1.3"
+    "label": "OP1.3",
+    "reportable": true
   },
   {
     "id": "F-087",
@@ -1915,7 +2159,8 @@
     "value": "31",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.1"
+    "label": "OP2.1",
+    "reportable": true
   },
   {
     "id": "F-087",
@@ -1924,7 +2169,8 @@
     "value": "0 — not a person-level indicator",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.1"
+    "label": "OP2.1",
+    "reportable": true
   },
   {
     "id": "F-087",
@@ -1933,7 +2179,8 @@
     "value": "N/A, correctly zero",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.1"
+    "label": "OP2.1",
+    "reportable": true
   },
   {
     "id": "F-088",
@@ -1942,7 +2189,8 @@
     "value": "17",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.2"
+    "label": "OP2.2",
+    "reportable": true
   },
   {
     "id": "F-088",
@@ -1951,7 +2199,8 @@
     "value": "0 — not a person-level indicator",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.2"
+    "label": "OP2.2",
+    "reportable": true
   },
   {
     "id": "F-088",
@@ -1960,7 +2209,8 @@
     "value": "N/A, correctly zero",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP2.2"
+    "label": "OP2.2",
+    "reportable": true
   },
   {
     "id": "F-089",
@@ -1969,7 +2219,8 @@
     "value": "392",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.1"
+    "label": "OP3.1",
+    "reportable": true
   },
   {
     "id": "F-089",
@@ -1978,7 +2229,8 @@
     "value": "392 (M6-11 96; M12-17 118; M18-24 178)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.1"
+    "label": "OP3.1",
+    "reportable": true
   },
   {
     "id": "F-089",
@@ -1987,7 +2239,8 @@
     "value": "Arithmetically yes; substantively not credible — see C-04",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.1"
+    "label": "OP3.1",
+    "reportable": true
   },
   {
     "id": "F-090",
@@ -1996,7 +2249,8 @@
     "value": "571",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.2"
+    "label": "OP3.2",
+    "reportable": true
   },
   {
     "id": "F-090",
@@ -2005,7 +2259,8 @@
     "value": "571 (48; 498; 25)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.2"
+    "label": "OP3.2",
+    "reportable": true
   },
   {
     "id": "F-090",
@@ -2014,7 +2269,8 @@
     "value": "Yes",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.2"
+    "label": "OP3.2",
+    "reportable": true
   },
   {
     "id": "F-091",
@@ -2023,7 +2279,8 @@
     "value": "68%",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.3"
+    "label": "OP3.3",
+    "reportable": true
   },
   {
     "id": "F-091",
@@ -2032,7 +2289,8 @@
     "value": "0 — percentage indicator",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.3"
+    "label": "OP3.3",
+    "reportable": true
   },
   {
     "id": "F-091",
@@ -2041,7 +2299,8 @@
     "value": "N/A, correctly zero",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP3.3"
+    "label": "OP3.3",
+    "reportable": true
   },
   {
     "id": "F-092",
@@ -2050,7 +2309,8 @@
     "value": "3",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.1"
+    "label": "OP4.1",
+    "reportable": true
   },
   {
     "id": "F-092",
@@ -2059,7 +2319,8 @@
     "value": "39 across six cells",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.1"
+    "label": "OP4.1",
+    "reportable": true
   },
   {
     "id": "F-092",
@@ -2068,7 +2329,8 @@
     "value": "Unit mismatch — meetings disaggregated as if people; see C-04",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.1"
+    "label": "OP4.1",
+    "reportable": true
   },
   {
     "id": "F-093",
@@ -2077,7 +2339,8 @@
     "value": "136",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.3"
+    "label": "OP4.3",
+    "reportable": true
   },
   {
     "id": "F-093",
@@ -2086,7 +2349,8 @@
     "value": "136 (F12-17 64; F18-24 8; M6-11 28; M12-17 31; M18-24 5)",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.3"
+    "label": "OP4.3",
+    "reportable": true
   },
   {
     "id": "F-093",
@@ -2095,7 +2359,8 @@
     "value": "Yes",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "OP4.3"
+    "label": "OP4.3",
+    "reportable": true
   },
   {
     "id": "F-094",
@@ -2104,7 +2369,8 @@
     "value": "142 — passes",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Disability column sums to reported total"
+    "label": "Disability column sums to reported total",
+    "reportable": false
   },
   {
     "id": "F-095",
@@ -2113,7 +2379,8 @@
     "value": "2,376 — passes",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Ultra-poor column sums to reported total"
+    "label": "Ultra-poor column sums to reported total",
+    "reportable": false
   },
   {
     "id": "F-096",
@@ -2122,7 +2389,8 @@
     "value": "Row sum is 227 against a stated total of 291 — fails by 64",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Previously married column sums to reported total"
+    "label": "Previously married column sums to reported total",
+    "reportable": false
   },
   {
     "id": "F-097",
@@ -2131,7 +2399,8 @@
     "value": "Column sums across overlapping indicators, not unique beneficiary counts",
     "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Nature of the TOTAL row — See C-08"
+    "label": "Nature of the TOTAL row — See C-08",
+    "reportable": false
   },
   {
     "id": "F-098",
@@ -2140,7 +2409,8 @@
     "value": "Activity list — identification, re-entry counselling, bridge learning, latrine rehabilitation, menstrual health supply, hardship grants and kits, safeguarding referral mapping, quarterly learning meetings",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Activity list"
+    "label": "Activity list",
+    "reportable": true
   },
   {
     "id": "F-099",
@@ -2149,7 +2419,8 @@
     "value": "MEL system — logframe-based; sources are attendance registers, re-entry club records, caregiver payment lists, WASH completion certificates, meeting attendance sheets, case referral logs, quarterly survey tools",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "MEL system"
+    "label": "MEL system",
+    "reportable": true
   },
   {
     "id": "F-100",
@@ -2158,7 +2429,8 @@
     "value": "Output scoring process — MEL Manager proposes initial scores; final scores to be agreed with the FCDO review team",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Output scoring process"
+    "label": "Output scoring process",
+    "reportable": true
   },
   {
     "id": "F-101",
@@ -2167,7 +2439,8 @@
     "value": "Risks identified at design — school calendar disruption; construction material inflation; local political pressure in beneficiary selection; low mobile-money coverage; safeguarding risks in identifying girls affected by early marriage or abuse",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Risks identified at design"
+    "label": "Risks identified at design",
+    "reportable": true
   },
   {
     "id": "F-102",
@@ -2176,7 +2449,8 @@
     "value": "Safeguarding controls at design — child safeguarding procedures, staff code of conduct, community complaints mechanisms, referral pathways via district social welfare offices",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "Safeguarding controls at design"
+    "label": "Safeguarding controls at design",
+    "reportable": true
   },
   {
     "id": "F-103",
@@ -2185,7 +2459,8 @@
     "value": "FCDO review pack requirements — narrative against results framework; updated logframe with milestones, actuals, output scores and variance explanations; forecast versus actual expenditure statement; VfM assessment covering economy, efficiency, effectiveness and equity; risk, safeguarding and assumptions update; recommendations and action plan; any evaluation or learning outputs",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "FCDO review pack requirements"
+    "label": "FCDO review pack requirements",
+    "reportable": true
   },
   {
     "id": "F-104",
@@ -2194,7 +2469,8 @@
     "value": "BridgeLight must provide evidence for each numeric claim included in the review",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "F-104"
+    "label": "F-104",
+    "reportable": true
   },
   {
     "id": "F-105",
@@ -2203,7 +2479,8 @@
     "value": "Attendance registers, payment records, procurement files, safeguarding incident logs, training attendance sheets, WASH completion records",
     "source_document": "D2",
     "status": "CONFIRMED",
-    "label": "F-105"
+    "label": "F-105",
+    "reportable": true
   },
   {
     "id": "F-106",
@@ -2212,6 +2489,7 @@
     "value": "VfM management approach at design — local procurement for rehabilitation; competitive pricing for kits; efficiency monitored via cost per girl re-enrolled, cost per school with completed WASH works, staff cost as share of total spend; effectiveness via attendance, re-entry and progression; equity via share of support reaching girls with disabilities, ultra-poor households and previously out-of-school girls",
     "source_document": "D1",
     "status": "CONFIRMED",
-    "label": "VfM management approach at design"
+    "label": "VfM management approach at design",
+    "reportable": true
   }
 ]

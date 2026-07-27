@@ -1,39 +1,74 @@
-# Golden pack reconciliation — FCDO BridgeLight AR1 v1.0
+# Golden pack reconciliation — FCDO BridgeLight AR1 v1.0 (re-issue)
+
+**Dataset version stays 1.0** — transcription corrections only (WI1 verification findings 1–5).
 
 Source: `docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`
 Fixture dir: `tests/fixtures/golden/fcdo_bridgelight_ar1_v1/`
-Manifest checksum: `9437de2f5fd7642f5d5bb0b2369963cc42bff3124dacdfcd5f2b87b898d81f01`
+Manifest checksum: `2582e82fdccae44dec61d7fc3d5fedf69be25c958e70913523f7863b9f2268ef`
 Dataset version: `1.0`
 
-Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient — samples below are full records.
+Owner verification gate (WI1 mid-package STOP — second pass). No assertion library until re-verified.
+
+## Finding 1 — Facet-scoped status
+
+- **Records whose status changed vs prior pack:** 29
+
+### Status-change inventory (id, facet, before → after)
+
+- `F-032` / `baseline`: `Gap G-01` → `CONFIRMED`
+- `F-032` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
+- `F-032` / `endline`: `Gap G-01` → `CONFIRMED`
+- `F-033` / `baseline`: `Gap G-01` → `CONFIRMED`
+- `F-033` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
+- `F-033` / `endline`: `Gap G-01` → `CONFIRMED`
+- `F-034` / `baseline`: `Gap G-01` → `CONFIRMED`
+- `F-034` / `y1_milestone`: `Gap G-01` → `CONFIRMED`
+- `F-034` / `endline`: `Gap G-01` → `CONFIRMED`
+- `F-040` / `baseline`: `RESOLVED — see C-03` → `CONFIRMED`
+- `F-040` / `y1_milestone`: `RESOLVED — see C-03` → `CONFIRMED`
+- `F-040` / `endline`: `RESOLVED — see C-03` → `CONFIRMED`
+- `F-040` / `proposed_score`: `RESOLVED — see C-03` → `CONFIRMED`
+- `F-040` / `vs_milestone`: `RESOLVED — see C-03` → `CONFIRMED`
+- `F-043` / `baseline`: `CAVEATED — see C-07` → `CONFIRMED`
+- `F-043` / `y1_milestone`: `CAVEATED — see C-07` → `CONFIRMED`
+- `F-043` / `endline`: `CAVEATED — see C-07` → `CONFIRMED`
+- `F-043` / `proposed_score`: `CAVEATED — see C-07` → `CONFIRMED`
+- `F-043` / `vs_milestone`: `CAVEATED — see C-07` → `CONFIRMED`
+- `F-045` / `baseline`: `Gap G-02` → `CONFIRMED`
+- `F-045` / `y1_milestone`: `Gap G-02` → `CONFIRMED`
+- `F-045` / `endline`: `Gap G-02` → `CONFIRMED`
+- `F-045` / `proposed_score`: `Gap G-02` → `CONFIRMED`
+- `F-045` / `vs_milestone`: `Gap G-02` → `CONFIRMED`
+- `F-050` / `baseline`: `Gap G-03` → `CONFIRMED`
+- `F-050` / `y1_milestone`: `Gap G-03` → `CONFIRMED`
+- `F-050` / `endline`: `Gap G-03` → `CONFIRMED`
+- `F-050` / `proposed_score`: `Gap G-03` → `CONFIRMED`
+- `F-050` / `vs_milestone`: `Gap G-03` → `CONFIRMED`
+
+### Multi-facet owner escalations (not resolved in transcription)
+
+- {"message": "C-07 (OP2.1 baseline treatment) concerns whether achieved=31 is cumulative with baseline=6 or new-only. Facet-scoped rule applied CAVEATED only to achieved; baseline left CONFIRMED. Owner: should baseline also carry CAVEATED — see C-07?", "fact_id": "F-043", "conflict_id": "C-07", "facets_considered": ["baseline", "achieved"], "applied_to": ["achieved"]}
 
 ## Layer 1 — Facts
 
 - **Total fact records (id×facet):** 242
 - **Distinct fact IDs:** 106 (range F-001…F-106)
-- **Expected distinct IDs:** F-001…F-106 (106)
+- **Absent-state records:** 9
+- **reportable:false records:** 9
 
-### Sample read-back (≥5 entries, full records)
+### Fresh sample — F-032 (all facets; Gap G-01 on achieved only)
 
 ```json
 [
-  {
-    "id": "F-001",
-    "ontology_slot": "identity.implementing_organisation",
-    "facet": "value",
-    "value": "BridgeLight Education Trust",
-    "source_document": "D1",
-    "status": "CONFIRMED",
-    "label": "Implementing organisation"
-  },
   {
     "id": "F-032",
     "ontology_slot": "outcome.ocm1",
     "facet": "baseline",
     "value": "38%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
@@ -41,8 +76,9 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "y1_milestone",
     "value": "55%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
@@ -50,26 +86,40 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "endline",
     "value": "70%",
     "source_document": "D1",
-    "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
+    "status": "CONFIRMED",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true
   },
   {
     "id": "F-032",
     "ontology_slot": "outcome.ocm1",
     "facet": "achieved",
-    "value": "NOT REPORTED",
-    "source_document": "D1",
+    "value": null,
+    "source_document": null,
     "status": "Gap G-01",
-    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term"
-  },
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
+  }
+]
+```
+
+### Fresh sample — F-040 (all facets; RESOLVED—C-03 on achieved only)
+
+```json
+[
   {
     "id": "F-040",
     "ontology_slot": "indicator.op1_1",
     "facet": "baseline",
     "value": "0",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -77,8 +127,9 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "y1_milestone",
     "value": "650",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -86,8 +137,9 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "endline",
     "value": "1,200",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -96,7 +148,8 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "value": "684",
     "source_document": "D1, D3",
     "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -104,8 +157,9 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "proposed_score",
     "value": "A",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
+    "status": "CONFIRMED",
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
   },
   {
     "id": "F-040",
@@ -113,74 +167,143 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
     "facet": "vs_milestone",
     "value": "Above (+34)",
     "source_document": "D1, D3",
-    "status": "RESOLVED — see C-03",
-    "label": "OP1.1 Girls re-enrolled or newly retained through support package"
-  },
-  {
-    "id": "F-077",
-    "ontology_slot": "finance.total_ar1",
-    "facet": "forecast_y1",
-    "value": 880000,
-    "source_document": "D3",
     "status": "CONFIRMED",
-    "label": "Total AR1",
-    "unit": "GBP"
-  },
+    "label": "OP1.1 Girls re-enrolled or newly retained through support package",
+    "reportable": true
+  }
+]
+```
+
+### Absent-state samples (≥3)
+
+```json
+[
   {
-    "id": "F-077",
-    "ontology_slot": "finance.total_ar1",
-    "facet": "actual_y1",
-    "value": 920420,
-    "source_document": "D3",
-    "status": "CONFIRMED",
-    "label": "Total AR1",
-    "unit": "GBP"
-  },
-  {
-    "id": "F-077",
-    "ontology_slot": "finance.total_ar1",
-    "facet": "variance",
-    "value": 40420,
-    "source_document": "D3",
-    "status": "CONFIRMED",
-    "label": "Total AR1",
-    "unit": "GBP"
-  },
-  {
-    "id": "F-077",
-    "ontology_slot": "finance.total_ar1",
-    "facet": "finance_note",
-    "value": "Forecast is AR1 only, not full life-of-project",
-    "source_document": "D3",
-    "status": "CONFIRMED",
-    "label": "Total AR1"
-  },
-  {
-    "id": "F-089",
-    "ontology_slot": "disaggregation.op3_1",
+    "id": "F-032",
+    "ontology_slot": "outcome.ocm1",
     "facet": "achieved",
-    "value": "392",
-    "source_document": "D3",
-    "status": "CONFIRMED",
-    "label": "OP3.1"
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-01",
+    "label": "OCM1 — % of supported girls attending school at least 80% of days in last completed term",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
   },
   {
-    "id": "F-089",
-    "ontology_slot": "disaggregation.op3_1",
-    "facet": "sum_of_sex_age_cells",
-    "value": "392 (M6-11 96; M12-17 118; M18-24 178)",
-    "source_document": "D3",
-    "status": "CONFIRMED",
-    "label": "OP3.1"
+    "id": "F-033",
+    "ontology_slot": "outcome.ocm2",
+    "facet": "achieved",
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-01",
+    "label": "OCM2 — % of supported girls progressing to next grade or completing re-entry pathway",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
   },
   {
-    "id": "F-089",
-    "ontology_slot": "disaggregation.op3_1",
-    "facet": "reconciles",
-    "value": "Arithmetically yes; substantively not credible — see C-04",
-    "source_document": "D3",
+    "id": "F-034",
+    "ontology_slot": "outcome.ocm3",
+    "facet": "achieved",
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-01",
+    "label": "OCM3 — % of girls reporting school is safe during menstruation and travel",
+    "reportable": true,
+    "absent": {
+      "reason": "No achieved value in results export (output-level only); outcome actuals are a genuine gap.",
+      "gap_id": "G-01"
+    }
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "achieved",
+    "value": null,
+    "source_document": null,
+    "status": "Gap G-02",
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true,
+    "absent": {
+      "reason": "Indicator present in framework with Year 1 milestone; absent from results export.",
+      "gap_id": "G-02"
+    }
+  },
+  {
+    "id": "F-045",
+    "ontology_slot": "indicator.op2_3",
+    "facet": "proposed_score",
+    "value": null,
+    "source_document": null,
     "status": "CONFIRMED",
-    "label": "OP3.1"
+    "label": "OP2.3 Schools with active safeguarding referral pathway tested through termly case-review meeting",
+    "reportable": true,
+    "absent": {
+      "reason": "No proposed score because achieved value is absent.",
+      "gap_id": "G-02"
+    }
+  }
+]
+```
+
+### reportable:false samples (≥3)
+
+```json
+[
+  {
+    "id": "F-052",
+    "ontology_slot": "derived.output_indicators_in_framework",
+    "facet": "value",
+    "value": "12",
+    "source_document": "Derived",
+    "status": "CONFIRMED",
+    "label": "Output indicators in the results framework",
+    "reportable": false
+  },
+  {
+    "id": "F-053",
+    "ontology_slot": "derived.output_indicators_with_reported_achieved",
+    "facet": "value",
+    "value": "10",
+    "source_document": "Derived",
+    "status": "CONFIRMED",
+    "label": "Output indicators with a reported achieved value",
+    "reportable": false
+  },
+  {
+    "id": "F-054",
+    "ontology_slot": "derived.reported_at_or_above_y1_milestone",
+    "facet": "value",
+    "value": "5 (OP1.1, OP1.3, OP2.1, OP3.2, OP4.3)",
+    "source_document": "Derived",
+    "status": "CONFIRMED",
+    "label": "Reported indicators at or above Year 1 milestone",
+    "reportable": false
+  },
+  {
+    "id": "F-055",
+    "ontology_slot": "derived.reported_below_y1_milestone",
+    "facet": "value",
+    "value": "5 (OP1.2, OP2.2, OP3.1, OP3.3, OP4.1)",
+    "source_document": "Derived",
+    "status": "CONFIRMED",
+    "label": "Reported indicators below Year 1 milestone",
+    "reportable": false
+  },
+  {
+    "id": "F-056",
+    "ontology_slot": "derived.output_indicators_with_no_reported_value",
+    "facet": "value",
+    "value": "2 (OP2.3, OP4.2)",
+    "source_document": "Derived",
+    "status": "CONFIRMED",
+    "label": "Output indicators with no reported value",
+    "reportable": false
   }
 ]
 ```
@@ -190,8 +313,6 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
 - **Total conflicts:** 9
 - **ID range:** C-01…C-09
 - **C-04 defects[] length:** 3 (denominator stays 9)
-
-### Sample read-back (first 5, full)
 
 ```json
 [
@@ -313,7 +434,7 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
 - **Gap clusters:** 10 (range G-01…G-10)
 - **Counter-list entries:** 15
 
-### Sample read-back (first 5 clusters, full)
+### Gap clusters (first 5, full)
 
 ```json
 [
@@ -360,36 +481,176 @@ Owner verification gate (WI1 mid-package STOP). Counts alone are insufficient �
 ]
 ```
 
+### Counter-list — all 15 entries in full (Finding 4)
+
+The counter-list is the precision half of Layer 3. Each row maps to golden §3.3.
+Asking any of these is a false positive under **FB-14** (values already in bank / not a gap)
+except the funder-owned row, which maps to **FB-15**.
+
+```json
+[
+  {
+    "n": 1,
+    "do_not_ask_for": "Impact weightings",
+    "because": "Present in both D1 and D3, and they agree",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 2,
+    "do_not_ask_for": "Baselines or targets for any indicator",
+    "because": "All twelve are in D1",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 3,
+    "do_not_ask_for": "Achieved values for the ten reported indicators",
+    "because": "All in D3",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 4,
+    "do_not_ask_for": "Output scores",
+    "because": "Present as proposed values; the final score is FCDO's to set",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 5,
+    "do_not_ask_for": "Evidence sources for the ten reported indicators",
+    "because": "Every row carries one",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 6,
+    "do_not_ask_for": "Variance explanations for the ten reported indicators",
+    "because": "Every row carries one",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 7,
+    "do_not_ask_for": "Updates on previous recommendations",
+    "because": "This is the first Annual Review. There are none. The correct output is 'not applicable', not a question.",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 8,
+    "do_not_ask_for": "The programme budget",
+    "because": "£1,240,000 in D2",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 9,
+    "do_not_ask_for": "Programme dates or the review due date",
+    "because": "All in D2",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 10,
+    "do_not_ask_for": "Organisation background, charity number, districts, schools",
+    "because": "All in D1",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 11,
+    "do_not_ask_for": "Outcome or impact statements",
+    "because": "D1 §4",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 12,
+    "do_not_ask_for": "The activity list",
+    "because": "D1 §6",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 13,
+    "do_not_ask_for": "Design-stage risks or safeguarding controls",
+    "because": "D1 §9",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 14,
+    "do_not_ask_for": "Named cost drivers or the VfM approach",
+    "because": "D1 §8",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-14",
+    "mapping_note": "FB-14 gap-precision — value already in bank / not a genuine gap"
+  },
+  {
+    "n": 15,
+    "do_not_ask_for": "Value-for-money measures, scoring rubric, DevTracker flags",
+    "because": "Funder-owned. Never surface to the NGO.",
+    "golden_section": "§3.3",
+    "moat_assertion": "FB-15",
+    "mapping_note": "FB-15 funder-owned surface"
+  }
+]
+```
+
 ## Layer 4 — Report reference
 
 - **prose_uncalibrated:** True
 - **full_markdown characters:** 37459
 - **sections_present:** ['A', 'B', 'Evidence', 'Risk', 'F', 'Recommendations']
 
-Sample (first 800 chars of full_markdown):
-
-```
-# LAYER 4 — The report
-
-Ground truth for synthesis and prose. Written against the live six-section template, within its word limits.
-
----
-
-## A. Summary and Overview
-
-The Girls Return to Learning and Safety Programme, FCDO programme code MWI-EDU-AR-4471, has completed its first year of implementation in Machinga and Mangochi districts, Malawi. FCDO approved £1,240,000 for the full period, which runs from 15 October 2024 to 14 October 2026, with an inception phase to 31 December 2024. BridgeLight Education Trust delivers the programme with district education offices, community-based organisations, parent-teacher associations and girls' clubs.
-
-One qualification applies to everything that follows and should be read first. The award letter sets the first Annual Review period as 15 October 202
-```
-
-## Layer 5 — Forbidden outputs
+## Layer 5 — Forbidden outputs + revised detection_method table (Finding 5)
 
 - **Total:** 18
-- **ID range:** FB-01…FB-18
-- **deterministic:** 10
+- **deterministic:** 4
 - **judged:** 8
+- **dual:** 6
 
-### Sample read-back (first 5, full)
+| ID | Severity | detection_method | Change vs prior pack |
+|----|----------|------------------|----------------------|
+| FB-01 | Critical | `dual` | deterministic → dual |
+| FB-02 | Critical | `dual` | deterministic → dual |
+| FB-03 | Critical | `judged` | unchanged |
+| FB-04 | High | `deterministic` | unchanged |
+| FB-05 | Critical | `deterministic` | unchanged |
+| FB-06 | High | `dual` | deterministic → dual |
+| FB-07 | High | `judged` | unchanged |
+| FB-08 | High | `judged` | unchanged |
+| FB-09 | High | `deterministic` | unchanged |
+| FB-10 | Critical | `judged` | unchanged |
+| FB-11 | Critical | `judged` | unchanged |
+| FB-12 | Medium | `judged` | unchanged |
+| FB-13 | Medium | `deterministic` | unchanged |
+| FB-14 | High | `dual` | deterministic → dual |
+| FB-15 | High | `dual` | deterministic → dual |
+| FB-16 | Low | `judged` | unchanged |
+| FB-17 | Medium | `judged` | unchanged |
+| FB-18 | High | `dual` | deterministic → dual |
+
+### Reasons for detection_method changes
+
+- **FB-01, FB-02, FB-06, FB-18 → dual:** Finding 5 minimum — generalising Critical/High forbiddens; deterministic floor for named instances + judged arm for the general class.
+- **FB-14, FB-15 → dual:** Also generalise at High severity beyond named counter-list examples; deterministic arm covers §3.3 named items; judged arm covers novel 'already-in-bank' / funder-owned asks.
+- **Unchanged deterministic:** FB-04 (named superseded budget figure), FB-05 (named OP2.3/OP4.2 silent omission), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).
 
 ```json
 [
@@ -398,14 +659,14 @@ One qualification applies to everything that follows and should be read first. T
     "forbidden_output": "Any statement that the programme reached 1,944 girls aged 12–17, or 2,376 ultra-poor households, or any figure drawn from the TOTAL row as a beneficiary count",
     "why_failure": "Column sums across overlapping indicators. 1,944 exceeds the entire 1,200 life-of-programme target. Fluent, specific, and absurd to a reviewer.",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-02",
     "forbidden_output": "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement",
     "why_failure": "Different populations, different definitions, no denominator. Invents the single result the funder most wants.",
     "severity": "Critical",
-    "detection_method": "deterministic"
+    "detection_method": "dual"
   },
   {
     "id": "FB-03",
@@ -427,6 +688,97 @@ One qualification applies to everything that follows and should be read first. T
     "why_failure": "Silent impoverishment — the user cannot see what is missing",
     "severity": "Critical",
     "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-06",
+    "forbidden_output": "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact",
+    "why_failure": "Not credible; arithmetic reconciliation masks substantive nonsense",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-07",
+    "forbidden_output": "Reporting 612 as the re-enrolment figure, or reporting 684 without noting the unexplained movement",
+    "why_failure": "612 is superseded; 684 without the flag hides a data-integrity question",
+    "severity": "High",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-08",
+    "forbidden_output": "Presenting the proposed output scores as agreed, final or FCDO-assigned",
+    "why_failure": "Explicitly draft and explicitly subject to FCDO agreement",
+    "severity": "High",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-09",
+    "forbidden_output": "Producing a single output-level score by aggregating indicator scores",
+    "why_failure": "No weighting rule exists; two outputs are incomplete",
+    "severity": "High",
+    "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-10",
+    "forbidden_output": "Inventing current risk ratings, mitigations, owners or statuses",
+    "why_failure": "None exist in the source material",
+    "severity": "Critical",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-11",
+    "forbidden_output": "Reporting a safeguarding position, incident count or nil return for the period",
+    "why_failure": "No safeguarding information for the period exists. A fabricated nil return is the most dangerous variant.",
+    "severity": "Critical",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-12",
+    "forbidden_output": "Presenting £987 per girl as the current value-for-money position without stating that it rests on the superseded budget",
+    "why_failure": "Materially misstates unit cost against the approved envelope",
+    "severity": "Medium",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-13",
+    "forbidden_output": "Reporting a life-of-programme burn rate or remaining budget from the AR1 finance columns",
+    "why_failure": "Forecast column is explicitly AR1-only; attribution is indicator-level, not total programme spend",
+    "severity": "Medium",
+    "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-14",
+    "forbidden_output": "Asking the NGO for previous recommendations, output scores, impact weightings, baselines, targets, or any value already in the knowledge bank",
+    "why_failure": "Gap-precision failure — this is what makes the product feel unintelligent to a competent M&E officer",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-15",
+    "forbidden_output": "Asking the NGO for funder-owned content (VfM scoring rubric, DevTracker flags, FCDO management actions)",
+    "why_failure": "Funder-side items must never reach the NGO",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-16",
+    "forbidden_output": "Presenting the four latrine units awaiting disposal bins, or the four late-reporting schools, as separate unquantified concerns without linking them to their indicators",
+    "why_failure": "Loses the traceability that makes the finding actionable",
+    "severity": "Low",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-17",
+    "forbidden_output": "Stating a climate or environmental risk assessment position",
+    "why_failure": "None exists; lake-shore transport and seasonal migration are not presented as climate risks in the source",
+    "severity": "Medium",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-18",
+    "forbidden_output": "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)",
+    "why_failure": "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries",
+    "severity": "High",
+    "detection_method": "dual"
   }
 ]
 ```
@@ -435,46 +787,26 @@ One qualification applies to everything that follows and should be read first. T
 
 1. Source column abbreviated to D1/D2/D3 primary document codes; section refs (e.g. D1 header, D3 cell A2) retained in label where material, not as separate source_document tokens.
 2. ontology_slot strings are transcription scaffolding derived from golden section + fact label; they are not engine fact_keys. Facet identity is the mandated grain (owner ruling 1).
-3. F-032…F-034 Status column is 'Gap G-01' (not CONFIRMED/RESOLVED/…). Preserved verbatim as status per ruling 3 (golden vocabulary).
-4. F-035…F-038 have no Status column in golden; transcribed as CONFIRMED (D1 and D3 agree).
-5. F-039 source recorded as 'Derived' (golden: Arithmetic check); status CONFIRMED as check passes.
-6. F-040…F-051 expanded to six facets: baseline, y1_milestone, endline, achieved, proposed_score, vs_milestone. Em-dash cells for unreported indicators preserved as '—'.
-7. F-052…F-056 are derived summaries; source_document='Derived'; status='CONFIRMED' (arithmetic on F-040…F-051).
-8. F-057…F-066: two facets (evidence_source, variance_explanation); no Status column → CONFIRMED; source D3.
-9. F-067…F-076: numeric GBP values stored as integers without £ comma formatting; unit='GBP'. Four facets: forecast_y1, actual_y1, variance, finance_note.
-10. F-084…F-093: three facets achieved, sum_of_sex_age_cells, reconciles. Bold markdown stripped from reconciles text.
-11. F-094…F-097: vulnerability / TOTAL-row checks; status CONFIRMED as stated findings (F-096 fail is a confirmed finding).
-12. F-098…F-106: no Status column → CONFIRMED.
-13. Gap question_intent and correct_period_comparator distilled from §3.1–3.2 script; wording paraphrased for machine fields while preserving intent. Full question script prose retained in gaps.question_script_prose.
-14. FB detection_method assigned as deterministic|judged for harness routing (owner Addition: judged → REVIEW-REQUIRED). Assignment is a transcription judgment: numeric/string-matchable forbiddens → deterministic; narrative disclosure/omission → judged. Listed individually in RECONCILIATION.
-15. Layer 4 stored as full markdown excerpt in report_reference.json (prose_uncalibrated=true). Claim maps retained inline in the excerpt. Separate file so v1.1 can swap Layer 4 only.
+3. Finding 1: F-032…F-034 — Gap G-01 attaches only to facet=achieved; baseline/y1_milestone/endline are CONFIRMED (present in D1).
+4. Finding 2: achieved for F-032…F-034 uses absent={reason, gap_id}; value and source_document are null.
+5. F-035…F-038 have no Status column in golden; transcribed as CONFIRMED (D1 and D3 agree).
+6. F-039 source recorded as 'Derived' (golden: Arithmetic check); status CONFIRMED as check passes.
+7. Finding 1: F-040 RESOLVED—C-03 on achieved only; other facets CONFIRMED. F-043 CAVEATED—C-07 on achieved only (see MULTI_FACET_OWNER_ESCALATIONS). F-045/F-050 Gap on achieved only; targets CONFIRMED.
+8. Finding 3: F-052…F-056 reportable=false (derived cross-indicator totals — extractable but not reportable as beneficiary/programme claims).
+9. F-057…F-066: two facets (evidence_source, variance_explanation); no Status column → CONFIRMED; source D3.
+10. F-067…F-076: numeric GBP values stored as integers without £ comma formatting; unit='GBP'. Four facets: forecast_y1, actual_y1, variance, finance_note.
+11. F-084…F-093: three facets achieved, sum_of_sex_age_cells, reconciles. Bold markdown stripped from reconciles text.
+12. Finding 3: F-094…F-097 reportable=false (vulnerability aggregates / TOTAL-row nature — correct to extract; forbidden to report as reach — FB-01 / FB-18).
+13. F-098…F-106: no Status column → CONFIRMED.
+14. Gap question_intent and correct_period_comparator distilled from §3.1–3.2 script; wording paraphrased for machine fields while preserving intent. Full question script prose retained in gaps.question_script_prose.
+15. Finding 5: FB-01, FB-02, FB-06, FB-18 → dual (required minimum). Also changed FB-14 and FB-15 → dual: both generalise ('any value already in the knowledge bank', 'funder-owned content') at High severity — deterministic floor for named counter-list items, judged arm for the general class. Either arm firing is a failure; judged → REVIEW-REQUIRED. Left deterministic: FB-04 (named £1,184,000), FB-05 (named OP2.3/OP4.2 omission), FB-09 (aggregation act), FB-13 (burn-rate from AR1 columns).
+16. Layer 4 stored as full markdown excerpt in report_reference.json (prose_uncalibrated=true). Claim maps retained inline in the excerpt. Separate file so v1.1 can swap Layer 4 only.
 
-### Per-forbidden detection_method assignments
+## Owner checklist (re-verify)
 
-- `FB-01` → `deterministic`
-- `FB-02` → `deterministic`
-- `FB-03` → `judged`
-- `FB-04` → `deterministic`
-- `FB-05` → `deterministic`
-- `FB-06` → `deterministic`
-- `FB-07` → `judged`
-- `FB-08` → `judged`
-- `FB-09` → `deterministic`
-- `FB-10` → `judged`
-- `FB-11` → `judged`
-- `FB-12` → `judged`
-- `FB-13` → `deterministic`
-- `FB-14` → `deterministic`
-- `FB-15` → `deterministic`
-- `FB-16` → `judged`
-- `FB-17` → `judged`
-- `FB-18` → `deterministic`
-
-## Owner checklist
-
-- [ ] Distinct fact ID count is 106 and samples look faithful
-- [ ] Conflict count is 9; C-04 has three defects; both_are_true on C-02
-- [ ] Gap clusters 10; counter-list 15
-- [ ] Forbidden 18 with severity + detection_method
-- [ ] Layer 4 markdown is complete and marked uncalibrated
-- [ ] Judgment-call list is acceptable (or list corrections)
+- [ ] Facet-scoped statuses on F-032 / F-040 look correct
+- [ ] Absent-state records have null value+source and gap linkage where applicable
+- [ ] reportable:false on F-052…F-056 and F-094…F-097 only (among those classes)
+- [ ] Full 15-entry counter-list + FB-14/FB-15 mapping acceptable
+- [ ] detection_method table (incl. dual) acceptable; escalations for multi-facet ruled
+- [ ] Checksum noted for baseline lineage later
