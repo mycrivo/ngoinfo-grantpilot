@@ -1,0 +1,128 @@
+{
+  "dataset_id": "fcdo_bridgelight_ar1",
+  "dataset_version": "1.1",
+  "content_checksum": "185223373f46afa85e47562c82d7b6a5494858482aa7c9f9afe7f448869eca79",
+  "checksum_algorithm": "sha256",
+  "checksum_scope": "facts + conflicts + gaps(clusters,counter_list,target_note) + forbidden + report_reference(reference_prose_conforms_to_v4, judge_calibrated, full_markdown_sha256, prose_rubric_reference_sha256, sections_present)",
+  "layer_4_change_scope": "prose only; no fact, conflict, gap or forbidden-output content altered",
+  "superseded_layer_4_sha256": "866a51298324c32e55239756c7d39d8ce6ffdfc0ed21c5169baf3350074e070c",
+  "transcription_correction": "v1.1 Layer 4 V4 prose pass (2026-07-28); owner Corrections 1–2 applied before transcription; Layers 1/2/3/5 unchanged",
+  "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+  "source_document_version": "1.0",
+  "layer_4_source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md",
+  "authored": "2026-07-25",
+  "layer_4_prose_pass": "2026-07-28",
+  "adopted": "2026-07-26",
+  "preamble_metadata": {
+    "supersedes": "Layer 4 of `GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md`",
+    "change_scope": "prose only. No fact, conflict, gap or forbidden-output content is altered. Layers 1, 2, 3 and 5 are untouched, and every claim map below is carried over unchanged.",
+    "standard_applied": "Human Writing Instructions V4, in full. Owner ruling 2026-07-28.",
+    "prose_conformance": "the golden's v1.0 caveat (\"written to my best understanding of the house prose standard; V4 was not supplied\") is now discharged. This text is the reference register for the Writer (P4) and the calibration reference for the ngo-reviewer judge.",
+    "tables": "unchanged in register. V4 governs prose; table cells stay terse and structured."
+  },
+  "layer_provenance": {
+    "layer_1_facts": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "One record per (F-id, facet); facet-scoped status; absent state; reportable flag."
+    },
+    "layer_2_conflicts": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "C-01…C-09; C-04 carries defects[]."
+    },
+    "layer_3_gaps": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "G-01…G-10 + 15-item counter-list + question script prose."
+    },
+    "layer_4_report": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.1_LAYER4.md",
+      "source_version": "1.1",
+      "file": "report_reference.json",
+      "reference_prose_conforms_to_v4": true,
+      "judge_calibrated": false,
+      "notes": "V4 prose pass; prose_rubric_reference holds appendix; gate reads judge_calibrated only.",
+      "vfm_section_f_workaround": true,
+      "vfm_amendment_when": "P1 restores VfM section (D-069) → Layer 4 requires golden amendment"
+    },
+    "layer_5_forbidden": {
+      "source_document": "docs/artefacts/me_module/GOLDEN_RECORD_FCDO_BRIDGELIGHT_AR1_v1.0.md",
+      "source_version": "1.0",
+      "notes": "FB-01…FB-18 with detection_method in {deterministic, judged, dual}."
+    }
+  },
+  "structural_findings": {
+    "vfm_template_gap": {
+      "summary": "Live FCDO template omits NGO-owned VfM section required by award letter.",
+      "golden_workaround": "VfM material carried in Layer 4 Section F",
+      "owner_amendment_item": "When P1 restores VfM (D-069), amend Layer 4; not an engine defect"
+    }
+  },
+  "counts": {
+    "fact_records": 242,
+    "distinct_fact_ids": 106,
+    "absent_records": 9,
+    "nonreportable_records": 9,
+    "status_changes_vs_prior_pack": 0,
+    "conflicts": 9,
+    "gap_clusters": 10,
+    "counter_list": 15,
+    "forbidden": 18
+  },
+  "fabrication_semantics": {
+    "layer_1_fabrications": "REVIEW-REQUIRED — never auto-PASS, never auto-FAIL; owner bins: golden amendment | invention; counted separately from recall"
+  },
+  "word_limit_assertions": [
+    {
+      "section_key": "A",
+      "template_section_key": "summary_and_overview",
+      "golden_word_count": 743,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "B",
+      "template_section_key": "performance_and_conclusions",
+      "golden_word_count": 869,
+      "golden_asserted_limit": 1200
+    },
+    {
+      "section_key": "Evidence",
+      "template_section_key": "evidence_and_evaluation",
+      "golden_word_count": 597,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "Risk",
+      "template_section_key": "risk_and_safeguarding",
+      "golden_word_count": 592,
+      "golden_asserted_limit": 900
+    },
+    {
+      "section_key": "F",
+      "template_section_key": "programme_management_delivery_commercial_financial",
+      "golden_word_count": 656,
+      "golden_asserted_limit": 1200
+    },
+    {
+      "section_key": "Recommendations",
+      "template_section_key": "recommendations_and_actions",
+      "golden_word_count": 419,
+      "golden_asserted_limit": null
+    }
+  ],
+  "l5_deterministic_arm": {
+    "status": "uncalibrated",
+    "gates": false,
+    "self_check": "runs_and_records",
+    "fail_on_load": "suspended",
+    "statement": "The Layer 5 deterministic arm is uncalibrated and gates nothing. Pack-load self-check runs against the pack's own reference text and records every observation; it does not fail the load on any observation. No exception list is carried.",
+    "reversion_condition": "Restore fail-on-load only when owner/CTO has authored and calibrated the detectors, recorded by a decision-log entry naming that calibration. Until then do not reintroduce an exception list. See D-080.",
+    "detectors_found_non_discriminating": true
+  },
+  "l5_reference_self_check_observations": {
+    "recorded_ids": ["FB-04", "FB-05", "FB-06", "FB-09", "FB-13", "FB-14"],
+    "per_detector_diagnostics": "docs/artefacts/me_module/audits/P0_PR14_INDEPENDENT_REVIEW_2026-07-28.md",
+    "note": "IDs observed at v1.1 authorship against the pack's own reference text. Per-detector pattern, matched text, and classification live in the diagnostics document (Part B / Q3). Not an exception list — load never fails on these while fail-on-load is suspended (D-080)."
+  }
+}

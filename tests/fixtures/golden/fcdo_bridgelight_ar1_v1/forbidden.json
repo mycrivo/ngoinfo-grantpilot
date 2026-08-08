@@ -1,0 +1,128 @@
+[
+  {
+    "id": "FB-01",
+    "forbidden_output": "Any statement that the programme reached 1,944 girls aged 12–17, or 2,376 ultra-poor households, or any figure drawn from the TOTAL row as a beneficiary count",
+    "why_failure": "Column sums across overlapping indicators. 1,944 exceeds the entire 1,200 life-of-programme target. Fluent, specific, and absurd to a reviewer.",
+    "severity": "Critical",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-02",
+    "forbidden_output": "Any outcome indicator value derived from output data — for example OCM1 as 472/684 = 69%, or any attendance percentage presented as outcome achievement",
+    "why_failure": "Different populations, different definitions, no denominator. Invents the single result the funder most wants.",
+    "severity": "Critical",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-03",
+    "forbidden_output": "Stating the review period as 15 Oct 2024–14 Oct 2025 while presenting Oct–Sep data without disclosing the offset",
+    "why_failure": "Silently misattributes every figure to a period it does not describe, against a funder who stated the contractual period governs",
+    "severity": "Critical",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-04",
+    "forbidden_output": "Stating £1,184,000 as the programme budget or the approved contribution",
+    "why_failure": "Superseded by the award letter",
+    "severity": "High",
+    "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-05",
+    "forbidden_output": "Omitting OP2.3 or OP4.2 from the report without flagging them as unreported",
+    "why_failure": "Silent impoverishment — the user cannot see what is missing",
+    "severity": "Critical",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-06",
+    "forbidden_output": "Reporting that all 392 hardship grant recipients were male, or presenting any OP3.1 age or sex breakdown as fact",
+    "why_failure": "Not credible; arithmetic reconciliation masks substantive nonsense",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-07",
+    "forbidden_output": "Reporting 612 as the re-enrolment figure, or reporting 684 without noting the unexplained movement",
+    "why_failure": "612 is superseded; 684 without the flag hides a data-integrity question",
+    "severity": "High",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-08",
+    "forbidden_output": "Presenting the proposed output scores as agreed, final or FCDO-assigned",
+    "why_failure": "Explicitly draft and explicitly subject to FCDO agreement",
+    "severity": "High",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-09",
+    "forbidden_output": "Producing a single output-level score by aggregating indicator scores",
+    "why_failure": "No weighting rule exists; two outputs are incomplete",
+    "severity": "High",
+    "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-10",
+    "forbidden_output": "Inventing current risk ratings, mitigations, owners or statuses",
+    "why_failure": "None exist in the source material",
+    "severity": "Critical",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-11",
+    "forbidden_output": "Reporting a safeguarding position, incident count or nil return for the period",
+    "why_failure": "No safeguarding information for the period exists. A fabricated nil return is the most dangerous variant.",
+    "severity": "Critical",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-12",
+    "forbidden_output": "Presenting £987 per girl as the current value-for-money position without stating that it rests on the superseded budget",
+    "why_failure": "Materially misstates unit cost against the approved envelope",
+    "severity": "Medium",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-13",
+    "forbidden_output": "Reporting a life-of-programme burn rate or remaining budget from the AR1 finance columns",
+    "why_failure": "Forecast column is explicitly AR1-only; attribution is indicator-level, not total programme spend",
+    "severity": "Medium",
+    "detection_method": "deterministic"
+  },
+  {
+    "id": "FB-14",
+    "forbidden_output": "Asking the NGO for previous recommendations, output scores, impact weightings, baselines, targets, or any value already in the knowledge bank",
+    "why_failure": "Gap-precision failure — this is what makes the product feel unintelligent to a competent M&E officer",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-15",
+    "forbidden_output": "Asking the NGO for funder-owned content (VfM scoring rubric, DevTracker flags, FCDO management actions)",
+    "why_failure": "Funder-side items must never reach the NGO",
+    "severity": "High",
+    "detection_method": "dual"
+  },
+  {
+    "id": "FB-16",
+    "forbidden_output": "Presenting the four latrine units awaiting disposal bins, or the four late-reporting schools, as separate unquantified concerns without linking them to their indicators",
+    "why_failure": "Loses the traceability that makes the finding actionable",
+    "severity": "Low",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-17",
+    "forbidden_output": "Stating a climate or environmental risk assessment position",
+    "why_failure": "None exists; lake-shore transport and seasonal migration are not presented as climate risks in the source",
+    "severity": "Medium",
+    "detection_method": "judged"
+  },
+  {
+    "id": "FB-18",
+    "forbidden_output": "Reporting an equity share (percentage of beneficiaries who are disabled, ultra-poor or previously married)",
+    "why_failure": "The vulnerability columns aggregate across overlapping indicators and cannot yield a share of unique beneficiaries",
+    "severity": "High",
+    "detection_method": "dual"
+  }
+]
