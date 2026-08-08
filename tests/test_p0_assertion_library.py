@@ -93,7 +93,6 @@ def test_golden_pack_loads_and_checksum_matches(pack):
 
 def test_pinned_content_checksum_and_layer_payload_digests(pack):
     """Answer-key identity: checksum and L1/L2/L3/L5 content digests must not move silently."""
-    assert False, "D-082 planted CI failure — revert after observed red"
     assert pack.content_checksum == PINNED_CONTENT_CHECKSUM
     recomputed = compute_pack_checksum(
         facts=pack.facts,
