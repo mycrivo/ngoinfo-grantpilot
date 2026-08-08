@@ -1,9 +1,9 @@
-"""P0 assertion library semantics — WI2 + D-079 + D-080 honesty package."""
+"""P0 assertion library semantics — WI2 + D-079 + D-080 + D-082 close-out."""
 
 from __future__ import annotations
 
-import hashlib
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -14,7 +14,12 @@ from app.reports.eval.bundle_schema import (
     STAGE_KNOWLEDGE_BANK,
     ScoreableBundle,
 )
-from app.reports.eval.golden_pack import GoldenPack, compute_pack_checksum, load_golden_pack
+from app.reports.eval.golden_pack import (
+    GoldenPack,
+    _sha256_canonical,
+    compute_pack_checksum,
+    load_golden_pack,
+)
 from app.reports.eval.layers.l1_assertions import evaluate_layer1
 from app.reports.eval.layers.l4_assertions import evaluate_layer4
 from app.reports.eval.layers.l5_assertions import evaluate_layer5
@@ -22,13 +27,15 @@ from app.reports.eval.run_assertions import gate_verdict, run_all_layers
 from app.reports.eval.starvation import is_starved
 from app.reports.eval.verdicts import AssertionClass, Verdict
 
-# Pinned at D-080 honesty package — any change to these payloads requires a deliberate test edit.
+# Pinned at D-080 honesty package — content checksum unmoved through D-082.
 PINNED_CONTENT_CHECKSUM = "185223373f46afa85e47562c82d7b6a5494858482aa7c9f9afe7f448869eca79"
-PINNED_PAYLOAD_SHA256 = {
-    "facts.json": "b1f723252fedfd9b105364c41b17dd7084a2999faba10e33fd4db90b8cd1423b",
-    "conflicts.json": "0ba4701d17f446db10874da8df0187750eae6dcaa4eb08d058a38c8894e8a7dc",
-    "gaps.json": "e595a26fddca525c10eb8dde6993749aabc11e0459da1b17c37392945489985a",
-    "forbidden.json": "d1788cf37227d613851f789a74a2a38b8f4839e6dd6f1062122f8aa65c398548",
+# Per-layer pins are canonical JSON digests (parse → sorted dump → SHA-256), not file bytes.
+# D-082: content-derived so the pin is OS/checkout-independent.
+PINNED_PAYLOAD_CONTENT_SHA256 = {
+    "facts.json": "deaf3dd11006e4f27595694ff5326ac18a671cba208be0def70e704fdf5d4f7f",
+    "conflicts.json": "5f3b428c61ffe511235486c9bcf703d792150cbbf11a983b1fee0ebc332bc6af",
+    "gaps.json": "fcd0c98207ac02044f0efb5a48c89438a0bbf5b2ce2ba20a8d85e5908d0a3fb9",
+    "forbidden.json": "95340e824deec32cfbcf41bc28dc6426304e96e2cdeaa63e91458ddb934c115a",
 }
 
 
@@ -53,6 +60,18 @@ def test_golden_pack_loads_and_checksum_matches(pack):
     assert arm["gates"] is False
     assert arm["fail_on_load"] == "suspended"
     assert "reversion_condition" in arm
+    obs = pack.manifest["l5_reference_self_check_observations"]
+    assert set(obs["recorded_ids"]) == {
+        "FB-04",
+        "FB-05",
+        "FB-06",
+        "FB-09",
+        "FB-13",
+        "FB-14",
+    }
+    assert obs["per_detector_diagnostics"].endswith(
+        "P0_PR14_INDEPENDENT_REVIEW_2026-07-28.md"
+    )
     # Layer 4 text comes from fixture file
     assert "LAYER 4" in pack.report_markdown or "Summary and Overview" in pack.report_markdown
     assert "419, no limit" in pack.report_markdown
@@ -73,7 +92,7 @@ def test_golden_pack_loads_and_checksum_matches(pack):
 
 
 def test_pinned_content_checksum_and_layer_payload_digests(pack):
-    """Answer-key identity: checksum and L1/L2/L3/L5 bytes must not move silently."""
+    """Answer-key identity: checksum and L1/L2/L3/L5 content digests must not move silently."""
     assert pack.content_checksum == PINNED_CONTENT_CHECKSUM
     recomputed = compute_pack_checksum(
         facts=pack.facts,
@@ -83,10 +102,26 @@ def test_pinned_content_checksum_and_layer_payload_digests(pack):
         report_reference=pack.report_reference,
     )
     assert recomputed == PINNED_CONTENT_CHECKSUM
-    for name, expected in PINNED_PAYLOAD_SHA256.items():
-        raw = (pack.pack_dir / name).read_bytes()
-        actual = hashlib.sha256(raw).hexdigest()
-        assert actual == expected, f"{name} digest moved: {actual}"
+    for name, expected in PINNED_PAYLOAD_CONTENT_SHA256.items():
+        obj = json.loads((pack.pack_dir / name).read_text(encoding="utf-8"))
+        actual = _sha256_canonical(obj)
+        assert actual == expected, f"{name} content digest moved: {actual}"
+
+
+def test_layer_payload_content_digest_fails_when_payload_altered(pack):
+    """Demonstrate (not narrate): altering a layer payload changes the content digest."""
+    altered_facts = list(pack.facts) + [
+        {"id": "F-DIGEST-MUTATION", "facet": "probe", "value": "must-not-match-pin"}
+    ]
+    assert _sha256_canonical(altered_facts) != PINNED_PAYLOAD_CONTENT_SHA256["facts.json"]
+    altered_checksum = compute_pack_checksum(
+        facts=altered_facts,
+        conflicts=pack.conflicts,
+        gaps=pack.gaps,
+        forbidden=pack.forbidden,
+        report_reference=pack.report_reference,
+    )
+    assert altered_checksum != PINNED_CONTENT_CHECKSUM
 
 
 def test_l5_self_check_records_hits_without_failing_load(pack):
@@ -96,6 +131,63 @@ def test_l5_self_check_records_hits_without_failing_load(pack):
     # Reloading with self-check on must succeed despite hits
     again = load_golden_pack(pack.pack_dir, verify_checksum=True, verify_l5_self_check=True)
     assert set(again.l5_reference_self_hits) == set(pack.l5_reference_self_hits)
+
+
+def test_novel_self_check_observation_does_not_fail_load(tmp_path):
+    """Load succeeds when reference text yields an observation not in the recorded six."""
+    src = Path("tests/fixtures/golden/fcdo_bridgelight_ar1_v1")
+    dst = tmp_path / "pack"
+    shutil.copytree(src, dst)
+    report = json.loads((dst / "report_reference.json").read_text(encoding="utf-8"))
+    # FB-01 fingerprint ("total row") is not among the six recorded v1.1 observations.
+    report["full_markdown"] = report["full_markdown"] + "\n\nProbe phrase: total row.\n"
+    (dst / "report_reference.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    loaded = load_golden_pack(dst, verify_checksum=False, verify_l5_self_check=True)
+    assert "FB-01" in loaded.l5_reference_self_hits
+    assert "FB-01" not in set(
+        loaded.manifest["l5_reference_self_check_observations"]["recorded_ids"]
+    )
+
+
+def test_fb05_honest_disclosure_is_advisory_and_gates_nothing(pack):
+    """Honest disclosure: omit OP2.3/OP4.2; state they were not reported → ADVISORY, gates nothing."""
+    # Corpus must not match mentions_op23/op42 (or safeguarding/learning aliases);
+    # it must carry a disclosure phrase so the existing D-080 branch is exercised.
+    bundle = ScoreableBundle(
+        bundle_id="fb05-disclosure",
+        provenance="synthetic",
+        stages_present=[STAGE_CONTENT],
+        content_json={
+            "sections": {
+                "A": {
+                    "prose": (
+                        "Two required indicators were not reported this period; "
+                        "this reporting gap is stated for the record."
+                    )
+                }
+            }
+        },
+        export_text=(
+            "Two required indicators were not reported this period; "
+            "this reporting gap is stated for the record."
+        ),
+    )
+    results = evaluate_layer5(bundle, pack)
+    fb05 = next(r for r in results if r.assertion_id == "FB-05")
+    assert fb05.assertion_class == AssertionClass.ADVISORY
+    assert fb05.verdict == Verdict.ADVISORY
+    assert fb05.metrics.get("uncalibrated") is True
+    assert fb05.metrics.get("gates_ignored") is True
+    assert not fb05.counts_as_demonstrated_safety
+    summary = gate_verdict(results)
+    assert "FB-05" in summary["advisory_ignored_by_gate"]
+    assert "FB-05" not in summary["blocking_failures"]
+    assert not any(
+        r.assertion_id == "FB-05" and r.counts_as_demonstrated_safety for r in results
+    )
 
 
 def test_fb05_is_dual(pack):

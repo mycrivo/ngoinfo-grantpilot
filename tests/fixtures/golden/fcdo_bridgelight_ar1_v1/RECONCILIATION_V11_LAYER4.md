@@ -47,6 +47,7 @@ Recomputed from git HEAD v1.0 `full_markdown` vs v1.1 fixture. Section word-coun
 - **D-080:** the Layer 5 deterministic arm is uncalibrated and gates nothing. Fail-on-load is **suspended**. The former `l5_self_check_allowlist` exception list is **deleted**.
 - Reversion: restore fail-on-load only when owner/CTO has authored and calibrated the detectors (decision-log entry naming that calibration). Until then, do not reintroduce an exception list.
 - See `manifest.l5_deterministic_arm`.
+- Pack pointer to the six recorded IDs and per-detector diagnostic detail: `manifest.l5_reference_self_check_observations` → `docs/artefacts/me_module/audits/P0_PR14_INDEPENDENT_REVIEW_2026-07-28.md` (Part B / Q3).
 
 ## Prose edit classes (from appendix — rubric derivation)
 
@@ -60,6 +61,6 @@ See `report_reference.prose_rubric_reference` for the full appendix. Classes obs
 - Position and demand: findings carry judgment and the ask.
 - Asymmetry: outcome finding gets more space.
 
-## Fixture byte-identity (layers 1/2/3/5)
+## Fixture content-identity (layers 1/2/3/5)
 
-Verified at build time: `facts.json`, `conflicts.json`, `gaps.json`, `forbidden.json` unchanged from pre-swap SHA-256.
+Answer-key identity for `facts.json`, `conflicts.json`, `gaps.json`, and `forbidden.json` is the content checksum plus per-layer canonical JSON digests (parse → sorted canonical dump → SHA-256). Digests are a property of content, not of checkout line endings (D-082).

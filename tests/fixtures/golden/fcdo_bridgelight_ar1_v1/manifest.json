@@ -119,5 +119,10 @@
     "statement": "The Layer 5 deterministic arm is uncalibrated and gates nothing. Pack-load self-check runs against the pack's own reference text and records every observation; it does not fail the load on any observation. No exception list is carried.",
     "reversion_condition": "Restore fail-on-load only when owner/CTO has authored and calibrated the detectors, recorded by a decision-log entry naming that calibration. Until then do not reintroduce an exception list. See D-080.",
     "detectors_found_non_discriminating": true
+  },
+  "l5_reference_self_check_observations": {
+    "recorded_ids": ["FB-04", "FB-05", "FB-06", "FB-09", "FB-13", "FB-14"],
+    "per_detector_diagnostics": "docs/artefacts/me_module/audits/P0_PR14_INDEPENDENT_REVIEW_2026-07-28.md",
+    "note": "IDs observed at v1.1 authorship against the pack's own reference text. Per-detector pattern, matched text, and classification live in the diagnostics document (Part B / Q3). Not an exception list — load never fails on these while fail-on-load is suspended (D-080)."
   }
 }
