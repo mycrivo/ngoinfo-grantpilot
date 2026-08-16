@@ -128,6 +128,11 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest tests/test_p0_assertion_library.py -v --tb=short
+      # Bundle export + scorecard emitter — constructed inputs only (D-083).
+      - name: P0 bundle export and scorecard suite
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest tests/test_p0_bundle_export_scorecard.py -v --tb=short
       # Named async gate tests — verbose so the job log proves they EXECUTE (not silent-skip).
       - name: Prove async gate tests execute
         env:
