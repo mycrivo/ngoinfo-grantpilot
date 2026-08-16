@@ -154,8 +154,21 @@ def _extract_model_config(
     return out
 
 
-def resolve_git_commit() -> str:
-    """Best-effort HEAD SHA for provenance; empty string if unavailable."""
+ORIGINATING_BUILD_NOT_RECOVERABLE = (
+    "The commit recorded here is the commit of the exporting tool. "
+    "The build which generated the report is not recoverable from the persisted record."
+)
+
+
+def persisted_scalar(value: Any) -> Any:
+    """Transcribe a persisted scalar. Null stays absent (JSON null), never the text 'None'."""
+    if value is None:
+        return None
+    return value
+
+
+def resolve_exporting_tool_commit() -> str:
+    """Best-effort HEAD SHA of the exporting tool; empty string if unavailable."""
     try:
         return (
             subprocess.check_output(
@@ -166,6 +179,11 @@ def resolve_git_commit() -> str:
         )
     except (OSError, subprocess.CalledProcessError):
         return ""
+
+
+def resolve_git_commit() -> str:
+    """Alias of resolve_exporting_tool_commit (legacy name)."""
+    return resolve_exporting_tool_commit()
 
 
 def export_scoreable_bundle(
@@ -353,17 +371,18 @@ def export_scoreable_bundle(
             "export_text: not supplied — left empty; mapping does not fetch or render DOCX"
         )
 
-    commit = git_commit if git_commit is not None else resolve_git_commit()
+    commit = git_commit if git_commit is not None else resolve_exporting_tool_commit()
     ts = exported_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     report_meta = {
-        "status": record.status,
-        "version": record.version,
-        "reporting_period_start": record.reporting_period_start,
-        "reporting_period_end": record.reporting_period_end,
+        "status": persisted_scalar(record.status),
+        "version": persisted_scalar(record.version),
+        "reporting_period_start": persisted_scalar(record.reporting_period_start),
+        "reporting_period_end": persisted_scalar(record.reporting_period_end),
     }
     observations.append(
         "report_meta: transcribed as persisted on the report record; "
+        "null fields recorded as absent (JSON null), never the text 'None'; "
         "any disagreement with fact-collection values is left unresolved (engine scope)"
     )
 
@@ -376,7 +395,8 @@ def export_scoreable_bundle(
     meta: dict[str, Any] = {
         "report_id": record.report_id,
         "exported_at": ts,
-        "git_commit": commit,
+        "exporting_tool_commit": commit,
+        "originating_build_limitation": ORIGINATING_BUILD_NOT_RECOVERABLE,
         "report_meta": report_meta,
         "observations": list(observations),
         "source_paths": dict(source_paths),

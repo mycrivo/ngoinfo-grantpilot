@@ -258,11 +258,31 @@ def test_bundle_carries_report_identity_timestamp_commit():
     )
     meta = result.bundle.meta
     assert meta["report_id"] == "00000000-0000-0000-0000-000000000099"
-    assert meta["git_commit"] == "deadbeef"
+    assert meta["exporting_tool_commit"] == "deadbeef"
+    assert "git_commit" not in meta
+    assert "not recoverable from the persisted record" in meta["originating_build_limitation"]
     assert meta["exported_at"] == "2026-08-08T12:00:00Z"
     assert meta["report_meta"]["status"] == "COMPLETE"
     assert result.bundle.provenance == "export"
     assert result.bundle.model_config["knowledge_bank.agent_trace.model_used"] == "test-model-kb"
+
+
+def test_null_persisted_metadata_recorded_as_absent_not_string_none():
+    result = export_scoreable_bundle(
+        _constructed_record(
+            reporting_period_start=None,
+            reporting_period_end=None,
+            status=None,
+        ),
+        git_commit="abc123",
+    )
+    meta = result.bundle.meta["report_meta"]
+    assert meta["reporting_period_start"] is None
+    assert meta["reporting_period_end"] is None
+    assert meta["status"] is None
+    dumped = str(meta)
+    assert "'None'" not in dumped
+    assert '"None"' not in dumped
 
 
 def test_scorecard_separates_judged_from_starvation_and_carries_provenance():
@@ -271,18 +291,30 @@ def test_scorecard_separates_judged_from_starvation_and_carries_provenance():
         bundle_id="starved-run",
         provenance="synthetic",
         stages_present=[],
-        meta={"git_commit": "c0ffee", "exported_at": "2026-08-08T00:00:00Z"},
+        meta={
+            "exporting_tool_commit": "c0ffee",
+            "exported_at": "2026-08-08T00:00:00Z",
+            "originating_build_limitation": (
+                "The commit recorded here is the commit of the exporting tool. "
+                "The build which generated the report is not recoverable from the persisted record."
+            ),
+        },
         model_config={"knowledge_bank.agent_trace.model_used": "m"},
     )
     md = emit_scorecard(empty, git_commit="c0ffee")
     assert "Harness scorecard" in md
     assert "does **not** judge" in md
     assert "`c0ffee`" in md
+    assert "exporting_tool_commit" in md
+    assert "not recoverable from the persisted record" in md
     assert "golden.dataset_version" in md
     assert "golden.content_checksum" in md
     assert "starved-run" in md
     assert "Nothing to judge" in md
     assert "PASS-BY-STARVATION" in md or "PASS-BY-STARVATION" in md.replace("`", "")
+    assert "persisted section prose" in md
+    assert "generated document" in md
+    assert "uncalibrated and gates nothing" in md
     # Must not present a pass-mark / expected comparison as a grade
     assert "gate_pass" not in md
     assert "does **not** judge" in md
@@ -291,8 +323,11 @@ def test_scorecard_separates_judged_from_starvation_and_carries_provenance():
     structured = scorecard_to_dict(empty, git_commit="c0ffee")
     assert structured["report_only"] is True
     assert structured["no_threshold"] is True
-    assert structured["provenance"]["git_commit"] == "c0ffee"
+    assert structured["provenance"]["exporting_tool_commit"] == "c0ffee"
+    assert "not recoverable" in structured["provenance"]["originating_build_limitation"]
     assert structured["provenance"]["golden_content_checksum"]
+    assert structured["layers"]["5"]["corpus_scored"]
+    assert "uncalibrated" in structured["layers"]["5"]["deterministic_arm"]
     # Starvation land in nothing_to_judge
     layer1 = structured["layers"]["1"]
     assert layer1["nothing_to_judge"]

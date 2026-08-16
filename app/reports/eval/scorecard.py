@@ -50,10 +50,19 @@ def emit_scorecard(
 
     commit = git_commit
     if commit is None:
-        commit = str((bundle.meta or {}).get("git_commit") or "")
+        meta = bundle.meta or {}
+        commit = str(
+            meta.get("exporting_tool_commit")
+            or meta.get("git_commit")
+            or ""
+        )
     run_id = bundle.bundle_id
     exported_at = (bundle.meta or {}).get("exported_at")
     model_config = bundle.model_config or {}
+    originating_limitation = (bundle.meta or {}).get("originating_build_limitation") or (
+        "The commit recorded here is the commit of the exporting tool. "
+        "The build which generated the report is not recoverable from the persisted record."
+    )
 
     lines: list[str] = []
     lines.append("# Harness scorecard")
@@ -63,7 +72,8 @@ def emit_scorecard(
     lines.append("")
     lines.append("## Provenance")
     lines.append("")
-    lines.append(f"- **git_commit:** `{commit or '(unknown)'}`")
+    lines.append(f"- **exporting_tool_commit:** `{commit or '(unknown)'}`")
+    lines.append(f"- **originating build:** {originating_limitation}")
     lines.append(f"- **golden.dataset_version:** `{pack.dataset_version}`")
     lines.append(f"- **golden.content_checksum:** `{pack.content_checksum}`")
     lines.append(f"- **run_id / bundle_id:** `{run_id}`")
@@ -93,6 +103,18 @@ def emit_scorecard(
             f"(judged: {len(judged)}; nothing to judge / starvation: {len(nothing)})_"
         )
         lines.append("")
+        if layer == 5:
+            lines.append(
+                "Layer 5 scored **persisted section prose and related JSON already on "
+                "the bundle** (`content_json`, plus `export_text` if supplied, plus "
+                "`gap_analysis`; FB-14/FB-15 search the gap-analysis questions corpus). "
+                "This is **not** a result about the generated document the NGO downloads."
+            )
+            lines.append("")
+            lines.append(
+                "The Layer 5 **deterministic arm is uncalibrated and gates nothing**."
+            )
+            lines.append("")
 
         lines.append("### Judged")
         lines.append("")
@@ -168,11 +190,30 @@ def scorecard_to_dict(
             "judged": [r.to_dict() for r in judged],
             "nothing_to_judge": [r.to_dict() for r in nothing],
         }
+        if layer == 5:
+            by_layer[str(layer)]["corpus_scored"] = (
+                "persisted section prose and related JSON on the bundle "
+                "(content_json, optional export_text, gap_analysis); "
+                "not the generated document the NGO downloads"
+            )
+            by_layer[str(layer)]["deterministic_arm"] = (
+                "uncalibrated; gates nothing"
+            )
     return {
         "provenance": {
-            "git_commit": git_commit
-            if git_commit is not None
-            else (bundle.meta or {}).get("git_commit"),
+            "exporting_tool_commit": (
+                git_commit
+                if git_commit is not None
+                else (bundle.meta or {}).get("exporting_tool_commit")
+                or (bundle.meta or {}).get("git_commit")
+            ),
+            "originating_build_limitation": (
+                (bundle.meta or {}).get("originating_build_limitation")
+                or (
+                    "The commit recorded here is the commit of the exporting tool. "
+                    "The build which generated the report is not recoverable from the persisted record."
+                )
+            ),
             "golden_dataset_version": pack.dataset_version,
             "golden_content_checksum": pack.content_checksum,
             "run_id": bundle.bundle_id,

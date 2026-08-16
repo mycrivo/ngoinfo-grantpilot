@@ -41,6 +41,16 @@ def _bootstrap_railway_db_url() -> str:
     return str(url)
 
 
+def _persisted_date(value):
+    """Null stays None (absent). Never str(None) → 'None'."""
+    if value is None:
+        return None
+    iso = getattr(value, "isoformat", None)
+    if callable(iso):
+        return iso()
+    return value
+
+
 def _load_record(report_id: str):
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -88,8 +98,8 @@ def _load_record(report_id: str):
         report_id=str(row["id"]),
         status=row.get("status"),
         version=row.get("version"),
-        reporting_period_start=str(row.get("reporting_period_start")),
-        reporting_period_end=str(row.get("reporting_period_end")),
+        reporting_period_start=_persisted_date(row.get("reporting_period_start")),
+        reporting_period_end=_persisted_date(row.get("reporting_period_end")),
         knowledge_bank_json=row.get("knowledge_bank_json"),
         gap_analysis_json=row.get("gap_analysis_json"),
         content_json=row.get("content_json"),
