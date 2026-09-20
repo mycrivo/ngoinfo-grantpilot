@@ -1,0 +1,18 @@
+{
+  "setup-worktree-windows": [
+    "python -m venv .venv",
+    ".venv\\Scripts\\python -m pip install --upgrade pip",
+    ".venv\\Scripts\\pip install -r requirements.txt",
+    "if not exist .env copy .env.example .env",
+    "git config core.hooksPath .githooks",
+    "echo Worktree ready. Set DATABASE_URL in .env to a database named after this worktree before running tests."
+  ],
+  "setup-worktree-unix": [
+    "python3 -m venv .venv",
+    ".venv/bin/python -m pip install --upgrade pip",
+    ".venv/bin/pip install -r requirements.txt",
+    "[ -f .env ] || cp .env.example .env",
+    "git config core.hooksPath .githooks",
+    "echo 'Worktree ready. Set DATABASE_URL in .env to a database named after this worktree before running tests.'"
+  ]
+}

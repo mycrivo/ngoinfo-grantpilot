@@ -1,0 +1,16 @@
+---
+description: NGOInfo GrantPilot build law — tiers, contracts, tests as the ruler, no fixture vocabulary. Always applies.
+alwaysApply: true
+---
+
+Read `AGENTS.md` before any task. It is authoritative for how work is done here.
+
+Short form of the law:
+- Contract before code; conflict → STOP and report.
+- Tier the task: GREEN proceed · AMBER plan first and stop · OWNER propose only.
+- `tests/contract/` is read-only for implementers. Never bend an assertion to match behaviour.
+- One package, one fence. Growth → stop and say why.
+- No funder name, fixture organisation, fixture phrase or expected count in prompts, engine files or engine-behaviour tests.
+- Never read, print or commit secret values. `.env*` stays out of context.
+- Nothing that calls a model, Railway, Stripe, storage or a production database runs without the owner's hand on the trigger.
+- Claims carry pointers. Say what was not done.

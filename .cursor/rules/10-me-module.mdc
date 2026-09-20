@@ -1,0 +1,19 @@
+---
+description: M&E Report Writer V2 engine rules — snapshot-driven structure, V2 fact shape, computed derivations, evidence matrix, conversation actions, labels.
+globs:
+  - "app/reports/**"
+  - "tests/**/*report*"
+  - "tests/contract/**"
+  - "alembic/versions/**"
+---
+
+Contracts for this area: `docs/DB_FIELD_CONTRACT_GRANTS.md`, `docs/DB_FIELD_CONTRACT_DONOR_REPORTS_V2_DELTA.md`, `docs/DB_FIELD_CONTRACT_UPLOADED_DOCUMENTS_V2_DELTA.md`, `docs/REPORT_REQUIREMENT_SNAPSHOT_SCHEMA.md`, `docs/API_CONTRACT_ME_V2.md`. Read the one your task touches before editing.
+
+- Report structure comes from `requirement_snapshot_json`. Do not read `funder_report_templates` for structure; do not add authored slugs, archetypes, hint maps or funder-owned lists anywhere.
+- Facts: V2 shape and key grammar (`<domain>.<entity>.<facet>[.<period>][.<scope>]`). Milestone ≠ target ≠ actual ≠ baseline. A conflict needs equal metric, period and scope. Supersede; never delete.
+- Money without currency is unconfirmed. Percentages, variances and totals are `derived` facts written by code; the model cites them.
+- The evidence matrix is the single satisfaction judgement. Do not add a second "is this satisfied" path anywhere.
+- Gate replies compile to actions with echoes; no free text becomes a fact.
+- Every returned enum has a `_label` sibling. No agent, model or stage name in any user-facing label.
+- Generic fallback is never merged into a funder-specific snapshot.
+- Extraction isolation, resume/idempotency and the kill switch are not to be weakened by any change.
