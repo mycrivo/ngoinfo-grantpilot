@@ -22,3 +22,10 @@ me_capture/
 scripts/_audit_out.txt
 scripts/_check_report_status.py
 scripts/_poll_report_job.py
+
+# Local audit residues and install inbox (not source of truth)
+docs/artefacts/me_module/audits/*.json
+scripts/audit/_diag_*
+scripts/audit/_tmp_*
+New_M&E/
+!.env.example
