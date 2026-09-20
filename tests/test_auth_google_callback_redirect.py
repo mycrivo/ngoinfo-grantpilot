@@ -28,7 +28,10 @@ def _db_session():
 
 
 def test_google_callback_redirect_uses_code_only(monkeypatch):
-    security.get_settings = lambda: SimpleNamespace(AUTH_JWT_SIGNING_KEY="x" * 64)
+    security.get_settings = lambda: SimpleNamespace(
+        AUTH_JWT_SIGNING_KEY="x" * 64,
+        AUTH_ACCESS_TOKEN_TTL_MIN=15,
+    )
     auth_service.get_settings = lambda: SimpleNamespace(
         AUTH_ALLOWED_REDIRECT_URLS="https://grantpilot.ngoinfo.org/auth/callback",
         AUTH_POST_LOGIN_REDIRECT_URL="https://grantpilot.ngoinfo.org/auth/callback",

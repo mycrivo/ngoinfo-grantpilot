@@ -25,7 +25,8 @@ CORE_PREFIXES = (
 CORE_FILES = {"app/main.py"}
 
 ME_MODELS_DIR = REPO_ROOT / "app" / "reports" / "models"
-ME_MIGRATIONS_GLOB = "001[45]_*.py"
+# All alembic revisions: later additive files (e.g. 0017 lease columns) must be visible.
+ME_MIGRATIONS_GLOB = "*.py"
 
 REPORTS_IMPORT_RE = re.compile(
     r"(?:^|\n)\s*(?:from\s+app\.reports(?:\.\w+)*\s+import|import\s+app\.reports(?:\.\w+)*)",
@@ -225,7 +226,7 @@ def check_migration_parity() -> list[str]:
         if mig_cols is None:
             warnings.append(
                 f"Migration parity: model defines table `{table}` but no matching "
-                f"0014_me_module_*.py create_table found."
+                f"alembic create_table/add_column found."
             )
             continue
         missing_in_migration = model_cols - mig_cols

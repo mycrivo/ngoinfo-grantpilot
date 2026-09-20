@@ -56,6 +56,10 @@ def _settings(*, me_enabled: bool = True) -> SimpleNamespace:
 
         ME_MODULE_ENABLED=me_enabled,
 
+        AUTH_JWT_SIGNING_KEY="x" * 64,
+
+        AUTH_ACCESS_TOKEN_TTL_MIN=15,
+
     )
 
 
