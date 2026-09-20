@@ -1,0 +1,6 @@
+{
+  "install": "sudo apt-get update && sudo apt-get install -y postgresql postgresql-contrib python3-pip python3-venv && sudo service postgresql start && sudo -u postgres createdb grantpilot_cloud || true && pip install -r requirements.txt && git config core.hooksPath .githooks",
+  "terminals": [
+    { "name": "api", "command": "uvicorn app.main:app --host 0.0.0.0 --port 8000" }
+  ]
+}

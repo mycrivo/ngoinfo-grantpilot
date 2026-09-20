@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+audits/**/bundle*/
+audits/**/*report*body*
+**/uploads/**
+**/*.docx.bak

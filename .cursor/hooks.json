@@ -1,4 +1,5 @@
 {
+  "note": "Agent-side hooks are wired but not observed to fire in Cursor 3; scripts/governance/run_guards.py via .githooks/pre-commit is the enforcing layer.",
   "version": 1,
   "hooks": {
     "preToolUse": [

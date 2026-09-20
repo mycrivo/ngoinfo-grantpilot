@@ -34,7 +34,7 @@ def main() -> int:
 
     triggers = (
         rel_path.startswith("app/reports/models/"),
-        rel_path.startswith("alembic/versions/0014_me_module"),
+        rel_path.startswith("alembic/versions/"),
     )
     if not any(triggers):
         emit_allow()

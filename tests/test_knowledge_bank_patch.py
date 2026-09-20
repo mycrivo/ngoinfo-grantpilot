@@ -52,6 +52,8 @@ def _settings(*, me_enabled: bool = True) -> SimpleNamespace:
     return SimpleNamespace(
         CORS_ALLOWED_ORIGINS="http://localhost:3000",
         ME_MODULE_ENABLED=me_enabled,
+        AUTH_JWT_SIGNING_KEY="x" * 64,
+        AUTH_ACCESS_TOKEN_TTL_MIN=15,
     )
 
 
