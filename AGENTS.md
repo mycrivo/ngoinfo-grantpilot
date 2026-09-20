@@ -71,6 +71,8 @@ Agents run the **CI tier** only. Anything that calls a model, touches Railway, S
 9. **Kill switch untouched.** `ME_MODULE_ENABLED`, the frontend flag and the worker switch keep working at every commit.
 10. **Secrets.** Never print, log, commit or paste a secret value. Key names only. `.env*` files are never read into context.
 
+Agent-side hooks are wired but not observed to fire in Cursor 3; `scripts/governance/run_guards.py` via `.githooks/pre-commit` is the enforcing layer.
+
 ## 5. M&E engine rules (apply under `app/reports/`)
 
 These do not replace THE LAW, THE BOUNDARY or THE SIX BEHAVIOURS.
