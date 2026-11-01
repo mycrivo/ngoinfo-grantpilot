@@ -1,6 +1,9 @@
 fastapi>=0.115.0
 uvicorn>=0.30.0
 pydantic-settings==2.12.0
+# Last green CI resolve (2026-10-08). pydantic 2.14.0 dropped eval_type_backport; mcp 1.19.0 still imports it.
+pydantic==2.13.5
+pydantic-core==2.46.5
 SQLAlchemy==2.0.23
 alembic==1.12.1
 psycopg2-binary==2.9.9
@@ -17,5 +20,5 @@ docling>=2.0.0
 pdf2image>=1.17.0
 pytesseract>=0.3.10
 openpyxl>=3.1.0
-claude-agent-sdk>=0.1.59
+claude-agent-sdk==0.1.81
 anthropic>=0.42.0
